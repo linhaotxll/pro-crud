@@ -1,0 +1,16 @@
+{
+  "globals": {
+    "DefaultFormFieldType": true,
+    "DefaultPreserve": true,
+    "ProComponents": true,
+    "ProForm": true,
+    "ProFormScopeKey": true,
+    "ProFormValueKey": true,
+    "ProSelect": true,
+    "ShowButton": true,
+    "buildForm": true,
+    "proRender": true,
+    "useForm": true,
+    "valueTypeMap": true
+  }
+}
