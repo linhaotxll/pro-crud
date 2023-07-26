@@ -21,6 +21,7 @@ declare module '@vue/runtime-core' {
     ProForm: typeof import('./../../lib/components/ProForm/ProForm.vue')['default']
     ProFormItem: typeof import('./../../lib/components/ProForm/ProFormItem.vue')['default']
     ProRender: typeof import('./../../lib/components/ProRender/ProRender.vue')['default']
+    ProRenderSlots: typeof import('./../../lib/components/ProRender/ProRenderSlots.vue')['default']
     ProSelect: typeof import('./../../lib/components/ProSelect/ProSelect.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']

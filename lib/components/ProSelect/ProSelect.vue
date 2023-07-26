@@ -1,8 +1,8 @@
 <template>
-  <el-select v-model="value" v-bind="resolvedProps" :loading="loading">
+  <el-select v-model="value" v-bind="column.resolvedProps" :loading="loading">
     <el-option
       v-for="opt in options"
-      :key="opt.value"
+      :key="opt.key"
       :value="opt.value"
       :label="opt.label"
     />
@@ -12,22 +12,21 @@
 <script lang="ts" setup>
 import { ref, watch } from 'vue'
 
-import type { DictionaryOption } from '../ProForm'
+import type { InternalProFormColumnOptions } from '../ProForm'
 import type { Ref } from 'vue'
 
 defineOptions({
   name: 'ProSelect',
 })
 
-const value = defineModel()
+const value = defineModel<string | number | boolean | object>()
 
 const props = defineProps<{
-  dict: DictionaryOption
-  resolvedProps: any
+  column: InternalProFormColumnOptions
 }>()
 
 const options = ref([]) as Ref<
-  { label: string; value: string | number | symbol | object }[]
+  { label: string; value: string | number | boolean | object; key: string }[]
 >
 const loading = ref(false)
 
@@ -40,7 +39,7 @@ async function fetchDictionaryList() {
     fetchData,
     labelField = 'label',
     valueField = 'value',
-  } = props.dict
+  } = props.column.dict || {}
   try {
     loading.value = true
     const _fetchData: () => Promise<any[]> = Array.isArray(data)
@@ -50,9 +49,10 @@ async function fetchDictionaryList() {
       : () => Promise.resolve([])
 
     const result = await _fetchData()
-    options.value = result.map(item => ({
+    options.value = result.map((item, i) => ({
       label: item[labelField],
       value: item[valueField],
+      key: `${i}-${item[valueField]}`,
     }))
   } finally {
     loading.value = false
@@ -60,7 +60,7 @@ async function fetchDictionaryList() {
 }
 
 watch(
-  () => props.dict,
+  () => props.column.dict,
   () => {
     fetchDictionaryList()
   },

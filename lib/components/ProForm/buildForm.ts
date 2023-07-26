@@ -98,8 +98,8 @@ export function buildForm<T extends object, C, R = T>(
     row = { gutter: 16 },
     col = { span: 12 },
     buttons,
-    // preserve = true,
     validateFail,
+    submitRequest,
   } = options(scope, ctx)
 
   const values = reactive<T>((cloneDeep(initialValues) as T) ?? ({} as T)) as T
@@ -110,23 +110,15 @@ export function buildForm<T extends object, C, R = T>(
     col,
     formProps,
     initialValues,
-    // preserve,
     buttons: merge(defaultButtons, buttons),
     validateFail,
+    submitRequest,
   }
 
   provide(ProFormValueKey, values)
   provide(ProFormScopeKey, scope)
 
-  /**
-   * 提交表单
-   */
-  // async function submit() {
-  //   // proFormRef.value.
-  // }
-
   return {
-    // values,
     proFormRef,
     formBinding,
   }

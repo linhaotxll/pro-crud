@@ -22,13 +22,30 @@ import type {
 import type { Arrayable } from 'element-plus/es/utils'
 import type { ComputedRef, MaybeRef, Ref, CSSProperties } from 'vue'
 
+// AutoComplete
 export type ElAutoCompleteProps = Partial<
   AutocompleteProps & ToHandles<AutocompleteEmits>
 >
+export type ElAutoCompleteSlots = {
+  default?: (ctx: { item: Record<string, any> }) => JSX.Element
+  prefix?: () => JSX.Element
+  suffix?: () => JSX.Element
+  prepend?: () => JSX.Element
+  append?: () => JSX.Element
+}
+
+// Cascader
 export type ElCascaderProps = Partial<CascaderProps & ToHandles<CascaderEmits>>
 // export type ElCheckboxProps = Partial<CheckboxProps & ToHandles<CheckboxEmits>>
 
+// Input
 export type ElInputProps = Partial<InputProps & ToHandles<InputEmits>>
+export type ElInputSlots = {
+  prefix?: () => JSX.Element
+  suffix?: () => JSX.Element
+  prepend?: () => JSX.Element
+  append?: () => JSX.Element
+}
 
 export type ElColProps = Partial<ColProps>
 export type ElRowProps = Partial<RowProps>
@@ -225,7 +242,12 @@ export interface ProFormColumnOptions {
   /**
    * 表单额外的 props
    */
-  fieldProps?: any
+  fieldProps?: ElInputProps | ElAutoCompleteProps | ElCascaderProps
+
+  /**
+   * 表单插槽
+   */
+  fieldSlots?: ElInputSlots | ElAutoCompleteSlots
 
   /**
    * Form Item 额外的 props
@@ -376,4 +398,4 @@ export interface InternalProFormColumnOptions extends ProFormColumnOptions {
   tooltip?: Tooltip
 }
 
-export type ValueType = 'text' | 'select' | 'auto-complete'
+export type ValueType = 'text' | 'select' | 'auto-complete' | 'cascader'

@@ -3,6 +3,7 @@ export {}
 declare global {
   const DefaultFormFieldType: typeof import('../../lib/components/ProForm/constant')['DefaultFormFieldType']
   const DefaultPreserve: typeof import('../../lib/components/ProForm/constant')['DefaultPreserve']
+  const FormItemRefKey: typeof import('../../lib/components/ProForm/constant')['FormItemRefKey']
   const ProComponents: typeof import('../../lib/index')['ProComponents']
   const ProForm: typeof import('../../lib/components/ProForm/index')['ProForm']
   const ProFormScopeKey: typeof import('../../lib/components/ProForm/constant')['ProFormScopeKey']
@@ -20,6 +21,7 @@ declare module 'vue' {
   interface ComponentCustomProperties {
     readonly DefaultFormFieldType: UnwrapRef<typeof import('../../lib/components/ProForm/constant')['DefaultFormFieldType']>
     readonly DefaultPreserve: UnwrapRef<typeof import('../../lib/components/ProForm/constant')['DefaultPreserve']>
+    readonly FormItemRefKey: UnwrapRef<typeof import('../../lib/components/ProForm/constant')['FormItemRefKey']>
     readonly ProComponents: UnwrapRef<typeof import('../../lib/index')['ProComponents']>
     readonly ProForm: UnwrapRef<typeof import('../../lib/components/ProForm/index')['ProForm']>
     readonly ProFormScopeKey: UnwrapRef<typeof import('../../lib/components/ProForm/constant')['ProFormScopeKey']>

@@ -2,6 +2,7 @@
   "globals": {
     "DefaultFormFieldType": true,
     "DefaultPreserve": true,
+    "FormItemRefKey": true,
     "ProComponents": true,
     "ProForm": true,
     "ProFormScopeKey": true,

@@ -3,8 +3,17 @@
   <component
     :is="valueTypeMap[column.type!][0]"
     v-model="vModel"
-    v-bind="column"
-  />
+    :column="column"
+    v-bind="column.fieldProps"
+  >
+    <template
+      v-for="(render, name) in column.fieldSlots"
+      :key="name"
+      #[name]="ctx"
+    >
+      <pro-render :render="render" :ctx="ctx" />
+    </template>
+  </component>
 </template>
 
 <script lang="ts" setup>

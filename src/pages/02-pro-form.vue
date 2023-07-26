@@ -1,0 +1,434 @@
+<template>
+  <div>
+    <pro-form ref="proFormRef" v-bind="formBinding" />
+  </div>
+</template>
+
+<script lang="tsx" setup>
+import { ref } from 'vue'
+
+import { buildForm } from '~/components/ProForm'
+
+import type { ColProps, RowProps } from 'element-plus'
+import type { ElFormProps } from '~/components/ProForm'
+
+const sleep = (time = 2000) => new Promise(r => setTimeout(r, time))
+
+// const fetchStatusData = async () => {
+//   await sleep()
+//   return [
+//     { statusName: '启用', value: 1 },
+//     { statusName: '禁用', value: 2 },
+//   ]
+// }
+
+interface FormValues {
+  name: string
+}
+
+const formProps = ref<ElFormProps>({
+  labelWidth: '100px',
+  onValidate(p, v, m) {
+    console.log('field change: ', p, v, m)
+  },
+})
+const row = ref<Partial<RowProps>>({ gutter: 8 })
+const col = ref<Partial<ColProps>>({ span: 24 })
+
+// const nameCol = ref<Partial<ColProps>>({ span: 4 })
+// const nameLabel = ref('名称')
+// // const nameType = ref<ValueType>('auto-complete')
+
+// const buttonsShow = ref(true)
+// const buttonConfirmShow = ref(true)
+// const nameProp = ['info', 'name']
+
+const { formBinding, proFormRef } = buildForm<FormValues>(() => {
+  return {
+    row,
+    col,
+    initialValues: { name: '文本内容' },
+    formProps,
+    validateFail(error) {
+      console.log('校验失败: ', error)
+    },
+
+    columns: [
+      {
+        label: '文本',
+        prop: 'name',
+        type: 'text',
+        tooltip: '姓名',
+        itemProps: {
+          rules: { required: true, message: '请填写名称' },
+        },
+        itemSlots: {},
+        fieldProps: {
+          clearable: true,
+          onBlur() {
+            console.log('el-input blur')
+          },
+          onFocus() {
+            console.log('el-input focus')
+          },
+          onChange() {
+            console.log('el-input change')
+          },
+          onInput() {
+            console.log('el-input input')
+          },
+          onClear() {
+            console.log('el-input clear')
+          },
+        },
+        fieldSlots: {
+          prefix: () => <span>prefix</span>,
+          suffix: () => <span>suffix</span>,
+          prepend: () => <span>prepend</span>,
+          append: () => <span>append</span>,
+        },
+      },
+
+      {
+        label: '自动补全',
+        prop: 'auto',
+        type: 'auto-complete',
+        itemProps: {
+          rules: { required: true, message: '请填写' },
+        },
+        fieldProps: {
+          valueKey: 'key',
+          fetchSuggestions(_, cb) {
+            sleep().then(() => {
+              cb([
+                { label: '一', key: 1 },
+                { label: '二', key: 2 },
+              ])
+            })
+          },
+        },
+        fieldSlots: {
+          default: () => {
+            // console.log(ctx.item)
+            return <span>2</span>
+          },
+          prefix: () => <span>prefix</span>,
+          suffix: () => <span>suffix</span>,
+          prepend: () => <span>prepend</span>,
+          append: () => <span>append</span>,
+        },
+      },
+
+      {
+        label: '级联',
+        prop: 'cascader',
+        type: 'cascader',
+        itemProps: {
+          // rules: { required: true, message: '请填写' },
+        },
+        fieldProps: {
+          options: [
+            {
+              value: 'guide',
+              label: 'Guide',
+              children: [
+                {
+                  value: 'disciplines',
+                  label: 'Disciplines',
+                  children: [
+                    {
+                      value: 'consistency',
+                      label: 'Consistency',
+                    },
+                    {
+                      value: 'feedback',
+                      label: 'Feedback',
+                    },
+                    {
+                      value: 'efficiency',
+                      label: 'Efficiency',
+                    },
+                    {
+                      value: 'controllability',
+                      label: 'Controllability',
+                    },
+                  ],
+                },
+                {
+                  value: 'navigation',
+                  label: 'Navigation',
+                  children: [
+                    {
+                      value: 'side nav',
+                      label: 'Side Navigation',
+                    },
+                    {
+                      value: 'top nav',
+                      label: 'Top Navigation',
+                    },
+                  ],
+                },
+              ],
+            },
+            {
+              value: 'component',
+              label: 'Component',
+              children: [
+                {
+                  value: 'basic',
+                  label: 'Basic',
+                  children: [
+                    {
+                      value: 'layout',
+                      label: 'Layout',
+                    },
+                    {
+                      value: 'color',
+                      label: 'Color',
+                    },
+                    {
+                      value: 'typography',
+                      label: 'Typography',
+                    },
+                    {
+                      value: 'icon',
+                      label: 'Icon',
+                    },
+                    {
+                      value: 'button',
+                      label: 'Button',
+                    },
+                  ],
+                },
+                {
+                  value: 'form',
+                  label: 'Form',
+                  children: [
+                    {
+                      value: 'radio',
+                      label: 'Radio',
+                    },
+                    {
+                      value: 'checkbox',
+                      label: 'Checkbox',
+                    },
+                    {
+                      value: 'input',
+                      label: 'Input',
+                    },
+                    {
+                      value: 'input-number',
+                      label: 'InputNumber',
+                    },
+                    {
+                      value: 'select',
+                      label: 'Select',
+                    },
+                    {
+                      value: 'cascader',
+                      label: 'Cascader',
+                    },
+                    {
+                      value: 'switch',
+                      label: 'Switch',
+                    },
+                    {
+                      value: 'slider',
+                      label: 'Slider',
+                    },
+                    {
+                      value: 'time-picker',
+                      label: 'TimePicker',
+                    },
+                    {
+                      value: 'date-picker',
+                      label: 'DatePicker',
+                    },
+                    {
+                      value: 'datetime-picker',
+                      label: 'DateTimePicker',
+                    },
+                    {
+                      value: 'upload',
+                      label: 'Upload',
+                    },
+                    {
+                      value: 'rate',
+                      label: 'Rate',
+                    },
+                    {
+                      value: 'form',
+                      label: 'Form',
+                    },
+                  ],
+                },
+                {
+                  value: 'data',
+                  label: 'Data',
+                  children: [
+                    {
+                      value: 'table',
+                      label: 'Table',
+                    },
+                    {
+                      value: 'tag',
+                      label: 'Tag',
+                    },
+                    {
+                      value: 'progress',
+                      label: 'Progress',
+                    },
+                    {
+                      value: 'tree',
+                      label: 'Tree',
+                    },
+                    {
+                      value: 'pagination',
+                      label: 'Pagination',
+                    },
+                    {
+                      value: 'badge',
+                      label: 'Badge',
+                    },
+                  ],
+                },
+                {
+                  value: 'notice',
+                  label: 'Notice',
+                  children: [
+                    {
+                      value: 'alert',
+                      label: 'Alert',
+                    },
+                    {
+                      value: 'loading',
+                      label: 'Loading',
+                    },
+                    {
+                      value: 'message',
+                      label: 'Message',
+                    },
+                    {
+                      value: 'message-box',
+                      label: 'MessageBox',
+                    },
+                    {
+                      value: 'notification',
+                      label: 'Notification',
+                    },
+                  ],
+                },
+                {
+                  value: 'navigation',
+                  label: 'Navigation',
+                  children: [
+                    {
+                      value: 'menu',
+                      label: 'Menu',
+                    },
+                    {
+                      value: 'tabs',
+                      label: 'Tabs',
+                    },
+                    {
+                      value: 'breadcrumb',
+                      label: 'Breadcrumb',
+                    },
+                    {
+                      value: 'dropdown',
+                      label: 'Dropdown',
+                    },
+                    {
+                      value: 'steps',
+                      label: 'Steps',
+                    },
+                  ],
+                },
+                {
+                  value: 'others',
+                  label: 'Others',
+                  children: [
+                    {
+                      value: 'dialog',
+                      label: 'Dialog',
+                    },
+                    {
+                      value: 'tooltip',
+                      label: 'Tooltip',
+                    },
+                    {
+                      value: 'popover',
+                      label: 'Popover',
+                    },
+                    {
+                      value: 'card',
+                      label: 'Card',
+                    },
+                    {
+                      value: 'carousel',
+                      label: 'Carousel',
+                    },
+                    {
+                      value: 'collapse',
+                      label: 'Collapse',
+                    },
+                  ],
+                },
+              ],
+            },
+            {
+              value: 'resource',
+              label: 'Resource',
+              children: [
+                {
+                  value: 'axure',
+                  label: 'Axure Components',
+                },
+                {
+                  value: 'sketch',
+                  label: 'Sketch Templates',
+                },
+                {
+                  value: 'docs',
+                  label: 'Design Documentation',
+                },
+              ],
+            },
+          ],
+        },
+        fieldSlots: {
+          // default: ctx => {
+          //   console.log(ctx.item)
+          //   return <span>2</span>
+          // },
+          // prefix: () => <span>prefix</span>,
+          // suffix: () => <span>suffix</span>,
+          // prepend: () => <span>prepend</span>,
+          // append: () => <span>append</span>,
+        },
+      },
+
+      // {
+      //   label: '下拉框',
+      //   prop: 'select',
+      //   type: 'select',
+      //   tooltip: '选择',
+      //   itemProps: {
+      //     rules: { required: true, message: '请选择' },
+      //   },
+      //   dict: {
+      //     fetchData: fetchStatusData,
+      //     labelField: 'statusName',
+      //   },
+      //   itemSlots: {},
+      //   fieldProps: {},
+      // },
+    ],
+
+    async submitRequest(values) {
+      console.log('submit: ', values)
+      return true
+    },
+  }
+})
+</script>
