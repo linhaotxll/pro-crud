@@ -1,7 +1,8 @@
-import { cloneDeep, merge } from 'lodash-es'
+import { cloneDeep } from 'lodash-es'
 import { provide, reactive, ref } from 'vue'
 
 import { ProFormScopeKey, ProFormValueKey } from './constant'
+import { useScope } from './useScope'
 
 import type { ProFormInstance, ProFormOptions, ProFormScope } from './interface'
 import type { Ref } from 'vue'
@@ -25,71 +26,10 @@ export function buildForm<T extends object, C, R = T>(
 ): UseFormReturn<T, R> {
   const proFormRef = ref<ProFormInstance | null>(null)
 
-  const scope: ProFormScope<T> = {
-    getFormValues() {
-      return values
-    },
-
-    submit() {
-      return proFormRef.value!.submit()
-    },
-
-    reset(prop) {
-      return proFormRef.value!.reset(prop)
-    },
-
-    resetFields(prop) {
-      return scope.reset(prop)
-    },
-
-    setFieldValue(prop, value) {
-      return proFormRef.value!.setFieldValue(prop, value)
-    },
-
-    setFieldValues(values) {
-      return proFormRef.value!.setFieldValues(values)
-    },
-
-    getFieldValue(prop) {
-      return proFormRef.value!.getFieldValue(prop)
-    },
-
-    removeFields(prop) {
-      return proFormRef.value!.removeFields(prop)
-    },
-
-    validate(callback) {
-      return proFormRef.value!.validate(callback)
-    },
-
-    validateField(props, callback) {
-      return proFormRef.value!.validateField(props, callback)
-    },
-
-    scrollToField(prop) {
-      return proFormRef.value!.scrollToField(prop)
-    },
-
-    clearValidate(props) {
-      return proFormRef.value!.clearValidate(props)
-    },
-
-    getFieldInstance(prop) {
-      return proFormRef.value!.getFieldInstance(prop)
-    },
-  }
-
-  const defaultButtons = {
-    show: true,
-    col: { span: 24 },
-    list: {
-      confirm: {
-        show: true,
-        text: '提交',
-        props: { type: 'primary', onClick: scope.submit },
-      },
-    },
-  }
+  const { scope } = useScope(
+    () => values,
+    () => proFormRef.value!
+  )
 
   const {
     initialValues,
@@ -110,7 +50,7 @@ export function buildForm<T extends object, C, R = T>(
     col,
     formProps,
     initialValues,
-    buttons: merge(defaultButtons, buttons),
+    buttons,
     validateFail,
     submitRequest,
   }

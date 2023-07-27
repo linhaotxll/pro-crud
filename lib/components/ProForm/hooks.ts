@@ -1,6 +1,6 @@
 import { ElMessage, type FormInstance } from 'element-plus'
-import { get, has, set, unset } from 'lodash-es'
-import { computed, provide, ref, unref } from 'vue'
+import { get, has, merge, set, unset } from 'lodash-es'
+import { computed, inject, provide, ref, unref } from 'vue'
 
 import {
   DefaultFormFieldType,
@@ -8,6 +8,7 @@ import {
   FormItemRefKey,
   ShowButton,
 } from './constant'
+import { useScope } from './useScope'
 
 import type {
   ButtonsOption,
@@ -28,6 +29,17 @@ export function useForm<T extends object, R = T>(
   props: ProFormOptions<T, R>,
   values: T
 ) {
+  // 自动生成作用域对象
+  const generateScope = () => {
+    const { scope } = useScope(
+      () => values,
+      () => result
+    )
+
+    return scope
+  }
+  const scope = inject(ProFormScopeKey, generateScope, true)
+
   // el-form ref
   const formRef = ref<FormInstance | null>(null)
 
@@ -79,9 +91,21 @@ export function useForm<T extends object, R = T>(
     })
   })
 
+  const defaultButtons = {
+    show: true,
+    col: { span: 24 },
+    list: {
+      confirm: {
+        show: true,
+        text: '提交',
+        props: { type: 'primary', onClick: scope.submit },
+      },
+    },
+  }
+
   // 解析按钮组配置
   const resolvedButtons = computed(() => {
-    const buttons = props.buttons
+    const buttons = merge(defaultButtons, props.buttons)
 
     const result: ButtonsOption = buttons
       ? {
@@ -238,7 +262,7 @@ export function useForm<T extends object, R = T>(
     return formItemRef.get(prop)?.value ?? null
   }
 
-  return {
+  const result = {
     resolvedColumns,
     resolvedButtons,
     formProps: unref(props.formProps),
@@ -257,4 +281,6 @@ export function useForm<T extends object, R = T>(
     clearValidate,
     getFieldInstance,
   }
+
+  return result
 }
