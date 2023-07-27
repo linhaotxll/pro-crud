@@ -12,7 +12,7 @@ export interface UseFormReturn<T extends object, R = T> {
 }
 
 export function buildForm<T extends object, C = undefined, R = T>(
-  options: (scope: ProFormScope<T>) => ProFormOptions<T, R>
+  options: (scope: ProFormScope<T>, ctx?: C | undefined) => ProFormOptions<T, R>
 ): UseFormReturn<T, R>
 export function buildForm<T extends object, C, R = T>(
   options: (scope: ProFormScope<T>, ctx: C) => ProFormOptions<T, R>,
@@ -95,8 +95,8 @@ export function buildForm<T extends object, C, R = T>(
     initialValues,
     columns,
     formProps,
-    row = { gutter: 16 },
-    col = { span: 12 },
+    row,
+    col,
     buttons,
     validateFail,
     submitRequest,

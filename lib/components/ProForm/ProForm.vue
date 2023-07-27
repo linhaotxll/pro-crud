@@ -50,6 +50,8 @@ defineOptions({
 
 const props = withDefaults(defineProps<ProFormOptions<T, R>>(), {
   preserve: DefaultPreserve,
+  row: () => ({ gutter: 16 }),
+  col: () => ({ span: 24 }),
 })
 
 const {
