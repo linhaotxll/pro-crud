@@ -29,6 +29,10 @@ export function useScope<T extends object>(
       return getCtx().setFieldValues(values)
     },
 
+    setFieldValuesTransform(values) {
+      return getCtx().setFieldValuesTransform(values)
+    },
+
     getFieldValue(prop) {
       return getCtx().getFieldValue(prop)
     },

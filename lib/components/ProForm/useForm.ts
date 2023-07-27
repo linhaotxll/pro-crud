@@ -48,9 +48,12 @@ export function useForm<T extends object, R = T>(
 
   const formItemRef = new Map<FormItemProp, Ref<FormItemInstance>>()
 
+  const resolvedColumnsMap = new Map<
+    FormItemProp,
+    InternalProFormColumnOptions<T>
+  >()
   const resolvedColumns = props.columns.map(column => {
     return computed(() => {
-      console.log(column.prop, '-> changed')
       // 默认 type 类型
       const defaultType: ValueType = unref(column.type ?? DefaultFormFieldType)
 
@@ -87,6 +90,8 @@ export function useForm<T extends object, R = T>(
         resolvedProps,
         show: unref(column.show ?? true),
       }
+
+      resolvedColumnsMap.set(result.prop, result)
 
       return result
     })
@@ -158,7 +163,7 @@ export function useForm<T extends object, R = T>(
     const params = cloneDeep(toRaw(values))
 
     for (const column of resolvedColumns) {
-      const { submitted, prop } = column.value
+      const { submitted, prop, transform } = column.value
 
       // 检测字段是否需要提交上传
       if (
@@ -167,6 +172,11 @@ export function useForm<T extends object, R = T>(
       ) {
         unset(params, prop)
         continue
+      }
+
+      // 表单数据转换为服务端数据
+      if (typeof transform?.to === 'function') {
+        set(params, prop, transform.to(get(params, prop)))
       }
     }
 
@@ -201,17 +211,32 @@ export function useForm<T extends object, R = T>(
   /**
    * 设置表单
    */
-  function setFieldValue(key: FormItemProp, value: any) {
+  function setFieldValue(key: FormItemProp, value: any, transformed = false) {
+    if (transformed) {
+      const column = resolvedColumnsMap.get(key)
+      if (column) {
+        if (typeof column.transform?.from === 'function') {
+          value = column.transform.from(value)
+        }
+      }
+    }
     set(values, key, value)
   }
 
   /**
    * 设置表单多个值
    */
-  function setFieldValues(values: Record<string, any>) {
+  function setFieldValues(values: Record<string, any>, transformed = false) {
     Object.keys(values).forEach(key => {
-      setFieldValue(key, values[key])
+      setFieldValue(key, values[key], transformed)
     })
+  }
+
+  /**
+   * 设置表单多个值，会进行服务端与表单之间的数据转换
+   */
+  function setFieldValuesTransform(values: Record<string, any>) {
+    return setFieldValues(values, true)
   }
 
   /**
@@ -295,6 +320,7 @@ export function useForm<T extends object, R = T>(
     reset,
     setFieldValue,
     setFieldValues,
+    setFieldValuesTransform,
     getFieldValue,
     removeFields,
     validate,

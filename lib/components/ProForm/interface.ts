@@ -164,6 +164,11 @@ export interface ProFormInstance {
   setFieldValues(values: Record<string, any>): void
 
   /**
+   * 设置多个表单字段，会进行服务端与表单之间的数据转换
+   */
+  setFieldValuesTransform(values: Record<string, any>): void
+
+  /**
    * 获取对应字段名的值
    */
   getFieldValue(prop: FormItemProp): any
@@ -277,6 +282,29 @@ export interface ProFormColumnOptions<T extends object> {
    * @default true
    */
   submitted?: boolean | ((scope: ProFormScope<T>) => boolean)
+
+  /**
+   * 服务端数据转换
+   */
+  transform?: {
+    /**
+     * 从服务端接收到的数据转换为表单数据
+     *
+     * @param serverValue 服务端传递的值
+     *
+     * @returns 表单所需要的值
+     */
+    from(serverValue: any): any
+
+    /**
+     * 表单数据转换为服务端所需要的数据
+     *
+     * @param formValue 表单字段的值
+     *
+     * @returns 服务端所需要的值
+     */
+    to(formValue: any): any
+  }
 }
 
 /**
