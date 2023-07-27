@@ -1,6 +1,6 @@
 import { ElMessage, type FormInstance } from 'element-plus'
-import { get, has, merge, set, unset } from 'lodash-es'
-import { computed, inject, provide, ref, unref } from 'vue'
+import { cloneDeep, get, has, merge, set, unset } from 'lodash-es'
+import { computed, inject, provide, ref, toRaw, unref } from 'vue'
 
 import {
   DefaultFormFieldType,
@@ -60,9 +60,10 @@ export function useForm<T extends object, R = T>(
         ...column.fieldProps,
       }
 
-      const result: InternalProFormColumnOptions = {
+      const result: InternalProFormColumnOptions<T> = {
         ...column,
         label: undefined,
+        submitted: column.submitted ?? true,
         preserve:
           (column.preserve != null ? column.preserve : props.preserve) ??
           DefaultPreserve,
@@ -139,10 +140,7 @@ export function useForm<T extends object, R = T>(
     }
 
     // 数据转换
-    const params: R =
-      typeof props.beforeSubmit === 'function'
-        ? await props.beforeSubmit(values)
-        : (values as unknown as R)
+    const params = await beforeSubmit(values)
 
     // 调用接口
     const result = (await props.submitRequest?.(params)) ?? false
@@ -151,6 +149,31 @@ export function useForm<T extends object, R = T>(
     if (result) {
       ElMessage.success('提交成功')
     }
+  }
+
+  /**
+   * 提交表单前参数处理
+   */
+  async function beforeSubmit(values: T) {
+    const params = cloneDeep(toRaw(values))
+
+    for (const column of resolvedColumns) {
+      const { submitted, prop } = column.value
+
+      // 检测字段是否需要提交上传
+      if (
+        submitted === false ||
+        (typeof submitted === 'function' && submitted(scope) === false)
+      ) {
+        unset(params, prop)
+        continue
+      }
+    }
+
+    // 调用用户自定义的处理参数函数
+    return (typeof props.beforeSubmit === 'function'
+      ? await props.beforeSubmit(params)
+      : params) as unknown as R
   }
 
   /**

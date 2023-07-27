@@ -112,7 +112,7 @@ export interface ProFormOptions<T extends object, R = T> {
   /**
    * 列配置
    */
-  columns: ProFormColumnOptions[]
+  columns: ProFormColumnOptions<T>[]
 
   /**
    * 按钮组
@@ -202,7 +202,7 @@ export interface ProFormInstance {
   getFieldInstance(prop: FormItemProp): FormItemInstance | null
 }
 
-export interface ProFormColumnOptions {
+export interface ProFormColumnOptions<T extends object> {
   /**
    * FormItem label
    */
@@ -270,6 +270,13 @@ export interface ProFormColumnOptions {
    * 提示信息
    */
   tooltip?: string | Tooltip
+
+  /**
+   * 是否将字段提交
+   *
+   * @default true
+   */
+  submitted?: boolean | ((scope: ProFormScope<T>) => boolean)
 }
 
 /**
@@ -371,7 +378,8 @@ export interface DictionaryOption {
 /**
  * @internal
  */
-export interface InternalProFormColumnOptions extends ProFormColumnOptions {
+export interface InternalProFormColumnOptions<T extends object>
+  extends ProFormColumnOptions<T> {
   /**
    * 循环时用来指定 key 值
    */

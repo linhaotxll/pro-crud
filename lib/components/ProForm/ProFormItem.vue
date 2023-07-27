@@ -29,7 +29,7 @@
   </el-col>
 </template>
 
-<script lang="ts" setup>
+<script lang="ts" setup generic="T extends object">
 import { Warning } from '@element-plus/icons-vue'
 import { inject, onUnmounted } from 'vue'
 import { ref } from 'vue'
@@ -46,7 +46,7 @@ defineOptions({
 })
 
 const props = defineProps<{
-  column: InternalProFormColumnOptions
+  column: InternalProFormColumnOptions<T>
 }>()
 
 const formItemRef = ref<FormItemInstance | null>(null)
