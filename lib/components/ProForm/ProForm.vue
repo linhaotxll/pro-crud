@@ -38,7 +38,7 @@
 import { inject } from 'vue'
 
 import { DefaultPreserve, ProFormValueKey } from './constant'
-import { useForm } from './hooks'
+import { useForm } from './useForm'
 
 import type { ProFormInstance, ProFormOptions } from './interface'
 
