@@ -6,8 +6,10 @@ import {
   DefaultFormFieldType,
   DefaultPreserve,
   FormItemRefKey,
+  ProFormScopeKey,
   ShowButton,
 } from './constant'
+import { valueTypeMap } from './type'
 import { useScope } from './useScope'
 
 import type {

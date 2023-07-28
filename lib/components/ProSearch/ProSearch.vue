@@ -35,11 +35,14 @@
 </template>
 
 <script lang="ts" setup generic="T extends object, R = T">
-import { inject } from 'vue'
-import { computed } from 'vue'
-import { unref } from 'vue'
+import { inject, computed, unref } from 'vue'
 
-import { useValues } from '../ProForm'
+import {
+  DefaultPreserve,
+  ProFormValueKey,
+  useValues,
+  useForm,
+} from '../ProForm'
 
 import type { ProSearchOptions, ProSearchInstance } from './interface'
 import type { ButtonsOption, ElColProps } from '../ProForm'
