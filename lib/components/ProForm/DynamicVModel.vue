@@ -21,10 +21,10 @@ import { get, set } from 'lodash-es'
 import { computed } from 'vue'
 import { inject } from 'vue'
 
-import { valueTypeMap } from './ProForm'
-import { ProFormValueKey } from './ProForm'
+import { ProFormValueKey } from './constant'
+import { valueTypeMap } from './type'
 
-import type { InternalProFormColumnOptions } from './ProForm'
+import type { InternalProFormColumnOptions } from './interface'
 
 const props = defineProps<{
   column: InternalProFormColumnOptions<T>
