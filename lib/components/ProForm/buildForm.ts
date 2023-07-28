@@ -1,8 +1,8 @@
-import { cloneDeep } from 'lodash-es'
-import { provide, reactive, ref } from 'vue'
+import { provide, ref } from 'vue'
 
 import { ProFormScopeKey, ProFormValueKey } from './constant'
 import { useScope } from './useScope'
+import { useValues } from './useValues'
 
 import type { ProFormInstance, ProFormOptions, ProFormScope } from './interface'
 import type { Ref } from 'vue'
@@ -42,7 +42,7 @@ export function buildForm<T extends object, C, R = T>(
     submitRequest,
   } = options(scope, ctx)
 
-  const values = reactive<T>((cloneDeep(initialValues) as T) ?? ({} as T)) as T
+  const values = useValues(initialValues, columns)
 
   const formBinding: ProFormOptions<T, R> = {
     columns,

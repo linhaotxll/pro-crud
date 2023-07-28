@@ -39,10 +39,9 @@ import { inject } from 'vue'
 
 import { DefaultPreserve, ProFormValueKey } from './constant'
 import { useForm } from './useForm'
+import { useValues } from './useValues'
 
 import type { ProFormInstance, ProFormOptions } from './interface'
-
-const values = inject(ProFormValueKey)
 
 defineOptions({
   name: 'ProForm',
@@ -53,6 +52,12 @@ const props = withDefaults(defineProps<ProFormOptions<T, R>>(), {
   row: () => ({ gutter: 16 }),
   col: () => ({ span: 24 }),
 })
+
+const values = inject(
+  ProFormValueKey,
+  () => useValues(props.initialValues, props.columns),
+  true
+)
 
 const {
   resolvedColumns,
