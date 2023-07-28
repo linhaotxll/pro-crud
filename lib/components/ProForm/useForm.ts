@@ -116,6 +116,7 @@ export function useForm<T extends object, R = T>(
     const result: ButtonsOption = buttons
       ? {
           show: unref(buttons.show),
+          col: unref(buttons.col),
           list: Object.keys(buttons.list ?? {}).reduce<ButtonsOption['list']>(
             (prev, curr) => {
               prev![curr] = {

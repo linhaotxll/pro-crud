@@ -323,7 +323,7 @@ export interface ButtonsOption {
    *
    * @default { span: 24 }
    */
-  col?: ElColProps
+  col?: MaybeRef<ElColProps>
 
   /**
    * 按钮列表
