@@ -6,7 +6,8 @@
   "scripts": {
     "dev": "vite",
     "build": "vue-tsc --noEmit && vite build",
-    "build:types": "ts-node --esm scripts/buildTypes.ts"
+    "build:types": "ts-node --esm scripts/buildTypes.ts",
+    "prepare": "husky install"
   },
   "dependencies": {
     "clone-deep": "^4.0.1",
