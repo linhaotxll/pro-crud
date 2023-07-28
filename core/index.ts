@@ -18,3 +18,7 @@ export const ProComponents: Plugin<ProComponentsOptions> = {
     app.component(ProSelect.name, ProSelect)
   },
 }
+
+export * from './components/ProForm'
+export * from './components/ProSearch'
+export * from './components/ProSelect'

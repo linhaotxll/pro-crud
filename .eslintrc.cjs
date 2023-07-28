@@ -17,6 +17,7 @@ module.exports = {
         'vite.config.ts',
         'unocss.config.ts',
         'postcss.config.ts',
+        'shims.d.ts',
         'scripts/*.ts',
       ],
       env: {
