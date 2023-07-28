@@ -16,7 +16,7 @@
   </component>
 </template>
 
-<script lang="ts" setup>
+<script lang="ts" setup generic="T extends object">
 import { get, set } from 'lodash-es'
 import { computed } from 'vue'
 import { inject } from 'vue'
@@ -27,7 +27,7 @@ import { ProFormValueKey } from './ProForm'
 import type { InternalProFormColumnOptions } from './ProForm'
 
 const props = defineProps<{
-  column: InternalProFormColumnOptions
+  column: InternalProFormColumnOptions<T>
 }>()
 
 const formValues = inject(ProFormValueKey)
