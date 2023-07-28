@@ -9,7 +9,7 @@
   </el-select>
 </template>
 
-<script lang="ts" setup>
+<script lang="ts" setup generic="T extends object">
 import { ref, watch } from 'vue'
 
 import type { InternalProFormColumnOptions } from '../ProForm'
@@ -22,7 +22,7 @@ defineOptions({
 const value = defineModel<string | number | boolean | object>()
 
 const props = defineProps<{
-  column: InternalProFormColumnOptions
+  column: InternalProFormColumnOptions<T>
 }>()
 
 const options = ref([]) as Ref<
