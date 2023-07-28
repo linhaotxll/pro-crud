@@ -50,7 +50,6 @@ module.exports = {
         'plugin:prettier/recommended',
         'plugin:vue/vue3-essential',
         '@vue/eslint-config-typescript',
-        './.eslintrc-auto-import.json',
       ],
       plugins: ['vue', '@typescript-eslint', 'import'],
       parser: 'vue-eslint-parser',
