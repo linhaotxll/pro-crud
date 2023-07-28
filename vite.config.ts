@@ -30,10 +30,10 @@ export default defineConfig({
     }),
 
     dts({
-      compilerOptions: {
-        preserveSymlinks: false,
-      },
-      tsconfigPath: './tsconfig.json',
+      // compilerOptions: {
+      //   preserveSymlinks: true,
+      // },
+      tsconfigPath: './tsconfig.build.json',
     }),
   ],
 
