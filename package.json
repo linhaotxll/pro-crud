@@ -7,7 +7,8 @@
     "dev": "vite",
     "build": "vue-tsc --noEmit && vite build",
     "build:types": "ts-node --esm scripts/buildTypes.ts",
-    "prepare": "husky install"
+    "prepare": "husky install",
+    "lint:js": "eslint --fix --ext .js,.jsx,.ts,.tsx,.vue"
   },
   "dependencies": {
     "clone-deep": "^4.0.1",
