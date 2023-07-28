@@ -36,7 +36,7 @@ module.exports = {
     },
 
     {
-      files: ['src/**/*.{js,jsx,ts,tsx,vue}', 'lib/**/*.{js,jsx,ts,tsx,vue}'],
+      files: ['src/**/*.{js,jsx,ts,tsx,vue}', 'core/**/*.{js,jsx,ts,tsx,vue}'],
       env: {
         node: false,
         browser: true,
