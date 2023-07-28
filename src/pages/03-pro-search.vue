@@ -1,18 +1,20 @@
 <template>
   <div>
-    <pro-form ref="proFormRef" v-bind="formBinding" />
+    <pro-search ref="proSearchRef" v-bind="searchBinding" />
   </div>
 </template>
 
 <script lang="tsx" setup>
 import { ref } from 'vue'
 
-import { buildForm } from '~/components/ProForm'
+// import { buildForm } from '~/components/ProForm'
 
-import type { ColProps, RowProps } from 'element-plus'
-import type { ElFormProps } from '~/components/ProForm'
+// import type { ColProps, RowProps } from 'element-plus'
+import { buildSearch } from '~/components/ProSearch'
 
-const sleep = (time = 2000) => new Promise(r => setTimeout(r, time))
+import type { ElColProps, ElFormProps } from '~/components/ProForm'
+
+// const sleep = (time = 2000) => new Promise(r => setTimeout(r, time))
 
 // const fetchStatusData = async () => {
 //   await sleep()
@@ -32,10 +34,15 @@ const formProps = ref<ElFormProps>({
     console.log('field change: ', p, v, m)
   },
 })
-const row = ref<Partial<RowProps>>({ gutter: 8 })
-const col = ref<Partial<ColProps>>({ span: 24 })
+// const row = ref<Partial<RowProps>>({ gutter: 8 })
+const formCol = ref<Partial<ElColProps>>({ span: 6 })
 
-// const nameCol = ref<Partial<ColProps>>({ span: 4 })
+const nameCol = ref<Partial<ElColProps>>({
+  span: 4,
+  offset: 1,
+  // push: 1,
+  // pull: 1,
+})
 // const nameLabel = ref('名称')
 // // const nameType = ref<ValueType>('auto-complete')
 
@@ -43,10 +50,10 @@ const col = ref<Partial<ColProps>>({ span: 24 })
 // const buttonConfirmShow = ref(true)
 // const nameProp = ['info', 'name']
 
-const { formBinding, proFormRef } = buildForm<FormValues>(scope => {
+const { searchBinding, proSearchRef } = buildSearch<FormValues>(() => {
   return {
-    row,
-    col,
+    // row,
+    col: formCol,
     initialValues: {
       name: '文本内容2',
       cascader: 'guide,disciplines,consistency',
@@ -62,6 +69,7 @@ const { formBinding, proFormRef } = buildForm<FormValues>(scope => {
         prop: 'name',
         type: 'text',
         tooltip: '姓名',
+        col: nameCol,
         itemProps: {
           rules: { required: true, message: '请填写名称' },
         },
@@ -85,42 +93,49 @@ const { formBinding, proFormRef } = buildForm<FormValues>(scope => {
           },
         },
         fieldSlots: {
-          prefix: () => <span>prefix</span>,
-          suffix: () => <span>suffix</span>,
-          prepend: () => <span>prepend</span>,
-          append: () => <span>append</span>,
+          // prefix: () => <span>prefix</span>,
+          // suffix: () => <span>suffix</span>,
+          // prepend: () => <span>prepend</span>,
+          // append: () => <span>append</span>,
         },
       },
 
       {
-        label: '自动补全',
-        prop: 'auto',
-        type: 'auto-complete',
-        itemProps: {
-          rules: { required: true, message: '请填写' },
-        },
-        fieldProps: {
-          valueKey: 'key',
-          fetchSuggestions(_, cb) {
-            sleep().then(() => {
-              cb([
-                { label: '一', key: 1 },
-                { label: '二', key: 2 },
-              ])
-            })
-          },
-        },
-        fieldSlots: {
-          default: () => {
-            // console.log(ctx.item)
-            return <span>2</span>
-          },
-          prefix: () => <span>prefix</span>,
-          suffix: () => <span>suffix</span>,
-          prepend: () => <span>prepend</span>,
-          append: () => <span>append</span>,
-        },
+        label: '文本2',
+        prop: 'name2',
+        type: 'text',
+        tooltip: '姓名2',
       },
+
+      // {
+      //   label: '自动补全',
+      //   prop: 'auto',
+      //   type: 'auto-complete',
+      //   itemProps: {
+      //     rules: { required: true, message: '请填写' },
+      //   },
+      //   fieldProps: {
+      //     valueKey: 'key',
+      //     fetchSuggestions(_, cb) {
+      //       sleep().then(() => {
+      //         cb([
+      //           { label: '一', key: 1 },
+      //           { label: '二', key: 2 },
+      //         ])
+      //       })
+      //     },
+      //   },
+      //   fieldSlots: {
+      //     default: () => {
+      //       // console.log(ctx.item)
+      //       return <span>2</span>
+      //     },
+      //     prefix: () => <span>prefix</span>,
+      //     suffix: () => <span>suffix</span>,
+      //     prepend: () => <span>prepend</span>,
+      //     append: () => <span>append</span>,
+      //   },
+      // },
 
       {
         label: '级联',
@@ -421,24 +436,28 @@ const { formBinding, proFormRef } = buildForm<FormValues>(scope => {
     ],
 
     buttons: {
-      show: true,
-      list: {
-        set: {
-          show: true,
-          text: '从服务端获取数据',
-          props: {
-            onClick() {
-              // debugger
-              // scope.setFieldValue('name', 'aaa')
-              scope.setFieldValuesTransform({
-                cascader: 'guide,disciplines,feedback',
-                auto: 2,
-              })
-            },
-          },
-        },
-      },
+      // col: { span: 6 },
+      // show: true,
+      // list: {
+      //   set: {
+      //     show: true,
+      //     text: '从服务端获取数据',
+      //     props: {
+      //       onClick() {
+      //         // debugger
+      //         // scope.setFieldValue('name', 'aaa')
+      //         scope.setFieldValuesTransform({
+      //           cascader: 'guide,disciplines,feedback',
+      //           auto: 2,
+      //         })
+      //       },
+      //     },
+      //   },
+      // },
     },
+    // toast: {
+    //   type: 'notification',
+    // },
 
     async submitRequest(values) {
       console.log('submit: ', values)
@@ -446,4 +465,6 @@ const { formBinding, proFormRef } = buildForm<FormValues>(scope => {
     },
   }
 })
+
+console.log('searchBinding: ', searchBinding)
 </script>

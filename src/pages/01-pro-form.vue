@@ -26,7 +26,7 @@ import PreviewForm from './preview-form.vue'
 import { buildForm } from '~/components/ProForm'
 
 import type { ColProps, RowProps } from 'element-plus'
-import type { ElFormProps } from '~/components/ProForm'
+import type { ElColProps, ElFormProps } from '~/components/ProForm'
 
 const sleep = (time = 2000) => new Promise(r => setTimeout(r, time))
 
@@ -60,6 +60,7 @@ const nameLabel = ref('名称')
 // const nameType = ref<ValueType>('auto-complete')
 
 const buttonsShow = ref(true)
+const buttonsCol = ref<ElColProps>({ span: 18 })
 const buttonConfirmShow = ref(true)
 const nameProp = ['info', 'name']
 
@@ -119,6 +120,9 @@ const { formBinding, proFormRef } = buildForm<FormValues>(scope => {
             icon: style => <span style={style}>i</span>,
           },
         },
+        submitted(scope) {
+          return scope.getFieldValue('gender') !== 3
+        },
       },
       {
         label: '自定义性别',
@@ -126,6 +130,7 @@ const { formBinding, proFormRef } = buildForm<FormValues>(scope => {
         show: computed(() => {
           return scope.getFormValues().gender === 3
         }),
+        preserve: false,
         itemProps: {
           rules: { required: true, message: '请填写自定义性别' },
         },
@@ -143,6 +148,7 @@ const { formBinding, proFormRef } = buildForm<FormValues>(scope => {
 
     buttons: {
       show: buttonsShow,
+      col: buttonsCol,
       list: {
         confirm: {
           show: buttonConfirmShow,
@@ -237,6 +243,12 @@ const { formBinding, proFormRef } = buildForm<FormValues>(scope => {
           },
         },
       },
+    },
+
+    // toast: false,
+    async submitRequest(values) {
+      console.log('submit: ', values)
+      return true
     },
   }
 })
