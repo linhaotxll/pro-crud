@@ -1,4 +1,4 @@
-import { ElMessage, type FormInstance } from 'element-plus'
+import { ElMessage, ElNotification, type FormInstance } from 'element-plus'
 import { cloneDeep, get, has, merge, set, unset } from 'lodash-es'
 import { computed, inject, provide, ref, toRaw, unref } from 'vue'
 
@@ -14,6 +14,7 @@ import type {
   ButtonsOption,
   InternalProFormColumnOptions,
   ProFormOptions,
+  SuccessToastType,
   ValueType,
 } from './interface'
 import type {
@@ -21,6 +22,8 @@ import type {
   FormItemProp,
   FormValidateCallback,
   FormValidationResult,
+  MessageParams,
+  NotificationParams,
 } from 'element-plus'
 import type { Arrayable } from 'element-plus/es/utils'
 import type { Ref } from 'vue'
@@ -111,7 +114,7 @@ export function useForm<T extends object, R = T>(
 
   // 解析按钮组配置
   const resolvedButtons = computed(() => {
-    const buttons = merge(defaultButtons, props.buttons)
+    const buttons = merge({}, defaultButtons, props.buttons)
 
     const result: ButtonsOption = buttons
       ? {
@@ -130,6 +133,28 @@ export function useForm<T extends object, R = T>(
         }
       : {}
     return result
+  })
+
+  // 解析提示配置
+  const resolvedToast = computed(() => {
+    const toast = unref(props.toast ?? { type: 'message' as SuccessToastType })
+    if (toast === false) {
+      return null
+    }
+
+    let type: SuccessToastType = 'message'
+    let toastProps: MessageParams | NotificationParams = {
+      type: 'success',
+      message: '提交成功',
+    }
+
+    type = toast.type
+    toastProps = merge(toastProps, toast.props)
+
+    return () =>
+      type === 'message'
+        ? ElMessage(toastProps as MessageParams)
+        : ElNotification(toastProps as NotificationParams)
   })
 
   provide(FormItemRefKey, formItemRef)
@@ -152,8 +177,11 @@ export function useForm<T extends object, R = T>(
     const result = (await props.submitRequest?.(params)) ?? false
 
     // 提示
-    if (result) {
-      ElMessage.success('提交成功')
+    const showToast = resolvedToast.value
+    if (showToast !== null) {
+      if (result) {
+        showToast()
+      }
     }
   }
 

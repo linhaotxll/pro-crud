@@ -38,6 +38,7 @@ export function buildForm<T extends object, C, R = T>(
     row,
     col,
     buttons,
+    toast,
     validateFail,
     submitRequest,
   } = options(scope, ctx)
@@ -51,6 +52,7 @@ export function buildForm<T extends object, C, R = T>(
     formProps,
     initialValues,
     buttons,
+    toast,
     validateFail,
     submitRequest,
   }

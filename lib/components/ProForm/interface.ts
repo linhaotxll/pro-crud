@@ -120,6 +120,17 @@ export interface ProFormOptions<T extends object, R = T> {
   buttons?: ButtonsOption
 
   /**
+   * 接口调用成功是否需要提示信息
+   */
+  toast?: MaybeRef<
+    | false
+    | {
+        type: SuccessToastType
+        props?: any
+      }
+  >
+
+  /**
    * 表单提交前触发，可用来转换提交内容
    */
   beforeSubmit?: (values: T) => R | Promise<R>
@@ -134,6 +145,8 @@ export interface ProFormOptions<T extends object, R = T> {
    */
   validateFail?(error: ValidateFieldsError): void
 }
+
+export type SuccessToastType = 'message' | 'notification'
 
 export interface ProFormInstance {
   /**
