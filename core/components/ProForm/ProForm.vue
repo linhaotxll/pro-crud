@@ -35,7 +35,7 @@
 </template>
 
 <script lang="ts" setup generic="T extends object, R">
-import { inject } from 'vue'
+import { inject, watch } from 'vue'
 
 import { DefaultPreserve, ProFormValueKey } from './constant'
 import { useForm } from './useForm'
@@ -78,6 +78,14 @@ const {
   clearValidate,
   getFieldInstance,
 } = useForm(props, values)
+
+watch(
+  formProps,
+  a => {
+    console.log('changed: ', a)
+  },
+  { immidated: true }
+)
 
 defineExpose<ProFormInstance>({
   submit,
