@@ -1,9 +1,13 @@
+import { merge } from 'lodash-es'
 import { computed, unref, ref } from 'vue'
+
+import { DefaultProTableLoading } from './constant'
 
 import { unRef } from '../common'
 
 import type {
   InternalProTableColumnProps,
+  ProTableLoading,
   ProTableProps,
   UseTableReturn,
 } from './interface'
@@ -91,12 +95,27 @@ export function useTable<T>(props: ProTableProps<T>) {
     return result
   })
 
+  const loadingConfig = computed<ProTableLoading>(() => {
+    const originLoading = merge(
+      {},
+      DefaultProTableLoading,
+      unRef(props.loading)
+    )
+    return {
+      visible: loading.value,
+      text: unRef(originLoading?.text),
+      background: unRef(originLoading?.background),
+      spinner: unRef(originLoading?.spinner),
+      svg: unRef(originLoading?.svg),
+    }
+  })
+
   const result: UseTableReturn<T> = {
     resolvedPagination,
     resolvedColumns,
     tableProps,
     tableSlots: props.tableSlots,
-    loading,
+    loadingConfig,
     clearSelection() {
       return tableRef.value?.clearSelection()
     },

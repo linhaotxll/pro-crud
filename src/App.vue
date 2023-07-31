@@ -32,7 +32,8 @@ const routes = router.getRoutes()
 }
 
 .content {
-  flex: 1;
+  overflow: auto;
   height: 100%;
+  flex: 1;
 }
 </style>

@@ -1,3 +1,5 @@
+import type { ProTableLoading } from './interface'
+
 export const ProTableInstanceNames = [
   'reload',
   'reset',
@@ -17,3 +19,7 @@ export const ProTableInstanceNames = [
   'setScrollTop',
   'setScrollLeft',
 ] as const
+
+export const DefaultProTableLoading: Partial<ProTableLoading> = {
+  text: 'loading',
+}

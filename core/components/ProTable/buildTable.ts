@@ -32,8 +32,15 @@ export function buildTable<T, C>(
     return prev
   }, {} as ProTableScope<T>)
 
-  const { columns, data, tableProps, tableSlots, pagination, fetchTableData } =
-    options(scope, ctx)
+  const {
+    columns,
+    data,
+    tableProps,
+    tableSlots,
+    pagination,
+    loading,
+    fetchTableData,
+  } = options(scope, ctx)
 
   const tableBinding: ProTableProps<T> = {
     columns,
@@ -41,6 +48,7 @@ export function buildTable<T, C>(
     tableProps,
     tableSlots,
     pagination,
+    loading,
     fetchTableData,
   }
 

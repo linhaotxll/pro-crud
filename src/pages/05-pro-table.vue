@@ -1,4 +1,7 @@
 <template>
+  <!-- <div>
+    <div>222</div>
+  </div> -->
   <pro-table ref="proTableRef" v-bind="tableBinding" />
 </template>
 
@@ -43,6 +46,8 @@ const { proTableRef, tableBinding } = buildTable<User>(() => ({
     stripe,
     lazy: true,
     rowKey: 'id',
+    // height: 'auto',
+    // maxHeight: '100%',
   },
   tableSlots: {
     empty: () => <div>没东西</div>,
@@ -50,6 +55,9 @@ const { proTableRef, tableBinding } = buildTable<User>(() => ({
       return <div>合集</div>
     },
   },
+  loading: ref({
+    text: ref('加载中'),
+  }),
   pagination: {
     defaultPageSize: 20,
     defaultCurrentPage: 3,

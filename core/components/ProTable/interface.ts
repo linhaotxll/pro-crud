@@ -58,6 +58,22 @@ export type ProTableProps<T> = {
    * 列配置
    */
   columns?: ProTableColumnProps<T>[]
+
+  /**
+   * loading 配置
+   */
+  loading?: MaybeRef<ExtractMaybeRef<Omit<ProTableLoading, 'visible'>>>
+}
+
+/**
+ * ProTable Loading 配置
+ */
+export interface ProTableLoading {
+  visible: boolean
+  text?: string
+  background?: string
+  spinner?: string
+  svg?: string
 }
 
 /**
@@ -241,5 +257,5 @@ export interface UseTableReturn<T> extends ProTableInstance<T> {
 
   tableSlots: TableSlots | undefined
 
-  loading: Ref<boolean>
+  loadingConfig: ComputedRef<ProTableLoading>
 }
