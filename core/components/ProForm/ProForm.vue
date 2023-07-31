@@ -35,7 +35,7 @@
 </template>
 
 <script lang="ts" setup generic="T extends object, R">
-import { inject, watch } from 'vue'
+import { inject } from 'vue'
 
 import { DefaultPreserve, ProFormValueKey } from './constant'
 import { useForm } from './useForm'

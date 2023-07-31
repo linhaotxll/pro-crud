@@ -1,3 +1,4 @@
+import type { MaybeRef, ToHandles } from '../common'
 import type { ValidateFieldsError } from 'async-validator'
 import type {
   AutocompleteEmits,
@@ -20,7 +21,7 @@ import type {
   RowProps,
 } from 'element-plus'
 import type { Arrayable } from 'element-plus/es/utils'
-import type { ComputedRef, MaybeRef, Ref, CSSProperties } from 'vue'
+import type { CSSProperties } from 'vue'
 
 // AutoComplete
 export type ElAutoCompleteProps = Partial<
@@ -64,24 +65,23 @@ export type FieldProps = {
   text: ElInputProps
 }
 
-type ToHandles<T> = {
-  [P in keyof T as P extends string ? `on${Capitalize<P>}` : never]: (
-    ...args: T[P] extends (...args: any) => any ? Parameters<T[P]> : []
-  ) => void
-}
-
+/**
+ * ProForm 作用域
+ */
 export type ProFormScope<T extends object> = {
   getFormValues(): T
 } & ProFormInstance
 
 /**
- *
+ * ProForm props
+ * @param T 表单类型
+ * @param R 表单提交类型
  */
 export interface ProFormOptions<T extends object, R = T> {
   /**
    * 表单额外的配置，不包含 model
    */
-  formProps?: MaybeRef<ElFormProps>
+  formProps?: MaybeRef<Omit<ElFormProps, 'model'>>
 
   /**
    * 表单初始值
@@ -241,7 +241,7 @@ export interface ProFormColumnOptions<T extends object> {
    *
    * @default true
    */
-  show?: boolean | ComputedRef<boolean> | Ref<boolean>
+  show?: MaybeRef<boolean>
 
   /**
    * 表单被删除时是否保留字段值

@@ -1,6 +1,6 @@
 import { ElMessage, ElNotification, type FormInstance } from 'element-plus'
 import { cloneDeep, get, has, merge, set, unset } from 'lodash-es'
-import { computed, inject, provide, ref, toRaw, unref } from 'vue'
+import { computed, inject, provide, ref, toRaw } from 'vue'
 
 import {
   DefaultFormFieldType,
@@ -12,8 +12,11 @@ import {
 import { valueTypeMap } from './type'
 import { useScope } from './useScope'
 
+import { unRef } from '../common'
+
 import type {
   ButtonsOption,
+  ElFormProps,
   InternalProFormColumnOptions,
   ProFormOptions,
   SuccessToastType,
@@ -49,7 +52,7 @@ export function useForm<T extends object, R = T>(
   const formRef = ref<FormInstance | null>(null)
 
   // 通用 el-col 配置
-  const formCol = unref(props.col)
+  const formCol = unRef(props.col)
 
   const formItemRef = new Map<FormItemProp, Ref<FormItemInstance>>()
 
@@ -57,10 +60,11 @@ export function useForm<T extends object, R = T>(
     FormItemProp,
     InternalProFormColumnOptions<T>
   >()
+
   const resolvedColumns = props.columns.map(column => {
     return computed(() => {
       // 默认 type 类型
-      const defaultType: ValueType = unref(column.type ?? DefaultFormFieldType)
+      const defaultType: ValueType = unRef(column.type ?? DefaultFormFieldType)
 
       // 最终给表单传递的 props 集合：type 对应的 props + 用户传入的 props
       const resolvedProps: object | undefined = {
@@ -78,7 +82,7 @@ export function useForm<T extends object, R = T>(
         resolvedKey:
           typeof column.prop === 'string' ? column.prop : column.prop.join('.'),
         itemProps: {
-          label: unref(column.label),
+          label: unRef(column.label),
           prop: column.prop,
           ...column.itemProps,
         },
@@ -89,17 +93,35 @@ export function useForm<T extends object, R = T>(
           : undefined,
         col: {
           ...formCol,
-          ...unref(column.col),
+          ...unRef(column.col),
         },
         type: defaultType,
         resolvedProps,
-        show: unref(column.show ?? true),
+        show: unRef(column.show ?? true),
       }
+
+      delete result.label
 
       resolvedColumnsMap.set(result.prop, result)
 
       return result
     })
+  })
+
+  // 解析表单配置
+  const formProps = computed(() => {
+    const result: ElFormProps = {}
+
+    const originFormProps = unRef(props.formProps)
+
+    if (originFormProps) {
+      Object.keys(originFormProps).forEach(key => {
+        // @ts-ignore
+        result[key] = unRef(originFormProps[key])
+      })
+    }
+
+    return result
   })
 
   const defaultButtons = {
@@ -120,13 +142,13 @@ export function useForm<T extends object, R = T>(
 
     const result: ButtonsOption = buttons
       ? {
-          show: unref(buttons.show),
-          col: unref(buttons.col),
+          show: unRef(buttons.show),
+          col: unRef(buttons.col),
           list: Object.keys(buttons.list ?? {}).reduce<ButtonsOption['list']>(
             (prev, curr) => {
               prev![curr] = {
                 ...buttons.list![curr],
-                show: unref(buttons.list![curr]?.show ?? ShowButton),
+                show: unRef(buttons.list![curr]?.show ?? ShowButton),
               }
               return prev
             },
@@ -139,7 +161,7 @@ export function useForm<T extends object, R = T>(
 
   // 解析提示配置
   const resolvedToast = computed(() => {
-    const toast = unref(props.toast ?? { type: 'message' as SuccessToastType })
+    const toast = unRef(props.toast ?? { type: 'message' as SuccessToastType })
     if (toast === false) {
       return null
     }
@@ -344,8 +366,8 @@ export function useForm<T extends object, R = T>(
   const result = {
     resolvedColumns,
     resolvedButtons,
-    formProps: unref(props.formProps),
-    row: unref(props.row),
+    formProps,
+    row: unRef(props.row),
     formRef,
     submit,
     reset,

@@ -45,20 +45,12 @@ interface FormValues {
   customSex?: string
 }
 
-// const formProps = ref<ElFormProps>({
-//   labelWidth: '100px',
-//   // labelPosition: 'top',
-//   onValidate(p, v, m) {
-//     console.log('field change: ', p, v, m)
-//   },
-// })
 const labelWidth = ref('100px')
 const row = ref<Partial<RowProps>>({ gutter: 8 })
 const col = ref<Partial<ColProps>>({ span: 24 })
 
 const nameCol = ref<Partial<ColProps>>({ span: 4 })
 const nameLabel = ref('名称')
-// const nameType = ref<ValueType>('auto-complete')
 
 const buttonsShow = ref(true)
 const buttonsCol = ref<ElColProps>({ span: 18 })
