@@ -26,7 +26,7 @@ import PreviewForm from './preview-form.vue'
 import { buildForm } from '~/components/ProForm'
 
 import type { ColProps, RowProps } from 'element-plus'
-import type { ElColProps, ElFormProps } from '~/components/ProForm'
+import type { ElColProps } from '~/components/ProForm'
 
 const sleep = (time = 2000) => new Promise(r => setTimeout(r, time))
 

@@ -1,4 +1,4 @@
-import type { MaybeRef, ToHandles } from '../common'
+import type { ExtractMaybeRef, MaybeRef, ToHandles } from '../common'
 import type { ValidateFieldsError } from 'async-validator'
 import type {
   AutocompleteEmits,
@@ -81,7 +81,7 @@ export interface ProFormOptions<T extends object, R = T> {
   /**
    * 表单额外的配置，不包含 model
    */
-  formProps?: MaybeRef<Omit<ElFormProps, 'model'>>
+  formProps?: ExtractMaybeRef<MaybeRef<Omit<ElFormProps, 'model'>>>
 
   /**
    * 表单初始值
