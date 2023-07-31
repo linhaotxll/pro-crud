@@ -1,18 +1,10 @@
 <template>
   <el-table v-loading="loading" v-bind="tableProps">
-    <el-table-column
+    <pro-table-column
       v-for="column in resolvedColumns"
       :key="column.value.columnProps.prop"
-      v-bind="column.value.columnProps"
-    >
-      <template v-if="column.value.columnSlots?.default" #default="ctx">
-        <pro-render :render="column.value.columnSlots?.default" :ctx="ctx" />
-      </template>
-
-      <template v-if="column.value.columnSlots?.header" #header="ctx">
-        <pro-render :render="column.value.columnSlots?.header" :ctx="ctx" />
-      </template>
-    </el-table-column>
+      :column="column.value"
+    />
 
     <template v-if="tableSlots?.empty" #empty>
       <pro-render :render="tableSlots.empty" />

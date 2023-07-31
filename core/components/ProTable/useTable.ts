@@ -1,4 +1,6 @@
-import { computed, unref, ref, isRef } from 'vue'
+import { computed, unref, ref } from 'vue'
+
+import { unRef } from '../common'
 
 import type {
   InternalProTableColumnProps,
@@ -11,10 +13,6 @@ import type { Ref } from 'vue'
 
 const DefaultPageNumber = 1
 const DefaultPageSize = 10
-
-export function toRef<T>(value: MaybeRef<T>): T {
-  return isRef(value) ? value.value : value
-}
 
 export function useTable<T>(props: ProTableProps<T>) {
   const tableRef = ref<TableInstance | null>(null)
@@ -60,17 +58,17 @@ export function useTable<T>(props: ProTableProps<T>) {
       return computed(() => {
         const result: InternalProTableColumnProps<T> = {
           columnProps: {
-            label: toRef(column.label),
-            prop: toRef(column.prop),
+            label: unRef(column.label),
+            prop: unRef(column.prop),
           },
           columnSlots: column.columnSlots,
         }
 
-        const p = toRef(column.columnProps)
+        const p = unRef(column.columnProps)
         if (p) {
           Object.keys(p).forEach(key => {
             // @ts-ignore
-            result.columnProps[key] = toRef(p[key])
+            result.columnProps[key] = unRef(p[key])
           })
         }
 
@@ -87,7 +85,7 @@ export function useTable<T>(props: ProTableProps<T>) {
 
     Object.keys(originTableProps).forEach(key => {
       // @ts-ignore
-      result[key] = toRef(originTableProps[key])
+      result[key] = unRef(originTableProps[key])
     })
 
     return result
@@ -153,7 +151,7 @@ function useFetchTableData<T>(
   originData?: MaybeRef<T[]>,
   fetchTableData?: ProTableProps<T>['fetchTableData']
 ) {
-  const pagination = toRef(paginationConfig)
+  const pagination = unRef(paginationConfig)
 
   const pageNumber = ref(
     pagination !== false
