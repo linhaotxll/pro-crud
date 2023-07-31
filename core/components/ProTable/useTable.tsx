@@ -1,5 +1,5 @@
 import { merge } from 'lodash-es'
-import { computed, unref, ref } from 'vue'
+import { computed, unref, ref, isRef } from 'vue'
 
 import { DefaultProTableLoading } from './constant'
 
@@ -65,7 +65,27 @@ export function useTable<T>(props: ProTableProps<T>) {
             label: unRef(column.label),
             prop: unRef(column.prop),
           },
-          columnSlots: column.columnSlots,
+          // columnSlots: column.columnSlots,
+          columnSlots: {
+            header: column.columnSlots?.header,
+            default: ctx => {
+              const editable = column.editable
+                ? isRef(column.editable)
+                  ? unRef(column.editable)
+                  : typeof column.editable === 'function'
+                  ? column.editable({
+                      row: ctx.row,
+                      index: ctx.$index,
+                      column: ctx.column,
+                      text: null,
+                    })
+                  : false
+                : false
+
+              console.log(1, ctx.column)
+              return <span>{ctx.row[ctx.column.property]}</span>
+            },
+          },
         }
 
         const p = unRef(column.columnProps)

@@ -63,6 +63,26 @@ export type ProTableProps<T> = {
    * loading 配置
    */
   loading?: MaybeRef<ExtractMaybeRef<Omit<ProTableLoading, 'visible'>>>
+
+  /**
+   * 编辑配置
+   */
+  editable?: {
+    /**
+     * 编辑类型：单元格编辑/行编辑
+     */
+    type: 'cell' | 'row'
+
+    /**
+     * 单元格编辑请求
+     */
+    cellEditRequest?(): Promise<void>
+
+    /**
+     * 行编辑请求
+     */
+    rowEditRequest?(): Promise<void>
+  }
 }
 
 /**
@@ -159,6 +179,18 @@ export type ProTableColumnProps<T> = {
    * 字段名
    */
   prop: MaybeRef<string>
+
+  /**
+   * 是否可以编辑
+   */
+  editable?:
+    | MaybeRef<boolean>
+    | ((option: {
+        text: any
+        row: T
+        index: number
+        column: TableColumnCtx<T>
+      }) => boolean)
 }
 
 /**
@@ -258,4 +290,8 @@ export interface UseTableReturn<T> extends ProTableInstance<T> {
   tableSlots: TableSlots | undefined
 
   loadingConfig: ComputedRef<ProTableLoading>
+}
+
+export interface ProTableEditable {
+  startEditable(rowKey: string): void
 }
