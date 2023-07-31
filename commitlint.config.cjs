@@ -13,6 +13,7 @@ module.exports = {
     types: [
       { value: 'feat', name: 'feat:     新增功能 | A new feature' },
       { value: 'fix', name: 'fix:      修复缺陷 | A bug fix' },
+      { value: 'release', name: 'release:  发布版本 | Release version' },
       {
         value: 'docs',
         name: 'docs:     文档更新 | Documentation only changes',
