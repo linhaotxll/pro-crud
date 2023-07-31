@@ -1,10 +1,18 @@
 <template>
-  <el-table v-bind="tableProps">
+  <el-table v-loading="loading" v-bind="tableProps">
     <el-table-column
       v-for="column in resolvedColumns"
-      :key="column.value.prop"
-      v-bind="column.value"
-    />
+      :key="column.value.columnProps.prop"
+      v-bind="column.value.columnProps"
+    >
+      <template v-if="column.value.columnSlots?.default" #default="ctx">
+        <pro-render :render="column.value.columnSlots?.default" :ctx="ctx" />
+      </template>
+
+      <template v-if="column.value.columnSlots?.header" #header="ctx">
+        <pro-render :render="column.value.columnSlots?.header" :ctx="ctx" />
+      </template>
+    </el-table-column>
 
     <template v-if="tableSlots?.empty" #empty>
       <pro-render :render="tableSlots.empty" />
@@ -25,15 +33,22 @@
 <script lang="ts" setup generic="T">
 import { useTable } from './useTable'
 
-import type { ProTableProps } from './interface'
+import type { ProTableProps, ProTableInstance } from './interface'
 
 defineOptions({ name: 'ProTable' })
 
 const p = defineProps<ProTableProps<T>>()
 
-const { resolvedPagination, resolvedColumns, tableProps, tableSlots } =
-  useTable(p)
-// console.log('resolvedPagination: ', resolvedPagination.value)
+const {
+  resolvedPagination,
+  resolvedColumns,
+  tableProps,
+  tableSlots,
+  loading,
+  ...rest
+} = useTable(p)
+
+defineExpose<ProTableInstance<T>>(rest)
 </script>
 
 <style scoped>

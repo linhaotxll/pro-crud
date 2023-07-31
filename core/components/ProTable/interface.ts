@@ -25,25 +25,19 @@ export type ProTableProps<T> = {
   /**
    * ElTable props
    */
-  tableProps?: TableMaybeRefProps<T> & {
+  tableProps?: ExtractMaybeRef<TableMaybeRefProps<T>> & {
     defaultExpandAll?: ElTableProps<T>['defaultExpandAll']
     defaultSort?: ElTableProps<T>['defaultSort']
-  }
+  } & Partial<ToHandles<TableEmit<T>>>
 
   tableSlots?: TableSlots
-  /**
-   * 初始页数
-   *
-   * @default 1
-   */
-  initialPageNumber?: number
 
   /**
    * 每一页个数，优先级高于分页的 pageSize
    *
    * @default 10
    */
-  pageSize?: MaybeRef<number>
+  // pageSize?: MaybeRef<number>
 
   /**
    * 获取数据请求
@@ -51,26 +45,19 @@ export type ProTableProps<T> = {
   fetchTableData?: (
     pageNumber: number,
     pageSize: number
-  ) => FetchTableDataResult<T>
+  ) => Promise<FetchTableDataResult<T>> | FetchTableDataResult<T>
 
   /**
    * 分页配置，false 不显示
    */
-  pagination?: MaybeRef<false | ElPaginationProps>
+  pagination?: MaybeRef<
+    false | Omit<ElPaginationProps, 'pageSize' | 'currentPage' | 'total'>
+  >
 
   /**
    * 列配置
    */
-  columns?: ExtractMaybeRef<ProTableColumnProps<T>>[]
-}
-
-export type ResolvedProTableProps<T> = Omit<
-  ProTableProps<T>,
-  'initialPageNumber' | 'pageSize'
-> & {
-  initialPageNumber: number
-
-  pageSize: MaybeRef<number>
+  columns?: ProTableColumnProps<T>[]
 }
 
 /**
@@ -84,14 +71,14 @@ export type FetchTableDataResult<T> = {
 /**
  * ProTable 组件实例方法
  */
-export interface ProTableInstance {
+export interface ProTableInstance<T> {
   /**
    * 重新加载指定页数数据，默认加载当前页数
    */
-  reload(pageNumber?: number): Promise<void>
+  reload(): Promise<void>
 
   /**
-   * 调回第 1 页重新加载
+   * 恢复默认页重新加载
    */
   reset(): Promise<void>
 
@@ -104,19 +91,23 @@ export interface ProTableInstance {
    * 加载下一页
    */
   next(): Promise<void>
-}
 
-export type UseTableReturn<T> = {
   /**
-   * 解析好的分页配置
+   * ElTable 原始方法
    */
-  resolvedPagination: ComputedRef<false | ElPaginationProps>
-
-  resolvedColumns: ComputedRef<ElTableColumnProps<T>>[]
-
-  tableProps: ComputedRef<ElTableProps<T>>
-
-  tableSlots: TableSlots | undefined
+  clearSelection(): void
+  getSelectionRows(): T[] | undefined
+  toggleRowSelection(row: T, selected: boolean): void
+  toggleAllSelection(): void
+  toggleRowExpansion(row: T, expanded: boolean | undefined): void
+  setCurrentRow(row: T): void
+  clearSort(): void
+  clearFilter(columnKeys: string[]): void
+  doLayout(): void
+  sort(prop: string, order: string): void
+  scrollTo(options: number | ScrollToOptions, yCoord?: number | undefined): void
+  setScrollTop(top: number | undefined): void
+  setScrollLeft(left: number | undefined): void
 }
 
 /**
@@ -126,7 +117,9 @@ export type ProTableColumnProps<T> = {
   /**
    * 列配置
    */
-  columnProps?: ExtractMaybeRef<Omit<ElTableColumnProps<T>, 'label' | 'prop'>>
+  columnProps?: MaybeRef<
+    ExtractMaybeRef<Omit<ElTableColumnProps<T>, 'label' | 'prop'>>
+  >
 
   /**
    * 列插槽
@@ -144,31 +137,109 @@ export type ProTableColumnProps<T> = {
   /**
    * 标题
    */
-  label?: string
+  label?: MaybeRef<string>
 
   /**
    * 字段名
    */
-  prop: string
+  prop: MaybeRef<string>
+}
+
+/**
+ * @internal
+ */
+export interface InternalProTableColumnProps<T> {
+  columnProps: ElTableColumnProps<T>
+
+  columnSlots: ProTableColumnProps<T>['columnSlots']
 }
 
 export type BuildProTableResult<T> = {
-  proTableRef: Ref<ProTableInstance | null>
-  tableBinding: ProTableBinding<T>
+  proTableRef: Ref<ProTableInstance<T> | null>
+  tableBinding: ProTableProps<T>
 }
 
-export type ProTableBinding<T> = {}
-
-export interface ProTableScope<T> {
+export interface ProTableScope<T> extends ProTableInstance<T> {
   //
   name: string
 }
 
 export interface TableEmit<T> {
-  select(): void
+  select(selections: T[], row: T): void
+  selectAll(selections: T[]): void
+  selectionChange(selection: T[]): void
+
+  cellMouseEnter(
+    row: T,
+    column: TableColumnCtx<T>,
+    cell: HTMLTableCellElement,
+    event: MouseEvent
+  ): void
+  cellMouseLeave(
+    row: T,
+    column: TableColumnCtx<T>,
+    cell: HTMLTableCellElement,
+    event: MouseEvent
+  ): void
+  cellClick(
+    row: T,
+    column: TableColumnCtx<T>,
+    cell: HTMLTableCellElement,
+    event: MouseEvent
+  ): void
+  cellDblclick(
+    row: T,
+    column: TableColumnCtx<T>,
+    cell: HTMLTableCellElement,
+    event: MouseEvent
+  ): void
+  cellContextmenu(
+    row: T,
+    column: TableColumnCtx<T>,
+    cell: HTMLTableCellElement,
+    event: MouseEvent
+  ): void
+
+  rowClick(row: T, column: TableColumnCtx<T>, event: PointerEvent): void
+  rowDblclick(row: T, column: TableColumnCtx<T>, event: MouseEvent): void
+  rowContextmenu(row: T, column: TableColumnCtx<T>, event: PointerEvent): void
+
+  headerClick(column: TableColumnCtx<T>, event: PointerEvent): void
+  headerContextmenu(column: TableColumnCtx<T>, event: PointerEvent): void
+
+  sortChange(ctx: {
+    column: TableColumnCtx<T>
+    prop: string
+    order: 'ascending' | 'descending' | null
+  }): void
+
+  filterChange(filters: Record<string, string[]>): void
+
+  currentChange(currentRow: T, oldCurrentRow: T): void
+
+  headerDragend(
+    newWidth: number,
+    oldWidth: number,
+    column: TableColumnCtx<T>,
+    event: MouseEvent
+  ): void
+
+  expandChange(row: T, expanded: T[] | boolean): void
 }
 
 interface TableSlots {
   empty?(): JSX.Element
   append?(): JSX.Element
+}
+
+export interface UseTableReturn<T> extends ProTableInstance<T> {
+  resolvedPagination: ComputedRef<false | ElPaginationProps>
+
+  resolvedColumns: ComputedRef<InternalProTableColumnProps<T>>[]
+
+  tableProps: ComputedRef<TableProps<T>>
+
+  tableSlots: TableSlots | undefined
+
+  loading: Ref<boolean>
 }

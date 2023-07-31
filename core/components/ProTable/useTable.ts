@@ -1,86 +1,76 @@
-import { merge } from 'lodash-es'
-import { computed, unref, ref, isRef, watch } from 'vue'
-
-import {
-  tableColumnPropsNames,
-  tablePropsNameMap,
-  tablePropsNames,
-} from './constant'
+import { computed, unref, ref, isRef } from 'vue'
 
 import type {
-  ElTableColumnProps,
-  ElTableProps,
-  ProTableColumnProps,
+  InternalProTableColumnProps,
   ProTableProps,
-  ResolvedProTableProps,
   UseTableReturn,
 } from './interface'
 import type { MaybeRef } from '../common/interface'
-import type { TableProps } from 'element-plus'
+import type { TableInstance, TableProps } from 'element-plus'
 import type { Ref } from 'vue'
 
-const defaultTableProps: ResolvedProTableProps<unknown> = {
-  initialPageNumber: 1,
-  pageSize: 10,
-}
+const DefaultPageNumber = 1
+const DefaultPageSize = 10
 
 export function toRef<T>(value: MaybeRef<T>): T {
   return isRef(value) ? value.value : value
 }
 
 export function useTable<T>(props: ProTableProps<T>) {
-  const resolvedProps: ResolvedProTableProps<T> = merge(
-    {},
-    defaultTableProps,
-    props
-  )
+  const tableRef = ref<TableInstance | null>(null)
 
-  const { tableProps: originTableProps = {} } = resolvedProps
+  const { tableProps: originTableProps = {} } = props
 
-  // const height = toRef(originTableProps.height)
-
-  const { pageNumber, pageSize, total, data, loading, next, previous } =
-    useFetchTableData(
-      resolvedProps.initialPageNumber,
-      resolvedProps.pageSize,
-      resolvedProps.data,
-      resolvedProps.fetchTableData
-    )
+  const {
+    pageNumber,
+    pageSize,
+    total,
+    data,
+    loading,
+    reload,
+    reset,
+    next,
+    previous,
+  } = useFetchTableData(props.pagination, props.data, props.fetchTableData)
 
   const resolvedPagination = computed(() => {
-    const pagination = unref(resolvedProps.pagination)
+    const pagination = unref(props.pagination)
     if (pagination === false) {
       return false
     }
 
     return {
+      layout: '->, prev, pager, next, jumper',
+      ...pagination,
       pageSize: pageSize.value,
       currentPage: pageNumber.value,
       'onUpdate:currentPage': (pageN: number) => {
-        //
+        reload(pageN)
+      },
+
+      'onUpdate:pageSize'(pageSize: number) {
+        reload(undefined, pageSize)
       },
       total: total.value,
-      ...pagination,
     }
   })
 
   const resolvedColumns =
     props.columns?.map(column => {
       return computed(() => {
-        const result: ElTableColumnProps<T> = {
-          label: toRef(column.label),
-          prop: toRef(column.prop),
+        const result: InternalProTableColumnProps<T> = {
+          columnProps: {
+            label: toRef(column.label),
+            prop: toRef(column.prop),
+          },
+          columnSlots: column.columnSlots,
         }
-
-        console.log('column ', result.prop, ' changed')
 
         const p = toRef(column.columnProps)
         if (p) {
-          tableColumnPropsNames.map(key => {
-            if (p[key] === true) {
-              // @ts-ignore
-              result[key] = toRef(p[key])
-            }
+          Object.keys(p).forEach(key => {
+            // @ts-ignore
+            result.columnProps[key] = toRef(p[key])
           })
         }
 
@@ -89,18 +79,15 @@ export function useTable<T>(props: ProTableProps<T>) {
     }) ?? []
 
   const tableProps = computed(() => {
-    console.log('table props changed')
     const result: TableProps<T> = {
       data: data.value,
       defaultExpandAll: originTableProps.defaultExpandAll,
       defaultSort: originTableProps.defaultSort,
     }
 
-    tablePropsNames.forEach(key => {
-      if (tablePropsNameMap[key] === true) {
-        // @ts-ignore
-        result[key] = toRef(originTableProps[key])
-      }
+    Object.keys(originTableProps).forEach(key => {
+      // @ts-ignore
+      result[key] = toRef(originTableProps[key])
     })
 
     return result
@@ -111,19 +98,75 @@ export function useTable<T>(props: ProTableProps<T>) {
     resolvedColumns,
     tableProps,
     tableSlots: props.tableSlots,
+    loading,
+    clearSelection() {
+      return tableRef.value?.clearSelection()
+    },
+    getSelectionRows() {
+      return tableRef.value?.getSelectionRows() as T[] | undefined
+    },
+    toggleRowSelection(row: T, selected: boolean) {
+      return tableRef.value?.toggleRowExpansion(row, selected)
+    },
+    toggleAllSelection() {
+      return tableRef.value?.toggleAllSelection()
+    },
+    toggleRowExpansion(row: T, expanded: boolean | undefined) {
+      return tableRef.value?.toggleRowExpansion(row, expanded)
+    },
+    setCurrentRow(row: T) {
+      return tableRef.value?.setCurrentRow(row)
+    },
+    clearSort() {
+      return tableRef.value?.clearSort()
+    },
+    clearFilter(columnKeys: string[]) {
+      return tableRef.value?.clearFilter(columnKeys)
+    },
+    doLayout() {
+      return tableRef.value?.doLayout()
+    },
+    sort(prop: string, order: string) {
+      return tableRef.value?.sort(prop, order)
+    },
+    scrollTo(options: number | ScrollToOptions, yCoord?: number | undefined) {
+      return tableRef.value?.scrollTo(options, yCoord)
+    },
+    setScrollTop(top: number | undefined) {
+      return tableRef.value?.setScrollTop(top)
+    },
+    setScrollLeft(left: number | undefined) {
+      return tableRef.value?.setScrollLeft(left)
+    },
+
+    reload,
+    next,
+    previous,
+    reset,
   }
 
   return result
 }
 
 function useFetchTableData<T>(
-  initialPageNumber: number,
-  originPageSize: MaybeRef<number>,
+  paginationConfig: ProTableProps<T>['pagination'],
   originData?: MaybeRef<T[]>,
   fetchTableData?: ProTableProps<T>['fetchTableData']
 ) {
-  const pageNumber = ref(initialPageNumber)
-  const pageSize = computed(() => toRef(originPageSize))
+  const pagination = toRef(paginationConfig)
+
+  const pageNumber = ref(
+    pagination !== false
+      ? pagination?.defaultCurrentPage ?? DefaultPageNumber
+      : DefaultPageNumber
+  )
+  const pageSize = ref(
+    pagination !== false
+      ? pagination?.defaultPageSize ?? DefaultPageSize
+      : DefaultPageSize
+  )
+
+  const initialPageNumber = pageNumber.value
   const total = ref(1)
   const data = ref(unref(originData) ?? []) as Ref<T[]>
   const loading = ref(false)
@@ -144,14 +187,15 @@ function useFetchTableData<T>(
     }
 
     loading.value = true
+    pageNumber.value = pageN
+    pageSize.value = pageS
 
     try {
       const tableResult = await fetchTableData(pageN, pageS)
       const { data: d = [], total: t = 1 } = tableResult ?? {}
 
       data.value = d
-      pageNumber.value = pageN
-      // pageSize.value = pageS
+
       total.value = t
     } finally {
       loading.value = false
@@ -172,5 +216,31 @@ function useFetchTableData<T>(
     return _fetchTableData(pageNumber.value - 1)
   }
 
-  return { pageNumber, pageSize, data, loading, total, next, previous }
+  /**
+   * 重新加载当前页数据
+   */
+  function reload(pageNumber?: number, pageSize?: number) {
+    return _fetchTableData(pageNumber, pageSize)
+  }
+
+  /**
+   * 恢复默认页重新加载
+   */
+  function reset() {
+    return _fetchTableData(initialPageNumber)
+  }
+
+  reload()
+
+  return {
+    pageNumber,
+    pageSize,
+    data,
+    loading,
+    total,
+    reload,
+    reset,
+    next,
+    previous,
+  }
 }

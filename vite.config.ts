@@ -5,6 +5,7 @@ import vueJsx from '@vitejs/plugin-vue-jsx'
 import { transformLazyShow } from 'v-lazy-show'
 import { defineConfig } from 'vite'
 import dts from 'vite-plugin-dts'
+import { viteMockServe } from 'vite-plugin-mock'
 import Pages from 'vite-plugin-pages'
 
 // import { ProComponentsResolver } from './lib/resolveComponents'
@@ -35,6 +36,10 @@ export default defineConfig({
       // },
       tsconfigPath: './tsconfig.build.json',
     }),
+
+    viteMockServe({
+      mockPath: './src/mock',
+    }),
   ],
 
   resolve: {
@@ -42,6 +47,10 @@ export default defineConfig({
       '~/': `${resolve('./core')}/`,
     },
     extensions: ['.ts', '.tsx', '.vue', '.js', '.jsx', '.json'],
+  },
+
+  server: {
+    port: 1000,
   },
 
   build: {

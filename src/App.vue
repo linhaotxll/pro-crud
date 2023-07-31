@@ -23,13 +23,16 @@ const routes = router.getRoutes()
 <style scoped>
 .app {
   display: flex;
+  overflow: auto;
   padding: 16px;
   height: 100%;
   flex-direction: column;
   gap: 16px;
+  box-sizing: border-box;
 }
 
 .content {
   flex: 1;
+  height: 100%;
 }
 </style>

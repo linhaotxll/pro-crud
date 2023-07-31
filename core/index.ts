@@ -1,3 +1,5 @@
+import { vLoading } from 'element-plus'
+
 import { ProForm, ProFormItem, DynamicVModel } from './components/ProForm'
 import { ProRender } from './components/ProRender'
 import { ProSearch } from './components/ProSearch'
@@ -18,6 +20,8 @@ export const ProComponents: Plugin<ProComponentsOptions> = {
     app.component(ProForm.name, ProForm)
     app.component(ProFormItem.name, ProFormItem)
     app.component(ProSelect.name, ProSelect)
+
+    app.directive('v-loading', vLoading)
   },
 }
 

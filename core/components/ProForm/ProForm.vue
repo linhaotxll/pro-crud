@@ -79,14 +79,6 @@ const {
   getFieldInstance,
 } = useForm(props, values)
 
-watch(
-  formProps,
-  a => {
-    console.log('changed: ', a)
-  },
-  { immidated: true }
-)
-
 defineExpose<ProFormInstance>({
   submit,
   reset,

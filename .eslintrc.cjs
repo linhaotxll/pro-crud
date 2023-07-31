@@ -9,6 +9,7 @@ module.exports = {
   globals: {
     defineModel: true,
     JSX: true,
+    ScrollToOptions: true
   },
 
   overrides: [
