@@ -81,7 +81,7 @@ export interface ProFormOptions<T extends object, R = T> {
   /**
    * 表单额外的配置，不包含 model
    */
-  formProps?: ExtractMaybeRef<MaybeRef<Omit<ElFormProps, 'model'>>>
+  formProps?: MaybeRef<ExtractMaybeRef<Omit<ElFormProps, 'model'>>>
 
   /**
    * 表单初始值
