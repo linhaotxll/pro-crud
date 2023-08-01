@@ -1,12 +1,10 @@
 import type { ProFormInstance, ProFormScope } from './interface'
 
-export function useScope<T extends object>(
-  getValue: () => T,
-  getCtx: () => ProFormInstance
-) {
+export function useScope<T extends object>(getCtx: () => ProFormInstance<T>) {
   const scope: ProFormScope<T> = {
     getFormValues() {
-      return getValue()
+      console.log(111, getCtx())
+      return getCtx()?.getFormValues()
     },
 
     submit() {
@@ -62,7 +60,5 @@ export function useScope<T extends object>(
     },
   }
 
-  return {
-    scope,
-  }
+  return scope
 }

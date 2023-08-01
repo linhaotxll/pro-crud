@@ -21,3 +21,19 @@ export const ProFormScopeKey = Symbol() as InjectionKey<ProFormScope<any>>
 export const FormItemRefKey = Symbol() as InjectionKey<
   Map<FormItemProp, Ref<FormItemInstance | null>>
 >
+
+export const ProFormInstanceNames = [
+  'submit',
+  'reset',
+  'resetFields',
+  'setFieldValue',
+  'setFieldValues',
+  'setFieldValuesTransform',
+  'getFieldValue',
+  'removeFields',
+  'validate',
+  'validateField',
+  'scrollToField',
+  'clearValidate',
+  'getFieldInstance',
+] as const

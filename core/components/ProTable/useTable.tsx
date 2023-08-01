@@ -1,5 +1,5 @@
 import { merge } from 'lodash-es'
-import { computed, unref, ref } from 'vue'
+import { computed, unref, ref, nextTick } from 'vue'
 
 import { DefaultProTableLoading } from './constant'
 
@@ -18,7 +18,7 @@ import type { Ref } from 'vue'
 const DefaultPageNumber = 1
 const DefaultPageSize = 10
 
-export function useTable<T>(props: ProTableProps<T>) {
+export function useTable<T extends object>(props: ProTableProps<T>) {
   const tableRef = ref<TableInstance | null>(null)
 
   const { tableProps: originTableProps = {} } = props
@@ -165,7 +165,7 @@ export function useTable<T>(props: ProTableProps<T>) {
   return result
 }
 
-function useFetchTableData<T>(
+function useFetchTableData<T extends object>(
   paginationConfig: ProTableProps<T>['pagination'],
   originData?: MaybeRef<T[]>,
   fetchTableData?: ProTableProps<T>['fetchTableData']
@@ -208,7 +208,9 @@ function useFetchTableData<T>(
     pageSize.value = pageS
 
     try {
-      const tableResult = await fetchTableData(pageN, pageS)
+      const tableResult = await fetchTableData({
+        page: { pageNumber: pageN, pageSize: pageS },
+      })
       const { data: d = [], total: t = 1 } = tableResult ?? {}
 
       data.value = d
@@ -247,7 +249,10 @@ function useFetchTableData<T>(
     return _fetchTableData(initialPageNumber)
   }
 
-  reload()
+  nextTick(() => {
+    // debugger
+    reload()
+  })
 
   return {
     pageNumber,

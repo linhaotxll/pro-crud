@@ -77,9 +77,10 @@ const {
   scrollToField,
   clearValidate,
   getFieldInstance,
+  getFormValues,
 } = useForm(props, values)
 
-defineExpose<ProFormInstance>({
+defineExpose<ProFormInstance<T>>({
   submit,
   reset,
   setFieldValue,
@@ -93,5 +94,6 @@ defineExpose<ProFormInstance>({
   scrollToField,
   clearValidate,
   getFieldInstance,
+  getFormValues,
 })
 </script>

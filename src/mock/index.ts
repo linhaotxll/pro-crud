@@ -17,22 +17,22 @@ const mock: MockMethod[] = [
     url: '/api/user/list',
     method: 'get',
     response(opt) {
-      const { pageSize, pageNumber } = opt.query
-      console.log('mock: ', pageSize, pageNumber)
-      // const len = userList.length / pageSize
-      // const totalPages =
-      //   len - parseInt(`${len}`) > 0 ? parseInt(`${len}`) + 1 : len
-      const newDataList = userList.slice(
-        (pageNumber - 1) * pageSize,
-        pageNumber * pageSize
+      const { pageSize, pageNumber, name } = opt.query
+
+      const newDataList = userList.filter(
+        user => user.name === (name || user.name)
       )
 
       return {
+        code: 200,
         data: {
           pageNumber,
           pageSize,
-          rows: newDataList,
-          total: userList.length,
+          rows: newDataList.slice(
+            (pageNumber - 1) * pageSize,
+            pageNumber * pageSize
+          ),
+          total: newDataList.length,
         },
       }
     },

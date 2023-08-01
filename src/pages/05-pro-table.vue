@@ -33,10 +33,10 @@ interface Data<T> {
 
 const sleep = () => new Promise(r => setTimeout(r, 2000))
 const { proTableRef, tableBinding } = buildTable<User>(() => ({
-  async fetchTableData(pageNumber, pageSize) {
+  async fetchTableData(query) {
     await sleep()
     const result = await axios.get<Data<User>>('/api/user/list', {
-      params: { pageNumber, pageSize },
+      params: query.page,
     })
     const { rows, total } = result.data.data
     return { data: rows, total: total }

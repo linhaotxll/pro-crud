@@ -35,8 +35,9 @@
 </template>
 
 <script lang="ts" setup generic="T extends object, R = T">
-import { inject, computed, unref } from 'vue'
+import { inject, computed } from 'vue'
 
+import { unRef } from '../common'
 import {
   DefaultPreserve,
   ProFormValueKey,
@@ -82,6 +83,7 @@ const {
   scrollToField,
   clearValidate,
   getFieldInstance,
+  getFormValues,
 } = useForm(
   {
     ...props,
@@ -95,10 +97,10 @@ const searchButtons = computed<
   Omit<ButtonsOption, 'col'> & { col: ElColProps }
 >(() => {
   const resolved = resolvedButtons.value
-  const { span = 4 } = unref(resolved.col) ?? {}
+  const { span = 4 } = unRef(resolved.col) ?? {}
   const total = resolvedColumns.reduce<number>((prev, columnComputed) => {
     const column = columnComputed.value
-    const columnCol = unref(column.col!)
+    const columnCol = unRef(column.col!)
 
     const columnTotal =
       (columnCol.span ?? defaultColSpan) + (columnCol.offset ?? 0)
@@ -157,5 +159,6 @@ defineExpose<ProSearchInstance>({
   scrollToField,
   clearValidate,
   getFieldInstance,
+  getFormValues,
 })
 </script>

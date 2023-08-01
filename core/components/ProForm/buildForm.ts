@@ -8,7 +8,7 @@ import type { ProFormInstance, ProFormOptions, ProFormScope } from './interface'
 import type { Ref } from 'vue'
 
 export interface UseFormReturn<T extends object, R = T> {
-  proFormRef: Ref<ProFormInstance | null>
+  proFormRef: Ref<ProFormInstance<T> | null>
   formBinding: ProFormOptions<T, R>
 }
 
@@ -24,12 +24,9 @@ export function buildForm<T extends object, C, R = T>(
   options: (scope: ProFormScope<T>, ctx?: C) => ProFormOptions<T, R>,
   ctx?: C
 ): UseFormReturn<T, R> {
-  const proFormRef = ref<ProFormInstance | null>(null)
+  const proFormRef = ref<ProFormInstance<T> | null>(null)
 
-  const { scope } = useScope(
-    () => values,
-    () => proFormRef.value!
-  )
+  const scope = useScope(() => proFormRef.value!)
 
   const {
     initialValues,

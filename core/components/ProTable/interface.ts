@@ -16,7 +16,7 @@ export type TableMaybeRefProps<T> = Omit<
 /**
  * ProTable props
  */
-export type ProTableProps<T> = {
+export type ProTableProps<T extends object> = {
   /**
    * 数据源(不推荐)
    */
@@ -30,22 +30,15 @@ export type ProTableProps<T> = {
     defaultSort?: ElTableProps<T>['defaultSort']
   } & Partial<ToHandles<TableEmit<T>>>
 
-  tableSlots?: TableSlots
-
   /**
-   * 每一页个数，优先级高于分页的 pageSize
-   *
-   * @default 10
+   * ElTable 插槽
    */
-  // pageSize?: MaybeRef<number>
+  tableSlots?: TableSlots
 
   /**
    * 获取数据请求
    */
-  fetchTableData?: (
-    pageNumber: number,
-    pageSize: number
-  ) => Promise<FetchTableDataResult<T>> | FetchTableDataResult<T>
+  fetchTableData?: FetchTableListRequest<T>
 
   /**
    * 分页配置，false 不显示
@@ -94,6 +87,17 @@ export interface ProTableLoading {
   background?: string
   spinner?: string
   svg?: string
+}
+
+export type FetchTableListRequest<T extends object> = (
+  query: FetchTableListQuery
+) => Promise<FetchTableDataResult<T>> | FetchTableDataResult<T>
+
+export type FetchTableListQuery = {
+  page: {
+    pageNumber: number
+    pageSize: number
+  }
 }
 
 /**
@@ -202,15 +206,12 @@ export interface InternalProTableColumnProps<T> {
   columnSlots: ProTableColumnProps<T>['columnSlots']
 }
 
-export type BuildProTableResult<T> = {
+export type BuildProTableResult<T extends object> = {
   proTableRef: Ref<ProTableInstance<T> | null>
   tableBinding: ProTableProps<T>
 }
 
-export interface ProTableScope<T> extends ProTableInstance<T> {
-  //
-  name: string
-}
+export type ProTableScope<T> = ProTableInstance<T>
 
 export interface TableEmit<T> {
   select(selections: T[], row: T): void

@@ -39,10 +39,7 @@ export function useForm<T extends object, R = T>(
 ) {
   // 自动生成作用域对象
   const generateScope = () => {
-    const { scope } = useScope(
-      () => values,
-      () => result
-    )
+    const scope = useScope(() => result)
 
     return scope
   }
@@ -363,6 +360,13 @@ export function useForm<T extends object, R = T>(
     return formItemRef.get(prop)?.value ?? null
   }
 
+  /**
+   * 获取表单值
+   */
+  function getFormValues() {
+    return values
+  }
+
   const result = {
     resolvedColumns,
     resolvedButtons,
@@ -382,6 +386,7 @@ export function useForm<T extends object, R = T>(
     scrollToField,
     clearValidate,
     getFieldInstance,
+    getFormValues,
   }
 
   return result

@@ -68,9 +68,7 @@ export type FieldProps = {
 /**
  * ProForm 作用域
  */
-export type ProFormScope<T extends object> = {
-  getFormValues(): T
-} & ProFormInstance
+export type ProFormScope<T extends object> = ProFormInstance<T>
 
 /**
  * ProForm props
@@ -148,7 +146,12 @@ export interface ProFormOptions<T extends object, R = T> {
 
 export type SuccessToastType = 'message' | 'notification'
 
-export interface ProFormInstance {
+export interface ProFormInstance<T extends object> {
+  /**
+   * 获取表单值
+   */
+  getFormValues(): T | undefined
+
   /**
    * 提交表单
    */

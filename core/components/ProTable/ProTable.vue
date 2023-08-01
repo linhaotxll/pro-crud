@@ -32,7 +32,7 @@
   </div>
 </template>
 
-<script lang="ts" setup generic="T">
+<script lang="ts" setup generic="T extends object">
 import { useTable } from './useTable'
 
 import type { ProTableProps, ProTableInstance } from './interface'

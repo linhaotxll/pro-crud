@@ -1,5 +1,6 @@
 import { vLoading } from 'element-plus'
 
+import { ProCrud } from './components/ProCrud'
 import { ProForm, ProFormItem, DynamicVModel } from './components/ProForm'
 import { ProRender } from './components/ProRender'
 import { ProSearch } from './components/ProSearch'
@@ -13,6 +14,7 @@ export interface ProComponentsOptions {}
 
 export const ProComponents: Plugin<ProComponentsOptions> = {
   install(app) {
+    app.component(ProCrud.name, ProCrud)
     app.component(ProTable.name, ProTable)
     app.component(ProTableColumn.name, ProTableColumn)
     app.component(ProRender.name, ProRender)
