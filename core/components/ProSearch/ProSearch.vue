@@ -64,34 +64,15 @@ const values = inject(
   true
 )
 
-const {
-  resolvedColumns,
-  resolvedButtons,
-  formProps,
-  row,
-  formRef,
-  submit,
-  reset,
-  setFieldValue,
-  setFieldValues,
-  setFieldValuesTransform,
-  getFieldValue,
-  removeFields,
-  validate,
-  validateField,
-  resetFields,
-  scrollToField,
-  clearValidate,
-  getFieldInstance,
-  getFormValues,
-} = useForm(
-  {
-    ...props,
-    toast: props.toast ?? false,
-    buttons: { col: { span: 4 }, ...props.buttons },
-  },
-  values
-)
+const { resolvedColumns, resolvedButtons, formProps, row, formRef, ...rest } =
+  useForm(
+    {
+      ...props,
+      toast: props.toast ?? false,
+      buttons: { col: { span: 4 }, ...props.buttons },
+    },
+    values
+  )
 
 const searchButtons = computed<
   Omit<ButtonsOption, 'col'> & { col: ElColProps }
@@ -137,7 +118,7 @@ const searchButtons = computed<
         text: '重置',
         props: {
           onClick: () => {
-            resetFields()
+            rest.resetFields()
           },
         },
       },
@@ -145,20 +126,7 @@ const searchButtons = computed<
   }
 })
 
-defineExpose<ProSearchInstance>({
-  submit,
-  reset,
-  setFieldValue,
-  setFieldValues,
-  setFieldValuesTransform,
-  getFieldValue,
-  removeFields,
-  validate,
-  validateField,
-  resetFields,
-  scrollToField,
-  clearValidate,
-  getFieldInstance,
-  getFormValues,
+defineExpose<ProSearchInstance<T>>({
+  ...rest,
 })
 </script>

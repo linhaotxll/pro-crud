@@ -58,42 +58,10 @@ const values = inject(
   true
 )
 
-const {
-  resolvedColumns,
-  resolvedButtons,
-  formProps,
-  row,
-  formRef,
-  submit,
-  reset,
-  setFieldValue,
-  setFieldValues,
-  setFieldValuesTransform,
-  getFieldValue,
-  removeFields,
-  validate,
-  validateField,
-  resetFields,
-  scrollToField,
-  clearValidate,
-  getFieldInstance,
-  getFormValues,
-} = useForm(props, values)
+const { resolvedColumns, resolvedButtons, formProps, row, formRef, ...rest } =
+  useForm(props, values)
 
 defineExpose<ProFormInstance<T>>({
-  submit,
-  reset,
-  setFieldValue,
-  setFieldValues,
-  setFieldValuesTransform,
-  getFieldValue,
-  removeFields,
-  validate,
-  validateField,
-  resetFields,
-  scrollToField,
-  clearValidate,
-  getFieldInstance,
-  getFormValues,
+  ...rest,
 })
 </script>

@@ -36,4 +36,5 @@ export const ProFormInstanceNames = [
   'scrollToField',
   'clearValidate',
   'getFieldInstance',
+  'getFormValues',
 ] as const
