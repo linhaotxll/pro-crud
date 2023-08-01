@@ -64,25 +64,25 @@ export type ProTableProps<T> = {
    */
   loading?: MaybeRef<ExtractMaybeRef<Omit<ProTableLoading, 'visible'>>>
 
-  /**
-   * 编辑配置
-   */
-  editable?: {
-    /**
-     * 编辑类型：单元格编辑/行编辑
-     */
-    type: 'cell' | 'row'
+  // /**
+  //  * 编辑配置
+  //  */
+  // editable?: {
+  //   /**
+  //    * 编辑类型：单元格编辑/行编辑
+  //    */
+  //   type: 'cell' | 'row'
 
-    /**
-     * 单元格编辑请求
-     */
-    cellEditRequest?(): Promise<void>
+  //   /**
+  //    * 单元格编辑请求
+  //    */
+  //   cellEditRequest?(): Promise<void>
 
-    /**
-     * 行编辑请求
-     */
-    rowEditRequest?(): Promise<void>
-  }
+  //   /**
+  //    * 行编辑请求
+  //    */
+  //   rowEditRequest?(): Promise<void>
+  // }
 }
 
 /**
@@ -180,17 +180,17 @@ export type ProTableColumnProps<T> = {
    */
   prop: MaybeRef<string>
 
-  /**
-   * 是否可以编辑
-   */
-  editable?:
-    | MaybeRef<boolean>
-    | ((option: {
-        text: any
-        row: T
-        index: number
-        column: TableColumnCtx<T>
-      }) => boolean)
+  // /**
+  //  * 是否可以编辑
+  //  */
+  // editable?:
+  //   | MaybeRef<boolean>
+  //   | ((option: {
+  //       text: any
+  //       row: T
+  //       index: number
+  //       column: TableColumnCtx<T>
+  //     }) => boolean)
 }
 
 /**
@@ -292,6 +292,6 @@ export interface UseTableReturn<T> extends ProTableInstance<T> {
   loadingConfig: ComputedRef<ProTableLoading>
 }
 
-export interface ProTableEditable {
-  startEditable(rowKey: string): void
-}
+// export interface ProTableEditable {
+//   startEditable(rowKey: string): void
+// }
