@@ -1,7 +1,7 @@
 <template>
   <div class="pro-table-container">
     <div class="pro-table-top">
-      <div></div>
+      <div class="pro-table-actionbar"></div>
 
       <div
         v-if="toolbar.value.show"
@@ -9,12 +9,17 @@
         :class="toolbar.value.class"
         :style="toolbar.value.style"
       >
-        <el-space>
+        <el-space v-bind="toolbar.value.space">
           <div v-for="(item, i) in toolbar.value.list" :key="i">
-            <pro-render v-if="item.render" />
-            <el-icon v-else v-bind="item.props">
-              <component :is="item.icon" />
-            </el-icon>
+            <el-tooltip v-if="item.tooltip.show" v-bind="item.tooltip">
+              <pro-render v-if="item.render" :render="item.render" />
+              <el-button v-else v-bind="item.props"></el-button>
+            </el-tooltip>
+
+            <template v-else>
+              <pro-render v-if="item.render" :render="item.render" />
+              <el-button v-else v-bind="item.props"></el-button>
+            </template>
           </div>
         </el-space>
       </div>
@@ -79,6 +84,11 @@ defineExpose<ProTableInstance<T>>({
 .pro-table-top {
   display: flex;
   justify-content: space-between;
+}
+
+.pro-table-toolbar,
+.pro-table-actionbar {
+  margin-bottom: 16px;
 }
 
 .pro-pagination {

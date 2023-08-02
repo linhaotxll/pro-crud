@@ -1,9 +1,11 @@
 import type {
-  ElIconProps,
+  ElButtonProps,
   ElPaginationProps,
   ElTableColumnProps,
   ElTableProps,
   TableEmit,
+  ElTooltipProps,
+  ElSpaceProps,
 } from '../common'
 import type { ExtractMaybeRef, MaybeRef, ToHandles } from '../common/interface'
 import type { TableColumnCtx, TableProps } from 'element-plus'
@@ -242,6 +244,11 @@ export interface ProTableToolbarOption {
   show?: MaybeRef<boolean>
 
   /**
+   * 间距配置
+   */
+  space?: MaybeRef<ElSpaceProps>
+
+  /**
    * 操作列表
    */
   list?: {
@@ -287,19 +294,14 @@ export interface ToolbarOption {
   order?: MaybeRef<number>
 
   /**
-   * 图标名
+   * button 配置
    */
-  icon: string
+  props?: ElButtonProps
 
   /**
-   * 是否需要背景色
+   * 提示 配置
    */
-  background: MaybeRef<false | string>
-
-  /**
-   * icon 配置
-   */
-  props?: ElIconProps & { onClick?: (e: MouseEvent) => void }
+  tooltip?: ToolbarOptionTooltip
 
   /**
    * 自定义渲染操作
@@ -307,9 +309,18 @@ export interface ToolbarOption {
   render?: () => JSX.Element
 }
 
+/**
+ * toolbar 按钮 tooltip 配置
+ */
+export interface ToolbarOptionTooltip extends ElTooltipProps {
+  show?: MaybeRef<boolean>
+}
+
 export interface InternalProTableToolbarOption {
   show: boolean
   list: ToolbarOption[]
   style?: string | CSSProperties
   class?: string | string[] | Record<string, boolean>
+  tooltip?: ElTooltipProps
+  space: ElSpaceProps
 }

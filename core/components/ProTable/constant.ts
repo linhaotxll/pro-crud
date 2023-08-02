@@ -1,4 +1,5 @@
-import type { ProTableLoading } from './interface'
+import type { ProTableLoading, ToolbarOption } from './interface'
+import type { ElSpaceProps } from '../common'
 import type { TableInstance } from 'element-plus'
 import type { InjectionKey, Ref } from 'vue'
 
@@ -27,3 +28,17 @@ export const DefaultProTableLoading: Partial<ProTableLoading> = {
 
 export const DefaultPageNumber = 1
 export const DefaultPageSize = 10
+
+// 默认 toolbar 按钮配置
+export const DefaultToolbarTooltip: ToolbarOption = {
+  show: true,
+  order: 1,
+  tooltip: { placement: 'top', show: true },
+  props: {
+    type: 'primary',
+    circle: true,
+  },
+}
+
+// toolbar 默认间距配置
+export const DefaultToolbarSpace: ElSpaceProps = { size: 16 }

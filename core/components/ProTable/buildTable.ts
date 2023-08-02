@@ -7,6 +7,8 @@ import {
   DefaultProTableLoading,
   ElTableRefKey,
   ElTableInstanceNames,
+  DefaultToolbarTooltip,
+  DefaultToolbarSpace,
 } from './constant'
 
 import { unRef } from '../common'
@@ -208,11 +210,9 @@ export function buildTable<T extends object, C>(
     show: true,
     list: {
       reload: {
-        show: true,
-        order: 1,
-        icon: 'Refresh',
+        tooltip: { content: '刷新' },
         props: {
-          size: 30,
+          icon: 'Refresh',
           onClick: () => {
             scope.reload()
           },
@@ -220,12 +220,9 @@ export function buildTable<T extends object, C>(
       },
 
       export: {
-        show: true,
-        order: 1,
-        icon: 'UploadFilled',
+        tooltip: { content: '导出' },
         props: {
-          size: 30,
-
+          icon: 'UploadFilled',
           onClick: () => {
             scope.reload()
           },
@@ -233,11 +230,9 @@ export function buildTable<T extends object, C>(
       },
 
       settings: {
-        show: true,
-        order: 1,
-        icon: 'Tools',
+        tooltip: { content: '设置' },
         props: {
-          size: 30,
+          icon: 'Tools',
           onClick: () => {
             // scope.reload()
           },
@@ -248,16 +243,30 @@ export function buildTable<T extends object, C>(
 
   // 解析 toolbar
   const resolvedToolbar = computed<InternalProTableToolbarOption>(() => {
+    console.log('解析 toolbar')
     const toolbar = merge({}, defaultToolbar, unRef(originToolbar))
     const toolbarShow = unRef(toolbar.show!)
+    const space = unRef(toolbar.space)
 
+    // debugger
     const list = Object.keys(toolbar.list ?? {})
-      .map(key => toolbar.list![key]!)
+      .map(key => {
+        const show = unRef(
+          toolbar.list![key]!.tooltip?.show ??
+            DefaultToolbarTooltip.tooltip!.show!
+        )
+        return merge({}, DefaultToolbarTooltip, toolbar.list![key]!, {
+          tooltip: { show },
+        })
+      })
       .sort((a, b) => (unRef(a.order) ?? 1) - (unRef(b.order) ?? 1))
+
+    console.log('list: ', list)
 
     return {
       show: toolbarShow,
       list,
+      space: merge({}, DefaultToolbarSpace, space),
     }
   })
 

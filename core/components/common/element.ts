@@ -17,6 +17,8 @@ import type {
   ButtonProps,
   ButtonEmits,
   IconProps,
+  ElTooltipProps as TooltipProps,
+  SpaceProps,
 } from 'element-plus'
 
 // AutoComplete
@@ -123,3 +125,9 @@ export interface TableEmit<T> {
 
 // Icon
 export type ElIconProps = Partial<IconProps>
+
+// Tooltip
+export type ElTooltipProps = Partial<TooltipProps>
+
+// Space
+export type ElSpaceProps = Partial<SpaceProps>

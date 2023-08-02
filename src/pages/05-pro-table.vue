@@ -2,6 +2,9 @@
   <!-- <div>
     <div>222</div>
   </div> -->
+
+  <el-button @click="searchBarShow = !searchBarShow">切换 search bar</el-button>
+
   <pro-table ref="proTableRef" v-bind="proTableBinding" />
 </template>
 
@@ -13,6 +16,7 @@ import { buildTable } from '~/components/ProTable'
 
 const border = ref(false)
 const stripe = ref(true)
+const searchBarShow = ref(false)
 
 interface User {
   id: string
@@ -92,6 +96,20 @@ const { proTableRef, proTableBinding } = buildTable<User>(() => ({
       })
       const { rows, total } = result.data.data
       return { data: rows, total: total }
+    },
+  },
+
+  toolbar: {
+    list: {
+      search: {
+        props: {
+          icon: 'Refresh',
+        },
+        tooltip: {
+          show: searchBarShow,
+          content: '搜索',
+        },
+      },
     },
   },
 }))
