@@ -2,7 +2,7 @@
   <!-- <div>
     <div>222</div>
   </div> -->
-  <pro-table ref="proTableRef" v-bind="tableBinding" />
+  <pro-table ref="proTableRef" v-bind="proTableBinding" />
 </template>
 
 <script lang="tsx" setup>
@@ -32,15 +32,7 @@ interface Data<T> {
 }
 
 const sleep = () => new Promise(r => setTimeout(r, 2000))
-const { proTableRef, tableBinding } = buildTable<User>(() => ({
-  async fetchTableData(query) {
-    await sleep()
-    const result = await axios.get<Data<User>>('/api/user/list', {
-      params: query.page,
-    })
-    const { rows, total } = result.data.data
-    return { data: rows, total: total }
-  },
+const { proTableRef, proTableBinding } = buildTable<User>(() => ({
   tableProps: {
     border,
     stripe,
@@ -92,5 +84,17 @@ const { proTableRef, tableBinding } = buildTable<User>(() => ({
       prop: 'desc',
     },
   ],
+  request: {
+    async fetchTableData(query) {
+      await sleep()
+      const result = await axios.get<Data<User>>('/api/user/list', {
+        params: query.page,
+      })
+      const { rows, total } = result.data.data
+      return { data: rows, total: total }
+    },
+  },
 }))
+
+console.log('proTableBinding: ', proTableBinding)
 </script>

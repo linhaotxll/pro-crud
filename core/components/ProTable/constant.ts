@@ -1,10 +1,11 @@
 import type { ProTableLoading } from './interface'
+import type { TableInstance } from 'element-plus'
+import type { InjectionKey, Ref } from 'vue'
 
-export const ProTableInstanceNames = [
-  'reload',
-  'reset',
-  'previous',
-  'next',
+// ElTableRef 的 key
+export const ElTableRefKey = Symbol() as InjectionKey<Ref<TableInstance | null>>
+
+export const ElTableInstanceNames = [
   'clearSelection',
   'getSelectionRows',
   'toggleRowSelection',
@@ -23,3 +24,6 @@ export const ProTableInstanceNames = [
 export const DefaultProTableLoading: Partial<ProTableLoading> = {
   text: 'loading',
 }
+
+export const DefaultPageNumber = 1
+export const DefaultPageSize = 10

@@ -1,4 +1,5 @@
-import { vLoading } from 'element-plus'
+import { UploadFilled, Tools, Refresh } from '@element-plus/icons-vue'
+import { vLoading, ElSpace, ElIcon } from 'element-plus'
 
 import { ProCrud } from './components/ProCrud'
 import { ProForm, ProFormItem, DynamicVModel } from './components/ProForm'
@@ -23,6 +24,12 @@ export const ProComponents: Plugin<ProComponentsOptions> = {
     app.component(ProForm.name, ProForm)
     app.component(ProFormItem.name, ProFormItem)
     app.component(ProSelect.name, ProSelect)
+
+    app.component(Refresh.name, Refresh)
+    app.component(Tools.name, Tools)
+    app.component(UploadFilled.name, UploadFilled)
+
+    app.use(ElSpace, ElIcon)
 
     app.directive('v-loading', vLoading)
   },

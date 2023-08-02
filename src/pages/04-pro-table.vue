@@ -6,7 +6,11 @@
   <el-button @click="toggleStripe">切换stripe</el-button>
   <el-button @click="changeName">修改名称</el-button>
   <el-button @click="changeType">增加宽度</el-button>
-  <pro-table ref="proTableRef" v-bind="tableBinding" />
+  <pro-table
+    ref="proTableRef"
+    v-bind="proTableBinding"
+    style="margin-top: 16px"
+  />
 </template>
 
 <script lang="tsx" setup>
@@ -49,7 +53,7 @@ interface TableData {
   age: number
 }
 
-const { proTableRef, tableBinding } = buildTable<TableData>(() => ({
+const { proTableRef, proTableBinding } = buildTable<TableData>(() => ({
   data,
   tableProps: {
     border,

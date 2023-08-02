@@ -1,6 +1,7 @@
 import type {
   ElAutoCompleteProps,
   ElAutoCompleteSlots,
+  ElButtonProps,
   ElCascaderProps,
   ElColProps,
   ElFormItemProps,
@@ -10,12 +11,9 @@ import type {
   ElRowProps,
   ExtractMaybeRef,
   MaybeRef,
-  ToHandles,
 } from '../common'
 import type { ValidateFieldsError } from 'async-validator'
 import type {
-  ButtonEmits,
-  ButtonProps,
   ElTooltipProps,
   FormItemInstance,
   FormItemProp,
@@ -33,7 +31,6 @@ type Tooltip = Partial<ElTooltipProps> & {
     content?: () => JSX.Element
   }
 }
-export type ElButtonProps = Partial<ButtonProps & ToHandles<ButtonEmits>>
 
 export type FieldProps = {
   'auto-complete': ElAutoCompleteProps

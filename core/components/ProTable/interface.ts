@@ -1,10 +1,14 @@
+import type {
+  ElIconProps,
+  ElPaginationProps,
+  ElTableColumnProps,
+  ElTableProps,
+  TableEmit,
+} from '../common'
 import type { ExtractMaybeRef, MaybeRef, ToHandles } from '../common/interface'
-import type { PaginationProps, TableColumnCtx, TableProps } from 'element-plus'
-import type { ComputedRef, Ref } from 'vue'
+import type { TableColumnCtx, TableProps } from 'element-plus'
+import type { CSSProperties, ComputedRef, Ref } from 'vue'
 
-export type ElTableColumnProps<T> = Partial<TableColumnCtx<T>>
-export type ElTableProps<T> = TableProps<T>
-export type ElPaginationProps = Partial<PaginationProps>
 /**
  * Table Props 中可能是 ref 的属性
  */
@@ -14,9 +18,106 @@ export type TableMaybeRefProps<T> = Omit<
 >
 
 /**
- * ProTable props
+ * ProTable 接受的 props
  */
-export type ProTableProps<T extends object> = {
+export type ProTableProps<T extends object> = BuildProTableBinding<T>
+
+/**
+ * ProTable Loading 配置
+ */
+export interface ProTableLoading {
+  visible: boolean
+  text?: string
+  background?: string
+  spinner?: string
+  svg?: string
+}
+
+/**
+ * 获取数据函数
+ */
+export type FetchTableListRequest<T extends object> = (
+  query: FetchTableListQuery
+) => Promise<FetchTableDataResult<T>> | FetchTableDataResult<T>
+
+/**
+ * 获取数据函数参数
+ */
+export type FetchTableListQuery = {
+  page: {
+    pageNumber: number
+    pageSize: number
+  }
+}
+
+/**
+ * 获取数据函数返回值
+ */
+export type FetchTableDataResult<T> = {
+  data: T[]
+  total: number
+}
+
+/**
+ * ProTable 组件实例方法
+ */
+export type ProTableInstance<T> = ProTableScope<T>
+
+/**
+ * 列配置
+ */
+export type ProTableColumnProps<T> = {
+  /**
+   * 列配置
+   */
+  columnProps?: MaybeRef<
+    ExtractMaybeRef<Omit<ElTableColumnProps<T>, 'label' | 'prop'>>
+  >
+
+  /**
+   * 列插槽
+   */
+  columnSlots?: {
+    default?(ctx: {
+      row: T
+      column: TableColumnCtx<T>
+      $index: number
+    }): JSX.Element
+
+    header?(ctx: { column: TableColumnCtx<T>; $index: number }): JSX.Element
+  }
+
+  /**
+   * 标题
+   */
+  label?: MaybeRef<string>
+
+  /**
+   * 字段名
+   */
+  prop: MaybeRef<string>
+}
+
+/**
+ * @internal
+ */
+export interface InternalProTableColumnProps<T> {
+  columnProps: ElTableColumnProps<T>
+  columnSlots: ProTableColumnProps<T>['columnSlots']
+}
+
+/**
+ * buildTable 返回值
+ */
+export type BuildProTableResult<T extends object> = {
+  proTableRef: Ref<ProTableInstance<T> | null>
+  proTableBinding: BuildProTableBinding<T>
+}
+
+/**
+ * buildTable option 返回值
+ */
+export type BuildProTableOptionResult<T extends object> = {
   /**
    * 数据源(不推荐)
    */
@@ -36,11 +137,6 @@ export type ProTableProps<T extends object> = {
   tableSlots?: TableSlots
 
   /**
-   * 获取数据请求
-   */
-  fetchTableData?: FetchTableListRequest<T>
-
-  /**
    * 分页配置，false 不显示
    */
   pagination?: MaybeRef<
@@ -57,61 +153,39 @@ export type ProTableProps<T extends object> = {
    */
   loading?: MaybeRef<ExtractMaybeRef<Omit<ProTableLoading, 'visible'>>>
 
-  // /**
-  //  * 编辑配置
-  //  */
-  // editable?: {
-  //   /**
-  //    * 编辑类型：单元格编辑/行编辑
-  //    */
-  //   type: 'cell' | 'row'
+  /**
+   * toolbar 配置
+   */
+  toolbar?: ProTableToolbarOption
 
-  //   /**
-  //    * 单元格编辑请求
-  //    */
-  //   cellEditRequest?(): Promise<void>
-
-  //   /**
-  //    * 行编辑请求
-  //    */
-  //   rowEditRequest?(): Promise<void>
-  // }
-}
-
-/**
- * ProTable Loading 配置
- */
-export interface ProTableLoading {
-  visible: boolean
-  text?: string
-  background?: string
-  spinner?: string
-  svg?: string
-}
-
-export type FetchTableListRequest<T extends object> = (
-  query: FetchTableListQuery
-) => Promise<FetchTableDataResult<T>> | FetchTableDataResult<T>
-
-export type FetchTableListQuery = {
-  page: {
-    pageNumber: number
-    pageSize: number
+  /**
+   * 请求配置
+   */
+  request?: {
+    /**
+     * 获取数据请求
+     */
+    fetchTableData?: FetchTableListRequest<T>
   }
 }
 
 /**
- * 表格请求接口返回数据
+ * buildTable 返回需要绑定的 props
  */
-export type FetchTableDataResult<T> = {
-  data: T[]
-  total: number
+export interface BuildProTableBinding<T extends object> {
+  pagination: ComputedRef<false | ElPaginationProps>
+  tableProps: ComputedRef<TableProps<T>>
+  tableSlots: TableSlots | undefined
+  loading: ComputedRef<ProTableLoading>
+  columns: ComputedRef<InternalProTableColumnProps<T>>[]
+  scope: ProTableScope<T>
+  toolbar: ComputedRef<InternalProTableToolbarOption>
 }
 
 /**
- * ProTable 组件实例方法
+ * ProTable 作用域
  */
-export interface ProTableInstance<T> {
+export interface ProTableScope<T> {
   /**
    * 重新加载指定页数数据，默认加载当前页数
    */
@@ -151,148 +225,91 @@ export interface ProTableInstance<T> {
 }
 
 /**
- * 列配置
+ * Table 插槽
  */
-export type ProTableColumnProps<T> = {
-  /**
-   * 列配置
-   */
-  columnProps?: MaybeRef<
-    ExtractMaybeRef<Omit<ElTableColumnProps<T>, 'label' | 'prop'>>
-  >
-
-  /**
-   * 列插槽
-   */
-  columnSlots?: {
-    default?(ctx: {
-      row: T
-      column: TableColumnCtx<T>
-      $index: number
-    }): JSX.Element
-
-    header?(ctx: { column: TableColumnCtx<T>; $index: number }): JSX.Element
-  }
-
-  /**
-   * 标题
-   */
-  label?: MaybeRef<string>
-
-  /**
-   * 字段名
-   */
-  prop: MaybeRef<string>
-
-  // /**
-  //  * 是否可以编辑
-  //  */
-  // editable?:
-  //   | MaybeRef<boolean>
-  //   | ((option: {
-  //       text: any
-  //       row: T
-  //       index: number
-  //       column: TableColumnCtx<T>
-  //     }) => boolean)
-}
-
-/**
- * @internal
- */
-export interface InternalProTableColumnProps<T> {
-  columnProps: ElTableColumnProps<T>
-
-  columnSlots: ProTableColumnProps<T>['columnSlots']
-}
-
-export type BuildProTableResult<T extends object> = {
-  proTableRef: Ref<ProTableInstance<T> | null>
-  tableBinding: ProTableProps<T>
-}
-
-export type ProTableScope<T> = ProTableInstance<T>
-
-export interface TableEmit<T> {
-  select(selections: T[], row: T): void
-  selectAll(selections: T[]): void
-  selectionChange(selection: T[]): void
-
-  cellMouseEnter(
-    row: T,
-    column: TableColumnCtx<T>,
-    cell: HTMLTableCellElement,
-    event: MouseEvent
-  ): void
-  cellMouseLeave(
-    row: T,
-    column: TableColumnCtx<T>,
-    cell: HTMLTableCellElement,
-    event: MouseEvent
-  ): void
-  cellClick(
-    row: T,
-    column: TableColumnCtx<T>,
-    cell: HTMLTableCellElement,
-    event: MouseEvent
-  ): void
-  cellDblclick(
-    row: T,
-    column: TableColumnCtx<T>,
-    cell: HTMLTableCellElement,
-    event: MouseEvent
-  ): void
-  cellContextmenu(
-    row: T,
-    column: TableColumnCtx<T>,
-    cell: HTMLTableCellElement,
-    event: MouseEvent
-  ): void
-
-  rowClick(row: T, column: TableColumnCtx<T>, event: PointerEvent): void
-  rowDblclick(row: T, column: TableColumnCtx<T>, event: MouseEvent): void
-  rowContextmenu(row: T, column: TableColumnCtx<T>, event: PointerEvent): void
-
-  headerClick(column: TableColumnCtx<T>, event: PointerEvent): void
-  headerContextmenu(column: TableColumnCtx<T>, event: PointerEvent): void
-
-  sortChange(ctx: {
-    column: TableColumnCtx<T>
-    prop: string
-    order: 'ascending' | 'descending' | null
-  }): void
-
-  filterChange(filters: Record<string, string[]>): void
-
-  currentChange(currentRow: T, oldCurrentRow: T): void
-
-  headerDragend(
-    newWidth: number,
-    oldWidth: number,
-    column: TableColumnCtx<T>,
-    event: MouseEvent
-  ): void
-
-  expandChange(row: T, expanded: T[] | boolean): void
-}
-
 interface TableSlots {
   empty?(): JSX.Element
   append?(): JSX.Element
 }
 
-export interface UseTableReturn<T> extends ProTableInstance<T> {
-  resolvedPagination: ComputedRef<false | ElPaginationProps>
+/**
+ * toolbar 配置
+ */
+export interface ProTableToolbarOption {
+  /**
+   * 是否显示
+   */
+  show?: MaybeRef<boolean>
 
-  resolvedColumns: ComputedRef<InternalProTableColumnProps<T>>[]
+  /**
+   * 操作列表
+   */
+  list?: {
+    /**
+     * 刷新按钮
+     */
+    reload?: ToolbarOption
 
-  tableProps: ComputedRef<TableProps<T>>
+    /**
+     * 导出按钮
+     */
+    export?: ToolbarOption
 
-  tableSlots: TableSlots | undefined
-
-  loadingConfig: ComputedRef<ProTableLoading>
+    /**
+     * 其他
+     */
+    [type: string]: ToolbarOption | undefined
+  }
 }
 
-// export interface ProTableEditable {
-//   startEditable(rowKey: string): void
-// }
+/**
+ * toolbar 按钮配置
+ */
+export interface ToolbarOption {
+  /**
+   * 是否显示操作
+   */
+  show?: MaybeRef<boolean>
+
+  /**
+   * toolbar className
+   */
+  class?: MaybeRef<string | string[] | Record<string, boolean>>
+
+  /**
+   * toolbar 样式
+   */
+  style?: MaybeRef<string | CSSProperties>
+
+  /**
+   * 优先级，越高越靠前
+   */
+  order?: MaybeRef<number>
+
+  /**
+   * 图标名
+   */
+  icon: string
+
+  /**
+   * 是否需要背景色
+   */
+  background: MaybeRef<false | string>
+
+  /**
+   * icon 配置
+   */
+  props?: ElIconProps & { onClick?: (e: MouseEvent) => void }
+
+  /**
+   * 自定义渲染操作
+   */
+  render?: () => JSX.Element
+}
+
+export interface InternalProTableToolbarOption {
+  show: boolean
+  list: ToolbarOption[]
+  style?: string | CSSProperties
+  class?: string | string[] | Record<string, boolean>
+}

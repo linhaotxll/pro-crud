@@ -2,7 +2,7 @@ import { ref } from 'vue'
 
 import { unRef } from '../common'
 import { useScope as useFormScope, useValues } from '../ProForm'
-import { useScope as useTableScope } from '../ProTable'
+// import { useScope as useTableScope } from '../ProTable'
 
 import type {
   BuildCrudReturn,
@@ -49,7 +49,7 @@ export function buildCrud<
       () => searchValues,
       () => proCrudRef.value!.proSearchRef!
     ),
-    table: useTableScope(() => ref(proCrudRef.value!.proTableRef!)),
+    // table: useTableScope(() => ref(proCrudRef.value!.proTableRef!)),
   }
 
   const { columns, table, search, addForm, editForm, viewForm, request } =

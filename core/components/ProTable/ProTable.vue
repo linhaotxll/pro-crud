@@ -1,16 +1,36 @@
 <template>
   <div class="pro-table-container">
+    <div class="pro-table-top">
+      <div></div>
+
+      <div
+        v-if="toolbar.value.show"
+        class="pro-table-toolbar"
+        :class="toolbar.value.class"
+        :style="toolbar.value.style"
+      >
+        <el-space>
+          <div v-for="(item, i) in toolbar.value.list" :key="i">
+            <pro-render v-if="item.render" />
+            <el-icon v-else v-bind="item.props">
+              <component :is="item.icon" />
+            </el-icon>
+          </div>
+        </el-space>
+      </div>
+    </div>
+
     <el-table
-      v-loading="loadingConfig.visible"
-      :element-loading-text="loadingConfig.text"
-      :element-loading-background="loadingConfig.background"
-      :element-loading-svg="loadingConfig.svg"
-      :element-loading-spinner="loadingConfig.spinner"
+      v-loading="loading.value.visible"
+      :element-loading-text="loading.value.text"
+      :element-loading-background="loading.value.background"
+      :element-loading-svg="loading.value.svg"
+      :element-loading-spinner="loading.value.spinner"
       class="pro-table"
-      v-bind="tableProps"
+      v-bind="tableProps.value"
     >
       <pro-table-column
-        v-for="column in resolvedColumns"
+        v-for="column in columns"
         :key="column.value.columnProps.prop"
         :column="column.value"
       />
@@ -25,36 +45,27 @@
     </el-table>
 
     <el-pagination
-      v-if="resolvedPagination !== false"
+      v-if="pagination.value !== false"
       class="pro-pagination"
-      v-bind="resolvedPagination"
+      v-bind="pagination.value"
     />
   </div>
 </template>
 
 <script lang="ts" setup generic="T extends object">
-import { useTable } from './useTable'
-
 import type { ProTableProps, ProTableInstance } from './interface'
 
 defineOptions({ name: 'ProTable' })
 
 const p = defineProps<ProTableProps<T>>()
 
-const {
-  resolvedPagination,
-  resolvedColumns,
-  tableProps,
-  tableSlots,
-  loadingConfig,
-  ...rest
-} = useTable(p)
-
-defineExpose<ProTableInstance<T>>(rest)
+defineExpose<ProTableInstance<T>>({
+  ...p.scope,
+})
 </script>
 
 <style scoped>
-.pro-table-container {
+/* .pro-table-container {
   display: flex;
   overflow: auto;
   height: 100%;
@@ -63,6 +74,11 @@ defineExpose<ProTableInstance<T>>(rest)
 
 .pro-table {
   flex: 1;
+} */
+
+.pro-table-top {
+  display: flex;
+  justify-content: space-between;
 }
 
 .pro-pagination {
