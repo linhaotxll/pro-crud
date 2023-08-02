@@ -1,7 +1,7 @@
 <template>
   <el-form ref="formRef" v-bind="formProps" :model="values">
     <el-row v-bind="row">
-      <template v-for="column in resolvedColumns">
+      <template v-for="column in columns">
         <pro-form-item
           v-if="column.value.show"
           :key="column.value.resolvedKey"
@@ -9,9 +9,9 @@
         />
       </template>
 
-      <el-col v-if="resolvedButtons.show" v-bind="resolvedButtons.col">
+      <el-col v-if="buttons.value.show" v-bind="buttons.value.col">
         <el-form-item>
-          <template v-for="(btn, key) in resolvedButtons.list">
+          <template v-for="(btn, key) in buttons.value.list">
             <el-button v-if="btn?.show" v-bind="btn.props" :key="key">
               <pro-render
                 v-if="btn.slots?.default"
@@ -34,34 +34,23 @@
   </el-form>
 </template>
 
-<script lang="ts" setup generic="T extends object, R">
+<script lang="ts" setup generic="T extends object">
 import { inject } from 'vue'
 
-import { DefaultPreserve, ProFormValueKey } from './constant'
-import { useForm } from './useForm'
-import { useValues } from './useValues'
+import { ProFormRefKey } from './constant'
 
-import type { ProFormInstance, ProFormOptions } from './interface'
+import type { ProFormInstance } from './interface'
+import type { ProFormProps } from './interface'
+
+const formRef = inject(ProFormRefKey)
 
 defineOptions({
   name: 'ProForm',
 })
 
-const props = withDefaults(defineProps<ProFormOptions<T, R>>(), {
-  preserve: DefaultPreserve,
-  col: () => ({ span: 24 }),
-})
-
-const values = inject(
-  ProFormValueKey,
-  () => useValues(props.initialValues, props.columns),
-  true
-)
-
-const { resolvedColumns, resolvedButtons, formProps, row, formRef, ...rest } =
-  useForm(props, values)
+const p = defineProps<ProFormProps<T>>()
 
 defineExpose<ProFormInstance<T>>({
-  ...rest,
+  ...p.scope,
 })
 </script>

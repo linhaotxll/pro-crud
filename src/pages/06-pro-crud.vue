@@ -4,6 +4,7 @@
 
 <script lang="tsx" setup>
 import axios from 'axios'
+import { computed } from 'vue'
 
 import { buildCrud } from '~/components/ProCrud'
 
@@ -46,54 +47,70 @@ const { crudBinding, proCrudRef } = buildCrud<
   PageResponseData<User>,
   UserSearchForm,
   FetchUserListInput
->(() => ({
-  columns: [
-    { label: '姓名', prop: 'name', search: { show: true } },
-    { label: '描述', prop: 'desc', search: { show: false } },
-    { label: '地址', prop: 'address', search: { show: false } },
-    { label: '创建时间', prop: 'createTime', search: { show: false } },
-  ],
+>(scope => {
+  return {
+    columns: [
+      { label: '姓名', prop: 'name', search: { show: true } },
+      {
+        label: '年龄',
+        prop: 'age',
+        search: {
+          show: computed(() => {
+            // debugger
+            console.log(scope.search.getFieldValue)
+            return scope.search.getFieldValue('name') === 'IconMan'
+          }),
+        },
+      },
+      { label: '描述', prop: 'desc', search: { show: false } },
+      { label: '地址', prop: 'address', search: { show: false } },
+      { label: '创建时间', prop: 'createTime', search: { show: false } },
+    ],
 
-  table: {},
+    table: {},
 
-  search: {
-    // initialValues: { name: 'Ronald Hall' },
-  },
-
-  addForm: {},
-
-  editForm: {},
-
-  viewForm: {},
-
-  request: {
-    transformQuery(options) {
-      console.log('optinos: ', options)
-      return {
-        pageSize: options.query.page.pageSize,
-        pageNumber: options.query.page.pageNumber,
-        name: options.form.name,
-      }
+    search: {
+      initialValues: { name: 'Ronald Hall' },
+      buttons: {
+        list: {},
+      },
     },
 
-    transformRes(options) {
-      return {
-        rows: options.response.rows,
-        total: options.response.total,
-        pageNumber: options.query.pageNumber,
-        pageSize: options.query.pageSize,
-      }
-    },
+    addForm: {},
 
-    async fetchPageList(query) {
-      await sleep()
-      const result = await axios.get<UserResponse>('/api/user/list', {
-        params: query,
-      })
+    editForm: {},
 
-      const { rows, total } = result.data.data
-      return { rows, total: total }
+    viewForm: {},
+
+    request: {
+      transformQuery(options) {
+        console.log('optinos: ', options)
+        return {
+          pageSize: options.query.page.pageSize,
+          pageNumber: options.query.page.pageNumber,
+          name: options.form.name,
+        }
+      },
+
+      transformRes(options) {
+        return {
+          rows: options.response.rows,
+          total: options.response.total,
+          pageNumber: options.query.pageNumber,
+          pageSize: options.query.pageSize,
+        }
+      },
+
+      async fetchPageList(query) {
+        await sleep()
+        const result = await axios.get<UserResponse>('/api/user/list', {
+          params: query,
+        })
+
+        const { rows, total } = result.data.data
+        return { rows, total: total }
+      },
     },
-  },
-}))
+  }
+})
 </script>

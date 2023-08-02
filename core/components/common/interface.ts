@@ -27,3 +27,5 @@ type LastInUnion<T> = UnionToIntersection<
 export type UnionToTuple<T, U = T> = [T] extends [never]
   ? []
   : [LastInUnion<T>, ...UnionToTuple<Exclude<U, LastInUnion<T>>>]
+
+export declare type Arrayable<T> = T | T[]

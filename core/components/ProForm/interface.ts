@@ -1,57 +1,32 @@
-import type { ExtractMaybeRef, MaybeRef, ToHandles } from '../common'
+import type {
+  ElAutoCompleteProps,
+  ElAutoCompleteSlots,
+  ElCascaderProps,
+  ElColProps,
+  ElFormItemProps,
+  ElFormProps,
+  ElInputProps,
+  ElInputSlots,
+  ElRowProps,
+  ExtractMaybeRef,
+  MaybeRef,
+  ToHandles,
+} from '../common'
 import type { ValidateFieldsError } from 'async-validator'
 import type {
-  AutocompleteEmits,
-  AutocompleteProps,
   ButtonEmits,
   ButtonProps,
-  CascaderEmits,
-  CascaderProps,
-  ColProps,
   ElTooltipProps,
-  FormEmits,
   FormItemInstance,
   FormItemProp,
-  FormItemProps,
-  FormProps,
   FormValidateCallback,
   FormValidationResult,
-  InputEmits,
-  InputProps,
-  RowProps,
+  MessageHandler,
+  NotificationHandle,
 } from 'element-plus'
 import type { Arrayable } from 'element-plus/es/utils'
-import type { CSSProperties } from 'vue'
+import type { CSSProperties, ComputedRef, Ref } from 'vue'
 
-// AutoComplete
-export type ElAutoCompleteProps = Partial<
-  AutocompleteProps & ToHandles<AutocompleteEmits>
->
-export type ElAutoCompleteSlots = {
-  default?: (ctx: { item: Record<string, any> }) => JSX.Element
-  prefix?: () => JSX.Element
-  suffix?: () => JSX.Element
-  prepend?: () => JSX.Element
-  append?: () => JSX.Element
-}
-
-// Cascader
-export type ElCascaderProps = Partial<CascaderProps & ToHandles<CascaderEmits>>
-// export type ElCheckboxProps = Partial<CheckboxProps & ToHandles<CheckboxEmits>>
-
-// Input
-export type ElInputProps = Partial<InputProps & ToHandles<InputEmits>>
-export type ElInputSlots = {
-  prefix?: () => JSX.Element
-  suffix?: () => JSX.Element
-  prepend?: () => JSX.Element
-  append?: () => JSX.Element
-}
-
-export type ElColProps = Partial<ColProps>
-export type ElRowProps = Partial<RowProps>
-export type ElFormProps = Partial<FormProps & ToHandles<FormEmits>>
-export type ElFormItemProps = Partial<FormItemProps>
 type Tooltip = Partial<ElTooltipProps> & {
   slots?: {
     icon?: (iconStyle: CSSProperties) => JSX.Element
@@ -68,89 +43,11 @@ export type FieldProps = {
 /**
  * ProForm 作用域
  */
-export type ProFormScope<T extends object> = ProFormInstance<T>
-
-/**
- * ProForm props
- * @param T 表单类型
- * @param R 表单提交类型
- */
-export interface ProFormOptions<T extends object, R = T> {
-  /**
-   * 表单额外的配置，不包含 model
-   */
-  formProps?: MaybeRef<ExtractMaybeRef<Omit<ElFormProps, 'model'>>>
-
-  /**
-   * 表单初始值
-   */
-  initialValues?: Partial<T>
-
-  /**
-   * 通用每列配置
-   *
-   * @default { span: 24 }
-   */
-  col?: MaybeRef<ElColProps>
-
-  /**
-   * 通用行配置
-   *
-   * @default { gutter: 16 }
-   */
-  row?: MaybeRef<ElRowProps>
-
-  /**
-   * 表单被删除时是否保留字段值
-   *
-   * @default true
-   */
-  preserve?: boolean
-
-  /**
-   * 列配置
-   */
-  columns: ProFormColumnOptions<T>[]
-
-  /**
-   * 按钮组
-   */
-  buttons?: ButtonsOption
-
-  /**
-   * 接口调用成功是否需要提示信息
-   */
-  toast?: MaybeRef<
-    | false
-    | {
-        type: SuccessToastType
-        props?: any
-      }
-  >
-
-  /**
-   * 表单提交前触发，可用来转换提交内容
-   */
-  beforeSubmit?: (values: T) => R | Promise<R>
-
-  /**
-   * 提交表单调用的接口配置
-   */
-  submitRequest?: (values: R) => Promise<boolean>
-
-  /**
-   * 表单验证失败
-   */
-  validateFail?(error: ValidateFieldsError): void
-}
-
-export type SuccessToastType = 'message' | 'notification'
-
-export interface ProFormInstance<T extends object> {
+export interface ProFormScope<T extends object> {
   /**
    * 获取表单值
    */
-  getFormValues(): T | undefined
+  getFormValues(): T
 
   /**
    * 提交表单
@@ -223,6 +120,118 @@ export interface ProFormInstance<T extends object> {
   getFieldInstance(prop: FormItemProp): FormItemInstance | null
 }
 
+/**
+ * ProForm props
+ * @param T 表单类型
+ * @param R 表单提交类型
+ */
+export type ProFormProps<T extends object> = BuildFormBinding<T>
+
+/**
+ * buildForm 返回值
+ */
+export interface BuildFormResult<T extends object> {
+  proFormRef: Ref<ProFormInstance<T> | null>
+  proFormBinding: BuildFormBinding<T>
+}
+
+export interface BuildFormBinding<T extends object> {
+  columns: ComputedRef<InternalProFormColumnOptions<T>>[]
+  row: ComputedRef<ElRowProps>
+  col: ComputedRef<ElColProps>
+  formProps: ComputedRef<ElFormProps>
+  buttons: ComputedRef<ButtonsOption>
+  toast: ComputedRef<null | (() => MessageHandler | NotificationHandle)>
+  values: T
+  scope: ProFormScope<T>
+}
+
+/**
+ * buildForm option 返回值
+ */
+export interface BuildFormOptionResult<T extends object, R = T> {
+  /**
+   * 表单额外的配置，不包含 model
+   */
+  formProps?: MaybeRef<ExtractMaybeRef<Omit<ElFormProps, 'model'>>>
+
+  /**
+   * 表单初始值
+   */
+  initialValues?: Partial<T>
+
+  /**
+   * 通用每列配置
+   */
+  col?: MaybeRef<ElColProps>
+
+  /**
+   * 通用行配置
+   */
+  row?: MaybeRef<ElRowProps>
+
+  /**
+   * 表单被删除时是否保留字段值
+   */
+  preserve?: boolean
+
+  /**
+   * 列配置
+   */
+  columns?: ProFormColumnOptions<T>[]
+
+  /**
+   * 按钮组
+   */
+  buttons?: ButtonsOption
+
+  /**
+   * 接口调用成功是否需要提示信息
+   */
+  toast?: MaybeRef<
+    | false
+    | {
+        type: SuccessToastType
+        props?: any
+      }
+  >
+
+  request?: {
+    /**
+     * 表单提交前触发，可用来转换提交数据
+     */
+    beforeSubmit?: (values: T) => R | Promise<R>
+
+    /**
+     * 提交表单调用的接口配置
+     */
+    submitRequest?: (values: R) => Promise<boolean>
+
+    /**
+     * 接口调用成功时（submitRequest 返回 true）调用
+     */
+    successRequest?: () => void
+
+    /**
+     * 表单验证失败
+     */
+    validateFail?(error: ValidateFieldsError): void
+  }
+}
+
+/**
+ * 表单提交成功提示类型
+ */
+export type SuccessToastType = 'message' | 'notification'
+
+/**
+ * 表单实例方法
+ */
+export type ProFormInstance<T extends object> = ProFormScope<T>
+
+/**
+ * 表单列配置
+ */
 export interface ProFormColumnOptions<T extends object> {
   /**
    * FormItem label

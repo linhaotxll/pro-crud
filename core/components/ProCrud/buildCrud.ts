@@ -1,15 +1,16 @@
 import { ref } from 'vue'
 
-import { useScope as useFormScope } from '../ProForm'
+import { unRef } from '../common'
+import { useScope as useFormScope, useValues } from '../ProForm'
 import { useScope as useTableScope } from '../ProTable'
 
 import type {
   BuildCrudReturn,
+  ProCrudFormProps,
   ProCrudInstance,
   ProCrudProps,
   ProCrudScope,
 } from './interface'
-import type { ProTableInstance } from '../ProTable'
 
 export function buildCrud<
   T extends object,
@@ -44,14 +45,27 @@ export function buildCrud<
   const proCrudRef = ref<ProCrudInstance | null>(null)
 
   const scope: ProCrudScope = {
-    search: useFormScope(() => proCrudRef.value!.proSearchRef!),
+    search: useFormScope(
+      () => searchValues,
+      () => proCrudRef.value!.proSearchRef!
+    ),
     table: useTableScope(() => ref(proCrudRef.value!.proTableRef!)),
   }
 
-  console.log('scope: ', scope)
-
   const { columns, table, search, addForm, editForm, viewForm, request } =
     options(scope, ctx)
+
+  const searchValues = useValues(
+    search?.initialValues,
+    columns?.filter(column => {
+      return unRef(column.search?.show)
+    }) ?? []
+  )
+
+  // const resolvedSearch: ProCrudFormProps = {
+  //   ...search,
+  //   columns
+  // }
 
   const crudBinding = {
     columns,
@@ -63,5 +77,6 @@ export function buildCrud<
     request,
   }
 
+  // @ts-ignore
   return { proCrudRef, crudBinding }
 }

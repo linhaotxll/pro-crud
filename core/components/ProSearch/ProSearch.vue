@@ -77,6 +77,7 @@ const { resolvedColumns, resolvedButtons, formProps, row, formRef, ...rest } =
 const searchButtons = computed<
   Omit<ButtonsOption, 'col'> & { col: ElColProps }
 >(() => {
+  // debugger
   const resolved = resolvedButtons.value
   const { span = 4 } = unRef(resolved.col) ?? {}
   const total = resolvedColumns.reduce<number>((prev, columnComputed) => {

@@ -1,5 +1,8 @@
+import { merge } from 'lodash-es'
+
 import { callPageList } from './useFetch'
 
+import { unRef } from '../common'
 import { buildSearch } from '../ProSearch'
 import { buildTable } from '../ProTable'
 
@@ -25,8 +28,14 @@ export function useCrud<
   if (props.columns) {
     for (let i = props.columns.length - 1; i >= 0; i--) {
       const curr = props.columns[i]
+
+      const searchShow = unRef(curr.search?.show)
+      if (searchShow) {
+        resolvedColumns[1].unshift(curr)
+      }
+
       resolvedColumns[0].unshift(curr)
-      resolvedColumns[1].unshift(curr)
+
       resolvedColumns[2].unshift(curr)
       resolvedColumns[3].unshift(curr)
       resolvedColumns[4].unshift(curr)
@@ -36,9 +45,8 @@ export function useCrud<
   const ctx: { proSeachScope: ProSearchScope<any> | null } = {
     proSeachScope: null,
   }
-  // debugger
+
   const { searchBinding, proSearchRef } = buildSearch(scope => {
-    console.log('scope: ', scope)
     ctx.proSeachScope = scope
     const columns = resolvedColumns[1].map<ProFormColumnOptions<any>>(
       column => {
@@ -50,9 +58,26 @@ export function useCrud<
       }
     )
 
+    // 合并按钮组
+    const buttons = merge(
+      {
+        list: {
+          confirm: {
+            props: {
+              onClick() {
+                proTableRef.value?.reload()
+              },
+            },
+          },
+        },
+      },
+      props.search?.buttons
+    )
+
     return {
       ...props.search,
       columns,
+      buttons,
     }
   })
 

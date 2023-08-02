@@ -1,5 +1,6 @@
 import type { ProFormScope, ValueType } from './interface'
-import type { FormItemInstance, FormItemProp } from 'element-plus'
+import type { ElColProps, ElRowProps } from '../common'
+import type { FormInstance, FormItemInstance, FormItemProp } from 'element-plus'
 import type { InjectionKey, Ref } from 'vue'
 
 // 默认显示按钮组按钮
@@ -11,11 +12,19 @@ export const DefaultFormFieldType: ValueType = 'text'
 // 删除表单是否保留字段
 export const DefaultPreserve = true
 
+// 默认行配置
+export const DefaultRow: ElRowProps = {}
+
+// 默认列配置
+export const DefaultCol: ElColProps = { span: 24 }
+
 // 注入 ProForm values 的 key
 export const ProFormValueKey = Symbol() as InjectionKey<any>
 
 // 注入 ProForm Scope 的 key
 export const ProFormScopeKey = Symbol() as InjectionKey<ProFormScope<any>>
+
+export const ProFormRefKey = Symbol() as InjectionKey<Ref<FormInstance | null>>
 
 // 注入 FormItemRefs 的 key
 export const FormItemRefKey = Symbol() as InjectionKey<

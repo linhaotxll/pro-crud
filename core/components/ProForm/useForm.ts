@@ -18,7 +18,7 @@ import type {
   ButtonsOption,
   ElFormProps,
   InternalProFormColumnOptions,
-  ProFormOptions,
+  ProFormProps,
   SuccessToastType,
   ValueType,
 } from './interface'
@@ -34,7 +34,7 @@ import type { Arrayable } from 'element-plus/es/utils'
 import type { Ref } from 'vue'
 
 export function useForm<T extends object, R = T>(
-  props: ProFormOptions<T, R>,
+  props: ProFormProps<T, R>,
   values: T
 ) {
   // const values = useValues(props.initialValues, props.columns)

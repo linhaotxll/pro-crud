@@ -1,7 +1,7 @@
 <template>
   <div>
     <!-- <test-a :visible="ref(visible)" /> -->
-    <pro-form ref="proFormRef" v-bind="formBinding" />
+    <pro-form ref="proFormRef" v-bind="proFormBinding" />
 
     <preview-form />
 
@@ -26,7 +26,6 @@ import PreviewForm from './preview-form.vue'
 import { buildForm } from '~/components/ProForm'
 
 import type { ColProps, RowProps } from 'element-plus'
-import type { ElColProps } from '~/components/ProForm'
 
 const sleep = (time = 2000) => new Promise(r => setTimeout(r, time))
 
@@ -53,20 +52,17 @@ const nameCol = ref<Partial<ColProps>>({ span: 4 })
 const nameLabel = ref('名称')
 
 const buttonsShow = ref(true)
-const buttonsCol = ref<ElColProps>({ span: 18 })
+const buttonsCol = ref<Partial<ColProps>>({ span: 18 })
 const buttonConfirmShow = ref(true)
 const nameProp = ['info', 'name']
 
-const { formBinding, proFormRef } = buildForm<FormValues>(scope => {
+const { proFormRef, proFormBinding } = buildForm<FormValues>(scope => {
   return {
     row,
     col,
     initialValues: { gender: 3, info: { name: 'lalala' } },
     formProps: {
       labelWidth,
-    },
-    validateFail(error) {
-      console.log('校验失败: ', error)
     },
 
     columns: [
@@ -123,8 +119,9 @@ const { formBinding, proFormRef } = buildForm<FormValues>(scope => {
         label: '自定义性别',
         prop: 'customGender',
         show: computed(() => {
+          // debugger
           // console.log('aaa: ', scope.getFormValues().gender)
-          return scope.getFormValues()?.gender === 3
+          return scope.getFieldValue('gender') === 3
         }),
         preserve: false,
         itemProps: {
@@ -241,11 +238,17 @@ const { formBinding, proFormRef } = buildForm<FormValues>(scope => {
       },
     },
 
-    // toast: false,
-    async submitRequest(values) {
-      console.log('submit: ', values)
-      return true
+    request: {
+      async submitRequest(values) {
+        console.log('submit: ', values)
+        return false
+      },
+
+      validateFail(error) {
+        console.log('校验失败: ', error)
+      },
     },
+    // toast: false,
   }
 })
 
