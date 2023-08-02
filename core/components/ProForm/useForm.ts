@@ -37,9 +37,14 @@ export function useForm<T extends object, R = T>(
   props: ProFormOptions<T, R>,
   values: T
 ) {
+  // const values = useValues(props.initialValues, props.columns)
+
   // 自动生成作用域对象
   const generateScope = () => {
-    const scope = useScope(() => result)
+    const scope = useScope(
+      () => values,
+      () => result
+    )
 
     return scope
   }

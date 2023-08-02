@@ -61,7 +61,7 @@ const { formBinding, proFormRef } = buildForm<FormValues>(scope => {
   return {
     row,
     col,
-    initialValues: { gender: 2, info: { name: 'lalala' } },
+    initialValues: { gender: 3, info: { name: 'lalala' } },
     formProps: {
       labelWidth,
     },
@@ -123,7 +123,8 @@ const { formBinding, proFormRef } = buildForm<FormValues>(scope => {
         label: '自定义性别',
         prop: 'customGender',
         show: computed(() => {
-          return scope.getFormValues().gender === 3
+          // console.log('aaa: ', scope.getFormValues().gender)
+          return scope.getFormValues()?.gender === 3
         }),
         preserve: false,
         itemProps: {

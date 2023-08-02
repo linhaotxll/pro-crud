@@ -26,7 +26,10 @@ export function buildForm<T extends object, C, R = T>(
 ): UseFormReturn<T, R> {
   const proFormRef = ref<ProFormInstance<T> | null>(null)
 
-  const scope = useScope(() => proFormRef.value!)
+  const scope = useScope(
+    () => values,
+    () => proFormRef.value!
+  )
 
   const {
     initialValues,
@@ -54,7 +57,6 @@ export function buildForm<T extends object, C, R = T>(
     submitRequest,
   }
 
-  provide(ProFormValueKey, values)
   provide(ProFormScopeKey, scope)
 
   return {
