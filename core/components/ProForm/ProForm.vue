@@ -1,6 +1,6 @@
 <template>
-  <el-form ref="formRef" v-bind="formProps" :model="values">
-    <el-row v-bind="row">
+  <el-form ref="formRef" v-bind="formProps.value" :model="values">
+    <el-row v-bind="row.value">
       <template v-for="column in columns">
         <pro-form-item
           v-if="column.value.show"

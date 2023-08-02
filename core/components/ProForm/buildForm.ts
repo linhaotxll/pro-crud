@@ -236,7 +236,7 @@ export function buildForm<T extends object, C, R = T>(
   async function submit() {
     // debugger
     // 验证
-    const validated = validate()
+    const validated = await validate()
     if (!validated) {
       return
     }
@@ -293,10 +293,12 @@ export function buildForm<T extends object, C, R = T>(
   function reset(prop?: Arrayable<FormItemProp>) {
     formRef.value?.resetFields(prop)
 
-    // 删除多余属性，确保必须是 initialValue
+    // 删除多余属性，重置已有属性，确保必须是 initialValue
     Object.keys(values).forEach(key => {
       if (!has(initialValues, key)) {
         removeFields(key)
+      } else {
+        setFieldValue(key, (initialValues as any)?.[key], true)
       }
     })
   }

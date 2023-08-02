@@ -1,6 +1,6 @@
 <template>
   <div>
-    <pro-form ref="proFormRef" v-bind="formBinding" />
+    <pro-form ref="proFormRef" v-bind="proFormBinding" />
   </div>
 </template>
 
@@ -9,8 +9,7 @@ import { ref } from 'vue'
 
 import { buildForm } from '~/components/ProForm'
 
-import type { ColProps, RowProps } from 'element-plus'
-import type { ElFormProps } from '~/components/ProForm'
+import type { ColProps, FormProps, RowProps } from 'element-plus'
 
 const sleep = (time = 2000) => new Promise(r => setTimeout(r, time))
 
@@ -26,11 +25,11 @@ interface FormValues {
   name: string
 }
 
-const formProps = ref<ElFormProps>({
+const formProps = ref<Partial<FormProps>>({
   labelWidth: '100px',
-  onValidate(p, v, m) {
-    console.log('field change: ', p, v, m)
-  },
+  // onValidate(p, v, m) {
+  //   console.log('field change: ', p, v, m)
+  // },
 })
 const row = ref<Partial<RowProps>>({ gutter: 8 })
 const col = ref<Partial<ColProps>>({ span: 24 })
@@ -43,7 +42,7 @@ const col = ref<Partial<ColProps>>({ span: 24 })
 // const buttonConfirmShow = ref(true)
 // const nameProp = ['info', 'name']
 
-const { formBinding, proFormRef } = buildForm<FormValues>(scope => {
+const { proFormBinding, proFormRef } = buildForm<FormValues>(scope => {
   return {
     row,
     col,
@@ -52,9 +51,6 @@ const { formBinding, proFormRef } = buildForm<FormValues>(scope => {
       cascader: 'guide,disciplines,consistency',
     },
     formProps,
-    validateFail(error) {
-      console.log('校验失败: ', error)
-    },
 
     columns: [
       {
@@ -438,11 +434,6 @@ const { formBinding, proFormRef } = buildForm<FormValues>(scope => {
           },
         },
       },
-    },
-
-    async submitRequest(values) {
-      console.log('submit: ', values)
-      return true
     },
   }
 })

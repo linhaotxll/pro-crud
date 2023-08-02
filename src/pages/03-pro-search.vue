@@ -1,18 +1,17 @@
 <template>
   <div>
-    <pro-search ref="proSearchRef" v-bind="searchBinding" />
+    <pro-search ref="proSearchRef" v-bind="proSearchBinding" />
   </div>
 </template>
 
 <script lang="tsx" setup>
 import { ref } from 'vue'
 
-// import { buildForm } from '~/components/ProForm'
-
-// import type { ColProps, RowProps } from 'element-plus'
 import { buildSearch } from '~/components/ProSearch'
 
-import type { ElColProps, ElFormProps } from '~/components/ProForm'
+import type { ColProps, FormProps } from 'element-plus'
+
+// import type { ElColProps, ElFormProps } from '~/components/ProForm'
 
 // const sleep = (time = 2000) => new Promise(r => setTimeout(r, time))
 
@@ -28,16 +27,16 @@ interface FormValues {
   name: string
 }
 
-const formProps = ref<ElFormProps>({
+const formProps = ref<Partial<FormProps>>({
   labelWidth: '100px',
-  onValidate(p, v, m) {
-    console.log('field change: ', p, v, m)
-  },
+  // onValidate(p, v, m) {
+  //   console.log('field change: ', p, v, m)
+  // },
 })
 // const row = ref<Partial<RowProps>>({ gutter: 8 })
-const formCol = ref<Partial<ElColProps>>({ span: 6 })
+const formCol = ref<Partial<Partial<ColProps>>>({ span: 6 })
 
-const nameCol = ref<Partial<ElColProps>>({
+const nameCol = ref<Partial<Partial<ColProps>>>({
   span: 4,
   offset: 1,
   // push: 1,
@@ -50,7 +49,7 @@ const nameCol = ref<Partial<ElColProps>>({
 // const buttonConfirmShow = ref(true)
 // const nameProp = ['info', 'name']
 
-const { searchBinding, proSearchRef } = buildSearch<FormValues>(() => {
+const { proSearchBinding, proSearchRef } = buildSearch<FormValues>(() => {
   return {
     // row,
     col: formCol,
@@ -59,9 +58,9 @@ const { searchBinding, proSearchRef } = buildSearch<FormValues>(() => {
       cascader: 'guide,disciplines,consistency',
     },
     formProps,
-    validateFail(error) {
-      console.log('校验失败: ', error)
-    },
+    // validateFail(error) {
+    //   console.log('校验失败: ', error)
+    // },
 
     columns: [
       {
@@ -459,12 +458,16 @@ const { searchBinding, proSearchRef } = buildSearch<FormValues>(() => {
     //   type: 'notification',
     // },
 
-    async submitRequest(values) {
-      console.log('submit: ', values)
-      return true
+    request: {
+      async submitRequest(values) {
+        console.log('submit: ', values)
+        return true
+      },
     },
   }
 })
 
-console.log('searchBinding: ', searchBinding)
+console.log('proFormBinding: ', proSearchBinding)
+
+// console.log('searchBinding: ', searchBinding)
 </script>
