@@ -11,6 +11,7 @@ import { defineConfig } from 'vite'
 import dts from 'vite-plugin-dts'
 import { viteMockServe } from 'vite-plugin-mock'
 import Pages from 'vite-plugin-pages'
+import svgLoader from 'vite-svg-loader'
 
 // import { ProComponentsResolver } from './lib/resolveComponents'
 
@@ -29,6 +30,8 @@ export default defineConfig({
     }),
 
     vueJsx(),
+
+    svgLoader({ defaultImport: 'component' }),
 
     Pages({
       dirs: 'src/pages',

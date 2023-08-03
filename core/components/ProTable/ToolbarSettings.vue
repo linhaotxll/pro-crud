@@ -17,9 +17,10 @@
         <el-button type="primary" text>重置</el-button>
       </div>
 
-      <div ref="fixedNormal">
+      <pro-render :render="renderNormal" />
+      <!-- <div ref="fixedNormal">
         <el-tree
-          :data="options"
+          :data="fixedNormalOptions"
           :props="defaultProps"
           node-key="prop"
           check-on-click-node
@@ -49,13 +50,33 @@
               <div v-lazy-show="visibleMap[data.prop]">
                 <el-space>
                   <el-tooltip content="固定左侧" placement="top">
-                    <el-icon :size="16" color="var(--el-color-primary)">
+                    <el-icon
+                      :size="16"
+                      color="var(--el-color-primary)"
+                      @click="
+                        handleMoveToFixed(
+                          data,
+                          fixedNormalOptions,
+                          fixedLeftOptions
+                        )
+                      "
+                    >
                       <i-crud-fixed-left />
                     </el-icon>
                   </el-tooltip>
 
                   <el-tooltip content="固定右侧" placement="top">
-                    <el-icon :size="16" color="var(--el-color-primary)">
+                    <el-icon
+                      :size="16"
+                      color="var(--el-color-primary)"
+                      @click="
+                        handleMoveToFixed(
+                          data,
+                          fixedNormalOptions,
+                          fixedRightOptions
+                        )
+                      "
+                    >
                       <i-crud-fixed-right />
                     </el-icon>
                   </el-tooltip>
@@ -64,13 +85,15 @@
             </span>
           </template>
         </el-tree>
-      </div>
+      </div> -->
     </el-space>
   </el-popover>
 </template>
 
 <script setup lang="ts" generic="T extends object">
 import { reactive, ref } from 'vue'
+
+import { useToolbarSettings } from './useToolbarSettings'
 
 import type {
   ColumnSettingsNode,
@@ -93,21 +116,41 @@ const fixedNormal = ref<HTMLElement | null>(null)
 const checkAll = ref(false)
 const isIndeterminate = ref(true)
 
-const { options, visibleMap: v } = p.columns.reduce<{
-  options: ColumnSettingsNode[]
+const {
+  fixedNormalOptions,
+  fixedLeftOptions,
+  fixedRightOptions,
+  visibleMap: v,
+} = p.columns.reduce<{
+  fixedNormalOptions: ColumnSettingsNode[]
+  fixedLeftOptions: ColumnSettingsNode[]
+  fixedRightOptions: ColumnSettingsNode[]
   visibleMap: Record<string, boolean>
 }>(
   (prev, curr) => {
-    const { label, prop } = curr.value.columnProps
-    prev.options.push({
+    const { label, prop, fixed } = curr.value.columnProps
+    prev.fixedNormalOptions.push({
       label: label!,
       prop: prop!,
     })
 
+    if (fixed === true || fixed === 'left') {
+      prev.fixedLeftOptions.push({ label: label!, prop: prop! })
+    }
+
+    if (fixed === 'right') {
+      prev.fixedRightOptions.push({ label: label!, prop: prop! })
+    }
+
     prev.visibleMap[prop!] = false
     return prev
   },
-  { options: [], visibleMap: {} }
+  {
+    fixedNormalOptions: [],
+    fixedLeftOptions: [],
+    fixedRightOptions: [],
+    visibleMap: {},
+  }
 )
 
 const visibleMap = reactive(v)
@@ -146,8 +189,42 @@ function handleMouseLeave(node: ColumnSettingsNode) {
   visibleMap[node.prop] = false
 }
 
+const { render: renderNormal } = useToolbarSettings({
+  options: fixedNormalOptions,
+  visibleMap,
+  buttons: [
+    {
+      content: '固定左侧',
+      icon: 'FixedLeft',
+      from: fixedNormalOptions,
+      to: fixedLeftOptions,
+    },
+    {
+      content: '固定右侧',
+      icon: 'FixedRight',
+      from: fixedNormalOptions,
+      to: fixedRightOptions,
+    },
+  ],
+})
+
 function handleAllowDrop(_, __, type) {
   return type === 'inner' ? false : true
+}
+
+/**
+ * 移动到 fixed left 中
+ */
+function handleMoveToFixed(
+  node: ColumnSettingsNode,
+  from: ColumnSettingsNode[],
+  to: ColumnSettingsNode[]
+) {
+  const index = from.findIndex(item => item.prop === node.prop)
+  if (index !== -1) {
+    from.splice(index, 1)
+    to.push(node)
+  }
 }
 </script>
 
@@ -160,7 +237,7 @@ function handleAllowDrop(_, __, type) {
   position: relative;
 }
 
-.custom-tree-node-place {
+:deep(.custom-tree-node-place) {
   position: absolute;
   top: 0;
   left: 0;
@@ -180,13 +257,13 @@ function handleAllowDrop(_, __, type) {
   margin-right: 0 !important;
 }
 
-.custom-tree-node {
+:deep(.custom-tree-node) {
   flex: 1;
   display: flex;
   justify-content: space-between;
 }
 
-.el-tree-node__label {
+:deep(.el-tree-node__label) {
   flex: 1;
 }
 
