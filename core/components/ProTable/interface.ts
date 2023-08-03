@@ -98,12 +98,18 @@ export type ProTableColumnProps<T> = {
    * 字段名
    */
   prop: MaybeRef<string>
+
+  /**
+   * 是否显示列
+   */
+  show?: MaybeRef<boolean>
 }
 
 /**
  * @internal
  */
 export interface InternalProTableColumnProps<T> {
+  show: Ref<boolean>
   columnProps: ElTableColumnProps<T>
   columnSlots: ProTableColumnProps<T>['columnSlots']
 }
@@ -224,6 +230,13 @@ export interface ProTableScope<T> {
   scrollTo(options: number | ScrollToOptions, yCoord?: number | undefined): void
   setScrollTop(top: number | undefined): void
   setScrollLeft(left: number | undefined): void
+
+  /**
+   * 获取所有列配置
+   *
+   * @internal
+   */
+  _fetProTableColumn(): ComputedRef<InternalProTableColumnProps<T>>[]
 }
 
 /**
@@ -261,6 +274,16 @@ export interface ProTableToolbarOption {
      * 导出按钮
      */
     export?: ToolbarOption
+
+    /**
+     * 密度按钮
+     */
+    density?: ToolbarOption
+
+    /**
+     * 设置按钮
+     */
+    settings?: ToolbarOption
 
     /**
      * 其他
@@ -306,7 +329,7 @@ export interface ToolbarOption {
   /**
    * 自定义渲染操作
    */
-  render?: () => JSX.Element
+  render?: (buttonProps: ElButtonProps) => JSX.Element
 }
 
 /**
@@ -323,4 +346,13 @@ export interface InternalProTableToolbarOption {
   class?: string | string[] | Record<string, boolean>
   tooltip?: ElTooltipProps
   space: ElSpaceProps
+}
+
+/**
+ * 列配置节点
+ */
+export interface ColumnSettingsNode {
+  label: string
+  prop: string
+  children?: ColumnSettingsNode[]
 }

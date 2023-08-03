@@ -11,13 +11,21 @@
       >
         <el-space v-bind="toolbar.value.space">
           <div v-for="(item, i) in toolbar.value.list" :key="i">
-            <el-tooltip v-if="item.tooltip.show" v-bind="item.tooltip">
-              <pro-render v-if="item.render" :render="item.render" />
+            <el-tooltip v-if="item.tooltip!.show" v-bind="item.tooltip">
+              <pro-render
+                v-if="item.render"
+                :render="item.render"
+                :ctx="item.props"
+              />
               <el-button v-else v-bind="item.props"></el-button>
             </el-tooltip>
 
             <template v-else>
-              <pro-render v-if="item.render" :render="item.render" />
+              <pro-render
+                v-if="item.render"
+                :render="item.render"
+                :ctx="item.props"
+              />
               <el-button v-else v-bind="item.props"></el-button>
             </template>
           </div>
@@ -34,11 +42,9 @@
       class="pro-table"
       v-bind="tableProps.value"
     >
-      <pro-table-column
-        v-for="column in columns"
-        :key="column.value.columnProps.prop"
-        :column="column.value"
-      />
+      <template v-for="column in columns" :key="column.value.columnProps.prop">
+        <pro-table-column v-if="column.value.show" :column="column.value" />
+      </template>
 
       <template v-if="tableSlots?.empty" #empty>
         <pro-render :render="tableSlots.empty" />

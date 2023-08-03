@@ -42,3 +42,16 @@ export const DefaultToolbarTooltip: ToolbarOption = {
 
 // toolbar 默认间距配置
 export const DefaultToolbarSpace: ElSpaceProps = { size: 16 }
+
+// toolbar 密度枚举
+export const enum ToolbarDensityEnum {
+  Large = 'large',
+  Default = 'default',
+  Small = 'small',
+}
+
+// 表格默认大小
+export const DefaultTableSize = 'large'
+
+// 默认显示表格列
+export const DefaultTableColumnShow = true

@@ -4,6 +4,7 @@
   </div> -->
 
   <el-button @click="searchBarShow = !searchBarShow">切换 search bar</el-button>
+  <el-button @click="idColumnShow = !idColumnShow">切换 id 列</el-button>
 
   <pro-table ref="proTableRef" v-bind="proTableBinding" />
 </template>
@@ -17,6 +18,7 @@ import { buildTable } from '~/components/ProTable'
 const border = ref(false)
 const stripe = ref(true)
 const searchBarShow = ref(false)
+const idColumnShow = ref(true)
 
 interface User {
   id: string
@@ -61,12 +63,13 @@ const { proTableRef, proTableBinding } = buildTable<User>(() => ({
   columns: [
     {
       label: '序号',
-      prop: 'id',
+      prop: 'index',
       columnProps: { type: 'index', width: 100 },
     },
     {
       label: 'Id',
       prop: 'id',
+      show: idColumnShow,
     },
     {
       label: '姓名',
@@ -75,9 +78,9 @@ const { proTableRef, proTableBinding } = buildTable<User>(() => ({
     {
       label: '住址',
       prop: 'address',
-      columnSlots: {
-        default: ctx => <el-tag>{ctx.row.address}</el-tag>,
-      },
+      // columnSlots: {
+      //   default: ctx => <el-tag>{ctx.row.address}</el-tag>,
+      // },
     },
     {
       label: '创建时间',

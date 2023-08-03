@@ -19,7 +19,9 @@ import type {
   IconProps,
   ElTooltipProps as TooltipProps,
   SpaceProps,
+  dropdownProps,
 } from 'element-plus'
+import type { ExtractPropTypes } from 'vue'
 
 // AutoComplete
 export type ElAutoCompleteProps = Partial<
@@ -131,3 +133,6 @@ export type ElTooltipProps = Partial<TooltipProps>
 
 // Space
 export type ElSpaceProps = Partial<SpaceProps>
+
+// Dropdown
+export type ElDropdownProps = Partial<ExtractPropTypes<typeof dropdownProps>>

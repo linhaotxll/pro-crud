@@ -7,21 +7,18 @@ import {
   DefaultProTableLoading,
   ElTableRefKey,
   ElTableInstanceNames,
-  DefaultToolbarTooltip,
-  DefaultToolbarSpace,
 } from './constant'
+import { useColumns } from './useColumns'
+import { useToolbar } from './useToolbar'
 
 import { unRef } from '../common'
 
 import type {
   BuildProTableOptionResult,
   BuildProTableResult,
-  InternalProTableColumnProps,
-  InternalProTableToolbarOption,
   ProTableInstance,
   ProTableLoading,
   ProTableScope,
-  ProTableToolbarOption,
 } from './interface'
 import type { ElPaginationProps } from '../common'
 import type { TableInstance, TableProps } from 'element-plus'
@@ -57,11 +54,12 @@ export function buildTable<T extends object, C>(
       previous,
       reset,
       reload,
+      _fetProTableColumn,
     } as ProTableScope<T>
   )
 
   const {
-    columns = [],
+    columns: originColumns = [],
     data: originData,
     tableProps = {},
     tableSlots,
@@ -90,6 +88,10 @@ export function buildTable<T extends object, C>(
 
   // 初始页数
   const initialPageNumber = pageNumber.value
+
+  const { columns } = useColumns(originColumns)
+
+  const { toolbar, tableSize } = useToolbar(tableProps, originToolbar, scope)
 
   /**
    * 加载指定页数内容
@@ -131,29 +133,6 @@ export function buildTable<T extends object, C>(
     }
   }
 
-  // 解析列配置
-  const resolvedColumns = columns.map(column => {
-    return computed(() => {
-      const result: InternalProTableColumnProps<T> = {
-        columnProps: {
-          label: unRef(column.label),
-          prop: unRef(column.prop),
-        },
-        columnSlots: column.columnSlots,
-      }
-
-      const p = unRef(column.columnProps)
-      if (p) {
-        Object.keys(p).forEach(key => {
-          // @ts-ignore
-          result.columnProps[key] = unRef(p[key])
-        })
-      }
-
-      return result
-    })
-  })
-
   // 解析 loading 配置
   const resolvedLoadingConfig = computed<ProTableLoading>(() => {
     const mergeLoading = merge({}, DefaultProTableLoading, unRef(originLoading))
@@ -191,10 +170,12 @@ export function buildTable<T extends object, C>(
 
   // 解析 table props
   const resolvedTableProps = computed(() => {
+    console.log('解析 table props')
     const result: TableProps<T> = {
       data: data.value,
       defaultExpandAll: tableProps.defaultExpandAll,
       defaultSort: tableProps.defaultSort,
+      size: unRef(tableSize),
     }
 
     Object.keys(tableProps).forEach(key => {
@@ -203,71 +184,6 @@ export function buildTable<T extends object, C>(
     })
 
     return result
-  })
-
-  // 默认 toolbar
-  const defaultToolbar: ProTableToolbarOption = {
-    show: true,
-    list: {
-      reload: {
-        tooltip: { content: '刷新' },
-        props: {
-          icon: 'Refresh',
-          onClick: () => {
-            scope.reload()
-          },
-        },
-      },
-
-      export: {
-        tooltip: { content: '导出' },
-        props: {
-          icon: 'UploadFilled',
-          onClick: () => {
-            scope.reload()
-          },
-        },
-      },
-
-      settings: {
-        tooltip: { content: '设置' },
-        props: {
-          icon: 'Tools',
-          onClick: () => {
-            // scope.reload()
-          },
-        },
-      },
-    },
-  }
-
-  // 解析 toolbar
-  const resolvedToolbar = computed<InternalProTableToolbarOption>(() => {
-    console.log('解析 toolbar')
-    const toolbar = merge({}, defaultToolbar, unRef(originToolbar))
-    const toolbarShow = unRef(toolbar.show!)
-    const space = unRef(toolbar.space)
-
-    // debugger
-    const list = Object.keys(toolbar.list ?? {})
-      .map(key => {
-        const show = unRef(
-          toolbar.list![key]!.tooltip?.show ??
-            DefaultToolbarTooltip.tooltip!.show!
-        )
-        return merge({}, DefaultToolbarTooltip, toolbar.list![key]!, {
-          tooltip: { show },
-        })
-      })
-      .sort((a, b) => (unRef(a.order) ?? 1) - (unRef(b.order) ?? 1))
-
-    console.log('list: ', list)
-
-    return {
-      show: toolbarShow,
-      list,
-      space: merge({}, DefaultToolbarSpace, space),
-    }
   })
 
   /**
@@ -298,6 +214,13 @@ export function buildTable<T extends object, C>(
     return _fetchTableData(initialPageNumber)
   }
 
+  /**
+   * 获取所有列配置
+   */
+  function _fetProTableColumn() {
+    return columns
+  }
+
   nextTick(() => {
     reload()
   })
@@ -306,12 +229,12 @@ export function buildTable<T extends object, C>(
   const buildProTableResult: BuildProTableResult<T> = {
     proTableRef,
     proTableBinding: {
-      columns: resolvedColumns,
+      columns,
       tableProps: resolvedTableProps,
       tableSlots,
       pagination: resolvedPagination,
       loading: resolvedLoadingConfig,
-      toolbar: resolvedToolbar,
+      toolbar,
       scope,
     },
   }
