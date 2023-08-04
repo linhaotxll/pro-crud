@@ -55,6 +55,9 @@ export function buildTable<T extends object, C>(
       reset,
       reload,
       _fetProTableColumn,
+      _setPropFixed,
+      changeColumnVisible,
+      changeColumnSort,
     } as ProTableScope<T>
   )
 
@@ -89,9 +92,14 @@ export function buildTable<T extends object, C>(
   // 初始页数
   const initialPageNumber = pageNumber.value
 
-  const { columns } = useColumns(originColumns)
+  const { columns, columnsShow, sort, setFixed } = useColumns(originColumns)
 
-  const { toolbar, tableSize } = useToolbar(tableProps, originToolbar, scope)
+  const { toolbar, tableSize } = useToolbar(
+    columns,
+    tableProps,
+    originToolbar,
+    scope
+  )
 
   /**
    * 加载指定页数内容
@@ -219,6 +227,27 @@ export function buildTable<T extends object, C>(
    */
   function _fetProTableColumn() {
     return columns
+  }
+
+  /**
+   * 修改列显示状态
+   */
+  function changeColumnVisible(prop: string, visible: boolean) {
+    columnsShow[prop] = visible
+  }
+
+  /**
+   * 修改列顺序
+   */
+  function changeColumnSort(fromIndex: number, toIndex: number) {
+    sort(fromIndex, toIndex)
+  }
+
+  /**
+   *
+   */
+  function _setPropFixed(prop: string, fixed?: boolean | string) {
+    setFixed(prop, fixed)
   }
 
   nextTick(() => {

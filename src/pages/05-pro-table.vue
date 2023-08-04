@@ -5,6 +5,7 @@
 
   <el-button @click="searchBarShow = !searchBarShow">切换 search bar</el-button>
   <el-button @click="idColumnShow = !idColumnShow">切换 id 列</el-button>
+  <el-button @click="fixedId = !fixedId">固定Id列</el-button>
 
   <pro-table ref="proTableRef" v-bind="proTableBinding" />
 </template>
@@ -19,6 +20,7 @@ const border = ref(false)
 const stripe = ref(true)
 const searchBarShow = ref(false)
 const idColumnShow = ref(true)
+const fixedId = ref(true)
 
 interface User {
   id: string
@@ -44,6 +46,7 @@ const { proTableRef, proTableBinding } = buildTable<User>(() => ({
     stripe,
     lazy: true,
     rowKey: 'id',
+    width: '100%',
     // height: 'auto',
     // maxHeight: '100%',
   },
@@ -64,7 +67,11 @@ const { proTableRef, proTableBinding } = buildTable<User>(() => ({
     {
       label: '序号',
       prop: 'index',
-      columnProps: { type: 'index', width: 100 },
+      columnProps: {
+        type: 'index',
+        width: 100,
+        fixed: fixedId,
+      },
     },
     {
       label: 'Id',
@@ -76,12 +83,53 @@ const { proTableRef, proTableBinding } = buildTable<User>(() => ({
       prop: 'name',
     },
     {
-      label: '住址',
-      prop: 'address',
-      // columnSlots: {
-      //   default: ctx => <el-tag>{ctx.row.address}</el-tag>,
-      // },
+      label: '标题',
+      prop: 'title',
+      columnProps: {
+        width: 300,
+      },
     },
+    {
+      label: '地址',
+      prop: 'url',
+      columnProps: {
+        width: 200,
+      },
+    },
+    {
+      label: '邮件',
+      prop: 'email',
+      columnProps: {
+        width: 200,
+      },
+    },
+    {
+      label: '区域',
+      prop: 'region',
+    },
+    {
+      label: '省',
+      prop: 'province',
+    },
+    {
+      label: '城市',
+      prop: 'city',
+    },
+    {
+      label: '邮政编码',
+      prop: 'zip',
+    },
+    {
+      label: '住址',
+      prop: 'address1',
+      columnProps: {
+        width: 200,
+      },
+      columnSlots: {
+        default: ctx => <el-tag>{ctx.row.address}</el-tag>,
+      },
+    },
+
     {
       label: '创建时间',
       prop: 'createTime',
@@ -89,6 +137,9 @@ const { proTableRef, proTableBinding } = buildTable<User>(() => ({
     {
       label: '描述',
       prop: 'desc',
+      columnProps: {
+        width: 500,
+      },
     },
   ],
   request: {

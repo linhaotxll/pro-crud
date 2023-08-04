@@ -76,17 +76,6 @@ defineExpose<ProTableInstance<T>>({
 </script>
 
 <style scoped>
-/* .pro-table-container {
-  display: flex;
-  overflow: auto;
-  height: 100%;
-  flex-direction: column;
-}
-
-.pro-table {
-  flex: 1;
-} */
-
 .pro-table-top {
   display: flex;
   justify-content: space-between;

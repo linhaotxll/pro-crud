@@ -109,7 +109,7 @@ export type ProTableColumnProps<T> = {
  * @internal
  */
 export interface InternalProTableColumnProps<T> {
-  show: Ref<boolean>
+  show: boolean
   columnProps: ElTableColumnProps<T>
   columnSlots: ProTableColumnProps<T>['columnSlots']
 }
@@ -215,6 +215,16 @@ export interface ProTableScope<T> {
   next(): Promise<void>
 
   /**
+   * 修改列显示状态
+   */
+  changeColumnVisible(prop: string, visible: boolean): void
+
+  /**
+   * 修改列顺序
+   */
+  changeColumnSort(fromIndex: number, toIndex: number): void
+
+  /**
    * ElTable 原始方法
    */
   clearSelection(): void
@@ -237,6 +247,11 @@ export interface ProTableScope<T> {
    * @internal
    */
   _fetProTableColumn(): ComputedRef<InternalProTableColumnProps<T>>[]
+
+  /**
+   * 设置列的 fixed
+   */
+  _setPropFixed(prop: string, fixed?: string | boolean): void
 }
 
 /**
@@ -351,8 +366,8 @@ export interface InternalProTableToolbarOption {
 /**
  * 列配置节点
  */
-export interface ColumnSettingsNode {
-  label: string
-  prop: string
-  children?: ColumnSettingsNode[]
-}
+// export interface ColumnSettingsNode {
+//   label: string
+//   prop: string
+//   children?: ColumnSettingsNode[]
+// }

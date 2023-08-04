@@ -7,6 +7,13 @@ const Random = Mock.Random
 const userList = Array.from({ length: 431 }).map(() => ({
   id: Random.id(),
   address: Random.province(),
+  region: Random.region(),
+  province: Random.province(),
+  city: Random.city(),
+  zip: Random.zip(),
+  title: Random.title(),
+  url: Random.url(),
+  email: Random.email(),
   name: Random.name(),
   createTime: Random.date(),
   desc: Random.csentence(),

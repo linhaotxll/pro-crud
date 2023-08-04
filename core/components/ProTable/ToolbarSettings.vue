@@ -17,75 +17,9 @@
         <el-button type="primary" text>重置</el-button>
       </div>
 
+      <pro-render :render="renderLeft" />
       <pro-render :render="renderNormal" />
-      <!-- <div ref="fixedNormal">
-        <el-tree
-          :data="fixedNormalOptions"
-          :props="defaultProps"
-          node-key="prop"
-          check-on-click-node
-          show-checkbox
-          draggable
-          :allow-drop="handleAllowDrop"
-          @check-change="handleCheckChange"
-        >
-          <template #default="{ node, data }">
-            <span
-              class="custom-tree-node"
-              @mouseover="handleMouseEnter(data)"
-              @mouseout="handleMouseLeave(data)"
-            >
-              <div class="custom-tree-node-place">
-                <el-icon
-                  class="sort-icon"
-                  :size="14"
-                  color="var(--el-text-color-secondary)"
-                >
-                  <Sort />
-                </el-icon>
-              </div>
-
-              <span class="el-tree-node__label">{{ node.label }}</span>
-
-              <div v-lazy-show="visibleMap[data.prop]">
-                <el-space>
-                  <el-tooltip content="固定左侧" placement="top">
-                    <el-icon
-                      :size="16"
-                      color="var(--el-color-primary)"
-                      @click="
-                        handleMoveToFixed(
-                          data,
-                          fixedNormalOptions,
-                          fixedLeftOptions
-                        )
-                      "
-                    >
-                      <i-crud-fixed-left />
-                    </el-icon>
-                  </el-tooltip>
-
-                  <el-tooltip content="固定右侧" placement="top">
-                    <el-icon
-                      :size="16"
-                      color="var(--el-color-primary)"
-                      @click="
-                        handleMoveToFixed(
-                          data,
-                          fixedNormalOptions,
-                          fixedRightOptions
-                        )
-                      "
-                    >
-                      <i-crud-fixed-right />
-                    </el-icon>
-                  </el-tooltip>
-                </el-space>
-              </div>
-            </span>
-          </template>
-        </el-tree>
-      </div> -->
+      <pro-render :render="renderRight" />
     </el-space>
   </el-popover>
 </template>
@@ -95,51 +29,42 @@ import { reactive, ref } from 'vue'
 
 import { useToolbarSettings } from './useToolbarSettings'
 
-import type {
-  ColumnSettingsNode,
-  InternalProTableColumnProps,
-} from './interface'
+import type { InternalProTableColumnProps } from './interface'
 import type { ComputedRef } from 'vue'
 
 defineOptions({ name: 'ToolbarSettings' })
 
 const p = defineProps<{
-  columns: ComputedRef<InternalProTableColumnProps<T>>[]
+  columns: ComputedRef<InternalProTableColumnProps<any>>[]
 }>()
 
 const emit = defineEmits<{
-  (e: 'change', values: string[]): void
+  (type: 'visible', prop: string, visible: boolean): void
+  (type: 'sort', fromIndex: number, toIndex: number): void
+  (type: 'fixed', prop: string, fixed?: string | boolean): void
 }>()
 
-const fixedNormal = ref<HTMLElement | null>(null)
-
-const checkAll = ref(false)
-const isIndeterminate = ref(true)
-
 const {
-  fixedNormalOptions,
-  fixedLeftOptions,
-  fixedRightOptions,
+  fixedNormalOptions: n,
+  fixedLeftOptions: l,
+  fixedRightOptions: r,
   visibleMap: v,
 } = p.columns.reduce<{
-  fixedNormalOptions: ColumnSettingsNode[]
-  fixedLeftOptions: ColumnSettingsNode[]
-  fixedRightOptions: ColumnSettingsNode[]
+  fixedNormalOptions: InternalProTableColumnProps<object>[]
+  fixedLeftOptions: InternalProTableColumnProps<object>[]
+  fixedRightOptions: InternalProTableColumnProps<object>[]
   visibleMap: Record<string, boolean>
 }>(
   (prev, curr) => {
-    const { label, prop, fixed } = curr.value.columnProps
-    prev.fixedNormalOptions.push({
-      label: label!,
-      prop: prop!,
-    })
+    const { prop, fixed } = curr.value.columnProps
+    const column = { ...curr.value, prop }
 
     if (fixed === true || fixed === 'left') {
-      prev.fixedLeftOptions.push({ label: label!, prop: prop! })
-    }
-
-    if (fixed === 'right') {
-      prev.fixedRightOptions.push({ label: label!, prop: prop! })
+      prev.fixedLeftOptions.push(column)
+    } else if (fixed === 'right') {
+      prev.fixedRightOptions.push(column)
+    } else {
+      prev.fixedNormalOptions.push(column)
     }
 
     prev.visibleMap[prop!] = false
@@ -153,79 +78,152 @@ const {
   }
 )
 
-const visibleMap = reactive(v)
+const checkAll = ref(true)
+const isIndeterminate = ref(false)
 
-const defaultProps = { label: 'label', children: 'children' }
+function handleChangeColumnVisible(prop: string, visible: boolean) {
+  emit('visible', prop, visible)
+}
+
+function handleChangeColumnSort(fromIndex: number, toIndex: number) {
+  emit('sort', fromIndex, toIndex)
+}
+
+const visibleMap = reactive(v)
+const fixedNormalOptions = reactive(n)
+const fixedLeftOptions = reactive(l)
+const fixedRightOptions = reactive(r)
 
 const allColumns =
   p.columns?.map(column => column.value.columnProps.prop!) ?? []
 
 const checkedColumns = ref<string[]>([...allColumns])
 
-const handleCheckAllChange = (val: boolean) => {
-  checkedColumns.value = val ? allColumns : []
+const handleCheckAllChange = (checked: boolean) => {
+  const leftKeys = checked
+    ? fixedLeftOptions.map(item => item.columnProps.prop)
+    : []
+  const normalKeys = checked
+    ? fixedNormalOptions.map(item => item.columnProps.prop)
+    : []
+  const rightKeys = checked
+    ? fixedRightOptions.map(item => item.columnProps.prop)
+    : []
+
+  normalTreeRef.value?.setCheckedKeys(normalKeys)
+  leftTreeRef.value?.setCheckedKeys(leftKeys)
+  rightTreeRef.value?.setCheckedKeys(rightKeys)
+
+  checkedColumns.value = checked ? allColumns : []
   isIndeterminate.value = false
-
-  notifyChange(checkedColumns.value)
 }
 
-const handleCheckChange = (
-  data: Node,
-  checked: boolean,
-  indeterminate: boolean
-) => {
-  console.log(data, checked, indeterminate)
+function handleChangeTreeNode(checkedKeys: string[]) {
+  const checkedCount = checkedKeys.length
+  checkAll.value = checkedCount === allColumns.length
+  isIndeterminate.value = checkedCount > 0 && checkedCount < allColumns.length
 }
 
-function notifyChange(values: string[]) {
-  emit('change', values)
+function createOnFixed(
+  from: InternalProTableColumnProps<object>[],
+  to: InternalProTableColumnProps<object>[]
+) {
+  return function (node: InternalProTableColumnProps<object>) {
+    const index = from.findIndex(
+      item => item.columnProps.prop! === node.columnProps.prop!
+    )
+    if (index !== -1) {
+      const fromPositionMap = position.get(from) || {}
+      fromPositionMap[node.columnProps.prop!] = index
+      position.set(from, fromPositionMap)
+      from.splice(index, 1)
+
+      const toPositionMap = position.get(to)
+      if (!toPositionMap || toPositionMap[node.columnProps.prop!] == null) {
+        to.push(node)
+      } else {
+        to.splice(toPositionMap[node.columnProps.prop!], 0, node)
+      }
+
+      const fixed =
+        to === fixedNormalOptions
+          ? undefined
+          : to === fixedLeftOptions
+          ? 'left'
+          : 'right'
+
+      emit('fixed', node.columnProps.prop!, fixed)
+    }
+  }
 }
 
-function handleMouseEnter(node: ColumnSettingsNode) {
-  visibleMap[node.prop] = true
-}
-
-function handleMouseLeave(node: ColumnSettingsNode) {
-  visibleMap[node.prop] = false
-}
-
-const { render: renderNormal } = useToolbarSettings({
+const position = new WeakMap()
+const { render: renderNormal, treeRef: normalTreeRef } = useToolbarSettings({
   options: fixedNormalOptions,
   visibleMap,
+  title: '不固定',
+  position,
+  onVisible: handleChangeColumnVisible,
+  onSort: handleChangeColumnSort,
+  onChange: handleChangeTreeNode,
   buttons: [
     {
       content: '固定左侧',
       icon: 'FixedLeft',
-      from: fixedNormalOptions,
-      to: fixedLeftOptions,
+      onFixed: createOnFixed(fixedNormalOptions, fixedLeftOptions),
     },
     {
       content: '固定右侧',
       icon: 'FixedRight',
-      from: fixedNormalOptions,
-      to: fixedRightOptions,
+      onFixed: createOnFixed(fixedNormalOptions, fixedRightOptions),
     },
   ],
 })
 
-function handleAllowDrop(_, __, type) {
-  return type === 'inner' ? false : true
-}
+const { render: renderLeft, treeRef: leftTreeRef } = useToolbarSettings({
+  options: fixedLeftOptions,
+  visibleMap,
+  title: '固定左侧',
+  position,
 
-/**
- * 移动到 fixed left 中
- */
-function handleMoveToFixed(
-  node: ColumnSettingsNode,
-  from: ColumnSettingsNode[],
-  to: ColumnSettingsNode[]
-) {
-  const index = from.findIndex(item => item.prop === node.prop)
-  if (index !== -1) {
-    from.splice(index, 1)
-    to.push(node)
-  }
-}
+  onVisible: handleChangeColumnVisible,
+  onSort: handleChangeColumnSort,
+  onChange: handleChangeTreeNode,
+  buttons: [
+    {
+      content: '不固定',
+      icon: 'FixedNormal',
+      onFixed: createOnFixed(fixedLeftOptions, fixedNormalOptions),
+    },
+    {
+      content: '固定右侧',
+      icon: 'FixedRight',
+      onFixed: createOnFixed(fixedLeftOptions, fixedRightOptions),
+    },
+  ],
+})
+
+const { render: renderRight, treeRef: rightTreeRef } = useToolbarSettings({
+  options: fixedRightOptions,
+  visibleMap,
+  title: '固定右侧',
+  position,
+  onVisible: handleChangeColumnVisible,
+  onSort: handleChangeColumnSort,
+  onChange: handleChangeTreeNode,
+  buttons: [
+    {
+      content: '不固定',
+      icon: 'FixedNormal',
+      onFixed: createOnFixed(fixedRightOptions, fixedNormalOptions),
+    },
+    {
+      content: '固定左侧',
+      icon: 'FixedLeft',
+      onFixed: createOnFixed(fixedRightOptions, fixedLeftOptions),
+    },
+  ],
+})
 </script>
 
 <style scoped>
@@ -241,9 +239,11 @@ function handleMoveToFixed(
   position: absolute;
   top: 0;
   left: 0;
+  z-index: 0;
   padding-top: 6px;
   width: 100%;
   height: 100%;
+  box-sizing: border-box;
 }
 
 .popper-top {
@@ -252,22 +252,21 @@ function handleMoveToFixed(
   width: 100%;
 }
 
-.popper-checkbox {
-  display: block;
-  margin-right: 0 !important;
-}
-
 :deep(.custom-tree-node) {
-  flex: 1;
+  position: absolute;
+  top: 0;
+  left: 0;
   display: flex;
   justify-content: space-between;
+  align-items: center;
+  padding-left: 46px;
+  width: 100%;
+  height: 100%;
+  flex: 1;
+  box-sizing: border-box;
 }
 
 :deep(.el-tree-node__label) {
   flex: 1;
-}
-
-.sort-icon {
-  cursor: grab;
 }
 </style>

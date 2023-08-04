@@ -1,6 +1,6 @@
 import { ElButton } from 'element-plus'
 import { merge } from 'lodash-es'
-import { computed, ref } from 'vue'
+import { computed, ref, watch } from 'vue'
 
 import {
   DefaultTableSize,
@@ -15,18 +15,29 @@ import { DropdownSelect } from '../DropdownSelect'
 
 import type {
   BuildProTableOptionResult,
+  InternalProTableColumnProps,
   InternalProTableToolbarOption,
   ProTableScope,
   ProTableToolbarOption,
 } from './interface'
+import type { ComputedRef } from 'vue'
 
 export function useToolbar<T extends object>(
+  columns: ComputedRef<InternalProTableColumnProps<T>>[],
   tableProps: BuildProTableOptionResult<T>['tableProps'],
   originToolbar: BuildProTableOptionResult<T>['toolbar'],
   scope: ProTableScope<T>
 ) {
   // 表格大小
   const tableSize = ref(tableProps?.size ?? DefaultTableSize)
+
+  // watch(
+  //   columns,
+  //   c => {
+  //     console.log('列变了: ', c)
+  //   },
+  //   { deep: true }
+  // )
 
   // 默认 toolbar
   const defaultToolbar: ProTableToolbarOption = {
@@ -74,9 +85,22 @@ export function useToolbar<T extends object>(
       },
 
       settings: {
-        tooltip: { content: '设置' },
+        tooltip: { content: '列设置' },
         render: props => (
-          <ToolbarSettings columns={scope._fetProTableColumn()}>
+          <ToolbarSettings
+            columns={columns}
+            // @ts-ignore
+            onVisible={(prop: string, visible: boolean) => {
+              scope.changeColumnVisible(prop, visible)
+            }}
+            onSort={(fromIndex: number, toIndex: number) => {
+              scope.changeColumnSort(fromIndex, toIndex)
+            }}
+            onFixed={(prop: string, fixed?: string | boolean) => {
+              //
+              scope._setPropFixed(prop, fixed)
+            }}
+          >
             {{
               reference: () => (
                 <ElButton type="primary" circle icon="Tools" {...props} />
@@ -108,18 +132,12 @@ export function useToolbar<T extends object>(
       })
       .sort((a, b) => (unRef(a.order) ?? 1) - (unRef(b.order) ?? 1))
 
-    console.log('list: ', list)
-
     return {
       show: toolbarShow,
       list,
       space: merge({}, DefaultToolbarSpace, space),
     }
   })
-
-  // function handleChangeColumns(values: string[]) {
-  //   console.log(1, values)
-  // }
 
   return { toolbar: resolvedToolbar, tableSize }
 }

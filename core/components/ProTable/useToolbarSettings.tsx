@@ -1,27 +1,33 @@
-import {
-  UploadFilled,
-  Tools,
-  Refresh,
-  DCaret,
-  Sort,
-} from '@element-plus/icons-vue'
+import { Sort } from '@element-plus/icons-vue'
 import { ElTree, ElIcon, ElSpace, ElTooltip } from 'element-plus'
+import { ref } from 'vue'
 
 import FixedLeft from '../../assets/icons/fixed-left.svg'
 import FixedNormal from '../../assets/icons/fixed-normal.svg'
 import FixedRight from '../../assets/icons/fixed-right.svg'
 
-import type { ColumnSettingsNode } from './interface'
-import type { CSSProperties } from 'vue'
+import type { InternalProTableColumnProps } from './interface'
 
 interface UseToolbarSettingsOptions {
-  options: ColumnSettingsNode[]
+  options: InternalProTableColumnProps<object>[]
   visibleMap: Record<string, boolean>
+  title: string
+  position: WeakMap<
+    InternalProTableColumnProps<object>[],
+    Record<string, number>
+  >
+  fixed?: 'left' | 'right'
+  onVisible(prop: string, visible: boolean): void
+  onSort(fromIdex: number, toIndex: number): void
+  onChange(checkedKeys: string[]): void
+  // onFixed(node: InternalProTableColumnProps<object>): void
+
   buttons: {
     content: string
     icon: string
-    from: ColumnSettingsNode[]
-    to: ColumnSettingsNode[]
+    // from: InternalProTableColumnProps<object>[]
+    // to: InternalProTableColumnProps<object>[]
+    onFixed(node: InternalProTableColumnProps<object>): void
   }[]
 }
 
@@ -31,130 +37,211 @@ const iconMap = {
   FixedNormal: <FixedNormal />,
 }
 
-console.log(1, iconMap)
-
 const defaultProps = { label: 'label', children: 'children' }
-
-const customTreeNodeStyle: CSSProperties = {
-  flex: 1,
-  display: 'flex',
-  justifyContent: 'space-between',
-}
 
 export function useToolbarSettings({
   options,
-  // from,
-  // to,
   visibleMap,
+  title,
+  position,
   buttons,
-}: UseToolbarSettingsOptions) {
+  fixed,
+  onVisible,
+  onSort,
+  onChange,
+}: // onFixed,
+// onMove,
+UseToolbarSettingsOptions) {
+  // ElTree 实例
+  const treeRef = ref<any>(null)
+
+  /**
+   * 检测是否可以拖拽
+   */
   function handleAllowDrop(_: unknown, __: undefined, type: string) {
     return type === 'inner' ? false : true
   }
 
-  function handleMouseEnter(node: ColumnSettingsNode) {
-    console.log('enter')
-    visibleMap[node.prop] = true
-  }
-
-  function handleMouseLeave(node: ColumnSettingsNode) {
-    visibleMap[node.prop] = false
+  /**
+   * 鼠标划入每个树节点（包括子节点）
+   */
+  function handleMouseEnter(
+    e: MouseEvent,
+    node: InternalProTableColumnProps<object>
+  ) {
+    e.stopPropagation()
+    visibleMap[node.columnProps.prop!] = true
   }
 
   /**
-   * 移动到 fixed left 中
+   * 鼠标划出每个树节点（不包括子节点）
+   */
+  function handleMouseLeave(
+    e: MouseEvent,
+    node: InternalProTableColumnProps<object>
+  ) {
+    e.stopPropagation()
+    visibleMap[node.columnProps.prop!] = false
+  }
+
+  /**
+   * 将树节点移动到指定列表中
    */
   function handleMoveToFixed(
-    node: ColumnSettingsNode,
-    from: ColumnSettingsNode[],
-    to: ColumnSettingsNode[]
+    e: MouseEvent,
+    node: InternalProTableColumnProps<object>,
+    onFixed: (node: InternalProTableColumnProps<object>) => void
   ) {
-    const index = from.findIndex(item => item.prop === node.prop)
-    if (index !== -1) {
-      from.splice(index, 1)
-      to.push(node)
+    e.stopPropagation()
+
+    onFixed(node)
+    // onMove(node, from, to)
+    // const index = from.findIndex(
+    //   item => item.columnProps.prop! === node.columnProps.prop!
+    // )
+    // if (index !== -1) {
+    //   const fromPositionMap = position.get(from) || {}
+    //   fromPositionMap[node.columnProps.prop!] = index
+    //   position.set(from, fromPositionMap)
+    //   from.splice(index, 1)
+
+    //   const toPositionMap = position.get(to)
+    //   if (!toPositionMap || toPositionMap[node.columnProps.prop!] == null) {
+    //     to.push(node)
+    //   } else {
+    //     to.splice(toPositionMap[node.columnProps.prop!], 0, node)
+    //   }
+
+    //   onFixed(node.columnProps.prop!, fixed)
+    // }
+  }
+
+  /**
+   * 拖拽结束事件，通知外部: fromIndex -> toIndex
+   */
+  let fromIndex: number | undefined
+  function handleNodeDropComplete(fromNode: any) {
+    const toIndex = options.findIndex(
+      item => item.columnProps.prop === fromNode.data.prop
+    )
+
+    if (fromIndex != null && fromIndex !== -1 && toIndex !== -1) {
+      onSort(fromIndex, toIndex)
     }
   }
 
-  function render() {
-    return (
-      <ElTree
-        data={options}
-        props={defaultProps}
-        node-key="prop"
-        check-on-click-node
-        show-checkbox
-        draggable
-        allowDrop={handleAllowDrop}
-      >
-        {{
-          default: ({ node, data }: any) => (
-            <span
-              class="custom-tree-node"
-              onMouseover={() => handleMouseEnter(data)}
-              onMouseout={() => handleMouseLeave(data)}
-            >
-              <div class="custom-tree-node-place">
-                <ElIcon
-                  class="sort-icon"
-                  size={14}
-                  color="var(--el-text-color-secondary)"
-                >
-                  <Sort />
-                </ElIcon>
-              </div>
-
-              <span class="el-tree-node__label">{node.label}</span>
-
-              {visibleMap[data.prop] ? (
-                <ElSpace>
-                  {{
-                    default: () =>
-                      buttons.map(item => (
-                        <ElTooltip content={item.content} placement="top">
-                          <ElIcon
-                            size={16}
-                            color="var(--el-color-primary)"
-                            // @ts-ignore
-                            onClick={() =>
-                              handleMoveToFixed(data, item.from, item.to)
-                            }
-                          >
-                            {(iconMap as any)[item.icon]}
-                          </ElIcon>
-                        </ElTooltip>
-                      )),
-                  }}
-                </ElSpace>
-              ) : null}
-
-              {/* <div v-lazy-show="visibleMap[data.prop]">
-                <ElSpace>
-                  {{
-                    default: () =>
-                      buttons.map(item => (
-                        <ElTooltip content={item.content} placement="top">
-                          <ElIcon
-                            size={16}
-                            color="var(--el-color-primary)"
-                            onClick={() =>
-                              handleMoveToFixed(data, item.from, item.to)
-                            }
-                          >
-                            <component is={item.icon} />
-                          </ElIcon>
-                        </ElTooltip>
-                      )),
-                  }}
-
-                </ElSpace>
-              </div> */}
-            </span>
-          ),
-        }}
-      </ElTree>
+  /**
+   * 拖拽开始事件，记录 fromIndex
+   */
+  function handleNodeDragStart(fromNode: any) {
+    fromIndex = options.findIndex(
+      item => item.columnProps.prop === fromNode.data.prop
     )
   }
 
-  return { render }
+  /**
+   * 勾选单个树节点事件，通知外部修改隐藏/显示
+   */
+  function handleChangeCheckChange(
+    data: InternalProTableColumnProps<object>,
+    checked: boolean
+  ) {
+    onVisible(data.columnProps.prop!, checked)
+  }
+
+  /**
+   *
+   */
+  function handleChangeCheck(
+    _: InternalProTableColumnProps<object>,
+    { checkedKeys }: { checkedKeys: string[] }
+  ) {
+    onChange(checkedKeys)
+  }
+
+  /**
+   * 渲染函数
+   */
+  function render() {
+    if (!options.length) {
+      return null
+    }
+
+    return (
+      <div>
+        <el-text style="padding-left: 22px;">{title}</el-text>
+        <ElTree
+          style="margin-top: 8px"
+          ref={treeRef}
+          data={options}
+          props={defaultProps}
+          node-key="prop"
+          check-on-click-node
+          show-checkbox
+          draggable
+          defaultCheckedKeys={options.map(item => item.columnProps.prop!)}
+          allowDrop={handleAllowDrop}
+          onNode-drop={handleNodeDropComplete}
+          onNode-drag-start={handleNodeDragStart}
+          onCheck-change={handleChangeCheckChange}
+          onCheck={handleChangeCheck}
+        >
+          {{
+            default: ({
+              data,
+            }: {
+              data: InternalProTableColumnProps<object>
+            }) => {
+              return (
+                <div
+                  class="custom-tree-node"
+                  onMouseover={e => handleMouseEnter(e, data)}
+                  onMouseleave={e => handleMouseLeave(e, data)}
+                >
+                  <div class="custom-tree-node-place">
+                    <ElIcon
+                      class="sort-icon"
+                      size={14}
+                      color="var(--el-text-color-secondary)"
+                    >
+                      <Sort />
+                    </ElIcon>
+                  </div>
+                  <span class="el-tree-node__label">
+                    {data.columnProps.label}
+                  </span>
+
+                  {visibleMap[data.columnProps.prop!] ? (
+                    <ElSpace>
+                      {{
+                        default: () =>
+                          buttons.map(item => (
+                            <div
+                              onClick={e =>
+                                handleMoveToFixed(e, data, item.onFixed)
+                              }
+                            >
+                              <ElTooltip content={item.content} placement="top">
+                                <ElIcon
+                                  size={16}
+                                  color="var(--el-color-primary)"
+                                >
+                                  {(iconMap as any)[item.icon]}
+                                </ElIcon>
+                              </ElTooltip>
+                            </div>
+                          )),
+                      }}
+                    </ElSpace>
+                  ) : null}
+                </div>
+              )
+            },
+          }}
+        </ElTree>
+      </div>
+    )
+  }
+
+  return { render, treeRef }
 }
