@@ -1,8 +1,12 @@
 <template>
   <div class="pro-crud">
-    <pro-search ref="proSearchRef" v-bind="searchBinding" />
+    <pro-search
+      v-if="searchShow"
+      ref="proSearchRef"
+      v-bind="proSearchBinding"
+    />
 
-    <pro-table ref="proTableRef" v-bind="tableBinding" />
+    <pro-table v-if="tableShow" ref="proTableRef" v-bind="proTableBinding" />
   </div>
 </template>
 
@@ -14,20 +18,26 @@
   F extends object = any,
   R extends object = F"
 >
+import { inject } from 'vue'
+
+import { ProSearchRef, ProTableRef } from './constant'
 import { useCrud } from './useCrud'
 
 import type { ProCrudProps, ProCrudInstance } from './interface'
 
 defineOptions({ name: 'ProCrud' })
 
-const p = defineProps<ProCrudProps<T, S, F, R>>()
+const proSearchRef = inject(ProSearchRef)
+const proTableRef = inject(ProTableRef)
 
-const { searchBinding, proSearchRef, proTableRef, tableBinding } = useCrud(p)
+const p = defineProps<ProCrudProps>()
 
-console.log('proSearchRef: ', proSearchRef)
+// const { searchBinding, proSearchRef, proTableRef, tableBinding } = useCrud(p)
 
-defineExpose<ProCrudInstance>({
-  proSearchRef,
-  proTableRef,
-})
+// console.log('proSearchRef: ', proSearchRef)
+
+// defineExpose<ProCrudInstance>({
+//   proSearchRef,
+//   proTableRef,
+// })
 </script>

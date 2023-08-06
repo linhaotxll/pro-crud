@@ -87,7 +87,11 @@ export function buildSearch<T extends object, C, R = T>(
 
     const row: ElRowProps = merge(props.row || {}, { gutter: 16 })
 
-    return merge(props, { buttons, row })
+    const col = computed<ElColProps>(() =>
+      merge({}, { span: 4 }, unRef(props.col))
+    )
+
+    return merge(props, { buttons, row, col })
   }, ctx)
 
   return {

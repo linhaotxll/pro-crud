@@ -1,10 +1,9 @@
 <template>
-  <pro-crud ref="proCrudRef" v-bind="crudBinding" />
+  <pro-crud ref="proCrudRef" v-bind="proCrudBinding" />
 </template>
 
 <script lang="tsx" setup>
 import axios from 'axios'
-import { computed } from 'vue'
 
 import { buildCrud } from '~/components/ProCrud'
 
@@ -42,25 +41,25 @@ interface UserSearchForm {
 
 const sleep = () => new Promise(r => setTimeout(r, 2000))
 
-const { crudBinding, proCrudRef } = buildCrud<
+const { proCrudBinding, proCrudRef } = buildCrud<
   User,
   PageResponseData<User>,
   UserSearchForm,
   FetchUserListInput
->(scope => {
+>(() => {
   return {
     columns: [
       { label: '姓名', prop: 'name', search: { show: true } },
       {
-        label: '年龄',
-        prop: 'age',
-        search: {
-          show: computed(() => {
-            // debugger
-            console.log(scope.search.getFieldValue)
-            return scope.search.getFieldValue('name') === 'IconMan'
-          }),
-        },
+        label: '标题',
+        prop: 'title',
+        // search: {
+        //   show: computed(() => {
+        //     // debugger
+        //     console.log(scope.search.getFieldValue)
+        //     return scope.search.getFieldValue('name') === 'IconMan'
+        //   }),
+        // },
       },
       { label: '描述', prop: 'desc', search: { show: false } },
       { label: '地址', prop: 'address', search: { show: false } },
@@ -70,21 +69,20 @@ const { crudBinding, proCrudRef } = buildCrud<
     table: {},
 
     search: {
-      initialValues: { name: 'Ronald Hall' },
+      // initialValues: { name: 'Ronald Hall' },
       buttons: {
         list: {},
       },
     },
 
-    addForm: {},
+    // addForm: {},
 
-    editForm: {},
+    // editForm: {},
 
-    viewForm: {},
+    // viewForm: {},
 
     request: {
       transformQuery(options) {
-        console.log('optinos: ', options)
         return {
           pageSize: options.query.page.pageSize,
           pageNumber: options.query.page.pageNumber,
@@ -92,16 +90,14 @@ const { crudBinding, proCrudRef } = buildCrud<
         }
       },
 
-      transformRes(options) {
+      transformResponse(options) {
         return {
-          rows: options.response.rows,
+          data: options.response.rows,
           total: options.response.total,
-          pageNumber: options.query.pageNumber,
-          pageSize: options.query.pageSize,
         }
       },
 
-      async fetchPageList(query) {
+      async fetchPaginationData(query) {
         await sleep()
         const result = await axios.get<UserResponse>('/api/user/list', {
           params: query,

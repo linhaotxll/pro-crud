@@ -1,14 +1,26 @@
 import type { MaybeRef } from '../common'
-import type { ProFormColumnOptions, ProFormInstance } from '../ProForm'
-import type { ProSearchOptions, ProSearchScope } from '../ProSearch'
 import type {
+  BuildFormOptionResult,
+  ProFormColumnOptions,
+  ProFormInstance,
+} from '../ProForm'
+import type {
+  BuildSearchBinding,
+  ProSearchInstance,
+  ProSearchProps,
+  ProSearchScope,
+} from '../ProSearch'
+import type {
+  BuildProTableBinding,
+  BuildProTableOptionResult,
+  FetchTableDataResult,
   FetchTableListQuery,
   ProTableColumnProps,
   ProTableInstance,
   ProTableProps,
   ProTableScope,
 } from '../ProTable'
-import type { Ref } from 'vue'
+import type { ComputedRef, Ref } from 'vue'
 
 /**
  * ProCrud props
@@ -18,47 +30,48 @@ import type { Ref } from 'vue'
  * @param F 查询表单数据
  * @param R 查询表单传递数据
  */
-export interface ProCrudProps<
-  T extends object,
-  S extends object = any,
-  F extends object = any,
-  R extends object = F
-> {
-  /**
-   * 通用列配置，会在 table、search、addForm、editForm、viewForm 中展示
-   */
-  columns?: ProCrudColumnOption<any>[]
+export type ProCrudProps = BuildCrudBinding
+// export interface ProCrudProps<
+//   T extends object,
+//   S extends object = any,
+//   F extends object = any,
+//   R extends object = F
+// > {
+//   /**
+//    * 通用列配置，会在 table、search、addForm、editForm、viewForm 中展示
+//    */
+//   columns?: ProCrudColumnOption<any>[]
 
-  /**
-   * 查询表单配置
-   */
-  search?: ProCrudFormProps
+//   /**
+//    * 查询表单配置
+//    */
+//   search?: ProCrudFormProps
 
-  /**
-   * 添加表单配置
-   */
-  addForm?: ProCrudFormProps
+//   /**
+//    * 添加表单配置
+//    */
+//   addForm?: ProCrudFormProps
 
-  /**
-   * 编辑表单配置
-   */
-  editForm?: ProCrudFormProps
+//   /**
+//    * 编辑表单配置
+//    */
+//   editForm?: ProCrudFormProps
 
-  /**
-   * 详情表单配置
-   */
-  viewForm?: ProCrudFormProps
+//   /**
+//    * 详情表单配置
+//    */
+//   viewForm?: ProCrudFormProps
 
-  /**
-   * 表格配置
-   */
-  table?: Omit<ProTableProps<T>, 'data' | 'fetchTableData' | 'columns'>
+//   /**
+//    * 表格配置
+//    */
+//   table?: Omit<ProTableProps<T>, 'data' | 'fetchTableData' | 'columns'>
 
-  /**
-   * 请求配置
-   */
-  request: ProCrudRequest<T, S, F, R>
-}
+//   /**
+//    * 请求配置
+//    */
+//   request: ProCrudRequest<T, S, F, R>
+// }
 
 /**
  * ProCrud 请求配置
@@ -124,8 +137,8 @@ export interface TransformResponseResult<T extends object> {
  * ProCrud 作用域
  */
 export interface ProCrudScope {
-  search: ProSearchScope<any>
-  table: ProTableScope<any>
+  // search: ProSearchScope<any>
+  // table: ProTableScope<any>
 }
 
 /**
@@ -138,7 +151,72 @@ export interface BuildCrudReturn<
   R extends object = F
 > {
   proCrudRef: Ref<ProCrudInstance | null>
-  crudBinding: ProCrudProps<T, S, F, R>
+  proCrudBinding: BuildCrudBinding<T, S, F, R>
+}
+
+export interface BuildCrudBinding<
+  T extends object,
+  S extends object = any,
+  F extends object = any,
+  R extends object = F
+> {
+  /**
+   * 是否显示搜索栏
+   */
+  searchShow: ComputedRef<boolean>
+
+  /**
+   * 搜索配置
+   */
+  proSearchBinding: BuildSearchBinding<any>
+
+  /**
+   * 是否显示 table
+   */
+  tableShow: ComputedRef<boolean>
+
+  /**
+   * table 配置
+   */
+  proTableBinding: BuildProTableBinding<any>
+}
+
+/**
+ * buildCrud option 返回值
+ */
+export interface BuildCrudOptionReturn<
+  T extends object,
+  S extends object = FetchTableDataResult<T>,
+  F extends object = any,
+  R extends object = any
+> {
+  columns?: ProCrudColumnOption<any>[]
+
+  search?: Omit<BuildFormOptionResult<any>, 'columns' | 'request'> & {
+    show?: MaybeRef<boolean>
+  }
+
+  table?: Omit<
+    BuildProTableOptionResult<any>,
+    'data' | 'columns' | 'request'
+  > & {
+    show?: MaybeRef<boolean>
+  }
+
+  request?: {
+    transformQuery?(ctx: TransformQueryParams<F>): R
+    transformResponse?(
+      ctx: TransformResponseParams<S, R>
+    ): FetchTableDataResult<T>
+    fetchPaginationData?(params: R): Promise<S>
+  }
+
+  /**
+   * 点击重置后是否自动调用查询接口
+   *
+   * @default true
+   */
+  autoReload?: boolean
 }
 
 /**
@@ -163,12 +241,17 @@ export interface ProCrudColumnOption<T extends object> {
   /**
    * 字段值
    */
-  prop: string
+  prop: MaybeRef<string>
 
   /**
    * 查询表单列配置
    */
   search?: Omit<ProFormColumnOptions<T>, 'label' | 'prop'>
+
+  /**
+   * 表格列配˙
+   */
+  table?: Omit<ProTableColumnProps<any>, 'label' | 'prop'>
 
   /**
    * 编辑表单列配置
@@ -191,18 +274,4 @@ export interface ProCrudColumnOption<T extends object> {
   column?: Omit<ProTableColumnProps<any>, 'label' | 'prop'>
 }
 
-export type ProCrudFormProps = Omit<ProSearchOptions<any, any>, 'columns'>
-
-export interface UseCrudReturn<
-  T extends object,
-  S extends object = any,
-  F extends object = any,
-  R extends object = F
-> {
-  table: Omit<ProTableProps<T>, 'data' | 'columns'> & {
-    /**
-     * 表格专属列配置
-     */
-    columns?: ProCrudColumnOption<any>[]
-  }
-}
+export type ProCrudFormProps = Omit<ProSearchProps<any>, 'columns'>

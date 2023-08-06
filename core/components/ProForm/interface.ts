@@ -238,7 +238,7 @@ export interface ProFormColumnOptions<T extends object> {
   /**
    * FormItem prop，也是表单的字段名，可使用数组嵌套
    */
-  prop: FormItemProp
+  prop: MaybeRef<FormItemProp>
 
   /**
    * FormItem 所在列配置

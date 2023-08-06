@@ -52,7 +52,7 @@ const nameCol = ref<Partial<Partial<ColProps>>>({
 const { proSearchBinding, proSearchRef } = buildSearch<FormValues>(() => {
   return {
     // row,
-    col: formCol,
+    // col: formCol,
     initialValues: {
       name: '文本内容2',
       cascader: 'guide,disciplines,consistency',
