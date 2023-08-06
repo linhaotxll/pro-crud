@@ -1,6 +1,6 @@
 import { ElButton } from 'element-plus'
 import { merge } from 'lodash-es'
-import { computed, ref, watch } from 'vue'
+import { computed, ref } from 'vue'
 
 import {
   DefaultTableSize,
@@ -8,36 +8,24 @@ import {
   DefaultToolbarTooltip,
   ToolbarDensityEnum,
 } from './constant'
-import ToolbarSettings from './ToolbarSettings.vue'
 
 import { unRef } from '../common'
 import { DropdownSelect } from '../DropdownSelect'
 
 import type {
   BuildProTableOptionResult,
-  InternalProTableColumnProps,
   InternalProTableToolbarOption,
   ProTableScope,
   ProTableToolbarOption,
 } from './interface'
-import type { ComputedRef } from 'vue'
 
 export function useToolbar<T extends object>(
-  columns: ComputedRef<InternalProTableColumnProps<T>>[],
   tableProps: BuildProTableOptionResult<T>['tableProps'],
   originToolbar: BuildProTableOptionResult<T>['toolbar'],
   scope: ProTableScope<T>
 ) {
   // 表格大小
   const tableSize = ref(tableProps?.size ?? DefaultTableSize)
-
-  // watch(
-  //   columns,
-  //   c => {
-  //     console.log('列变了: ', c)
-  //   },
-  //   { deep: true }
-  // )
 
   // 默认 toolbar
   const defaultToolbar: ProTableToolbarOption = {
@@ -74,41 +62,41 @@ export function useToolbar<T extends object>(
         ),
       },
 
-      export: {
-        tooltip: { content: '导出' },
-        props: {
-          icon: 'UploadFilled',
-          onClick: () => {
-            scope.reload()
-          },
-        },
-      },
+      // export: {
+      //   tooltip: { content: '导出' },
+      //   props: {
+      //     icon: 'UploadFilled',
+      //     onClick: () => {
+      //       scope.reload()
+      //     },
+      //   },
+      // },
 
-      settings: {
-        tooltip: { content: '列设置' },
-        render: props => (
-          <ToolbarSettings
-            columns={columns}
-            // @ts-ignore
-            onVisible={(prop: string, visible: boolean) => {
-              scope.changeColumnVisible(prop, visible)
-            }}
-            onSort={(fromIndex: number, toIndex: number) => {
-              scope.changeColumnSort(fromIndex, toIndex)
-            }}
-            onFixed={(prop: string, fixed?: string | boolean) => {
-              //
-              scope._setPropFixed(prop, fixed)
-            }}
-          >
-            {{
-              reference: () => (
-                <ElButton type="primary" circle icon="Tools" {...props} />
-              ),
-            }}
-          </ToolbarSettings>
-        ),
-      },
+      // settings: {
+      //   tooltip: { content: '列设置' },
+      //   render: props => (
+      //     <ToolbarSettings
+      //       columns={columns}
+      //       // @ts-ignore
+      //       onVisible={(prop: string, visible: boolean) => {
+      //         scope.changeColumnVisible(prop, visible)
+      //       }}
+      //       onSort={(fromIndex: number, toIndex: number) => {
+      //         scope.changeColumnSort(fromIndex, toIndex)
+      //       }}
+      //       onFixed={(prop: string, fixed?: string | boolean) => {
+      //         //
+      //         scope._setPropFixed(prop, fixed)
+      //       }}
+      //     >
+      //       {{
+      //         reference: () => (
+      //           <ElButton type="primary" circle icon="Tools" {...props} />
+      //         ),
+      //       }}
+      //     </ToolbarSettings>
+      //   ),
+      // },
     },
   }
 

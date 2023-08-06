@@ -94,12 +94,7 @@ export function buildTable<T extends object, C>(
 
   const { columns, columnsShow, sort, setFixed } = useColumns(originColumns)
 
-  const { toolbar, tableSize } = useToolbar(
-    columns,
-    tableProps,
-    originToolbar,
-    scope
-  )
+  const { toolbar, tableSize } = useToolbar(tableProps, originToolbar, scope)
 
   /**
    * 加载指定页数内容
