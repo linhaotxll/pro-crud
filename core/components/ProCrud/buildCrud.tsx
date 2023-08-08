@@ -1,3 +1,4 @@
+import { Plus } from '@element-plus/icons-vue'
 import { merge } from 'lodash-es'
 import { computed, provide, ref } from 'vue'
 
@@ -36,6 +37,7 @@ import type {
   FetchTableDataResult,
   FetchTableListQuery,
   ProTableColumnProps,
+  ProTableToolbarOption,
 } from '../ProTable'
 
 export function buildCrud<
@@ -105,7 +107,11 @@ export function buildCrud<
       editForm: editFormBinding,
       viewForm: viewFormBinding,
     },
-    dialog: { addForm: addFormDialog },
+    dialog: {
+      addForm: addFormDialog,
+      editForm: editFormDialog,
+      viewForm: viewFormDialog,
+    },
   } = context
 
   const proCrudBinding: BuildCrudBinding<T, S, F, R> = {
@@ -118,8 +124,10 @@ export function buildCrud<
     addFormDialog,
     editFormShow,
     editFormBinding,
+    editFormDialog,
     viewFormShow,
     viewFormBinding,
+    viewFormDialog,
   }
 
   // @ts-ignore
@@ -187,8 +195,23 @@ const buildTableMiddleware: Middleware<BuildCrudContext> = (ctx, next) => {
 
     const operateColumn = useOperate(ctx)
 
-    const { show: _, ...rest } = ctx.optionResult.table || {}
+    const { show: _, toolbar, ...rest } = ctx.optionResult.table || {}
     return {
+      toolbar: merge<ProTableToolbarOption, ProTableToolbarOption | undefined>(
+        {
+          list: {
+            add: {
+              show: true,
+              tooltip: { content: '添加' },
+              props: {
+                icon: Plus,
+                onClick: ctx.scope.addForm.showDialog,
+              },
+            },
+          },
+        },
+        toolbar
+      ),
       ...rest,
       columns: ctx.columns.table
         .map<ProTableColumnProps<any>>(column => ({
@@ -263,6 +286,16 @@ const buildAddFormMiddleware: Middleware<BuildCrudContext> = (ctx, next) => {
 
     return {
       col: { span: 12 },
+      buttons: {
+        show: false,
+        list: {
+          cancel: {
+            text: '取消',
+            show: true,
+            props: { onClick: hideDialog },
+          },
+        },
+      },
       ...(ctx.optionResult.addForm ?? {}),
       columns,
       request: {
@@ -282,11 +315,50 @@ const buildAddFormMiddleware: Middleware<BuildCrudContext> = (ctx, next) => {
 
 const buildEditFormMiddleware: Middleware<BuildCrudContext> = (ctx, next) => {
   const { proFormBinding, proFormRef } = buildForm(scope => {
-    ctx.scope.editForm = scope
+    const { showDialog, hideDialog, merged } = useDialog(scope)
+
+    ctx.scope.editForm = {
+      ...scope,
+      showDialog,
+      hideDialog,
+    }
 
     next()
 
-    return {}
+    ctx.dialog.editForm = merged({
+      title: '编辑',
+      appendToBody: true,
+      ...ctx.optionResult.editFormDialog,
+    })
+
+    const columns = ctx.columns.editForm.map(column => ({
+      label: column.label,
+      prop: column.prop,
+      ...column.editForm,
+    }))
+
+    return {
+      col: { span: 12 },
+      buttons: {
+        show: false,
+        list: {
+          cancel: {
+            text: '取消',
+            show: true,
+            props: { onClick: hideDialog },
+          },
+        },
+      },
+      ...(ctx.optionResult.editForm ?? {}),
+      columns,
+      request: {
+        submitRequest: ctx.optionResult.request?.editRequest,
+        successRequest() {
+          hideDialog()
+          ctx.scope.table.reload()
+        },
+      },
+    }
   })
 
   ctx.binding.editForm = proFormBinding
@@ -295,11 +367,46 @@ const buildEditFormMiddleware: Middleware<BuildCrudContext> = (ctx, next) => {
 
 const buildViewFormMiddleware: Middleware<BuildCrudContext> = (ctx, next) => {
   const { proFormBinding, proFormRef } = buildForm(scope => {
-    ctx.scope.viewForm = scope
+    const { showDialog, hideDialog, merged } = useDialog(scope)
+
+    ctx.scope.viewForm = {
+      ...scope,
+      showDialog,
+      hideDialog,
+    }
 
     next()
 
-    return {}
+    ctx.dialog.viewForm = merged({
+      title: '查看',
+      appendToBody: true,
+      ...ctx.optionResult.viewFormDialog,
+    })
+
+    const columns = ctx.columns.viewForm.map(column => ({
+      label: column.label,
+      prop: column.prop,
+      ...column.viewForm,
+    }))
+
+    return {
+      col: { span: 12 },
+      buttons: {
+        show: false,
+        list: {
+          confirm: {
+            text: '取消',
+            props: {
+              type: 'default',
+              onClick: hideDialog,
+            },
+          },
+        },
+      },
+      ...(ctx.optionResult.viewForm ?? {}),
+      formProps: { ...ctx.optionResult.viewForm?.formProps, disabled: true },
+      columns,
+    }
   })
 
   ctx.binding.viewForm = proFormBinding

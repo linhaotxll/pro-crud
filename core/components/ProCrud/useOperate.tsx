@@ -38,8 +38,15 @@ export function useOperate(ctx: BuildCrudContext) {
         edit: {
           show: true,
           text: '编辑',
+          confirmType: false,
           order: 1,
-          props: { type: 'primary' },
+          props: {
+            type: 'primary',
+            onClick(e, { row }) {
+              e.stopPropagation()
+              ctx.scope.editForm.showDialog(row)
+            },
+          },
         },
         delete: {
           show: true,
@@ -63,7 +70,19 @@ export function useOperate(ctx: BuildCrudContext) {
             width: 200,
           },
         },
-        view: { show: true, text: '查看', order: 0, props: { type: 'info' } },
+        view: {
+          show: true,
+          text: '查看',
+          order: 0,
+          confirmType: false,
+          props: {
+            type: 'info',
+            onClick(e, { row }) {
+              e.stopPropagation()
+              ctx.scope.viewForm.showDialog(row)
+            },
+          },
+        },
       },
     },
     ctx.optionResult.operates

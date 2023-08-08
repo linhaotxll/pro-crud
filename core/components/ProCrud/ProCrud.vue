@@ -9,7 +9,27 @@
     <pro-table v-if="tableShow.value" ref="proTableRef" v-bind="tableBinding" />
 
     <el-dialog v-if="addFormShow.value" v-bind="addFormDialog.value">
-      <pro-form ref="addFormRef" v-bind="addFormBinding"></pro-form>
+      <pro-form ref="addFormRef" v-bind="addFormBinding" />
+
+      <template #footer>
+        <pro-button-group :list="addFormBinding.buttons.value.list" />
+      </template>
+    </el-dialog>
+
+    <el-dialog v-if="editFormShow.value" v-bind="editFormDialog.value">
+      <pro-form ref="editFormRef" v-bind="editFormBinding" />
+
+      <template #footer>
+        <pro-button-group :list="editFormBinding.buttons.value.list" />
+      </template>
+    </el-dialog>
+
+    <el-dialog v-if="viewFormShow.value" v-bind="viewFormDialog.value">
+      <pro-form ref="viewFormRef" v-bind="viewFormBinding" />
+
+      <template #footer>
+        <pro-button-group :list="viewFormBinding.buttons.value.list" />
+      </template>
     </el-dialog>
   </div>
 </template>
@@ -33,6 +53,7 @@ defineOptions({ name: 'ProCrud' })
 const proSearchRef = inject(ProSearchRef)
 const proTableRef = inject(ProTableRef)
 const addFormRef = inject(AddFormRef)
+// const editFormRef = inject(EddFormRef)
 
 defineProps<ProCrudProps<T, S, F, R>>()
 </script>

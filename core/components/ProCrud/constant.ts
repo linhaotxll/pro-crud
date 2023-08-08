@@ -1,7 +1,7 @@
 import type { ProSearchInstance } from './../ProSearch/interface'
 import type { ProTableInstance } from './../ProTable/interface'
 import type { CrudOperateButtonOption } from './interface'
-import type { ProFormInstance } from '../ProForm'
+import type { BuildFormOptionResult, ProFormInstance } from '../ProForm'
 import type { InjectionKey, Ref } from 'vue'
 
 export const ProSearchRef = Symbol() as InjectionKey<

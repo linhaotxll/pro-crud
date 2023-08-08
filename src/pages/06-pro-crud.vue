@@ -44,6 +44,15 @@ const sleep = () => new Promise(r => setTimeout(r, 500))
 
 const showOperate = ref(true)
 
+const rules = {
+  name: { required: true, message: '请填写名称' },
+}
+
+const formProps = {
+  labelWidth: '100px',
+  rules,
+}
+
 const { proCrudBinding, proCrudRef } = buildCrud<
   User,
   PageResponseData<User>,
@@ -66,22 +75,14 @@ const { proCrudBinding, proCrudRef } = buildCrud<
         label: '姓名',
         prop: 'name',
         search: { show: true },
-        addForm: {
-          itemProps: {
-            rules: [{ required: true, message: '请填写名称' }],
-          },
-        },
+        addForm: {},
       },
 
       {
         label: '邮件',
         prop: 'email',
         search: { show: true },
-        addForm: {
-          itemProps: {
-            rules: [{ required: true, message: '请填写邮件' }],
-          },
-        },
+        addForm: {},
       },
 
       { label: '区域', prop: 'region', search: { show: false } },
@@ -95,9 +96,15 @@ const { proCrudBinding, proCrudRef } = buildCrud<
     ],
 
     addForm: {
-      formProps: {
-        labelWidth: '100px',
-      },
+      formProps,
+    },
+
+    editForm: {
+      formProps,
+    },
+
+    viewForm: {
+      formProps,
     },
 
     table: {
@@ -190,6 +197,15 @@ const { proCrudBinding, proCrudRef } = buildCrud<
       async addRequest(form) {
         await sleep()
         const response = await axios.post('/api/user/add', form)
+        return !!response.data.data
+      },
+
+      async editRequest({ id, ...rest }) {
+        await sleep()
+        const response = await axios.post('/api/user/update', {
+          userId: id,
+          ...rest,
+        })
         return !!response.data.data
       },
     },

@@ -78,6 +78,24 @@ const mock: MockMethod[] = [
       }
     },
   },
+
+  {
+    url: '/api/user/update',
+    method: 'post',
+    response(opt) {
+      const { userId, ...rest } = opt.body
+
+      const updateIndex = userList.findIndex(user => user.id === userId)
+      if (updateIndex !== -1) {
+        userList.splice(updateIndex, 1, { id: userId, ...rest } as any)
+      }
+
+      return {
+        code: 200,
+        data: updateIndex !== -1,
+      }
+    },
+  },
 ]
 
 export default mock

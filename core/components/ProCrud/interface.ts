@@ -110,12 +110,14 @@ export interface TransformResponseResult<T extends object> {
 export interface ProCrudScope {
   search: ProSearchScope<any>
   table: ProTableScope<any>
-  addForm: ProFormScope<any> & {
-    showDialog(values?: any): void
-    hideDialog(): void
-  }
-  editForm: ProFormScope<any>
-  viewForm: ProFormScope<any>
+  addForm: CrudFormScope
+  editForm: CrudFormScope
+  viewForm: CrudFormScope
+}
+
+export interface CrudFormScope extends ProFormScope<any> {
+  showDialog(values?: any): void
+  hideDialog(): void
 }
 
 /**
@@ -183,6 +185,11 @@ export interface BuildCrudBinding<
   editFormBinding: BuildSearchBinding<any>
 
   /**
+   * 编辑表单弹窗配置
+   */
+  editFormDialog: ComputedRef<ElDialogProps>
+
+  /**
    * 是否显示查看表单
    */
   viewFormShow: ComputedRef<boolean>
@@ -191,6 +198,11 @@ export interface BuildCrudBinding<
    * 查看表单配置
    */
   viewFormBinding: BuildSearchBinding<any>
+
+  /**
+   * 查看表单弹窗配置
+   */
+  viewFormDialog: ComputedRef<ElDialogProps>
 }
 
 export type BuildCrudOption<
@@ -234,10 +246,16 @@ export interface BuildCrudOptionReturn<
     show?: MaybeRef<boolean>
   }
 
+  // 编辑表单弹窗配置
+  editFormDialog?: ElDialogProps
+
   // 查看表单配置
   viewForm?: Omit<BuildFormOptionResult<any>, 'columns' | 'request'> & {
     show?: MaybeRef<boolean>
   }
+
+  // 查看表单弹窗配置
+  viewFormDialog?: ElDialogProps
 
   // 表格配置
   table?: Omit<
@@ -258,6 +276,8 @@ export interface BuildCrudOptionReturn<
     deleteRequest?: (row: T, index: number) => Promise<boolean>
 
     addRequest?: (form: any) => Promise<boolean>
+
+    editRequest?: (form: any) => Promise<boolean>
   }
 
   /**
@@ -389,6 +409,8 @@ export type BuildCrudContext = {
   }
   dialog: {
     addForm: ComputedRef<ElDialogProps>
+    editForm: ComputedRef<ElDialogProps>
+    viewForm: ComputedRef<ElDialogProps>
   }
   options: BuildCrudOption<any, any, any, any, any>
 }

@@ -16,6 +16,7 @@ import {
 } from 'element-plus'
 
 import { DropdownSelect } from './components/DropdownSelect'
+import { ProButtonGroup } from './components/ProButton'
 import { ProCrud } from './components/ProCrud'
 import { ProForm, ProFormItem, DynamicVModel } from './components/ProForm'
 import { ProRender } from './components/ProRender'
@@ -40,6 +41,7 @@ export const ProComponents: Plugin<ProComponentsOptions> = {
     app.component(ProFormItem.name, ProFormItem)
     app.component(ProSelect.name, ProSelect)
     app.component(DropdownSelect.name, DropdownSelect)
+    app.component(ProButtonGroup.name, ProButtonGroup)
 
     app.component(Refresh.name, Refresh)
     app.component(Tools.name, Tools)
