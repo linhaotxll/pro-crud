@@ -7,16 +7,13 @@ import {
   type NotificationParams,
 } from 'element-plus'
 import { get, has, merge, set, unset } from 'lodash-es'
-import { computed, provide, ref, toRaw } from 'vue'
+import { computed, ref, toRaw } from 'vue'
 
 import {
   DefaultCol,
   DefaultFormFieldType,
   DefaultPreserve,
   DefaultRow,
-  FormItemRefKey,
-  ProFormRefKey,
-  ProFormScopeKey,
   ShowButton,
 } from './constant'
 import { valueTypeMap } from './type'
@@ -25,6 +22,7 @@ import { useValues } from './useValues'
 import { unRef } from '../common'
 
 import type {
+  BuildFormBinding,
   BuildFormOptionResult,
   BuildFormResult,
   ButtonsOption,
@@ -74,7 +72,6 @@ export function buildForm<T extends object, C, R = T>(
     clearValidate,
     getFieldInstance,
   }
-  provide(ProFormScopeKey, scope)
 
   const {
     initialValues,
@@ -92,7 +89,6 @@ export function buildForm<T extends object, C, R = T>(
 
   // el-form ref
   const formRef = ref<FormInstance | null>(null)
-  provide(ProFormRefKey, formRef)
 
   // 解析列配置
   const resolvedCol = computed(() => unRef(col))
@@ -226,8 +222,7 @@ export function buildForm<T extends object, C, R = T>(
   // 解析行配置
   const resolvedRow = computed(() => unRef(row))
 
-  const formItemRef = new Map<FormItemProp, Ref<FormItemInstance>>()
-  provide(FormItemRefKey, formItemRef)
+  const formItemRef: BuildFormBinding<T>['formItemRef'] = new Map()
 
   /**
    * 提交表单
@@ -431,6 +426,8 @@ export function buildForm<T extends object, C, R = T>(
       toast: resolvedToast,
       values,
       scope,
+      formRef,
+      formItemRef,
     },
   }
 

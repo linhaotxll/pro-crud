@@ -18,19 +18,18 @@
 
 <script lang="ts" setup generic="T extends object">
 import { get, set } from 'lodash-es'
-import { computed } from 'vue'
-import { inject } from 'vue'
+import { computed, toRaw } from 'vue'
 
-import { ProFormValueKey } from './constant'
 import { valueTypeMap } from './type'
 
 import type { InternalProFormColumnOptions } from './interface'
 
 const props = defineProps<{
   column: InternalProFormColumnOptions<T>
+  values: T
 }>()
 
-const formValues = inject(ProFormValueKey)
+const formValues = toRaw(props).values
 
 defineOptions({ name: 'DynamicVModel' })
 

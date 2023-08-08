@@ -210,31 +210,27 @@ const buildTableMiddleware: Middleware<BuildCrudContext> = (ctx, next) => {
   async function fetchTableData(
     query: FetchTableListQuery
   ): Promise<FetchTableDataResult<any>> {
+    const {
+      scope: { search },
+      optionResult: { request },
+    } = ctx
+    const form = search.getFormValues()
+    const params = { query, form }
+    const transformInput = request?.transformQuery?.(params) ?? params
+
+    const response = (await request?.fetchPaginationData?.(
+      transformInput
+    )) as any
+
+    const transformOutput = (request?.transformResponse?.({
+      query: transformInput,
+      response,
+    }) ?? response) as FetchTableDataResult<any>
+
     return {
-      data: [],
-      total: 1,
+      data: transformOutput.data,
+      total: transformOutput.total,
     }
-    // const {
-    //   scope: { search },
-    //   optionResult: { request },
-    // } = ctx
-    // const form = search.getFormValues()
-    // const params = { query, form }
-    // const transformInput = request?.transformQuery?.(params) ?? params
-
-    // const response = (await request?.fetchPaginationData?.(
-    //   transformInput
-    // )) as any
-
-    // const transformOutput = (request?.transformResponse?.({
-    //   query: transformInput,
-    //   response,
-    // }) ?? response) as FetchTableDataResult<any>
-
-    // return {
-    //   data: transformOutput.data,
-    //   total: transformOutput.total,
-    // }
   }
 
   ctx.binding.table = proTableBinding
@@ -243,9 +239,8 @@ const buildTableMiddleware: Middleware<BuildCrudContext> = (ctx, next) => {
 
 const buildAddFormMiddleware: Middleware<BuildCrudContext> = (ctx, next) => {
   const { proFormBinding, proFormRef } = buildForm(scope => {
-    const { showDialog, hideDialog, dialogProps } = useDialog(ctx.scope.addForm)
+    const { showDialog, hideDialog, merged } = useDialog(scope)
 
-    ctx.dialog.addForm = dialogProps
     ctx.scope.addForm = {
       ...scope,
       showDialog,
@@ -254,13 +249,17 @@ const buildAddFormMiddleware: Middleware<BuildCrudContext> = (ctx, next) => {
 
     next()
 
+    ctx.dialog.addForm = merged({
+      title: '添加',
+      appendToBody: true,
+      ...ctx.optionResult.addFormDialog,
+    })
+
     const columns = ctx.columns.addForm.map(column => ({
       label: column.label,
       prop: column.prop,
       ...column.addForm,
     }))
-
-    console.log('columns: ', columns)
 
     return {
       col: { span: 12 },
@@ -268,6 +267,10 @@ const buildAddFormMiddleware: Middleware<BuildCrudContext> = (ctx, next) => {
       columns,
       request: {
         submitRequest: ctx.optionResult.request?.addRequest,
+        successRequest() {
+          hideDialog()
+          ctx.scope.table.reload()
+        },
       },
     }
   })

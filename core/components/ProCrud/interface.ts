@@ -2,8 +2,6 @@ import type {
   ElButtonProps,
   ElDialogProps,
   ElPopconfirmProps,
-  ElTooltipProps,
-  ExtractMaybeRef,
   MaybeRef,
 } from '../common'
 import type {
@@ -227,6 +225,9 @@ export interface BuildCrudOptionReturn<
   addForm?: Omit<BuildFormOptionResult<any>, 'columns' | 'request'> & {
     show?: MaybeRef<boolean>
   }
+
+  // 添加表单弹窗配置
+  addFormDialog?: ElDialogProps
 
   // 编辑表单配置
   editForm?: Omit<BuildFormOptionResult<any>, 'columns' | 'request'> & {

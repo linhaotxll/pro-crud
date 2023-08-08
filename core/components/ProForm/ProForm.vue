@@ -6,6 +6,9 @@
           v-if="column.value.show"
           :key="column.value.resolvedKey"
           :column="column.value"
+          :scope="scope"
+          :form-item-ref-map="formItemRef"
+          :values="values"
         />
       </template>
 
@@ -35,20 +38,17 @@
 </template>
 
 <script lang="ts" setup generic="T extends object">
-import { inject } from 'vue'
-
-import { ProFormRefKey } from './constant'
+import { toRaw } from 'vue'
 
 import type { ProFormInstance } from './interface'
 import type { ProFormProps } from './interface'
-
-const formRef = inject(ProFormRefKey)
 
 defineOptions({
   name: 'ProForm',
 })
 
 const p = defineProps<ProFormProps<T>>()
+const formRef = toRaw(p).formRef
 
 defineExpose<ProFormInstance<T>>({
   ...p.scope,

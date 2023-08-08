@@ -1,11 +1,10 @@
 import { merge } from 'lodash-es'
-import { computed, isRef, nextTick, provide, ref, watch } from 'vue'
+import { computed, isRef, nextTick, ref, watch } from 'vue'
 
 import {
   DefaultPageNumber,
   DefaultPageSize,
   DefaultProTableLoading,
-  ElTableRefKey,
   ElTableInstanceNames,
 } from './constant'
 import { useColumns } from './useColumns'
@@ -40,7 +39,6 @@ export function buildTable<T extends object, C>(
   ctx?: C | undefined
 ): BuildProTableResult<T> {
   const elTableRef = ref<TableInstance | null>(null)
-  provide(ElTableRefKey, elTableRef)
 
   // 作用域对象
   const scope = ElTableInstanceNames.reduce(
@@ -260,6 +258,7 @@ export function buildTable<T extends object, C>(
       loading: resolvedLoadingConfig,
       toolbar,
       scope,
+      tableRef: elTableRef,
     },
   }
 

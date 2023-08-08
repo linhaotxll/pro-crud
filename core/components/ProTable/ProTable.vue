@@ -34,6 +34,7 @@
     </div>
 
     <el-table
+      ref="tableRef"
       v-loading="loading.value.visible"
       :element-loading-text="loading.value.text"
       :element-loading-background="loading.value.background"
@@ -64,11 +65,15 @@
 </template>
 
 <script lang="ts" setup generic="T extends object">
+import { toRaw } from 'vue'
+
 import type { ProTableProps, ProTableInstance } from './interface'
 
 defineOptions({ name: 'ProTable' })
 
 const p = defineProps<ProTableProps<T>>()
+
+const tableRef = toRaw(p).tableRef
 
 defineExpose<ProTableInstance<T>>({
   ...p.scope,

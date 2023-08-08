@@ -1,10 +1,5 @@
 import type { ProTableLoading, ToolbarOption } from './interface'
 import type { ElSpaceProps } from '../common'
-import type { TableInstance } from 'element-plus'
-import type { InjectionKey, Ref } from 'vue'
-
-// ElTableRef 的 key
-export const ElTableRefKey = Symbol() as InjectionKey<Ref<TableInstance | null>>
 
 export const ElTableInstanceNames = [
   'clearSelection',

@@ -40,7 +40,7 @@ interface UserSearchForm {
   name?: string
 }
 
-const sleep = () => new Promise(r => setTimeout(r, 2000))
+const sleep = () => new Promise(r => setTimeout(r, 500))
 
 const showOperate = ref(true)
 
@@ -53,6 +53,16 @@ const { proCrudBinding, proCrudRef } = buildCrud<
   return {
     columns: [
       {
+        label: '标题',
+        prop: 'title',
+        search: {
+          show: computed(() => {
+            return scope.search.getFieldValue('name') === 'IconMan'
+          }),
+        },
+      },
+
+      {
         label: '姓名',
         prop: 'name',
         search: { show: true },
@@ -62,17 +72,25 @@ const { proCrudBinding, proCrudRef } = buildCrud<
           },
         },
       },
+
       {
-        label: '标题',
-        prop: 'title',
-        search: {
-          show: computed(() => {
-            return scope.search.getFieldValue('name') === 'IconMan'
-          }),
+        label: '邮件',
+        prop: 'email',
+        search: { show: true },
+        addForm: {
+          itemProps: {
+            rules: [{ required: true, message: '请填写邮件' }],
+          },
         },
       },
+
+      { label: '区域', prop: 'region', search: { show: false } },
+      { label: '省份', prop: 'province', search: { show: false } },
+      { label: '城市', prop: 'city', search: { show: false } },
+      { label: '邮编', prop: 'zip', search: { show: false } },
+
       { label: '描述', prop: 'desc', search: { show: false } },
-      { label: '地址', prop: 'address', search: { show: false } },
+      { label: 'URL', prop: 'url', search: { show: false } },
       { label: '创建时间', prop: 'createTime', search: { show: false } },
     ],
 
@@ -117,6 +135,10 @@ const { proCrudBinding, proCrudRef } = buildCrud<
 
     operates: {
       show: showOperate,
+      columnProps: {
+        width: 240,
+        fixed: 'right',
+      },
       buttons: {
         delete: {
           confirmType: 'popconfirm',
@@ -162,6 +184,12 @@ const { proCrudBinding, proCrudRef } = buildCrud<
           { userId: row.id },
           { headers: { 'Content-Type': 'application/json' } }
         )
+        return !!response.data.data
+      },
+
+      async addRequest(form) {
+        await sleep()
+        const response = await axios.post('/api/user/add', form)
         return !!response.data.data
       },
     },

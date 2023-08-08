@@ -6,6 +6,9 @@
           v-if="column.value.show"
           :key="column.value.resolvedKey"
           :column="column.value"
+          :scope="scope"
+          :form-item-ref-map="formItemRef"
+          :values="values"
         />
       </template>
 
@@ -35,11 +38,15 @@
 </template>
 
 <script lang="ts" setup generic="T extends object">
+import { toRaw } from 'vue'
+
 import type { ProSearchInstance, ProSearchProps } from './interface'
 
 defineOptions({ name: 'ProSearch' })
 
 const props = defineProps<ProSearchProps<T>>()
+
+const formRef = toRaw(props).formRef
 
 defineExpose<ProSearchInstance<T>>({
   ...props.scope,

@@ -63,6 +63,21 @@ const mock: MockMethod[] = [
       }
     },
   },
+
+  {
+    url: '/api/user/add',
+    method: 'post',
+    response(opt) {
+      const data = opt.body
+
+      userList.unshift(data as any)
+
+      return {
+        code: 200,
+        data: true,
+      }
+    },
+  },
 ]
 
 export default mock

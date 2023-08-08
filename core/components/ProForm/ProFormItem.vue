@@ -24,20 +24,21 @@
         <pro-render :render="column.itemSlots.error" :ctx="error" />
       </template>
 
-      <dynamic-v-model :column="column" />
+      <dynamic-v-model :column="column" :values="values" />
     </el-form-item>
   </el-col>
 </template>
 
 <script lang="ts" setup generic="T extends object">
 import { Warning } from '@element-plus/icons-vue'
-import { inject, onUnmounted } from 'vue'
+import { onUnmounted, toRaw } from 'vue'
 import { ref } from 'vue'
 
-import { ProFormScopeKey } from './constant'
-import { FormItemRefKey } from './constant'
-
-import type { InternalProFormColumnOptions } from './interface'
+import type {
+  BuildFormBinding,
+  InternalProFormColumnOptions,
+  ProFormScope,
+} from './interface'
 import type { FormItemInstance } from 'element-plus'
 import type { CSSProperties } from 'vue'
 
@@ -47,18 +48,19 @@ defineOptions({
 
 const props = defineProps<{
   column: InternalProFormColumnOptions<T>
+  scope: ProFormScope<T>
+  formItemRefMap: BuildFormBinding<T>['formItemRef']
+  values: T
 }>()
 
 const formItemRef = ref<FormItemInstance | null>(null)
 
-const scope = inject(ProFormScopeKey)
-
-const formItemRefs = inject(FormItemRefKey)
+const formItemRefs = toRaw(props).formItemRefMap
 formItemRefs?.set(props.column.prop, formItemRef)
 
 onUnmounted(() => {
   if (!props.column.preserve) {
-    scope?.removeFields(props.column.prop)
+    props.scope?.removeFields(props.column.prop)
   }
 })
 

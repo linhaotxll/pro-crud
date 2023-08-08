@@ -142,7 +142,8 @@ export interface BuildFormBinding<T extends object> {
   toast: ComputedRef<null | (() => MessageHandler | NotificationHandle)>
   values: T
   scope: ProFormScope<T>
-  // ProFormRefKey: InjectionKey<Ref<FormInstance | null>>
+  formRef: Ref<FormInstance | null>
+  formItemRef: Map<FormItemProp, Ref<FormItemInstance>>
 }
 
 /**

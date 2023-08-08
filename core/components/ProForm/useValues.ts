@@ -1,7 +1,5 @@
 import { cloneDeep, get, set } from 'lodash-es'
-import { provide, reactive } from 'vue'
-
-import { ProFormValueKey } from './constant'
+import { reactive } from 'vue'
 
 import type { ProFormColumnOptions } from './interface'
 
@@ -19,8 +17,6 @@ export function useValues<T extends object>(
       }
     }
   }
-
-  provide(ProFormValueKey, values)
 
   return values
 }

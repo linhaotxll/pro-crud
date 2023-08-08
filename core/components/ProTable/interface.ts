@@ -8,7 +8,7 @@ import type {
   ElSpaceProps,
 } from '../common'
 import type { ExtractMaybeRef, MaybeRef, ToHandles } from '../common/interface'
-import type { TableColumnCtx, TableProps } from 'element-plus'
+import type { TableColumnCtx, TableInstance, TableProps } from 'element-plus'
 import type { CSSProperties, ComputedRef, Ref } from 'vue'
 
 /**
@@ -190,6 +190,7 @@ export interface BuildProTableBinding<T extends object> {
   columns: ComputedRef<InternalProTableColumnProps<T>>[]
   scope: ProTableScope<T>
   toolbar: ComputedRef<InternalProTableToolbarOption>
+  tableRef: Ref<TableInstance | null>
 }
 
 /**

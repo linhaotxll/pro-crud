@@ -18,14 +18,6 @@ export const DefaultRow: ElRowProps = {}
 // 默认列配置
 export const DefaultCol: ElColProps = { span: 24 }
 
-// 注入 ProForm values 的 key
-export const ProFormValueKey = Symbol() as InjectionKey<any>
-
-// 注入 ProForm Scope 的 key
-export const ProFormScopeKey = Symbol() as InjectionKey<ProFormScope<any>>
-
-export const ProFormRefKey = Symbol() as InjectionKey<Ref<FormInstance | null>>
-
 // 注入 FormItemRefs 的 key
 export const FormItemRefKey = Symbol() as InjectionKey<
   Map<FormItemProp, Ref<FormItemInstance | null>>
