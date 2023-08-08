@@ -229,7 +229,6 @@ export function buildForm<T extends object, C, R = T>(
    * @returns
    */
   async function submit() {
-    // debugger
     // 验证
     const validated = await validate()
     if (!validated) {
@@ -363,6 +362,7 @@ export function buildForm<T extends object, C, R = T>(
       }
     } catch (e: any) {
       request.validateFail?.(e)
+      return false
     }
     return true
   }
