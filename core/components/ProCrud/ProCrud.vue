@@ -1,12 +1,16 @@
 <template>
   <div class="pro-crud">
     <pro-search
-      v-if="searchShow"
+      v-if="searchShow.value"
       ref="proSearchRef"
-      v-bind="proSearchBinding"
+      v-bind="searchBinding"
     />
 
-    <pro-table v-if="tableShow" ref="proTableRef" v-bind="proTableBinding" />
+    <pro-table v-if="tableShow.value" ref="proTableRef" v-bind="tableBinding" />
+
+    <el-dialog v-if="addFormShow.value" v-bind="addFormDialog.value">
+      <pro-form ref="addFormRef" v-bind="addFormBinding"></pro-form>
+    </el-dialog>
   </div>
 </template>
 
@@ -20,24 +24,15 @@
 >
 import { inject } from 'vue'
 
-import { ProSearchRef, ProTableRef } from './constant'
-import { useCrud } from './useCrud'
+import { AddFormRef, ProSearchRef, ProTableRef } from './constant'
 
-import type { ProCrudProps, ProCrudInstance } from './interface'
+import type { ProCrudProps } from './interface'
 
 defineOptions({ name: 'ProCrud' })
 
 const proSearchRef = inject(ProSearchRef)
 const proTableRef = inject(ProTableRef)
+const addFormRef = inject(AddFormRef)
 
-const p = defineProps<ProCrudProps>()
-
-// const { searchBinding, proSearchRef, proTableRef, tableBinding } = useCrud(p)
-
-// console.log('proSearchRef: ', proSearchRef)
-
-// defineExpose<ProCrudInstance>({
-//   proSearchRef,
-//   proTableRef,
-// })
+defineProps<ProCrudProps<T, S, F, R>>()
 </script>

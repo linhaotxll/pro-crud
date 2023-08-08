@@ -60,7 +60,7 @@ const { proFormRef, proFormBinding } = buildForm<FormValues>(scope => {
   return {
     row,
     col,
-    initialValues: { gender: 3, info: { name: 'lalala' } },
+    // initialValues: { gender: 3, info: { name: 'lalala' } },
     formProps: {
       labelWidth,
     },

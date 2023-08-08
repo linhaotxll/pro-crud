@@ -44,6 +44,25 @@ const mock: MockMethod[] = [
       }
     },
   },
+
+  {
+    url: '/api/user/delete',
+    method: 'post',
+    response(opt) {
+      const { userId } = opt.body
+
+      const deleteIndex = userList.findIndex(user => user.id === userId)
+
+      if (deleteIndex !== -1) {
+        userList.splice(deleteIndex, 1)
+      }
+
+      return {
+        code: 200,
+        data: deleteIndex !== -1,
+      }
+    },
+  },
 ]
 
 export default mock

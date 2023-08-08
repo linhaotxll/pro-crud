@@ -20,6 +20,10 @@ import type {
   ElTooltipProps as TooltipProps,
   SpaceProps,
   dropdownProps,
+  PopconfirmProps,
+  PopconfirmEmits,
+  DialogProps,
+  DialogEmits,
 } from 'element-plus'
 import type { ExtractPropTypes } from 'vue'
 
@@ -136,3 +140,11 @@ export type ElSpaceProps = Partial<SpaceProps>
 
 // Dropdown
 export type ElDropdownProps = Partial<ExtractPropTypes<typeof dropdownProps>>
+
+// Popconfirm
+export type ElPopconfirmProps = Partial<
+  PopconfirmProps & ToHandles<PopconfirmEmits>
+>
+
+// Dialog
+export type ElDialogProps = Partial<DialogProps & ToHandles<DialogEmits>>

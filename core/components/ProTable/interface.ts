@@ -80,11 +80,7 @@ export type ProTableColumnProps<T> = {
    * 列插槽
    */
   columnSlots?: {
-    default?(ctx: {
-      row: T
-      column: TableColumnCtx<T>
-      $index: number
-    }): JSX.Element
+    default?(ctx: TableDefaultSlotParams<T>): JSX.Element
 
     header?(ctx: { column: TableColumnCtx<T>; $index: number }): JSX.Element
   }
@@ -97,12 +93,18 @@ export type ProTableColumnProps<T> = {
   /**
    * 字段名
    */
-  prop: MaybeRef<string>
+  prop?: MaybeRef<string>
 
   /**
    * 是否显示列
    */
   show?: MaybeRef<boolean>
+}
+
+export type TableDefaultSlotParams<T> = {
+  row: T
+  column: TableColumnCtx<T>
+  $index: number
 }
 
 /**

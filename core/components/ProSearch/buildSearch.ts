@@ -1,3 +1,4 @@
+import { Search, Refresh } from '@element-plus/icons-vue'
 import { merge } from 'lodash-es'
 import { computed } from 'vue'
 
@@ -38,10 +39,13 @@ export function buildSearch<T extends object, C, R = T>(
         const total =
           props.columns?.reduce<number>((prev, columnComputed) => {
             const columnCol = unRef(columnComputed.col)
+            const show = unRef(columnComputed.show)
 
-            const columnTotal = columnCol
-              ? (columnCol.span || 0) + (columnCol.offset || 0)
-              : defaultCol.span!
+            const columnTotal = show
+              ? columnCol
+                ? (columnCol.span || 0) + (columnCol.offset || 0)
+                : defaultCol.span!
+              : 0
 
             const result = prev + columnTotal
 
@@ -77,13 +81,22 @@ export function buildSearch<T extends object, C, R = T>(
           show: true,
           text: '重置',
           props: {
+            icon: Refresh,
             onClick: () => {
               scope.resetFields()
             },
           },
         },
+
+        confirm: {
+          text: '搜索',
+          props: {
+            icon: Search,
+          },
+        },
       },
     }
+    const mergedButtons = merge(buttons, props.buttons)
 
     const row: ElRowProps = merge(props.row || {}, { gutter: 16 })
 
@@ -91,7 +104,9 @@ export function buildSearch<T extends object, C, R = T>(
       merge({}, { span: 4 }, unRef(props.col))
     )
 
-    return merge(props, { buttons, row, col })
+    const result = merge(props, { buttons: mergedButtons, row, col })
+
+    return result
   }, ctx)
 
   return {

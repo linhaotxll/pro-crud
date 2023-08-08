@@ -4,6 +4,7 @@
 
 <script lang="tsx" setup>
 import axios from 'axios'
+import { computed, ref } from 'vue'
 
 import { buildCrud } from '~/components/ProCrud'
 
@@ -41,35 +42,68 @@ interface UserSearchForm {
 
 const sleep = () => new Promise(r => setTimeout(r, 2000))
 
+const showOperate = ref(true)
+
 const { proCrudBinding, proCrudRef } = buildCrud<
   User,
   PageResponseData<User>,
   UserSearchForm,
   FetchUserListInput
->(() => {
+>(scope => {
   return {
     columns: [
-      { label: '姓名', prop: 'name', search: { show: true } },
+      {
+        label: '姓名',
+        prop: 'name',
+        search: { show: true },
+        addForm: {
+          itemProps: {
+            rules: [{ required: true, message: '请填写名称' }],
+          },
+        },
+      },
       {
         label: '标题',
         prop: 'title',
-        // search: {
-        //   show: computed(() => {
-        //     // debugger
-        //     console.log(scope.search.getFieldValue)
-        //     return scope.search.getFieldValue('name') === 'IconMan'
-        //   }),
-        // },
+        search: {
+          show: computed(() => {
+            return scope.search.getFieldValue('name') === 'IconMan'
+          }),
+        },
       },
       { label: '描述', prop: 'desc', search: { show: false } },
       { label: '地址', prop: 'address', search: { show: false } },
       { label: '创建时间', prop: 'createTime', search: { show: false } },
     ],
 
-    table: {},
+    addForm: {
+      formProps: {
+        labelWidth: '100px',
+      },
+    },
+
+    table: {
+      toolbar: {
+        list: {
+          add: {
+            show: true,
+            text: '添加',
+            props: {
+              onClick() {
+                console.log(123)
+                scope.addForm.showDialog()
+              },
+            },
+            tooltip: {
+              content: '添加',
+            },
+          },
+        },
+      },
+    },
 
     search: {
-      // initialValues: { name: 'Ronald Hall' },
+      // initialValues: { name: 'IconMan' },
       buttons: {
         list: {},
       },
@@ -80,6 +114,19 @@ const { proCrudBinding, proCrudRef } = buildCrud<
     // editForm: {},
 
     // viewForm: {},
+
+    operates: {
+      show: showOperate,
+      buttons: {
+        delete: {
+          confirmType: 'popconfirm',
+          confirmProps: {
+            title: 'aaa',
+            confirmButtonType: 'primary',
+          },
+        },
+      },
+    },
 
     request: {
       transformQuery(options) {
@@ -105,6 +152,17 @@ const { proCrudBinding, proCrudRef } = buildCrud<
 
         const { rows, total } = result.data.data
         return { rows, total: total }
+      },
+
+      async deleteRequest(row) {
+        await sleep()
+
+        const response = await axios.post(
+          '/api/user/delete',
+          { userId: row.id },
+          { headers: { 'Content-Type': 'application/json' } }
+        )
+        return !!response.data.data
       },
     },
   }
