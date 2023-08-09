@@ -26,7 +26,7 @@ import type { InternalProFormColumnOptions } from './interface'
 
 const props = defineProps<{
   column: InternalProFormColumnOptions<T>
-  values: T
+  values: any
 }>()
 
 const formValues = toRaw(props).values
@@ -35,10 +35,10 @@ defineOptions({ name: 'DynamicVModel' })
 
 const vModel = computed({
   get() {
-    return get(formValues, props.column.prop)
+    return get(formValues, props.column.itemProps!.prop!)
   },
   set(newValue) {
-    set(formValues, props.column.prop, newValue)
+    set(formValues, props.column.itemProps!.prop!, newValue)
   },
 })
 </script>

@@ -67,6 +67,8 @@
 <script lang="ts" setup generic="T extends object">
 import { toRaw } from 'vue'
 
+import ProTableColumn from './ProTableColumn.vue'
+
 import type { ProTableProps, ProTableInstance } from './interface'
 
 defineOptions({ name: 'ProTable' })

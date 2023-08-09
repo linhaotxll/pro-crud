@@ -1,3 +1,4 @@
+import { DCaret, Refresh } from '@element-plus/icons-vue'
 import { ElButton } from 'element-plus'
 import { merge } from 'lodash-es'
 import { computed, ref } from 'vue'
@@ -34,7 +35,7 @@ export function useToolbar<T extends object>(
       reload: {
         tooltip: { content: '刷新' },
         props: {
-          icon: 'Refresh',
+          icon: Refresh,
           onClick: () => {
             scope.reload()
           },
@@ -55,7 +56,7 @@ export function useToolbar<T extends object>(
           >
             {{
               default: () => (
-                <ElButton type="primary" circle icon="DCaret" {...props} />
+                <ElButton type="primary" circle icon={DCaret} {...props} />
               ),
             }}
           </DropdownSelect>
@@ -102,7 +103,6 @@ export function useToolbar<T extends object>(
 
   // 解析 toolbar
   const resolvedToolbar = computed<InternalProTableToolbarOption>(() => {
-    console.log('解析 toolbar')
     const toolbar = merge({}, defaultToolbar, unRef(originToolbar))
     const toolbarShow = unRef(toolbar.show!)
     const space = unRef(toolbar.space)

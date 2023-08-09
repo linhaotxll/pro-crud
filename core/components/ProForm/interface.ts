@@ -143,7 +143,7 @@ export interface BuildFormBinding<T extends object> {
   values: T
   scope: ProFormScope<T>
   formRef: Ref<FormInstance | null>
-  formItemRef: Map<FormItemProp, Ref<FormItemInstance>>
+  formItemRef: Map<FormItemProp, Ref<FormItemInstance | null>>
 }
 
 /**

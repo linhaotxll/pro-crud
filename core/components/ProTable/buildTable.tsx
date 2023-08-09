@@ -171,7 +171,6 @@ export function buildTable<T extends object, C>(
 
   // 解析 table props
   const resolvedTableProps = computed(() => {
-    console.log('解析 table props')
     const result: TableProps<T> = {
       data: data.value,
       defaultExpandAll: tableProps.defaultExpandAll,

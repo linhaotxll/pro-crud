@@ -24,6 +24,10 @@
 <script lang="ts" setup generic="T extends object">
 import { toRaw } from 'vue'
 
+import ProFormItem from './ProFormItem.vue'
+
+import { ProButtonGroup } from '../ProButton'
+
 import type { ProFormInstance } from './interface'
 import type { ProFormProps } from './interface'
 

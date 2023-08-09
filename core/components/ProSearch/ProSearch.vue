@@ -40,6 +40,8 @@
 <script lang="ts" setup generic="T extends object">
 import { toRaw } from 'vue'
 
+import { ProFormItem } from '../ProForm'
+
 import type { ProSearchInstance, ProSearchProps } from './interface'
 
 defineOptions({ name: 'ProSearch' })

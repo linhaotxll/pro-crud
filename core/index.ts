@@ -1,11 +1,4 @@
 import {
-  UploadFilled,
-  Tools,
-  Refresh,
-  DCaret,
-  Sort,
-} from '@element-plus/icons-vue'
-import {
   vLoading,
   ElSpace,
   ElIcon,
@@ -15,14 +8,12 @@ import {
   ElTree,
 } from 'element-plus'
 
-import { DropdownSelect } from './components/DropdownSelect'
-import { ProButtonGroup } from './components/ProButton'
 import { ProCrud } from './components/ProCrud'
-import { ProForm, ProFormItem, DynamicVModel } from './components/ProForm'
+import { ProForm } from './components/ProForm'
 import { ProRender } from './components/ProRender'
 import { ProSearch } from './components/ProSearch'
 import { ProSelect } from './components/ProSelect'
-import { ProTable, ProTableColumn } from './components/ProTable'
+import { ProTable } from './components/ProTable'
 
 import type { Plugin } from 'vue'
 
@@ -33,21 +24,10 @@ export const ProComponents: Plugin<ProComponentsOptions> = {
   install(app) {
     app.component(ProCrud.name, ProCrud)
     app.component(ProTable.name, ProTable)
-    app.component(ProTableColumn.name, ProTableColumn)
     app.component(ProRender.name, ProRender)
-    app.component(DynamicVModel.name, DynamicVModel)
     app.component(ProSearch.name, ProSearch)
     app.component(ProForm.name, ProForm)
-    app.component(ProFormItem.name, ProFormItem)
     app.component(ProSelect.name, ProSelect)
-    app.component(DropdownSelect.name, DropdownSelect)
-    app.component(ProButtonGroup.name, ProButtonGroup)
-
-    app.component(Refresh.name, Refresh)
-    app.component(Tools.name, Tools)
-    app.component(UploadFilled.name, UploadFilled)
-    app.component(DCaret.name, DCaret)
-    app.component(Sort.name, Sort)
 
     app.use(ElSpace, ElIcon, ElDropdown, ElDropdownMenu, ElDropdownItem, ElTree)
 

@@ -53,8 +53,6 @@ export function useColumns<T extends object>(
           columnSlots: column.columnSlots,
         }
 
-        console.log('解析 column: ', result.columnProps.label)
-
         const p = unRef(column.columnProps)
         if (p) {
           Object.keys(p).forEach(key => {
