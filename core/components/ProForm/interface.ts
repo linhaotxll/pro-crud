@@ -24,7 +24,7 @@ import type {
   NotificationHandle,
 } from 'element-plus'
 import type { Arrayable } from 'element-plus/es/utils'
-import type { CSSProperties, ComputedRef, InjectionKey, Ref } from 'vue'
+import type { CSSProperties, ComputedRef, Ref } from 'vue'
 
 type Tooltip = Partial<ElTooltipProps> & {
   slots?: {

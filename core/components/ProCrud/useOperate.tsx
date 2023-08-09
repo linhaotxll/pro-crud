@@ -1,20 +1,22 @@
 import { ElButton, ElMessage, ElMessageBox, ElPopconfirm } from 'element-plus'
 import { merge } from 'lodash-es'
 
+import { DefaultOperateButton } from './constant'
+
 import { unRef } from '../common'
 
 import type {
-  CrudOperateOption,
+  CrudTableOperateProps,
   BuildCrudContext,
-  CrudOperateButtonOption,
-  CrudDeleteConfirmProps,
+  CrudTableOperateButtonProps,
+  CrudTableOperateConfirmProps,
   CrudDeleteMessageBoxProps,
 } from './interface'
 import type { ElButtonProps, ElPopconfirmProps } from '../common'
 import type { TableDefaultSlotParams } from '../ProTable'
 import type { Action } from 'element-plus'
 
-export function useOperate(ctx: BuildCrudContext) {
+export function useOperate(ctx: BuildCrudContext<any>) {
   async function deleteItem(row: TableDefaultSlotParams<any>) {
     const response = await ctx.optionResult.request?.deleteRequest?.(
       row.row,
@@ -27,9 +29,9 @@ export function useOperate(ctx: BuildCrudContext) {
     }
   }
 
-  const mergeOperate: CrudOperateOption = merge<
-    CrudOperateOption,
-    CrudOperateOption | undefined
+  const mergeOperate: CrudTableOperateProps = merge<
+    CrudTableOperateProps,
+    CrudTableOperateProps | undefined
   >(
     {
       label: '操作',
@@ -38,7 +40,6 @@ export function useOperate(ctx: BuildCrudContext) {
         edit: {
           show: true,
           text: '编辑',
-          confirmType: false,
           order: 1,
           props: {
             type: 'primary',
@@ -74,7 +75,6 @@ export function useOperate(ctx: BuildCrudContext) {
           show: true,
           text: '查看',
           order: 0,
-          confirmType: false,
           props: {
             type: 'info',
             onClick(e, { row }) {
@@ -89,7 +89,7 @@ export function useOperate(ctx: BuildCrudContext) {
   )
 
   const generateButton = (
-    option: CrudOperateButtonOption,
+    option: CrudTableOperateButtonProps,
     ctx: TableDefaultSlotParams<any>
   ) => {
     if (!unRef(option.show)) {
@@ -123,7 +123,10 @@ export function useOperate(ctx: BuildCrudContext) {
     }
 
     const onConfirm: ElPopconfirmProps['onConfirm'] = (e: MouseEvent) => {
-      ;(option.confirmProps as CrudDeleteConfirmProps)?.onConfirm?.(e, ctx)
+      ;(option.confirmProps as CrudTableOperateConfirmProps)?.onConfirm?.(
+        e,
+        ctx
+      )
     }
     const popconfirmProps: ElPopconfirmProps = {
       ...(option.confirmProps as ElPopconfirmProps),
@@ -139,19 +142,18 @@ export function useOperate(ctx: BuildCrudContext) {
     )
   }
 
-  const operateColumn: CrudOperateOption = {
+  const operateColumn: CrudTableOperateProps = {
     ...mergeOperate,
     columnSlots: {
       default: ctx => {
         return (
           <>
             {Object.keys(mergeOperate.buttons!)
-              .sort(
-                (prev, curr) =>
-                  unRef(mergeOperate.buttons![prev]?.order ?? 0) -
-                  unRef(mergeOperate.buttons![curr]?.order ?? 0)
+              .map(key =>
+                merge({}, DefaultOperateButton, mergeOperate.buttons![key])
               )
-              .map(key => generateButton(mergeOperate.buttons![key]!, ctx))}
+              .sort((prev, curr) => unRef(prev.order!) - unRef(curr.order!))
+              .map(button => generateButton(button, ctx))}
           </>
         )
       },

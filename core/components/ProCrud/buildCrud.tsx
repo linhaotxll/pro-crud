@@ -40,39 +40,19 @@ import type {
   ProTableToolbarOption,
 } from '../ProTable'
 
-export function buildCrud<
-  T extends object,
-  S extends object = any,
-  F extends object = any,
-  R extends object = F
->(
-  options: (
-    scope: ProCrudScope,
-    ctx?: undefined
-  ) => BuildCrudOptionReturn<T, S, F, R>
-): BuildCrudReturn<T, S, F, R>
+export function buildCrud<T extends object>(
+  options: (scope: ProCrudScope, ctx?: undefined) => BuildCrudOptionReturn<T>
+): BuildCrudReturn<T>
 
-export function buildCrud<
-  C extends object,
-  T extends object,
-  S extends object = any,
-  F extends object = any,
-  R extends object = F
->(
-  options: (scope: ProCrudScope, ctx: C) => BuildCrudOptionReturn<T, S, F, R>,
+export function buildCrud<C extends object, T extends object>(
+  options: (scope: ProCrudScope, ctx: C) => BuildCrudOptionReturn<T>,
   context: C
-): BuildCrudReturn<T, S, F, R>
+): BuildCrudReturn<T>
 
-export function buildCrud<
-  C extends object,
-  T extends object,
-  S extends object = any,
-  F extends object = any,
-  R extends object = F
->(
-  options: (scope: ProCrudScope, ctx?: C) => BuildCrudOptionReturn<T, S, F, R>,
+export function buildCrud<C extends object, T extends object>(
+  options: (scope: ProCrudScope, ctx?: C) => BuildCrudOptionReturn<T>,
   ctx?: C
-): BuildCrudReturn<T, S, F, R> {
+): BuildCrudReturn<T> {
   const proCrudRef = ref<ProCrudInstance | null>(null)
 
   const context = {
@@ -81,9 +61,9 @@ export function buildCrud<
     dialog: {},
     originCtx: ctx,
     options,
-  } as BuildCrudContext
+  } as BuildCrudContext<T>
 
-  compose<BuildCrudContext>([
+  compose<BuildCrudContext<T>>([
     buildSearchMiddlewre,
     buildTableMiddleware,
     buildAddFormMiddleware,
@@ -114,7 +94,7 @@ export function buildCrud<
     },
   } = context
 
-  const proCrudBinding: BuildCrudBinding<T, S, F, R> = {
+  const proCrudBinding: BuildCrudBinding<T> = {
     searchShow,
     searchBinding,
     tableShow,
@@ -134,7 +114,7 @@ export function buildCrud<
   return { proCrudRef, proCrudBinding }
 }
 
-const buildSearchMiddlewre: Middleware<BuildCrudContext> = (ctx, next) => {
+const buildSearchMiddlewre: Middleware<BuildCrudContext<any>> = (ctx, next) => {
   const { proSearchBinding, proSearchRef } = buildSearch(scope => {
     ctx.scope.search = scope
 
@@ -187,7 +167,7 @@ const buildSearchMiddlewre: Middleware<BuildCrudContext> = (ctx, next) => {
   provide(ProSearchRef, proSearchRef)
 }
 
-const buildTableMiddleware: Middleware<BuildCrudContext> = (ctx, next) => {
+const buildTableMiddleware: Middleware<BuildCrudContext<any>> = (ctx, next) => {
   const { proTableBinding, proTableRef } = buildTable(scope => {
     ctx.scope.table = scope
 
@@ -260,7 +240,10 @@ const buildTableMiddleware: Middleware<BuildCrudContext> = (ctx, next) => {
   provide(ProTableRef, proTableRef)
 }
 
-const buildAddFormMiddleware: Middleware<BuildCrudContext> = (ctx, next) => {
+const buildAddFormMiddleware: Middleware<BuildCrudContext<any>> = (
+  ctx,
+  next
+) => {
   const { proFormBinding, proFormRef } = buildForm(scope => {
     const { showDialog, hideDialog, merged } = useDialog(scope)
 
@@ -313,7 +296,10 @@ const buildAddFormMiddleware: Middleware<BuildCrudContext> = (ctx, next) => {
   provide(AddFormRef, proFormRef)
 }
 
-const buildEditFormMiddleware: Middleware<BuildCrudContext> = (ctx, next) => {
+const buildEditFormMiddleware: Middleware<BuildCrudContext<any>> = (
+  ctx,
+  next
+) => {
   const { proFormBinding, proFormRef } = buildForm(scope => {
     const { showDialog, hideDialog, merged } = useDialog(scope)
 
@@ -365,7 +351,10 @@ const buildEditFormMiddleware: Middleware<BuildCrudContext> = (ctx, next) => {
   provide(EditFormRef, proFormRef)
 }
 
-const buildViewFormMiddleware: Middleware<BuildCrudContext> = (ctx, next) => {
+const buildViewFormMiddleware: Middleware<BuildCrudContext<any>> = (
+  ctx,
+  next
+) => {
   const { proFormBinding, proFormRef } = buildForm(scope => {
     const { showDialog, hideDialog, merged } = useDialog(scope)
 
@@ -413,7 +402,7 @@ const buildViewFormMiddleware: Middleware<BuildCrudContext> = (ctx, next) => {
   provide(ViewFormRef, proFormRef)
 }
 
-const buildBasicMiddleware: Middleware<BuildCrudContext> = (ctx, next) => {
+const buildBasicMiddleware: Middleware<BuildCrudContext<any>> = (ctx, next) => {
   const {
     scope: { search, table, addForm, editForm, viewForm },
   } = ctx
@@ -439,7 +428,7 @@ const buildBasicMiddleware: Middleware<BuildCrudContext> = (ctx, next) => {
 }
 
 function normalizeColumns(columns: ProCrudColumnOption<any>[] | undefined) {
-  const initialColumns: BuildCrudContext['columns'] = {
+  const initialColumns: BuildCrudContext<any>['columns'] = {
     table: [],
     search: [],
     addForm: [],
@@ -471,12 +460,10 @@ function normalizeColumns(columns: ProCrudColumnOption<any>[] | undefined) {
   return result
 }
 
-function normalizeShow(
-  optionResult: BuildCrudOptionReturn<any, any, any, any>
-) {
+function normalizeShow(optionResult: BuildCrudOptionReturn<any>) {
   return (
     ['search', 'table', 'addForm', 'editForm', 'viewForm'] as const
-  ).reduce<BuildCrudContext['show']>((prev, type) => {
+  ).reduce<BuildCrudContext<any>['show']>((prev, type) => {
     prev[type] = computed(() =>
       unRef(optionResult[type]?.show ?? DefaultShow.show)
     )

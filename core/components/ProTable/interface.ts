@@ -53,7 +53,7 @@ export type FetchTableListQuery = {
 }
 
 /**
- * 获取数据函数返回值
+ * 分页获取数据函数返回值
  */
 export type FetchTableDataResult<T> = {
   data: T[]

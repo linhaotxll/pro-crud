@@ -53,12 +53,10 @@ const formProps = {
   rules,
 }
 
-const { proCrudBinding, proCrudRef } = buildCrud<
-  User,
-  PageResponseData<User>,
-  UserSearchForm,
-  FetchUserListInput
->(scope => {
+const { proCrudBinding, proCrudRef } = buildCrud<User>(scope => {
+  // PageResponseData<User>,
+  // UserSearchForm,
+  // FetchUserListInput
   return {
     columns: [
       {

@@ -11,11 +11,7 @@ import type {
   ProFormInstance,
   ProFormScope,
 } from '../ProForm'
-import type {
-  BuildSearchBinding,
-  ProSearchProps,
-  ProSearchScope,
-} from '../ProSearch'
+import type { BuildSearchBinding, ProSearchScope } from '../ProSearch'
 import type {
   BuildProTableBinding,
   BuildProTableOptionResult,
@@ -37,38 +33,60 @@ import type { ComputedRef, Ref } from 'vue'
  * @param F 查询表单数据
  * @param R 查询表单传递数据
  */
-export type ProCrudProps<
-  T extends object,
-  S extends object = any,
-  F extends object = any,
-  R extends object = F
-> = BuildCrudBinding<T, S, F, R>
+export type ProCrudProps<T extends object> = BuildCrudBinding<T>
 
 /**
  * ProCrud 请求配置
  */
-export interface ProCrudRequest<
-  T extends object,
-  S extends object = any,
-  F extends object = any,
-  R extends object = F
-> {
+export interface ProCrudRequest<T extends object> {
   /**
-   * 分页请求入参转换
+   * 转换请求前的参数
+   *
+   * @param {TransformQueryParams} ctx 查询参数，包含分页，搜索条件
+   * @returns 转换后的参数，直接传递给 fetchPaginationData 请求
    */
-  transformQuery?(options: TransformQueryParams<F>): R | Promise<R>
+  transformQuery?(ctx: TransformQueryParams<any>): any
 
   /**
-   * 响应数据转换
+   * 转换请求后的响应数据
+   *
+   * @param {TransformResponseParams} ctx 响应参数，包含响应数据、查询数据
    */
-  transformRes?(
-    options: TransformResponseParams<S, R>
-  ): TransformResponseResult<T> | Promise<TransformResponseResult<T>>
+  transformResponse?(
+    ctx: TransformResponseParams<any, any>
+  ): FetchTableDataResult<T>
 
   /**
-   * 分页请求
+   * 获取分页接口
+   *
+   * @param {any} params 若有 transformQuery 则是其结果，没有则是 TransformQueryParams<F>
+   * @returns 返回结果，若有 transformResponse 则是其转换结果，没有则必须是 FetchTableDataResult
    */
-  fetchPageList(query: R): Promise<S>
+  fetchPaginationData?(params: any): Promise<any>
+
+  /**
+   * 删除接口
+   *
+   * @param row 行数据
+   * @returns {boolean} 删除是否成功，返回 true 会有提示信息
+   */
+  deleteRequest?: (row: T, index: number) => Promise<boolean>
+
+  /**
+   * 添加接口
+   *
+   * @param form 编辑表单数据
+   * @returns {boolean} 添加是否成功，返回 true 会有提示信息
+   */
+  addRequest?: (form: any) => Promise<boolean>
+
+  /**
+   * 编辑接口
+   *
+   * @param form 编辑表单数据 + 行数据
+   * @returns {boolean} 编辑是否成功，返回 true 会有提示信息
+   */
+  editRequest?: (form: any) => Promise<boolean>
 }
 
 /**
@@ -89,19 +107,9 @@ export interface TransformQueryParams<F extends object> {
 /**
  * 分页请求出参转换函数参数
  */
-export interface TransformResponseParams<S extends object, R extends object> {
-  query: R
-  response: S
-}
-
-/**
- * 分页请求出参转换函数返回值
- */
-export interface TransformResponseResult<T extends object> {
-  rows: T[]
-  total: number
-  pageSize: number
-  pageNumber: number
+export interface TransformResponseParams<S1 extends object, R extends object> {
+  query: S1
+  response: R
 }
 
 /**
@@ -115,6 +123,9 @@ export interface ProCrudScope {
   viewForm: CrudFormScope
 }
 
+/**
+ * ProCrud 表单作用域，包含打开、关闭弹窗方法
+ */
 export interface CrudFormScope extends ProFormScope<any> {
   showDialog(values?: any): void
   hideDialog(): void
@@ -123,22 +134,15 @@ export interface CrudFormScope extends ProFormScope<any> {
 /**
  * buildCrud 返回值
  */
-export interface BuildCrudReturn<
-  T extends object,
-  S extends object = any,
-  F extends object = any,
-  R extends object = F
-> {
+export interface BuildCrudReturn<T extends object> {
   proCrudRef: Ref<ProCrudInstance | null>
-  proCrudBinding: BuildCrudBinding<T, S, F, R>
+  proCrudBinding: BuildCrudBinding<T>
 }
 
-export interface BuildCrudBinding<
-  T extends object,
-  S extends object = any,
-  F extends object = any,
-  R extends object = F
-> {
+/**
+ * buildCrud 返回需要绑定的 props
+ */
+export interface BuildCrudBinding<T extends object> {
   /**
    * 是否显示搜索栏
    */
@@ -157,7 +161,7 @@ export interface BuildCrudBinding<
   /**
    * table 配置
    */
-  tableBinding: BuildProTableBinding<any>
+  tableBinding: BuildProTableBinding<T>
 
   /**
    * 是否显示添加表单
@@ -205,59 +209,63 @@ export interface BuildCrudBinding<
   viewFormDialog: ComputedRef<ElDialogProps>
 }
 
-export type BuildCrudOption<
-  C extends object,
-  T extends object,
-  S extends object = any,
-  F extends object = any,
-  R extends object = F
-> = (
+/**
+ * buildCrud option 类型
+ */
+export type BuildCrudOption<C, T extends object> = (
   scope: ProCrudScope,
   ctx: C | undefined
-) => BuildCrudOptionReturn<T, S, F, R>
+) => BuildCrudOptionReturn<T>
 
 /**
  * buildCrud option 返回值
  */
-export interface BuildCrudOptionReturn<
-  T extends object,
-  S extends object = FetchTableDataResult<T>,
-  F extends object = any,
-  R extends object = any
-> {
-  // 所有列配置
+export interface BuildCrudOptionReturn<T extends object> {
+  /**
+   * 所有列配置
+   */
   columns?: ProCrudColumnOption<any>[]
 
-  // 搜索栏配置
+  /**
+   * 搜索栏配置
+   */
   search?: Omit<BuildFormOptionResult<any>, 'columns' | 'request'> & {
     show?: MaybeRef<boolean>
   }
 
-  // 添加表单配置
-  addForm?: Omit<BuildFormOptionResult<any>, 'columns' | 'request'> & {
-    show?: MaybeRef<boolean>
-  }
+  /**
+   * 添加表单配置
+   */
+  addForm?: CrudFormOption
 
-  // 添加表单弹窗配置
+  /**
+   * 添加表单弹窗配置
+   */
   addFormDialog?: ElDialogProps
 
-  // 编辑表单配置
-  editForm?: Omit<BuildFormOptionResult<any>, 'columns' | 'request'> & {
-    show?: MaybeRef<boolean>
-  }
+  /**
+   * 编辑表单配置
+   */
+  editForm?: CrudFormOption
 
-  // 编辑表单弹窗配置
+  /**
+   * 编辑表单弹窗配置
+   */
   editFormDialog?: ElDialogProps
 
-  // 查看表单配置
-  viewForm?: Omit<BuildFormOptionResult<any>, 'columns' | 'request'> & {
-    show?: MaybeRef<boolean>
-  }
+  /**
+   * 查看表单配置
+   */
+  viewForm?: CrudFormOption
 
-  // 查看表单弹窗配置
+  /**
+   * 查看表单弹窗配置
+   */
   viewFormDialog?: ElDialogProps
 
-  // 表格配置
+  /**
+   * 表格配置
+   */
   table?: Omit<
     BuildProTableOptionResult<any>,
     'data' | 'columns' | 'request'
@@ -265,20 +273,10 @@ export interface BuildCrudOptionReturn<
     show?: MaybeRef<boolean>
   }
 
-  // 请求配置
-  request?: {
-    transformQuery?(ctx: TransformQueryParams<F>): R
-    transformResponse?(
-      ctx: TransformResponseParams<S, R>
-    ): FetchTableDataResult<T>
-    fetchPaginationData?(params: R): Promise<S>
-
-    deleteRequest?: (row: T, index: number) => Promise<boolean>
-
-    addRequest?: (form: any) => Promise<boolean>
-
-    editRequest?: (form: any) => Promise<boolean>
-  }
+  /**
+   * 请求配置
+   */
+  request?: ProCrudRequest<T>
 
   /**
    * 点击重置后是否自动调用查询接口
@@ -290,34 +288,99 @@ export interface BuildCrudOptionReturn<
   /**
    * 操作列配置
    */
-  operates?: CrudOperateOption
+  operates?: CrudTableOperateProps
 }
 
-export interface CrudOperateOption extends ProTableColumnProps<object> {
-  buttons?: {
-    edit?: CrudOperateButtonOption
-    delete?: CrudOperateButtonOption
-    view?: CrudOperateButtonOption
+/**
+ * ProCrud 添加、编辑、查看表单配置
+ */
+export type CrudFormOption = Omit<
+  BuildFormOptionResult<any>,
+  'columns' | 'request'
+> & {
+  show?: MaybeRef<boolean>
+}
 
-    [name: string]: CrudOperateButtonOption | undefined
+/**
+ * 操作列配置
+ */
+export interface CrudTableOperateProps extends ProTableColumnProps<object> {
+  // 按钮组配置
+  buttons?: {
+    /**
+     * 编辑按钮
+     */
+    edit?: CrudTableOperateButtonProps
+
+    /**
+     * 删除按钮
+     */
+    delete?: CrudTableOperateButtonProps
+
+    /**
+     * 查看按钮
+     */
+    view?: CrudTableOperateButtonProps
+
+    /**
+     * 其他按钮
+     */
+    [name: string]: CrudTableOperateButtonProps | undefined
   }
 }
 
-export interface CrudOperateButtonOption {
+/**
+ * 操作列按钮配置
+ */
+export interface CrudTableOperateButtonProps {
+  /**
+   * 是否展示
+   */
   show?: MaybeRef<boolean>
+
+  /**
+   * 按钮文本
+   */
   text?: MaybeRef<string>
+
+  /**
+   * 按钮顺序
+   */
   order?: MaybeRef<number>
+
+  /**
+   * 按钮 props
+   */
   props?: Omit<ElButtonProps, 'onClick'> & {
     onClick?: (e: MouseEvent, ctx: TableDefaultSlotParams<any>) => void
   }
+
+  /**
+   * 点击按钮确认弹窗类型，false 则不需要
+   *
+   * @default false
+   */
   confirmType?: 'popconfirm' | 'messagebox' | false
-  confirmProps?: CrudDeleteConfirmProps | CrudDeleteMessageBoxProps
+
+  /**
+   * 确认弹窗 props
+   */
+  confirmProps?: CrudTableOperateConfirmProps | CrudDeleteMessageBoxProps
 }
 
-export type CrudDeleteConfirmProps = Omit<ElPopconfirmProps, 'onConfirm'> & {
+/**
+ * Popconfirm props，onConfirm 事件多了一个参数：行数据
+ */
+export type CrudTableOperateConfirmProps = Omit<
+  ElPopconfirmProps,
+  'onConfirm'
+> & {
   onConfirm?(e: MouseEvent, ctx: TableDefaultSlotParams<any>): void
 }
 
+/**
+ * MessageBox props，callback 多了一个参数：行数据
+ */
 export type CrudDeleteMessageBoxProps = Omit<
   ElMessageBoxOptions,
   'callback'
@@ -334,7 +397,7 @@ export interface ProCrudInstance {
 }
 
 /**
- * ProdCrud Column
+ * ProdCrud Column 配置
  *
  * @param T 整个表单值
  */
@@ -380,11 +443,9 @@ export interface ProCrudColumnOption<T extends object> {
   column?: Omit<ProTableColumnProps<any>, 'label' | 'prop'>
 }
 
-export type ProCrudFormProps = Omit<ProSearchProps<any>, 'columns'>
-
-export type BuildCrudContext = {
+export type BuildCrudContext<T extends object> = {
   originCtx: any
-  optionResult: BuildCrudOptionReturn<any>
+  optionResult: BuildCrudOptionReturn<T>
   scope: ProCrudScope
   columns: {
     search: ProCrudColumnOption<any>[]
@@ -412,5 +473,5 @@ export type BuildCrudContext = {
     editForm: ComputedRef<ElDialogProps>
     viewForm: ComputedRef<ElDialogProps>
   }
-  options: BuildCrudOption<any, any, any, any, any>
+  options: BuildCrudOption<any, T>
 }
