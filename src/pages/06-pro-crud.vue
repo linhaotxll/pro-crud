@@ -55,10 +55,12 @@ const formProps = {
   rules,
 }
 
-const { proCrudBinding, proCrudRef } = buildCrud<User>(scope => {
-  // PageResponseData<User>,
-  // UserSearchForm,
-  // FetchUserListInput
+const { proCrudBinding, proCrudRef } = buildCrud<
+  User,
+  PageResponseData<User>,
+  UserSearchForm,
+  FetchUserListInput
+>(scope => {
   return {
     columns: [
       {
@@ -214,7 +216,7 @@ const { proCrudBinding, proCrudRef } = buildCrud<User>(scope => {
         })
 
         const { rows, total } = result.data.data
-        return { rows, total: total }
+        return { rows, total }
       },
 
       async deleteRequest(row) {

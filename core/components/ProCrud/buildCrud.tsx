@@ -47,19 +47,51 @@ import type {
 } from '../ProTable'
 import type { ProComponentsOptions } from '~/constant'
 
-export function buildCrud<T extends object>(
-  options: (scope: ProCrudScope, ctx?: undefined) => BuildCrudOptionReturn<T>
-): BuildCrudReturn<T>
+export function buildCrud<
+  T extends object = any,
+  R extends object = any,
+  S extends object = any,
+  S1 extends object = any,
+  A extends object = any,
+  E extends object = any
+>(
+  options: (
+    scope: ProCrudScope<T, S, A, E>,
+    ctx?: undefined
+  ) => BuildCrudOptionReturn<T, R, S, S1, A, E>
+): BuildCrudReturn<T, S, A, E>
 
-export function buildCrud<C extends object, T extends object>(
-  options: (scope: ProCrudScope, ctx: C) => BuildCrudOptionReturn<T>,
+export function buildCrud<
+  C extends object,
+  R extends object,
+  T extends object,
+  S extends object,
+  S1 extends object,
+  A extends object,
+  E extends object
+>(
+  options: (
+    scope: ProCrudScope<T, S, A, E>,
+    ctx: C
+  ) => BuildCrudOptionReturn<T, R, S, S1, A, E>,
   context: C
-): BuildCrudReturn<T>
+): BuildCrudReturn<T, S, A, E>
 
-export function buildCrud<C extends object, T extends object>(
-  options: (scope: ProCrudScope, ctx?: C) => BuildCrudOptionReturn<T>,
+export function buildCrud<
+  C extends object,
+  T extends object,
+  R extends object,
+  S extends object,
+  S1 extends object,
+  A extends object,
+  E extends object
+>(
+  options: (
+    scope: ProCrudScope<T, S, A, E>,
+    ctx?: C
+  ) => BuildCrudOptionReturn<T, R, S, S1, A, E>,
   ctx?: C
-): BuildCrudReturn<T> {
+): BuildCrudReturn<T, S, A, E> {
   const proCrudRef = ref<ProCrudInstance | null>(null)
 
   const context = {
@@ -68,9 +100,9 @@ export function buildCrud<C extends object, T extends object>(
     dialog: {},
     originCtx: ctx,
     options,
-  } as BuildCrudContext<T>
+  } as BuildCrudContext<T, R, S, S1, A, E>
 
-  compose<BuildCrudContext<T>>([
+  compose<BuildCrudContext<T, R, S, S1, A, E>>([
     buildSearchMiddlewre,
     buildTableMiddleware,
     buildAddFormMiddleware,
@@ -101,7 +133,7 @@ export function buildCrud<C extends object, T extends object>(
     },
   } = context
 
-  const proCrudBinding: BuildCrudBinding<T> = {
+  const proCrudBinding: BuildCrudBinding<T, S, A, E> = {
     searchShow,
     searchBinding,
     tableShow,
@@ -121,7 +153,9 @@ export function buildCrud<C extends object, T extends object>(
   return { proCrudRef, proCrudBinding }
 }
 
-const buildSearchMiddlewre: Middleware<BuildCrudContext<any>> = (ctx, next) => {
+const buildSearchMiddlewre: Middleware<
+  BuildCrudContext<any, any, any, any, any, any>
+> = (ctx, next) => {
   const { proSearchBinding, proSearchRef } = buildSearch(scope => {
     ctx.scope.search = scope
 
@@ -174,7 +208,9 @@ const buildSearchMiddlewre: Middleware<BuildCrudContext<any>> = (ctx, next) => {
   provide(ProSearchRef, proSearchRef)
 }
 
-const buildTableMiddleware: Middleware<BuildCrudContext<any>> = (ctx, next) => {
+const buildTableMiddleware: Middleware<
+  BuildCrudContext<any, any, any, any, any, any>
+> = (ctx, next) => {
   const { proTableBinding, proTableRef } = buildTable(scope => {
     ctx.scope.table = scope
 
@@ -258,10 +294,9 @@ const buildTableMiddleware: Middleware<BuildCrudContext<any>> = (ctx, next) => {
   provide(ProTableRef, proTableRef)
 }
 
-const buildAddFormMiddleware: Middleware<BuildCrudContext<any>> = (
-  ctx,
-  next
-) => {
+const buildAddFormMiddleware: Middleware<
+  BuildCrudContext<any, any, any, any, any, any>
+> = (ctx, next) => {
   const { proFormBinding, proFormRef } = buildForm(scope => {
     const { showDialog, hideDialog, merged } = useDialog(scope)
 
@@ -338,10 +373,9 @@ const buildAddFormMiddleware: Middleware<BuildCrudContext<any>> = (
   provide(AddFormRef, proFormRef)
 }
 
-const buildEditFormMiddleware: Middleware<BuildCrudContext<any>> = (
-  ctx,
-  next
-) => {
+const buildEditFormMiddleware: Middleware<
+  BuildCrudContext<any, any, any, any, any, any>
+> = (ctx, next) => {
   const { proFormBinding, proFormRef } = buildForm(scope => {
     const { showDialog, hideDialog, merged } = useDialog(scope)
 
@@ -417,10 +451,9 @@ const buildEditFormMiddleware: Middleware<BuildCrudContext<any>> = (
   provide(EditFormRef, proFormRef)
 }
 
-const buildViewFormMiddleware: Middleware<BuildCrudContext<any>> = (
-  ctx,
-  next
-) => {
+const buildViewFormMiddleware: Middleware<
+  BuildCrudContext<any, any, any, any, any, any>
+> = (ctx, next) => {
   const { proFormBinding, proFormRef } = buildForm(scope => {
     const { showDialog, hideDialog, merged } = useDialog(scope)
 
@@ -491,7 +524,9 @@ const buildViewFormMiddleware: Middleware<BuildCrudContext<any>> = (
   provide(ViewFormRef, proFormRef)
 }
 
-const buildBasicMiddleware: Middleware<BuildCrudContext<any>> = (ctx, next) => {
+const buildBasicMiddleware: Middleware<
+  BuildCrudContext<any, any, any, any, any, any>
+> = (ctx, next) => {
   const {
     scope: { search, table, addForm, editForm, viewForm },
   } = ctx
@@ -516,8 +551,17 @@ const buildBasicMiddleware: Middleware<BuildCrudContext<any>> = (ctx, next) => {
   next()
 }
 
-function normalizeColumns(columns: ProCrudColumnOption<any>[] | undefined) {
-  const initialColumns: BuildCrudContext<any>['columns'] = {
+function normalizeColumns(
+  columns: ProCrudColumnOption<any, any, any, any>[] | undefined
+) {
+  const initialColumns: BuildCrudContext<
+    any,
+    any,
+    any,
+    any,
+    any,
+    any
+  >['columns'] = {
     table: [],
     search: [],
     addForm: [],
@@ -549,13 +593,18 @@ function normalizeColumns(columns: ProCrudColumnOption<any>[] | undefined) {
   return result
 }
 
-function normalizeShow(optionResult: BuildCrudOptionReturn<any>) {
+function normalizeShow(
+  optionResult: BuildCrudOptionReturn<any, any, any, any, any, any>
+) {
   return (
     ['search', 'table', 'addForm', 'editForm', 'viewForm'] as const
-  ).reduce<BuildCrudContext<any>['show']>((prev, type) => {
-    prev[type] = computed(() =>
-      unRef(optionResult[type]?.show ?? DefaultShow.show)
-    )
-    return prev
-  }, {} as any)
+  ).reduce<BuildCrudContext<any, any, any, any, any, any>['show']>(
+    (prev, type) => {
+      prev[type] = computed(() =>
+        unRef(optionResult[type]?.show ?? DefaultShow.show)
+      )
+      return prev
+    },
+    {} as any
+  )
 }

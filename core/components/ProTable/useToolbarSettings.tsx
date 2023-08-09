@@ -20,13 +20,10 @@ interface UseToolbarSettingsOptions {
   onVisible(prop: string, visible: boolean): void
   onSort(fromIdex: number, toIndex: number): void
   onChange(checkedKeys: string[]): void
-  // onFixed(node: InternalProTableColumnProps<object>): void
 
   buttons: {
     content: string
     icon: string
-    // from: InternalProTableColumnProps<object>[]
-    // to: InternalProTableColumnProps<object>[]
     onFixed(node: InternalProTableColumnProps<object>): void
   }[]
 }
@@ -47,9 +44,7 @@ export function useToolbarSettings({
   onVisible,
   onSort,
   onChange,
-}: // onFixed,
-// onMove,
-UseToolbarSettingsOptions) {
+}: UseToolbarSettingsOptions) {
   // ElTree 实例
   const treeRef = ref<any>(null)
 

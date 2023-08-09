@@ -29,7 +29,7 @@ export const DefaultShow = {
   show: true,
 }
 
-export const DefaultOperateButton: CrudTableOperateButtonProps = {
+export const DefaultOperateButton: CrudTableOperateButtonProps<any> = {
   show: true,
   order: 1,
   confirmType: false,

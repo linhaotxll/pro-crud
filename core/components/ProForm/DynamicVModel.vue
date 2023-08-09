@@ -1,5 +1,4 @@
 <template>
-  <!-- <input v-model="value" /> -->
   <component
     :is="valueTypeMap[column.type!][0]"
     v-model="vModel"

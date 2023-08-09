@@ -16,8 +16,15 @@ import type { ElButtonProps, ElPopconfirmProps } from '../common'
 import type { TableDefaultSlotParams } from '../ProTable'
 import type { Action } from 'element-plus'
 
-export function useOperate(ctx: BuildCrudContext<any>) {
-  async function deleteItem(row: TableDefaultSlotParams<any>) {
+export function useOperate<
+  T extends object,
+  R extends object,
+  S extends object,
+  S1 extends object,
+  A extends object,
+  E extends object
+>(ctx: BuildCrudContext<T, R, S, S1, A, E>) {
+  async function deleteItem(row: TableDefaultSlotParams<T>) {
     const response = await ctx.optionResult.request?.deleteRequest?.(
       row.row,
       row.$index
@@ -29,9 +36,9 @@ export function useOperate(ctx: BuildCrudContext<any>) {
     }
   }
 
-  const mergeOperate: CrudTableOperateProps = merge<
-    CrudTableOperateProps,
-    CrudTableOperateProps | undefined
+  const mergeOperate: CrudTableOperateProps<T> = merge<
+    CrudTableOperateProps<T>,
+    CrudTableOperateProps<T> | undefined
   >(
     {
       label: '操作',
@@ -89,7 +96,7 @@ export function useOperate(ctx: BuildCrudContext<any>) {
   )
 
   const generateButton = (
-    option: CrudTableOperateButtonProps,
+    option: CrudTableOperateButtonProps<T>,
     ctx: TableDefaultSlotParams<any>
   ) => {
     if (!unRef(option.show)) {
@@ -100,7 +107,8 @@ export function useOperate(ctx: BuildCrudContext<any>) {
       ...option.props,
       onClick(e) {
         if (option.confirmType === 'messagebox') {
-          const confirmOption = option.confirmProps as CrudDeleteMessageBoxProps
+          const confirmOption =
+            option.confirmProps as CrudDeleteMessageBoxProps<T>
           ElMessageBox.confirm(
             confirmOption.message ?? '确认删除该项目？',
             confirmOption.title ?? '提示',
@@ -123,7 +131,7 @@ export function useOperate(ctx: BuildCrudContext<any>) {
     }
 
     const onConfirm: ElPopconfirmProps['onConfirm'] = (e: MouseEvent) => {
-      ;(option.confirmProps as CrudTableOperateConfirmProps)?.onConfirm?.(
+      ;(option.confirmProps as CrudTableOperateConfirmProps<T>)?.onConfirm?.(
         e,
         ctx
       )
@@ -142,7 +150,7 @@ export function useOperate(ctx: BuildCrudContext<any>) {
     )
   }
 
-  const operateColumn: CrudTableOperateProps = {
+  const operateColumn: CrudTableOperateProps<T> = {
     ...mergeOperate,
     columnSlots: {
       default: ctx => {

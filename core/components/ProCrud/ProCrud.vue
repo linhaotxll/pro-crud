@@ -28,7 +28,14 @@
   </div>
 </template>
 
-<script lang="ts" setup generic="T extends object">
+<script
+  lang="ts"
+  setup
+  generic=" T extends object,
+S extends object,
+A extends object,
+E extends object"
+>
 import { inject } from 'vue'
 
 import { ProSearchRef, ProTableRef } from './constant'
@@ -44,5 +51,5 @@ const proTableRef = inject(ProTableRef)
 // const addFormRef = inject(AddFormRef)
 // const editFormRef = inject(EddFormRef)
 
-defineProps<ProCrudProps<T>>()
+defineProps<ProCrudProps<T, S, A, E>>()
 </script>
