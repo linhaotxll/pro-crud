@@ -7,7 +7,6 @@
     "preinstall": "npx only-allow pnpm",
     "dev": "vite",
     "build": "vue-tsc --noEmit && vite build",
-    "build:types": "ts-node --esm scripts/buildTypes.ts",
     "prepare": "husky install",
     "lint:js": "eslint --fix --ext .js,.jsx,.ts,.tsx,.vue",
     "release": "pnpm run build & release-it"
