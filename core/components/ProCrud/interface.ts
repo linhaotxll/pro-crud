@@ -179,7 +179,7 @@ export interface BuildCrudBinding<T extends object> {
   /**
    * 添加表单弹窗配置
    */
-  addFormDialog: ComputedRef<ElDialogProps>
+  addFormDialog: ComputedRef<CrudDialogOption>
 
   /**
    * 是否显示编辑表单
@@ -194,7 +194,7 @@ export interface BuildCrudBinding<T extends object> {
   /**
    * 编辑表单弹窗配置
    */
-  editFormDialog: ComputedRef<ElDialogProps>
+  editFormDialog: ComputedRef<CrudDialogOption>
 
   /**
    * 是否显示查看表单
@@ -209,7 +209,7 @@ export interface BuildCrudBinding<T extends object> {
   /**
    * 查看表单弹窗配置
    */
-  viewFormDialog: ComputedRef<ElDialogProps>
+  viewFormDialog: ComputedRef<CrudDialogOption>
 }
 
 /**
@@ -242,6 +242,11 @@ export interface BuildCrudOptionReturn<T extends object> {
   form?: CrudFormOption
 
   /**
+   * 添加、编辑、查看弹窗公共配置
+   */
+  dialog?: CrudDialogOption
+
+  /**
    * 添加表单配置
    */
   addForm?: CrudFormOptionResult
@@ -249,7 +254,7 @@ export interface BuildCrudOptionReturn<T extends object> {
   /**
    * 添加表单弹窗配置
    */
-  addFormDialog?: ElDialogProps
+  addFormDialog?: CrudDialogOption
 
   /**
    * 编辑表单配置
@@ -259,7 +264,7 @@ export interface BuildCrudOptionReturn<T extends object> {
   /**
    * 编辑表单弹窗配置
    */
-  editFormDialog?: ElDialogProps
+  editFormDialog?: CrudDialogOption
 
   /**
    * 查看表单配置
@@ -269,7 +274,7 @@ export interface BuildCrudOptionReturn<T extends object> {
   /**
    * 查看表单弹窗配置
    */
-  viewFormDialog?: ElDialogProps
+  viewFormDialog?: CrudDialogOption
 
   /**
    * 表格配置
@@ -325,6 +330,18 @@ export type CrudViewFormOptionResult = Omit<CrudFormOption, 'buttons'> & {
   buttons?: Omit<ButtonsOption, 'list'> & {
     list?: { cancel?: ButtonOption; [name: string]: ButtonOption | undefined }
   }
+}
+
+/**
+ * ProCrud 弹窗配置
+ */
+export interface CrudDialogOption {
+  props?: ElDialogProps
+
+  /**
+   * @default 'el-dialog'
+   */
+  is?: any
 }
 
 /**
@@ -495,9 +512,9 @@ export type BuildCrudContext<T extends object> = {
     viewForm: BuildFormBinding<any>
   }
   dialog: {
-    addForm: ComputedRef<ElDialogProps>
-    editForm: ComputedRef<ElDialogProps>
-    viewForm: ComputedRef<ElDialogProps>
+    addForm: ComputedRef<CrudDialogOption>
+    editForm: ComputedRef<CrudDialogOption>
+    viewForm: ComputedRef<CrudDialogOption>
   }
   options: BuildCrudOption<any, T>
 }

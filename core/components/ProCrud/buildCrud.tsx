@@ -5,6 +5,7 @@ import { computed, provide, ref } from 'vue'
 import { compose } from './compose'
 import {
   AddFormRef,
+  DefaultDialogOption,
   DefaultShow,
   EditFormRef,
   ProSearchRef,
@@ -34,7 +35,7 @@ import { buildSearch } from '../ProSearch'
 import { buildTable } from '../ProTable'
 
 import type { Middleware } from './compose'
-import type { CrudFormOption } from './interface'
+import type { CrudDialogOption, CrudFormOption } from './interface'
 import type { BuildFormOptionResult } from '../ProForm'
 import type {
   FetchTableDataResult,
@@ -258,10 +259,24 @@ const buildAddFormMiddleware: Middleware<BuildCrudContext<any>> = (
 
     next()
 
-    ctx.dialog.addForm = merged({
-      title: '添加',
-      appendToBody: true,
-      ...ctx.optionResult.addFormDialog,
+    ctx.dialog.addForm = computed<CrudDialogOption>(() => {
+      const mergedProps = merge<
+        CrudDialogOption,
+        CrudDialogOption,
+        CrudDialogOption,
+        CrudDialogOption | undefined,
+        CrudDialogOption | undefined
+      >(
+        {},
+        DefaultDialogOption,
+        { props: { title: '新增' } },
+        ctx.optionResult.dialog,
+        ctx.optionResult.addFormDialog
+      )
+
+      mergedProps.props = merged(mergedProps.props)
+
+      return mergedProps
     })
 
     const columns = ctx.columns.addForm.map(column => ({
@@ -324,10 +339,24 @@ const buildEditFormMiddleware: Middleware<BuildCrudContext<any>> = (
 
     next()
 
-    ctx.dialog.editForm = merged({
-      title: '编辑',
-      appendToBody: true,
-      ...ctx.optionResult.editFormDialog,
+    ctx.dialog.editForm = computed<CrudDialogOption>(() => {
+      const mergedProps = merge<
+        CrudDialogOption,
+        CrudDialogOption,
+        CrudDialogOption,
+        CrudDialogOption | undefined,
+        CrudDialogOption | undefined
+      >(
+        {},
+        DefaultDialogOption,
+        { props: { title: '编辑' } },
+        ctx.optionResult.dialog,
+        ctx.optionResult.editFormDialog
+      )
+
+      mergedProps.props = merged(mergedProps.props)
+
+      return mergedProps
     })
 
     const columns = ctx.columns.editForm.map(column => ({
@@ -389,10 +418,24 @@ const buildViewFormMiddleware: Middleware<BuildCrudContext<any>> = (
 
     next()
 
-    ctx.dialog.viewForm = merged({
-      title: '查看',
-      appendToBody: true,
-      ...ctx.optionResult.viewFormDialog,
+    ctx.dialog.viewForm = computed<CrudDialogOption>(() => {
+      const mergedProps = merge<
+        CrudDialogOption,
+        CrudDialogOption,
+        CrudDialogOption,
+        CrudDialogOption | undefined,
+        CrudDialogOption | undefined
+      >(
+        {},
+        DefaultDialogOption,
+        { props: { title: '查看' } },
+        ctx.optionResult.dialog,
+        ctx.optionResult.viewFormDialog
+      )
+
+      mergedProps.props = merged(mergedProps.props)
+
+      return mergedProps
     })
 
     const columns = ctx.columns.viewForm.map(column => ({

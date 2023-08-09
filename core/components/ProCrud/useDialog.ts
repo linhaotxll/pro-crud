@@ -1,5 +1,5 @@
 import { merge } from 'lodash-es'
-import { computed, ref } from 'vue'
+import { ref } from 'vue'
 
 import { unRef, type ElDialogProps } from '../common'
 
@@ -22,13 +22,11 @@ export function useDialog<T extends object = any>(form: ProFormInstance<T>) {
 
   function merged(props?: ElDialogProps) {
     const mergedProps = merge({}, props, { modelValue, onClose: hideDialog })
-    return computed(() =>
-      Object.entries(mergedProps).reduce((prev, [key, prop]) => {
-        // @ts-ignore
-        prev[key] = unRef(prop)
-        return prev
-      }, {})
-    )
+    return Object.entries(mergedProps).reduce((prev, [key, prop]) => {
+      // @ts-ignore
+      prev[key] = unRef(prop)
+      return prev
+    }, {})
   }
 
   return {

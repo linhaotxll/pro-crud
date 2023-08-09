@@ -6,6 +6,8 @@
 import axios from 'axios'
 import { computed, ref } from 'vue'
 
+// import BasicDialog from '../components/BasicDialog.vue'
+
 import { buildCrud } from '~/components/ProCrud'
 
 // 用户信息
@@ -97,6 +99,31 @@ const { proCrudBinding, proCrudRef } = buildCrud<User>(scope => {
       formProps,
     },
 
+    dialog: {
+      props: {
+        showClose: false,
+        onOpen() {
+          console.log('onOpen')
+        },
+        onOpened() {
+          console.log('onOpened')
+        },
+        onClose() {
+          console.log('onClose')
+        },
+        onClosed() {
+          console.log('onClosed')
+        },
+      },
+      is: 'basic-dialog',
+    },
+
+    editFormDialog: {
+      props: {
+        showClose: true,
+      },
+    },
+
     addForm: {
       formProps: {
         rules: {
@@ -105,9 +132,10 @@ const { proCrudBinding, proCrudRef } = buildCrud<User>(scope => {
       },
     },
 
-    // editForm: {
-    //   formProps,
-    // },
+    editForm: {
+      col: { span: 24 },
+      formProps: {},
+    },
 
     // viewForm: {
     //   formProps,

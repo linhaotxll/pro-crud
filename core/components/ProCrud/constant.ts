@@ -1,6 +1,6 @@
 import type { ProSearchInstance } from './../ProSearch/interface'
 import type { ProTableInstance } from './../ProTable/interface'
-import type { CrudTableOperateButtonProps } from './interface'
+import type { CrudDialogOption, CrudTableOperateButtonProps } from './interface'
 import type { ProFormInstance } from '../ProForm'
 import type { InjectionKey, Ref } from 'vue'
 
@@ -33,4 +33,9 @@ export const DefaultOperateButton: CrudTableOperateButtonProps = {
   show: true,
   order: 1,
   confirmType: false,
+}
+
+export const DefaultDialogOption: CrudDialogOption = {
+  props: { appendToBody: true, modal: true, draggable: true },
+  is: 'basic-dialog',
 }
