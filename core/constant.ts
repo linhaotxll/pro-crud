@@ -1,6 +1,5 @@
 import type {
   CrudDialogOption,
-  CrudFormOption,
   TransformQueryParams,
   TransformResponseParams,
 } from './components/ProCrud'
@@ -26,16 +25,6 @@ export interface ProComponentsOptions {
   transformResponse?(
     ctx: TransformResponseParams<any, any>
   ): FetchTableDataResult<any>
-
-  /**
-   * 全局搜索栏公共配置
-   */
-  search?: Omit<CrudFormOption, 'show'>
-
-  /**
-   * 全局表单公共配置，包括 crdu 新增、编辑、查看
-   */
-  form?: Omit<CrudFormOption, 'show'>
 
   /**
    * 全局 crud 添加、编辑、查看弹窗公共配置

@@ -1,6 +1,6 @@
 import { Plus } from '@element-plus/icons-vue'
 import { merge } from 'lodash-es'
-import { computed, provide, ref } from 'vue'
+import { computed, inject, provide, ref } from 'vue'
 
 import { compose } from './compose'
 import {
@@ -34,6 +34,8 @@ import {
 import { buildSearch } from '../ProSearch'
 import { buildTable } from '../ProTable'
 
+import { GlobalOption } from '~/constant'
+
 import type { Middleware } from './compose'
 import type { CrudDialogOption, CrudFormOption } from './interface'
 import type { BuildFormOptionResult } from '../ProForm'
@@ -43,6 +45,7 @@ import type {
   ProTableColumnProps,
   ProTableToolbarOption,
 } from '../ProTable'
+import type { ProComponentsOptions } from '~/constant'
 
 export function buildCrud<T extends object>(
   options: (scope: ProCrudScope, ctx?: undefined) => BuildCrudOptionReturn<T>
@@ -211,6 +214,11 @@ const buildTableMiddleware: Middleware<BuildCrudContext<any>> = (ctx, next) => {
     }
   })
 
+  let globalOption: ProComponentsOptions | undefined
+  function ensureGlobalOption() {
+    return globalOption ? globalOption : (globalOption = inject(GlobalOption))
+  }
+
   /**
    * 获取数据
    */
@@ -223,13 +231,19 @@ const buildTableMiddleware: Middleware<BuildCrudContext<any>> = (ctx, next) => {
     } = ctx
     const form = search.getFormValues()
     const params = { query, form }
-    const transformInput = request?.transformQuery?.(params) ?? params
+
+    const transformQuery =
+      request?.transformQuery ?? ensureGlobalOption()?.transformQuery
+    const transformResponse =
+      request?.transformResponse ?? ensureGlobalOption()?.transformResponse
+
+    const transformInput = transformQuery?.(params) ?? params
 
     const response = (await request?.fetchPaginationData?.(
       transformInput
     )) as any
 
-    const transformOutput = (request?.transformResponse?.({
+    const transformOutput = (transformResponse?.({
       query: transformInput,
       response,
     }) ?? response) as FetchTableDataResult<any>
@@ -263,13 +277,13 @@ const buildAddFormMiddleware: Middleware<BuildCrudContext<any>> = (
       const mergedProps = merge<
         CrudDialogOption,
         CrudDialogOption,
-        CrudDialogOption,
+        CrudDialogOption | undefined,
         CrudDialogOption | undefined,
         CrudDialogOption | undefined
       >(
-        {},
-        DefaultDialogOption,
+        { ...DefaultDialogOption },
         { props: { title: '新增' } },
+        inject(GlobalOption)?.dialog,
         ctx.optionResult.dialog,
         ctx.optionResult.addFormDialog
       )
@@ -343,13 +357,13 @@ const buildEditFormMiddleware: Middleware<BuildCrudContext<any>> = (
       const mergedProps = merge<
         CrudDialogOption,
         CrudDialogOption,
-        CrudDialogOption,
+        CrudDialogOption | undefined,
         CrudDialogOption | undefined,
         CrudDialogOption | undefined
       >(
-        {},
-        DefaultDialogOption,
+        { ...DefaultDialogOption },
         { props: { title: '编辑' } },
+        inject(GlobalOption)?.dialog,
         ctx.optionResult.dialog,
         ctx.optionResult.editFormDialog
       )
@@ -422,13 +436,13 @@ const buildViewFormMiddleware: Middleware<BuildCrudContext<any>> = (
       const mergedProps = merge<
         CrudDialogOption,
         CrudDialogOption,
-        CrudDialogOption,
+        CrudDialogOption | undefined,
         CrudDialogOption | undefined,
         CrudDialogOption | undefined
       >(
-        {},
-        DefaultDialogOption,
+        { ...DefaultDialogOption },
         { props: { title: '查看' } },
+        inject(GlobalOption)?.dialog,
         ctx.optionResult.dialog,
         ctx.optionResult.viewFormDialog
       )
