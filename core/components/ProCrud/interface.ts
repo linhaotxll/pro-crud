@@ -232,9 +232,7 @@ export interface BuildCrudOptionReturn<T extends object> {
   /**
    * 搜索栏配置
    */
-  search?: Omit<BuildFormOptionResult<any>, 'columns' | 'request'> & {
-    show?: MaybeRef<boolean>
-  }
+  search?: CrudFormOption
 
   /**
    * 添加、编辑、查看表单公共配置

@@ -13,9 +13,9 @@ const app = createApp(App)
 
 app.component(BasicDialog.name, BasicDialog)
 
-app.use(ElementPlus)
+app.use(ElementPlus, {})
 
-app.use(ProComponents, {})
+app.use(ProComponents)
 
 app.use(router)
 

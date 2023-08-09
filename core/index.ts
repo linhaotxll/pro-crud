@@ -14,14 +14,13 @@ import { ProRender } from './components/ProRender'
 import { ProSearch } from './components/ProSearch'
 import { ProSelect } from './components/ProSelect'
 import { ProTable } from './components/ProTable'
+import { GlobalOption } from './constant'
 
+import type { ProComponentsOptions } from './constant'
 import type { Plugin } from 'vue'
 
-// eslint-disable-next-line @typescript-eslint/no-empty-interface
-export interface ProComponentsOptions {}
-
 export const ProComponents: Plugin<ProComponentsOptions> = {
-  install(app) {
+  install(app, options) {
     app.component(ProCrud.name, ProCrud)
     app.component(ProTable.name, ProTable)
     app.component(ProRender.name, ProRender)
@@ -32,6 +31,8 @@ export const ProComponents: Plugin<ProComponentsOptions> = {
     app.use(ElSpace, ElIcon, ElDropdown, ElDropdownMenu, ElDropdownItem, ElTree)
 
     app.directive('v-loading', vLoading)
+
+    app.provide(GlobalOption, options)
   },
 }
 
