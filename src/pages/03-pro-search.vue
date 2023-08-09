@@ -34,7 +34,7 @@ const formProps = ref<Partial<FormProps>>({
   // },
 })
 // const row = ref<Partial<RowProps>>({ gutter: 8 })
-const formCol = ref<Partial<Partial<ColProps>>>({ span: 6 })
+// const formCol = ref<Partial<Partial<ColProps>>>({ span: 6 })
 
 const nameCol = ref<Partial<Partial<ColProps>>>({
   span: 4,

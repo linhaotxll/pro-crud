@@ -1,6 +1,8 @@
 import { cloneDeep, get, set } from 'lodash-es'
 import { reactive } from 'vue'
 
+import { unRef } from '../common'
+
 import type { ProFormColumnOptions } from './interface'
 
 export function useValues<T extends object>(
@@ -13,7 +15,8 @@ export function useValues<T extends object>(
     for (const column of columns) {
       const { transform, prop } = column
       if (typeof transform?.from === 'function') {
-        set(values, column.prop, transform.from(get(values, prop)))
+        const resolveProp = unRef(prop)
+        set(values, resolveProp, transform.from(get(values, resolveProp)))
       }
     }
   }

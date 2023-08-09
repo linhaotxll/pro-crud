@@ -1,6 +1,6 @@
-import type { ProFormScope, ValueType } from './interface'
+import type { ValueType } from './interface'
 import type { ElColProps, ElRowProps } from '../common'
-import type { FormInstance, FormItemInstance, FormItemProp } from 'element-plus'
+import type { FormItemInstance, FormItemProp } from 'element-plus'
 import type { InjectionKey, Ref } from 'vue'
 
 // 默认显示按钮组按钮

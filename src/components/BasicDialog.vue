@@ -16,6 +16,7 @@ defineOptions({ name: 'BasicDialog' })
 
 defineSlots<{
   default?(): VNode[]
+  footer?(): VNode[]
 }>()
 
 // const p = defineProps<Partial<DialogProps>>()

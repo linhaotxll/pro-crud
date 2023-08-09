@@ -110,6 +110,8 @@ export function buildForm<T extends object, C, R = T>(
         ...column.fieldProps,
       }
 
+      const prop = unRef(column.prop)
+
       const result: InternalProFormColumnOptions<T> = {
         ...column,
         label: undefined,
@@ -117,11 +119,10 @@ export function buildForm<T extends object, C, R = T>(
         preserve:
           (column.preserve != null ? column.preserve : preserve) ??
           DefaultPreserve,
-        resolvedKey:
-          typeof column.prop === 'string' ? column.prop : column.prop.join('.'),
+        resolvedKey: typeof prop === 'string' ? prop : prop.join('.'),
         itemProps: {
           label: unRef(column.label),
-          prop: column.prop,
+          prop,
           ...column.itemProps,
         },
         tooltip: column.tooltip
@@ -140,7 +141,7 @@ export function buildForm<T extends object, C, R = T>(
 
       delete result.label
 
-      resolvedColumnsMap.set(result.prop, result)
+      resolvedColumnsMap.set(prop, result)
 
       return result
     })
@@ -258,7 +259,8 @@ export function buildForm<T extends object, C, R = T>(
     const params = cloneDeep(toRaw(values))
 
     for (const column of resolvedColumns) {
-      const { submitted, prop, transform } = column.value
+      const { submitted, itemProps, transform } = column.value
+      const prop = itemProps!.prop as FormItemProp
 
       // 检测字段是否需要提交上传
       if (

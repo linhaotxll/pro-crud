@@ -26,7 +26,7 @@ export function useColumns<T extends object>(
 
     watchEffect(
       () => {
-        const prop = unRef(column.prop)
+        const prop = unRef(column.prop)!
         const show = isRef(column.show)
           ? column.show.value
           : column.show ?? DefaultTableColumnShow
@@ -42,7 +42,7 @@ export function useColumns<T extends object>(
 
     resolvedColumns.push(
       computed(() => {
-        const prop = unRef(column.prop)
+        const prop = unRef(column.prop)!
 
         const result: InternalProTableColumnProps<T> = {
           show: resolvedShow[prop],
