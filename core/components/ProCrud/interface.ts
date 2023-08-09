@@ -7,6 +7,9 @@ import type {
 import type {
   BuildFormBinding,
   BuildFormOptionResult,
+  ButtonOption,
+  ButtonsOption,
+  ProFormButtons,
   ProFormColumnOptions,
   ProFormInstance,
   ProFormScope,
@@ -234,9 +237,14 @@ export interface BuildCrudOptionReturn<T extends object> {
   }
 
   /**
+   * 添加、编辑、查看表单公共配置
+   */
+  form?: CrudFormOption
+
+  /**
    * 添加表单配置
    */
-  addForm?: CrudFormOption
+  addForm?: CrudFormOptionResult
 
   /**
    * 添加表单弹窗配置
@@ -246,7 +254,7 @@ export interface BuildCrudOptionReturn<T extends object> {
   /**
    * 编辑表单配置
    */
-  editForm?: CrudFormOption
+  editForm?: CrudFormOptionResult
 
   /**
    * 编辑表单弹窗配置
@@ -256,7 +264,7 @@ export interface BuildCrudOptionReturn<T extends object> {
   /**
    * 查看表单配置
    */
-  viewForm?: CrudFormOption
+  viewForm?: CrudViewFormOptionResult
 
   /**
    * 查看表单弹窗配置
@@ -299,6 +307,24 @@ export type CrudFormOption = Omit<
   'columns' | 'request'
 > & {
   show?: MaybeRef<boolean>
+}
+
+/**
+ * ProCrud AddForm、EditForm 配置
+ */
+export type CrudFormOptionResult = Omit<CrudFormOption, 'buttons'> & {
+  buttons?: Omit<ButtonsOption, 'list'> & {
+    list?: ProFormButtons & { cancel?: ButtonOption }
+  }
+}
+
+/**
+ * ProCrud ViewForm 配置
+ */
+export type CrudViewFormOptionResult = Omit<CrudFormOption, 'buttons'> & {
+  buttons?: Omit<ButtonsOption, 'list'> & {
+    list?: { cancel?: ButtonOption; [name: string]: ButtonOption | undefined }
+  }
 }
 
 /**

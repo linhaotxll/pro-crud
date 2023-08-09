@@ -353,17 +353,19 @@ export interface ButtonsOption {
   /**
    * 按钮列表
    */
-  list?: {
-    /**
-     * 确认按钮
-     */
-    confirm?: ButtonOption
+  list?: ProFormButtons
+}
 
-    /**
-     * 其余按钮
-     */
-    [type: string]: ButtonOption | undefined
-  }
+export interface ProFormButtons {
+  /**
+   * 确认按钮
+   */
+  confirm?: ButtonOption
+
+  /**
+   * 其余按钮
+   */
+  [type: string]: ButtonOption | undefined
 }
 
 /**

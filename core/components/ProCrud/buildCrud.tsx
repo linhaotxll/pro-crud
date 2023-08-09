@@ -11,6 +11,16 @@ import {
   ProTableRef,
   ViewFormRef,
 } from './constant'
+import {
+  type BuildCrudBinding,
+  type BuildCrudContext,
+  type BuildCrudOptionReturn,
+  type BuildCrudReturn,
+  type CrudFormOptionResult,
+  type ProCrudColumnOption,
+  type ProCrudInstance,
+  type ProCrudScope,
+} from './interface'
 import { useDialog } from './useDialog'
 import { useOperate } from './useOperate'
 
@@ -24,15 +34,8 @@ import { buildSearch } from '../ProSearch'
 import { buildTable } from '../ProTable'
 
 import type { Middleware } from './compose'
-import type {
-  BuildCrudBinding,
-  BuildCrudContext,
-  BuildCrudOptionReturn,
-  BuildCrudReturn,
-  ProCrudColumnOption,
-  ProCrudInstance,
-  ProCrudScope,
-} from './interface'
+import type { CrudFormOption } from './interface'
+import type { BuildFormOptionResult } from '../ProForm'
 import type {
   FetchTableDataResult,
   FetchTableListQuery,
@@ -267,28 +270,38 @@ const buildAddFormMiddleware: Middleware<BuildCrudContext<any>> = (
       ...column.addForm,
     }))
 
-    return {
-      col: { span: 12 },
-      buttons: {
-        show: false,
-        list: {
-          cancel: {
-            text: '取消',
-            show: true,
-            props: { onClick: hideDialog },
+    return merge<
+      CrudFormOptionResult,
+      CrudFormOption | undefined,
+      CrudFormOptionResult | undefined,
+      BuildFormOptionResult<any>
+    >(
+      {
+        col: { span: 12 },
+        buttons: {
+          show: false,
+          list: {
+            cancel: {
+              text: '取消',
+              show: true,
+              props: { onClick: hideDialog },
+            },
           },
         },
       },
-      ...(ctx.optionResult.addForm ?? {}),
-      columns,
-      request: {
-        submitRequest: ctx.optionResult.request?.addRequest,
-        successRequest() {
-          hideDialog()
-          ctx.scope.table.reload()
+      ctx.optionResult.form,
+      ctx.optionResult.addForm,
+      {
+        columns,
+        request: {
+          submitRequest: ctx.optionResult.request?.addRequest,
+          successRequest() {
+            hideDialog()
+            ctx.scope.table.reload()
+          },
         },
-      },
-    }
+      }
+    )
   })
 
   ctx.binding.addForm = proFormBinding
@@ -323,28 +336,38 @@ const buildEditFormMiddleware: Middleware<BuildCrudContext<any>> = (
       ...column.editForm,
     }))
 
-    return {
-      col: { span: 12 },
-      buttons: {
-        show: false,
-        list: {
-          cancel: {
-            text: '取消',
-            show: true,
-            props: { onClick: hideDialog },
+    return merge<
+      CrudFormOptionResult,
+      CrudFormOption | undefined,
+      CrudFormOptionResult | undefined,
+      BuildFormOptionResult<any>
+    >(
+      {
+        col: { span: 12 },
+        buttons: {
+          show: false,
+          list: {
+            cancel: {
+              text: '取消',
+              show: true,
+              props: { onClick: hideDialog },
+            },
           },
         },
       },
-      ...(ctx.optionResult.editForm ?? {}),
-      columns,
-      request: {
-        submitRequest: ctx.optionResult.request?.editRequest,
-        successRequest() {
-          hideDialog()
-          ctx.scope.table.reload()
+      ctx.optionResult.form,
+      ctx.optionResult.editForm,
+      {
+        columns,
+        request: {
+          submitRequest: ctx.optionResult.request?.editRequest,
+          successRequest() {
+            hideDialog()
+            ctx.scope.table.reload()
+          },
         },
-      },
-    }
+      }
+    )
   })
 
   ctx.binding.editForm = proFormBinding
@@ -378,24 +401,33 @@ const buildViewFormMiddleware: Middleware<BuildCrudContext<any>> = (
       ...column.viewForm,
     }))
 
-    return {
-      col: { span: 12 },
-      buttons: {
-        show: false,
-        list: {
-          confirm: {
-            text: '取消',
-            props: {
-              type: 'default',
-              onClick: hideDialog,
+    return merge<
+      CrudFormOptionResult,
+      CrudFormOption | undefined,
+      CrudFormOptionResult | undefined,
+      BuildFormOptionResult<any>
+    >(
+      {
+        col: { span: 12 },
+        buttons: {
+          show: false,
+          list: {
+            cancel: {
+              text: '取消',
+              show: true,
+              props: { onClick: hideDialog },
             },
+            confirm: { show: false },
           },
         },
       },
-      ...(ctx.optionResult.viewForm ?? {}),
-      formProps: { ...ctx.optionResult.viewForm?.formProps, disabled: true },
-      columns,
-    }
+      ctx.optionResult.form,
+      ctx.optionResult.viewForm,
+      {
+        columns,
+        formProps: { disabled: true },
+      }
+    )
   })
 
   ctx.binding.viewForm = proFormBinding

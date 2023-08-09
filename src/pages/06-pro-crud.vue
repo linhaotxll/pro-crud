@@ -93,17 +93,25 @@ const { proCrudBinding, proCrudRef } = buildCrud<User>(scope => {
       { label: '创建时间', prop: 'createTime', search: { show: false } },
     ],
 
+    form: {
+      formProps,
+    },
+
     addForm: {
-      formProps,
+      formProps: {
+        rules: {
+          zip: { required: true, message: '请填写邮政编码' },
+        },
+      },
     },
 
-    editForm: {
-      formProps,
-    },
+    // editForm: {
+    //   formProps,
+    // },
 
-    viewForm: {
-      formProps,
-    },
+    // viewForm: {
+    //   formProps,
+    // },
 
     table: {
       toolbar: {
