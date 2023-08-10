@@ -1,4 +1,4 @@
-import type { ValueType } from './interface'
+export type ValueType = 'text' | 'select' | 'auto-complete' | 'cascader'
 
 export const valueTypeMap: Record<ValueType, [string, object?]> = {
   text: ['el-input'],

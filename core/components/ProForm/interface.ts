@@ -11,6 +11,7 @@ import type {
   ElRowProps,
   ExtractMaybeRef,
   MaybeRef,
+  ValueType,
 } from '../common'
 import type { ValidateFieldsError } from 'async-validator'
 import type {
@@ -460,5 +461,3 @@ export interface InternalProFormColumnOptions<T extends object>
    */
   tooltip?: Tooltip
 }
-
-export type ValueType = 'text' | 'select' | 'auto-complete' | 'cascader'

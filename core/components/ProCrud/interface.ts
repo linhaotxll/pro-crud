@@ -3,6 +3,7 @@ import type {
   ElDialogProps,
   ElPopconfirmProps,
   MaybeRef,
+  ValueType,
 } from '../common'
 import type {
   BuildFormBinding,
@@ -499,6 +500,11 @@ export interface ProCrudColumnOption<
    * 字段值
    */
   prop: MaybeRef<string>
+
+  /**
+   * 类型
+   */
+  type?: MaybeRef<ValueType>
 
   /**
    * 查询表单列配置

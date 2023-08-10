@@ -1,6 +1,5 @@
 export * from './interface'
 export * from './buildForm'
-export { valueTypeMap } from './type'
 export { default as ProForm } from './ProForm.vue'
 export { default as ProFormItem } from './ProFormItem.vue'
 export { useValues } from './useValues'

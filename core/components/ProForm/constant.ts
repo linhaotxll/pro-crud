@@ -1,5 +1,4 @@
-import type { ValueType } from './interface'
-import type { ElColProps, ElRowProps } from '../common'
+import type { ValueType, ElColProps, ElRowProps } from '../common'
 import type { FormItemInstance, FormItemProp } from 'element-plus'
 import type { InjectionKey, Ref } from 'vue'
 

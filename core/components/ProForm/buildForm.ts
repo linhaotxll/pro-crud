@@ -16,10 +16,9 @@ import {
   DefaultRow,
   ShowButton,
 } from './constant'
-import { valueTypeMap } from './type'
 import { useValues } from './useValues'
 
-import { unRef } from '../common'
+import { unRef, valueTypeMap } from '../common'
 
 import type {
   BuildFormBinding,
@@ -30,9 +29,8 @@ import type {
   ProFormInstance,
   ProFormScope,
   SuccessToastType,
-  ValueType,
 } from './interface'
-import type { Arrayable, ElFormProps } from '../common'
+import type { Arrayable, ElFormProps, ValueType } from '../common'
 import type {
   FormInstance,
   FormItemInstance,

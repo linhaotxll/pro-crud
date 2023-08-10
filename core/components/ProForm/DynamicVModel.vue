@@ -19,7 +19,7 @@
 import { get, set } from 'lodash-es'
 import { computed, toRaw } from 'vue'
 
-import { valueTypeMap } from './type'
+import { valueTypeMap } from '../common'
 
 import type { InternalProFormColumnOptions } from './interface'
 
