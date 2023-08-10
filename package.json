@@ -3,6 +3,11 @@
   "private": true,
   "version": "0.0.1",
   "type": "module",
+  "files": [
+    "./dist/*"
+  ],
+  "main": "./dist/pro-components.es.js",
+  "types": "./dist/index.d.ts",
   "scripts": {
     "preinstall": "npx only-allow pnpm",
     "dev": "vite",
