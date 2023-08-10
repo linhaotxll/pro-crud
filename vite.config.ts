@@ -82,7 +82,7 @@ export default defineConfig({
   },
 
   server: {
-    port: 1000,
+    port: 5172,
   },
 
   build: {
