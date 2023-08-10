@@ -40,16 +40,27 @@ export interface DictionaryResolvedOption {
 }
 
 export interface ResolvedColumnDict {
+  symbol: symbol
   dict: DictionaryOption
   options: Ref<DictionaryResolvedOption[]>
   optionsNameMap: ComputedRef<Map<any, string>>
   loading: Ref<boolean>
 }
 
-export function useDict(dict: DictionaryOption | undefined) {
+const useDictSymbol = Symbol()
+
+export function useDict(
+  dict: DictionaryOption | ResolvedColumnDict | undefined
+) {
   if (!dict) {
     return
   }
+
+  if ((dict as ResolvedColumnDict).symbol === useDictSymbol) {
+    return dict as ResolvedColumnDict
+  }
+
+  console.log('useDict: ', dict)
 
   const options = ref([]) as Ref<DictionaryResolvedOption[]>
   const loading = ref(false)
@@ -77,7 +88,7 @@ export function useDict(dict: DictionaryOption | undefined) {
       fetchData,
       labelField = 'label',
       valueField = 'value',
-    } = dict || {}
+    } = (dict as DictionaryOption) || {}
     try {
       loading.value = true
       const _fetchData: () => Promise<any[]> = Array.isArray(data)
@@ -97,7 +108,13 @@ export function useDict(dict: DictionaryOption | undefined) {
     }
   }
 
-  const result: ResolvedColumnDict = { options, optionsNameMap, loading, dict }
+  const result: ResolvedColumnDict = {
+    symbol: useDictSymbol,
+    options,
+    optionsNameMap,
+    loading,
+    dict: dict as DictionaryOption,
+  }
 
   return result
 }

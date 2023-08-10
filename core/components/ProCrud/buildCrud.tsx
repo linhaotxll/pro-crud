@@ -25,7 +25,7 @@ import {
 import { useDialog } from './useDialog'
 import { useOperate } from './useOperate'
 
-import { unRef } from '../common'
+import { unRef, useDict } from '../common'
 import {
   buildForm,
   type ButtonsOption,
@@ -197,6 +197,8 @@ const buildSearchMiddlewre: Middleware<
       columns: ctx.columns.search.map<ProFormColumnOptions<any>>(column => ({
         label: column.label,
         prop: column.prop,
+        type: column.type,
+        dict: column.dict,
         ...column.search,
       })),
       buttons,
@@ -240,6 +242,8 @@ const buildTableMiddleware: Middleware<
         .map<ProTableColumnProps<any>>(column => ({
           label: column.label,
           prop: column.prop,
+          dict: column.dict,
+          type: column.type,
           ...column.table,
         }))
         .concat(operateColumn),
@@ -328,11 +332,15 @@ const buildAddFormMiddleware: Middleware<
       return mergedProps
     })
 
-    const columns = ctx.columns.addForm.map(column => ({
-      label: column.label,
-      prop: column.prop,
-      ...column.addForm,
-    }))
+    const columns = ctx.columns.addForm.map<ProFormColumnOptions<any>>(
+      column => ({
+        label: column.label,
+        prop: column.prop,
+        dict: column.dict,
+        type: column.type,
+        ...column.addForm,
+      })
+    )
 
     return merge<
       CrudFormOptionResult,
@@ -407,11 +415,15 @@ const buildEditFormMiddleware: Middleware<
       return mergedProps
     })
 
-    const columns = ctx.columns.editForm.map(column => ({
-      label: column.label,
-      prop: column.prop,
-      ...column.editForm,
-    }))
+    const columns = ctx.columns.editForm.map<ProFormColumnOptions<any>>(
+      column => ({
+        label: column.label,
+        prop: column.prop,
+        dict: column.dict,
+        type: column.type,
+        ...column.editForm,
+      })
+    )
 
     return merge<
       CrudFormOptionResult,
@@ -485,11 +497,15 @@ const buildViewFormMiddleware: Middleware<
       return mergedProps
     })
 
-    const columns = ctx.columns.viewForm.map(column => ({
-      label: column.label,
-      prop: column.prop,
-      ...column.viewForm,
-    }))
+    const columns = ctx.columns.viewForm.map<ProFormColumnOptions<any>>(
+      column => ({
+        label: column.label,
+        prop: column.prop,
+        dict: column.dict,
+        type: column.type,
+        ...column.viewForm,
+      })
+    )
 
     return merge<
       CrudFormOptionResult,
@@ -571,6 +587,8 @@ function normalizeColumns(
 
   const result =
     columns?.reduce((prev, curr) => {
+      curr.dict = useDict(curr.dict) as any
+
       if (!(curr.search?.show === false)) {
         prev.search.push(curr)
       }

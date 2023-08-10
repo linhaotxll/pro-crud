@@ -42,7 +42,7 @@ interface UserSearchForm {
   name?: string
 }
 
-const sleep = () => new Promise(r => setTimeout(r, 500))
+const sleep = (time = 1000) => new Promise(r => setTimeout(r, time))
 
 const showOperate = ref(true)
 
@@ -85,6 +85,26 @@ const { proCrudBinding, proCrudRef } = buildCrud<
         prop: 'email',
         search: { show: true },
         addForm: {},
+      },
+
+      {
+        label: '状态',
+        prop: 'status',
+        type: 'dict-select',
+        search: { show: true },
+        addForm: {},
+        dict: {
+          async fetchData() {
+            console.log('请求状态接口')
+            await sleep(5000)
+
+            return [
+              { label: '状态一', value: 1 },
+              { label: '状态儿', value: 2 },
+              { label: '状态三', value: 3 },
+            ]
+          },
+        },
       },
 
       { label: '区域', prop: 'region', search: { show: false } },

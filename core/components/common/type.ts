@@ -85,12 +85,3 @@ export const ValueTypeMap = {
     >)
   },
 }
-
-// export const ValueTypeMap = (function () {
-//   debugger
-//   console.log(123, inject(GlobalOption))
-//   const injectType = inject(GlobalOption)?.types
-
-// })()
-
-// console.log('ValueTypeMap: ', ValueTypeMap)

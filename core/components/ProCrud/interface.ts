@@ -515,27 +515,27 @@ export interface ProCrudColumnOption<
   /**
    * 查询表单列配置
    */
-  search?: Omit<ProFormColumnOptions<S>, 'label' | 'prop' | 'type'>
+  search?: Omit<ProFormColumnOptions<S>, 'label' | 'prop' | 'type' | 'dict'>
 
   /**
    * 表格列配˙
    */
-  table?: Omit<ProTableColumnProps<T>, 'label' | 'prop'>
+  table?: Omit<ProTableColumnProps<T>, 'label' | 'prop' | 'dict'>
 
   /**
    * 编辑表单列配置
    */
-  editForm?: Omit<ProFormColumnOptions<E>, 'label' | 'prop' | 'type'>
+  editForm?: Omit<ProFormColumnOptions<E>, 'label' | 'prop' | 'type' | 'dict'>
 
   /**
    * 新增表单列配置
    */
-  addForm?: Omit<ProFormColumnOptions<A>, 'label' | 'prop' | 'type'>
+  addForm?: Omit<ProFormColumnOptions<A>, 'label' | 'prop' | 'type' | 'dict'>
 
   /**
    * 详情表单列配置
    */
-  viewForm?: Omit<ProFormColumnOptions<T>, 'label' | 'prop' | 'type'>
+  viewForm?: Omit<ProFormColumnOptions<T>, 'label' | 'prop' | 'type' | 'dict'>
 
   /**
    * 表格列配置
