@@ -9,10 +9,10 @@ import {
 } from 'element-plus'
 
 import { ProCrud } from './components/ProCrud'
+import { ProDictionary, ProSelect } from './components/ProDictionary'
 import { ProForm } from './components/ProForm'
 import { ProRender } from './components/ProRender'
 import { ProSearch } from './components/ProSearch'
-import { ProSelect } from './components/ProSelect'
 import { ProTable } from './components/ProTable'
 import { GlobalOption } from './constant'
 
@@ -27,6 +27,7 @@ export const ProComponents: Plugin<ProComponentsOptions> = {
     app.component(ProSearch.name, ProSearch)
     app.component(ProForm.name, ProForm)
     app.component(ProSelect.name, ProSelect)
+    app.component(ProDictionary.name, ProDictionary)
 
     app.use(ElSpace, ElIcon, ElDropdown, ElDropdownMenu, ElDropdownItem, ElTree)
 
@@ -38,4 +39,4 @@ export const ProComponents: Plugin<ProComponentsOptions> = {
 
 export * from './components/ProForm'
 export * from './components/ProSearch'
-export * from './components/ProSelect'
+export * from './components/ProCrud'

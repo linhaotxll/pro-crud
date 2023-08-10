@@ -1,3 +1,4 @@
+import type { ValueTypeValue } from './components/common'
 import type {
   CrudDialogOption,
   TransformQueryParams,
@@ -30,4 +31,9 @@ export interface ProComponentsOptions {
    * 全局 crud 添加、编辑、查看弹窗公共配置
    */
   dialog?: CrudDialogOption
+
+  /**
+   * 注入扩展类型
+   */
+  types?: Record<string, ValueTypeValue>
 }

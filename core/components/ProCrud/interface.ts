@@ -1,4 +1,5 @@
 import type {
+  DictionaryOption,
   ElButtonProps,
   ElDialogProps,
   ElPopconfirmProps,
@@ -507,9 +508,14 @@ export interface ProCrudColumnOption<
   type?: MaybeRef<ValueType>
 
   /**
+   * 字典
+   */
+  dict?: DictionaryOption
+
+  /**
    * 查询表单列配置
    */
-  search?: Omit<ProFormColumnOptions<S>, 'label' | 'prop'>
+  search?: Omit<ProFormColumnOptions<S>, 'label' | 'prop' | 'type'>
 
   /**
    * 表格列配˙
@@ -519,17 +525,17 @@ export interface ProCrudColumnOption<
   /**
    * 编辑表单列配置
    */
-  editForm?: Omit<ProFormColumnOptions<E>, 'label' | 'prop'>
+  editForm?: Omit<ProFormColumnOptions<E>, 'label' | 'prop' | 'type'>
 
   /**
    * 新增表单列配置
    */
-  addForm?: Omit<ProFormColumnOptions<A>, 'label' | 'prop'>
+  addForm?: Omit<ProFormColumnOptions<A>, 'label' | 'prop' | 'type'>
 
   /**
    * 详情表单列配置
    */
-  viewForm?: Omit<ProFormColumnOptions<T>, 'label' | 'prop'>
+  viewForm?: Omit<ProFormColumnOptions<T>, 'label' | 'prop' | 'type'>
 
   /**
    * 表格列配置

@@ -2,6 +2,19 @@ import Mock from 'mockjs'
 
 import type { MockMethod } from 'vite-plugin-mock'
 
+function randomNum(minNum: number, maxNum: number) {
+  switch (arguments.length) {
+    case 1:
+      return parseInt(`${Math.random() * minNum + 1}`, 10)
+      break
+    case 2:
+      return parseInt(`${Math.random() * (maxNum - minNum + 1) + minNum}`, 10)
+      break
+    default:
+      return 0
+  }
+}
+
 const Random = Mock.Random
 
 const userList = Array.from({ length: 431 }).map(() => ({
@@ -17,6 +30,7 @@ const userList = Array.from({ length: 431 }).map(() => ({
   name: Random.name(),
   createTime: Random.date(),
   desc: Random.csentence(),
+  status: randomNum(1, 3),
 }))
 
 const mock: MockMethod[] = [

@@ -39,7 +39,7 @@ interface Data<T> {
   }
 }
 
-const sleep = () => new Promise(r => setTimeout(r, 2000))
+const sleep = (time = 2000) => new Promise(r => setTimeout(r, time))
 const { proTableRef, proTableBinding } = buildTable<User>(() => ({
   tableProps: {
     border,
@@ -121,12 +121,33 @@ const { proTableRef, proTableBinding } = buildTable<User>(() => ({
     },
     {
       label: '住址',
-      prop: 'address1',
+      prop: 'address',
       columnProps: {
         width: 200,
       },
-      columnSlots: {
-        default: ctx => <el-tag>{ctx.row.address}</el-tag>,
+    },
+
+    {
+      label: '状态',
+      prop: 'status',
+      type: 'dict',
+      columnProps: { width: 200 },
+      dict: {
+        // data: [
+        //   { label: '状态一', value: 1 },
+        //   { label: '状态儿', value: 2 },
+        //   { label: '状态三', value: 3 },
+        // ],
+
+        async fetchData() {
+          await sleep(5000)
+
+          return [
+            { label: '状态一', value: 1 },
+            { label: '状态儿', value: 2 },
+            { label: '状态三', value: 3 },
+          ]
+        },
       },
     },
 

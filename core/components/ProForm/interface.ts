@@ -1,4 +1,5 @@
 import type {
+  DictionaryOption,
   ElAutoCompleteProps,
   ElAutoCompleteSlots,
   ElButtonProps,
@@ -11,6 +12,7 @@ import type {
   ElRowProps,
   ExtractMaybeRef,
   MaybeRef,
+  ResolvedColumnDict,
   ValueType,
 } from '../common'
 import type { ValidateFieldsError } from 'async-validator'
@@ -268,7 +270,7 @@ export interface ProFormColumnOptions<T extends object> {
    *
    * @default 'text'
    */
-  type?: MaybeRef<ValueType>
+  type?: MaybeRef<ValueType | any>
 
   /**
    * 表单额外的 props
@@ -401,41 +403,10 @@ export interface ButtonOption {
 }
 
 /**
- * 字典配置
- *
- * @internal
- */
-export interface DictionaryOption {
-  /**
-   * 字典列表
-   */
-  data?: any[]
-
-  /**
-   * 动态获取
-   */
-  fetchData?: () => Promise<any[]>
-
-  /**
-   * 名称字段
-   *
-   * @default 'label'
-   */
-  labelField?: string
-
-  /**
-   * 值字段
-   *
-   * @default 'value'
-   */
-  valueField?: string
-}
-
-/**
  * @internal
  */
 export interface InternalProFormColumnOptions<T extends object>
-  extends ProFormColumnOptions<T> {
+  extends Omit<ProFormColumnOptions<T>, 'dict'> {
   /**
    * 循环时用来指定 key 值
    */
@@ -460,4 +431,9 @@ export interface InternalProFormColumnOptions<T extends object>
    * tooltip 配置
    */
   tooltip?: Tooltip
+
+  /**
+   * 解析好的字典配置
+   */
+  dict?: ResolvedColumnDict
 }

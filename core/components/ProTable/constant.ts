@@ -1,5 +1,5 @@
 import type { ProTableLoading, ToolbarOption } from './interface'
-import type { ElSpaceProps } from '../common'
+import type { ElSpaceProps, ValueType } from '../common'
 
 export const ElTableInstanceNames = [
   'clearSelection',
@@ -50,3 +50,5 @@ export const DefaultTableSize = 'large'
 
 // 默认显示表格列
 export const DefaultTableColumnShow = true
+
+export const DefaultColumnType: ValueType = 'text'

@@ -3,8 +3,6 @@
     <!-- <test-a :visible="ref(visible)" /> -->
     <pro-form ref="proFormRef" v-bind="proFormBinding" />
 
-    <preview-form />
-
     <!-- <el-select :name="" /> -->
 
     <button @click="handleChangeNameCol">Change Name Col</button>
@@ -20,8 +18,6 @@
 <script lang="tsx" setup>
 import { computed } from 'vue'
 import { ref } from 'vue'
-
-import PreviewForm from './preview-form.vue'
 
 import { buildForm } from '~/components/ProForm'
 
@@ -55,12 +51,18 @@ const buttonsShow = ref(true)
 const buttonsCol = ref<Partial<ColProps>>({ span: 18 })
 const buttonConfirmShow = ref(true)
 const nameProp = ['info', 'name']
+const personProp = ['person', 'info']
 
 const { proFormRef, proFormBinding } = buildForm<FormValues>(scope => {
   return {
     row,
     col,
-    initialValues: { gender: 3, info: { name: 'lalala' } },
+    initialValues: {
+      gender: 3,
+      info: { name: 'lalala' },
+      person: { info: { name: '111', age: '21' } },
+      nickname: 'nic',
+    },
     formProps: {
       labelWidth,
     },
@@ -88,7 +90,7 @@ const { proFormRef, proFormBinding } = buildForm<FormValues>(scope => {
 
       {
         label: '性别',
-        type: 'select',
+        type: 'dict-select',
         prop: 'gender',
         itemProps: {
           rules: { required: true, message: '请选择性别' },
@@ -96,11 +98,19 @@ const { proFormRef, proFormBinding } = buildForm<FormValues>(scope => {
         fieldProps: { clearable: true },
         fieldSlots: {},
         dict: {
-          data: [
-            { name: '男', gender: 1 },
-            { name: '女', gender: 2 },
-            { name: '自定义', gender: 3 },
-          ],
+          async fetchData() {
+            await sleep(3000)
+            return [
+              { name: '男', gender: 1 },
+              { name: '女', gender: 2 },
+              { name: '自定义', gender: 3 },
+            ]
+          },
+          // data: [
+          //   { name: '男', gender: 1 },
+          //   { name: '女', gender: 2 },
+          //   { name: '自定义', gender: 3 },
+          // ],
           labelField: 'name',
           valueField: 'gender',
         },
@@ -130,12 +140,27 @@ const { proFormRef, proFormBinding } = buildForm<FormValues>(scope => {
       },
       {
         label: '状态',
-        type: 'select',
+        type: 'dict-select',
         prop: 'status',
+        fieldProps: {
+          placeholder: '啦啦啦',
+        },
         dict: {
           fetchData: fetchStatusData,
           labelField: 'statusName',
         },
+      },
+
+      {
+        label: '信息',
+        type: 'info',
+        prop: personProp,
+      },
+
+      {
+        label: '昵称',
+        type: 'nickname',
+        prop: 'nickname',
       },
     ],
 
@@ -167,6 +192,21 @@ const { proFormRef, proFormBinding } = buildForm<FormValues>(scope => {
               // scope.setFieldValue(['info', 'name'], 'Nicholas')
               scope.setFieldValues({
                 'info.name': 'IconMan',
+              })
+
+              // alert(scope.getFieldValue('info.name'))
+            },
+          },
+        },
+
+        setPerson: {
+          show: true,
+          text: '设置基本信息',
+          props: {
+            onClick() {
+              // scope.setFieldValue(['info', 'name'], 'Nicholas')
+              scope.setFieldValues({
+                'person.info': { name: 'Nicholas', age: '24' },
               })
 
               // alert(scope.getFieldValue('info.name'))

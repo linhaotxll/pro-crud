@@ -1,8 +1,8 @@
 import { computed, isRef, reactive, watchEffect } from 'vue'
 
-import { DefaultTableColumnShow } from './constant'
+import { DefaultColumnType, DefaultTableColumnShow } from './constant'
 
-import { unRef } from '../common'
+import { unRef, useDict } from '../common'
 
 import type {
   InternalProTableColumnProps,
@@ -46,6 +46,8 @@ export function useColumns<T extends object>(
 
         const result: InternalProTableColumnProps<T> = {
           show: resolvedShow[prop],
+          type: unRef(column.type ?? DefaultColumnType),
+          dict: useDict(column.dict),
           columnProps: {
             label: unRef(column.label),
             prop,

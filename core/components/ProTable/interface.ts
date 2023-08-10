@@ -6,6 +6,9 @@ import type {
   TableEmit,
   ElTooltipProps,
   ElSpaceProps,
+  ValueType,
+  DictionaryOption,
+  ResolvedColumnDict,
 } from '../common'
 import type { ExtractMaybeRef, MaybeRef, ToHandles } from '../common/interface'
 import type { TableColumnCtx, TableInstance, TableProps } from 'element-plus'
@@ -99,6 +102,18 @@ export type ProTableColumnProps<T> = {
    * 是否显示列
    */
   show?: MaybeRef<boolean>
+
+  /**
+   * 类型
+   *
+   * @default 'text'
+   */
+  type?: MaybeRef<ValueType | any>
+
+  /**
+   * 字典配置
+   */
+  dict?: DictionaryOption
 }
 
 export type TableDefaultSlotParams<T> = {
@@ -112,6 +127,8 @@ export type TableDefaultSlotParams<T> = {
  */
 export interface InternalProTableColumnProps<T> {
   show: boolean
+  type: ValueType | any
+  dict?: ResolvedColumnDict
   columnProps: ElTableColumnProps<T>
   columnSlots: ProTableColumnProps<T>['columnSlots']
 }

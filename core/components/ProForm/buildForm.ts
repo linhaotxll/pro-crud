@@ -18,7 +18,7 @@ import {
 } from './constant'
 import { useValues } from './useValues'
 
-import { unRef, valueTypeMap } from '../common'
+import { unRef, useDict, ValueTypeMap } from '../common'
 
 import type {
   BuildFormBinding,
@@ -103,16 +103,17 @@ export function buildForm<T extends object, C, R = T>(
       const defaultType: ValueType = unRef(column.type ?? DefaultFormFieldType)
 
       // 最终给表单传递的 props 集合：type 对应的 props + 用户传入的 props
-      const resolvedProps: object | undefined = {
-        ...valueTypeMap[defaultType][1],
-        ...column.fieldProps,
-      }
+      const resolvedProps = merge(
+        ValueTypeMap.value[defaultType].form?.props,
+        column.fieldProps
+      )
 
       const prop = unRef(column.prop)
 
       const result: InternalProFormColumnOptions<T> = {
         ...column,
         label: undefined,
+        dict: useDict(column.dict),
         submitted: column.submitted ?? true,
         preserve:
           (column.preserve != null ? column.preserve : preserve) ??
