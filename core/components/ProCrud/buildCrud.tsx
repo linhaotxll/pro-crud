@@ -255,6 +255,13 @@ const buildTableMiddleware: Middleware<
   })
 
   let globalOption: ProComponentsOptions | undefined
+  const transformQuery =
+    ctx.optionResult.request?.transformQuery ??
+    ensureGlobalOption()?.transformQuery
+  const transformResponse =
+    ctx.optionResult.request?.transformResponse ??
+    ensureGlobalOption()?.transformResponse
+
   function ensureGlobalOption() {
     return globalOption ? globalOption : (globalOption = inject(GlobalOption))
   }
@@ -271,11 +278,6 @@ const buildTableMiddleware: Middleware<
     } = ctx
     const form = search.getFormValues()
     const params = { query, form }
-
-    const transformQuery =
-      request?.transformQuery ?? ensureGlobalOption()?.transformQuery
-    const transformResponse =
-      request?.transformResponse ?? ensureGlobalOption()?.transformResponse
 
     const transformInput = transformQuery?.(params) ?? params
 
