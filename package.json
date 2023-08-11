@@ -1,9 +1,9 @@
 {
   "name": "@linh/pro-crud",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "type": "module",
   "files": [
-    "./dist/*"
+    "dist/*"
   ],
   "main": "./dist/pro-components.es.js",
   "types": "./dist/index.d.ts",
@@ -15,6 +15,14 @@
     "lint:js": "eslint --fix --ext .js,.jsx,.ts,.tsx,.vue",
     "release": "pnpm run build & release-it"
   },
+  "keywords": ["vue3", "element-plus", "crud"],
+  "author": "linh",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/linhaotxl/pro-crud"
+  },
+  "license": "ISC",
+  "homepage": "https://github.com/linhaotxl/pro-crud",
   "dependencies": {
     "clone-deep": "^4.0.1",
     "lodash-es": "^4.17.21",
