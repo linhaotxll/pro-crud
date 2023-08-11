@@ -312,6 +312,13 @@ export interface ProFormColumnOptions<T extends object> {
   submitted?: boolean | ((scope: ProFormScope<T>) => boolean)
 
   /**
+   * 表单是否填充满父元素
+   *
+   * @default true
+   */
+  fill?: MaybeRef<boolean>
+
+  /**
    * 服务端数据转换
    */
   transform?: {

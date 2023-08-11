@@ -42,9 +42,9 @@ interface FormValues {
 
 const labelWidth = ref('100px')
 const row = ref<Partial<RowProps>>({ gutter: 8 })
-const col = ref<Partial<ColProps>>({ span: 24 })
+const col = ref<Partial<ColProps>>({ span: 14 })
 
-const nameCol = ref<Partial<ColProps>>({ span: 4 })
+const nameCol = ref<Partial<ColProps>>({ span: 14 })
 const nameLabel = ref('名称')
 
 const buttonsShow = ref(true)
@@ -161,6 +161,94 @@ const { proFormRef, proFormBinding } = buildForm<FormValues>(scope => {
         label: '昵称',
         type: 'nickname',
         prop: 'nickname',
+      },
+
+      {
+        label: '数字',
+        type: 'digit',
+        prop: 'digit',
+        fill: false,
+      },
+
+      {
+        label: '滑块',
+        type: 'slider',
+        prop: 'slider',
+      },
+
+      {
+        label: '开关',
+        type: 'switch',
+        prop: 'switch',
+      },
+
+      {
+        label: '日期',
+        type: 'date',
+        prop: 'date',
+      },
+
+      {
+        label: '周',
+        type: 'date-week',
+        prop: 'dateWeek',
+        fieldProps: {
+          placeholder: '啊啊啊',
+        },
+      },
+
+      {
+        label: '月',
+        type: 'date-month',
+        prop: 'dateMonth',
+      },
+
+      {
+        label: '年',
+        type: 'date-year',
+        prop: 'dateYear',
+      },
+
+      {
+        label: '多个日期',
+        type: 'date-dates',
+        prop: 'dateDates',
+      },
+
+      {
+        label: '日期范围',
+        type: 'date-range',
+        prop: 'dateRange',
+      },
+
+      {
+        label: '月范围',
+        type: 'date-month-range',
+        prop: 'dateMonthRange',
+      },
+
+      {
+        label: '日期时间',
+        type: 'date-time',
+        prop: 'dateTime',
+      },
+
+      {
+        label: '日期时间范围',
+        type: 'date-time-range',
+        prop: 'dateTimeRange',
+      },
+
+      {
+        label: '时间',
+        type: 'time',
+        prop: 'time',
+      },
+
+      {
+        label: '时间范围',
+        type: 'time-range',
+        prop: 'timeRange',
       },
     ],
 

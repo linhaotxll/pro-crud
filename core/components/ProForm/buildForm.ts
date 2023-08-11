@@ -112,6 +112,7 @@ export function buildForm<T extends object, C, R = T>(
 
       const result: InternalProFormColumnOptions<T> = {
         ...column,
+        fill: unRef(column.fill ?? true),
         label: undefined,
         dict: useDict(column.dict),
         submitted: column.submitted ?? true,

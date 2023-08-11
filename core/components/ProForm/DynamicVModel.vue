@@ -1,26 +1,28 @@
 <template>
-  <template v-if="ValueTypeMap.value[column.type!].form?.is">
-    <component
-      :is="ValueTypeMap.value[column.type!].form!.is"
-      v-model="vModel"
-      :column="column"
-      v-bind="column.fieldProps"
-    >
-      <template
-        v-for="(render, name) in column.fieldSlots"
-        :key="name"
-        #[name]="ctx"
+  <div class="dynamic-v-model" :class="{ fill: column.fill }">
+    <template v-if="ValueTypeMap.value[column.type!].form?.is">
+      <component
+        :is="ValueTypeMap.value[column.type!].form!.is"
+        v-model="vModel"
+        :column="column"
+        v-bind="column.resolvedProps"
       >
-        <pro-render :render="render" :ctx="ctx" />
-      </template>
-    </component>
-  </template>
-  <template v-else-if="ValueTypeMap.value[column.type].form?.render">
-    <pro-render
-      :render="ValueTypeMap.value[column.type].form?.render"
-      :ctx="{ vModel: getVModel(), column }"
-    />
-  </template>
+        <template
+          v-for="(render, name) in column.fieldSlots"
+          :key="name"
+          #[name]="ctx"
+        >
+          <pro-render :render="render" :ctx="ctx" />
+        </template>
+      </component>
+    </template>
+    <template v-else-if="ValueTypeMap.value[column.type].form?.render">
+      <pro-render
+        :render="ValueTypeMap.value[column.type].form?.render"
+        :ctx="{ vModel: getVModel(), column }"
+      />
+    </template>
+  </div>
 </template>
 
 <script lang="ts" setup generic="T extends object">
@@ -53,3 +55,16 @@ const vModel = computed({
   },
 })
 </script>
+
+<style scoped>
+.dynamic-v-model {
+  width: 100%;
+}
+
+.dynamic-v-model.fill :deep(.el-select),
+.dynamic-v-model.fill :deep(.el-input-number),
+.dynamic-v-model.fill :deep(.el-date-editor) {
+  width: 100%;
+  box-sizing: border-box;
+}
+</style>
