@@ -33,6 +33,25 @@ app.use(ProComponents, {
       },
     },
   },
+
+  transformResponse(ctx) {
+    const { response } = ctx
+
+    return {
+      total: response.total,
+      data: response.rows,
+    }
+  },
+
+  transformQuery(ctx) {
+    const {
+      query: {
+        page: { pageNumber, pageSize },
+      },
+      form,
+    } = ctx
+    return { query: { pageSize, pageNumber, ...form } }
+  },
 })
 
 app.use(router)
