@@ -91,6 +91,7 @@ export function useOperate<
           },
         },
       },
+      columnProps: { width: 250 },
     },
     ctx.optionResult.operates
   )
