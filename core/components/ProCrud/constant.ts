@@ -37,5 +37,5 @@ export const DefaultOperateButton: CrudTableOperateButtonProps<any> = {
 
 export const DefaultDialogOption: CrudDialogOption = {
   props: { appendToBody: true, modal: true, draggable: true },
-  is: 'basic-dialog',
+  is: 'el-dialog',
 }
