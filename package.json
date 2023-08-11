@@ -1,6 +1,5 @@
 {
   "name": "@linh/pro-crud",
-  "private": true,
   "version": "0.0.3",
   "type": "module",
   "files": [
