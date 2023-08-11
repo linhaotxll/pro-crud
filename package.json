@@ -1,6 +1,6 @@
 {
   "name": "@linh-txl/pro-crud",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "type": "module",
   "files": [
     "dist/*"
@@ -15,7 +15,11 @@
     "lint:js": "eslint --fix --ext .js,.jsx,.ts,.tsx,.vue",
     "release": "pnpm run build & release-it"
   },
-  "keywords": ["vue3", "element-plus", "crud"],
+  "keywords": [
+    "vue3",
+    "element-plus",
+    "crud"
+  ],
   "author": "linh",
   "repository": {
     "type": "git",
