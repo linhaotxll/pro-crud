@@ -60,8 +60,6 @@ export function useDict(
     return dict as ResolvedColumnDict
   }
 
-  console.log('useDict: ', dict)
-
   const options = ref([]) as Ref<DictionaryResolvedOption[]>
   const loading = ref(false)
   const optionsNameMap = computed<Map<any, string>>(() =>
