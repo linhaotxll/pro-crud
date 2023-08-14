@@ -6,6 +6,7 @@
   <el-button @click="searchBarShow = !searchBarShow">切换 search bar</el-button>
   <el-button @click="idColumnShow = !idColumnShow">切换 id 列</el-button>
   <el-button @click="fixedId = !fixedId">固定Id列</el-button>
+  <el-button @click="changeParams">修改params</el-button>
 
   <pro-table ref="proTableRef" v-bind="proTableBinding" />
 </template>
@@ -21,6 +22,7 @@ const stripe = ref(true)
 const searchBarShow = ref(false)
 const idColumnShow = ref(true)
 const fixedId = ref(true)
+const params = ref({ age: 24 })
 
 interface User {
   id: string
@@ -37,6 +39,10 @@ interface Data<T> {
     total: number
     rows: T[]
   }
+}
+
+function changeParams() {
+  params.value = { age: ++params.value.age }
 }
 
 const sleep = (time = 2000) => new Promise(r => setTimeout(r, time))
@@ -56,6 +62,7 @@ const { proTableRef, proTableBinding } = buildTable<User>(() => ({
       return <div>合集</div>
     },
   },
+  params,
   loading: ref({
     text: ref('加载中'),
   }),
@@ -167,7 +174,7 @@ const { proTableRef, proTableBinding } = buildTable<User>(() => ({
     async fetchTableData(query) {
       await sleep()
       const result = await axios.get<Data<User>>('/api/user/list', {
-        params: query.page,
+        params: { ...query.page, ...query.params },
       })
       const { rows, total } = result.data.data
       return { data: rows, total: total }

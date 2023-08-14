@@ -10,7 +10,7 @@ import {
 import { useColumns } from './useColumns'
 import { useToolbar } from './useToolbar'
 
-import { unRef } from '../common'
+import { resolveRef, unRef } from '../common'
 
 import type {
   BuildProTableOptionResult,
@@ -23,19 +23,26 @@ import type { ElPaginationProps } from '../common'
 import type { TableInstance, TableProps } from 'element-plus'
 import type { Ref } from 'vue'
 
-export function buildTable<T extends object>(
+export function buildTable<
+  T extends object,
+  C = undefined,
+  P extends object = any
+>(
   options: (
     scope: ProTableScope<T>,
-    ctx?: undefined
-  ) => BuildProTableOptionResult<T>
+    ctx?: C | undefined
+  ) => BuildProTableOptionResult<T, P>
 ): BuildProTableResult<T>
-export function buildTable<T extends object, C>(
-  options: (scope: ProTableScope<T>, ctx: C) => BuildProTableOptionResult<T>,
+export function buildTable<T extends object, C, P extends object = any>(
+  options: (scope: ProTableScope<T>, ctx: C) => BuildProTableOptionResult<T, P>,
   ctx: C
 ): BuildProTableResult<T>
 
-export function buildTable<T extends object, C>(
-  options: (scope: ProTableScope<T>, ctx?: C) => BuildProTableOptionResult<T>,
+export function buildTable<T extends object, C, P extends object = any>(
+  options: (
+    scope: ProTableScope<T>,
+    ctx?: C
+  ) => BuildProTableOptionResult<T, P>,
   ctx?: C | undefined
 ): BuildProTableResult<T> {
   const elTableRef = ref<TableInstance | null>(null)
@@ -68,6 +75,7 @@ export function buildTable<T extends object, C>(
     loading: originLoading,
     request = {},
     toolbar: originToolbar,
+    params,
   } = options(scope, ctx)
   // debugger
 
@@ -93,6 +101,16 @@ export function buildTable<T extends object, C>(
   const { columns, columnsShow, sort, setFixed } = useColumns(originColumns)
 
   const { toolbar, tableSize } = useToolbar(tableProps, originToolbar, scope)
+
+  let resolvedParams = unRef(params)
+
+  // 监听 params 变化，自动发起请求
+  if (params) {
+    watch(resolveRef(params), p => {
+      resolvedParams = p
+      reset()
+    })
+  }
 
   /**
    * 加载指定页数内容
@@ -123,6 +141,7 @@ export function buildTable<T extends object, C>(
     try {
       const tableResult = await request.fetchTableData({
         page: { pageNumber: pageN, pageSize: pageS },
+        params: resolvedParams,
       })
       const { data: d = [], total: t = 1 } = tableResult ?? {}
 

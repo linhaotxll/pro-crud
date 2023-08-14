@@ -41,18 +41,19 @@ export interface ProTableLoading {
 /**
  * 获取数据函数
  */
-export type FetchTableListRequest<T extends object> = (
-  query: FetchTableListQuery
+export type FetchTableListRequest<T extends object, P extends object> = (
+  query: FetchTableListQuery<P>
 ) => Promise<FetchTableDataResult<T>> | FetchTableDataResult<T>
 
 /**
  * 获取数据函数参数
  */
-export type FetchTableListQuery = {
+export type FetchTableListQuery<P extends object> = {
   page: {
     pageNumber: number
     pageSize: number
   }
+  params?: P
 }
 
 /**
@@ -144,7 +145,7 @@ export type BuildProTableResult<T extends object> = {
 /**
  * buildTable option 返回值
  */
-export type BuildProTableOptionResult<T extends object> = {
+export type BuildProTableOptionResult<T extends object, P extends object> = {
   /**
    * 数据源(不推荐)
    */
@@ -186,13 +187,18 @@ export type BuildProTableOptionResult<T extends object> = {
   toolbar?: ProTableToolbarOption
 
   /**
+   * 请求携带的额外参数，当发生变化时会自动查询
+   */
+  params?: MaybeRef<P>
+
+  /**
    * 请求配置
    */
   request?: {
     /**
      * 获取数据请求
      */
-    fetchTableData?: FetchTableListRequest<T>
+    fetchTableData?: FetchTableListRequest<T, P>
   }
 }
 
