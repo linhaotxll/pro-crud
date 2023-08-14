@@ -21,8 +21,8 @@ import type {
 } from './interface'
 
 export function useToolbar<T extends object>(
-  tableProps: BuildProTableOptionResult<T>['tableProps'],
-  originToolbar: BuildProTableOptionResult<T>['toolbar'],
+  tableProps: BuildProTableOptionResult<T, any>['tableProps'],
+  originToolbar: BuildProTableOptionResult<T, any>['toolbar'],
   scope: ProTableScope<T>
 ) {
   // 表格大小
