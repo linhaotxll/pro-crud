@@ -115,7 +115,7 @@ export interface TransformQueryParams<S extends object> {
   /**
    * 分页信息，排序信息
    */
-  query: FetchTableListQuery
+  query: FetchTableListQuery<any>
 
   /**
    * 表单值
@@ -323,7 +323,10 @@ export interface BuildCrudOptionReturn<
   /**
    * 表格配置
    */
-  table?: Omit<BuildProTableOptionResult<T>, 'data' | 'columns' | 'request'> & {
+  table?: Omit<
+    BuildProTableOptionResult<T, any>,
+    'data' | 'columns' | 'request'
+  > & {
     show?: MaybeRef<boolean>
   }
 

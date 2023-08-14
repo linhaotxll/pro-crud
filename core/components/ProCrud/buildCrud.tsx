@@ -270,7 +270,7 @@ const buildTableMiddleware: Middleware<
    * 获取数据
    */
   async function fetchTableData(
-    query: FetchTableListQuery
+    query: FetchTableListQuery<any>
   ): Promise<FetchTableDataResult<any>> {
     const {
       scope: { search },
