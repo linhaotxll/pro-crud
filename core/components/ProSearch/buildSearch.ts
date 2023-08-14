@@ -39,7 +39,7 @@ export function buildSearch<T extends object, C, R = T>(
         const total =
           props.columns?.reduce<number>((prev, columnComputed) => {
             const columnCol = unRef(columnComputed.col)
-            const show = unRef(columnComputed.show)
+            const show = unRef(columnComputed.show ?? true)
 
             const columnTotal = show
               ? columnCol
