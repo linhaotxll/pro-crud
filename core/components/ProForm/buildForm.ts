@@ -104,6 +104,7 @@ export function buildForm<T extends object, C, R = T>(
 
       // 最终给表单传递的 props 集合：type 对应的 props + 用户传入的 props
       const resolvedProps = merge(
+        {},
         ValueTypeMap.value[defaultType].form?.props,
         column.fieldProps
       )

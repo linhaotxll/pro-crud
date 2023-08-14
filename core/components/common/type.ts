@@ -81,7 +81,7 @@ const DefaultValueType: Record<ValueType, ValueTypeValue> = {
   date: {
     form: {
       is: 'el-date-picker',
-      props: { placeholder: '请选择日期', valueFormat: 'YYYY-MM-DD HH:mm:ss' },
+      props: { placeholder: '请选择日期', valueFormat: 'YYYY-MM-DD' },
     },
   },
 
@@ -92,7 +92,7 @@ const DefaultValueType: Record<ValueType, ValueTypeValue> = {
         placeholder: '请选择周',
         type: 'week',
         format: '第ww周',
-        valueFormat: 'YYYY-MM-DD HH:mm:ss',
+        valueFormat: 'YYYY-MM-DD',
       },
     },
   },
