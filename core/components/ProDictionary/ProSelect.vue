@@ -1,17 +1,12 @@
 <template>
-  <el-select
+  <a-select
     v-if="config.options"
     v-model="value"
     v-bind="$attrs"
     :loading="config.loading?.value"
+    :options="config.options.value"
   >
-    <el-option
-      v-for="opt in config.options.value"
-      :key="opt.key"
-      :value="opt.value"
-      :label="opt.label"
-    />
-  </el-select>
+  </a-select>
 </template>
 
 <script lang="ts" setup generic="T extends object">

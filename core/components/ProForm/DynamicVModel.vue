@@ -3,7 +3,7 @@
     <template v-if="ValueTypeMap.value[column.type!].form?.is">
       <component
         :is="ValueTypeMap.value[column.type!].form!.is"
-        v-model="vModel"
+        v-model:[vModelName]="vModel"
         :column="column"
         v-bind="column.resolvedProps"
       >
@@ -42,16 +42,21 @@ const formValues = toRaw(props).values
 
 defineOptions({ name: 'DynamicVModel' })
 
+const vModelName = computed(
+  () => ValueTypeMap.value[props.column.type!].form!.vModelName ?? 'value'
+)
+
 function getVModel() {
   return vModel
 }
 
 const vModel = computed({
   get() {
-    return get(formValues, props.column.itemProps!.prop!)
+    console.log(123, get(formValues, props.column.itemProps!.name!))
+    return get(formValues, props.column.itemProps!.name!)
   },
   set(newValue) {
-    set(formValues, props.column.itemProps!.prop!, newValue)
+    set(formValues, props.column.itemProps!.name!, newValue)
   },
 })
 </script>
@@ -61,9 +66,9 @@ const vModel = computed({
   width: 100%;
 }
 
-.dynamic-v-model.fill :deep(.el-select),
-.dynamic-v-model.fill :deep(.el-input-number),
-.dynamic-v-model.fill :deep(.el-date-editor) {
+.dynamic-v-model.fill :deep(.ant-select),
+.dynamic-v-model.fill :deep(.ant-input-number),
+.dynamic-v-model.fill :deep(.ant-date-editor) {
   width: 100%;
   box-sizing: border-box;
 }

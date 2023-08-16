@@ -1,12 +1,26 @@
+// import {
+//   vLoading,
+//   ElSpace,
+//   ElIcon,
+//   ElDropdown,
+//   ElDropdownMenu,
+//   ElDropdownItem,
+//   ElTree,
+// } from 'element-plus'
+
 import {
-  vLoading,
-  ElSpace,
-  ElIcon,
-  ElDropdown,
-  ElDropdownMenu,
-  ElDropdownItem,
-  ElTree,
-} from 'element-plus'
+  Form,
+  Row,
+  Col,
+  Tooltip,
+  Input,
+  Select,
+  InputNumber,
+  Slider,
+  Switch,
+  DatePicker,
+  TimePicker,
+} from 'ant-design-vue'
 
 import { ProCrud } from './components/ProCrud'
 import { ProDictionary, ProSelect } from './components/ProDictionary'
@@ -29,9 +43,21 @@ export const ProComponents: Plugin<ProComponentsOptions> = {
     app.component(ProSelect.name, ProSelect)
     app.component(ProDictionary.name, ProDictionary)
 
-    app.use(ElSpace, ElIcon, ElDropdown, ElDropdownMenu, ElDropdownItem, ElTree)
+    app
+      .use(Form)
+      .use(Input)
+      .use(Col)
+      .use(Row)
+      .use(Tooltip)
+      .use(Select)
+      .use(InputNumber)
+      .use(Slider)
+      .use(Switch)
+      .use(DatePicker)
+      .use(TimePicker)
+    // app.use(ElSpace, ElIcon, ElDropdown, ElDropdownMenu, ElDropdownItem, ElTree)
 
-    app.directive('v-loading', vLoading)
+    // app.directive('v-loading', vLoading)
 
     app.provide(GlobalOption, options)
   },

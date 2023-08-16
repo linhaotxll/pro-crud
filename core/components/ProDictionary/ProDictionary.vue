@@ -1,5 +1,5 @@
 <template>
-  <el-tag v-if="content">{{ content }}</el-tag>
+  <a-tag v-if="content">{{ content }}</a-tag>
 </template>
 
 <script lang="ts" setup generic="T">

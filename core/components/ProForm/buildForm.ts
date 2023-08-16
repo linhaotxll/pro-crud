@@ -9,13 +9,7 @@ import {
 import { get, has, merge, set, unset } from 'lodash-es'
 import { computed, ref, toRaw } from 'vue'
 
-import {
-  DefaultCol,
-  DefaultFormFieldType,
-  DefaultPreserve,
-  DefaultRow,
-  ShowButton,
-} from './constant'
+import { DefaultFormFieldType, DefaultPreserve, ShowButton } from './constant'
 import { useValues } from './useValues'
 
 import { unRef, useDict, ValueTypeMap } from '../common'
@@ -31,6 +25,7 @@ import type {
   SuccessToastType,
 } from './interface'
 import type { Arrayable, ElFormProps, ValueType } from '../common'
+import type { FormItemProps } from 'ant-design-vue'
 import type {
   FormInstance,
   FormItemInstance,
@@ -75,8 +70,8 @@ export function buildForm<T extends object, C, R = T>(
     initialValues,
     columns = [],
     formProps,
-    row = DefaultRow,
-    col = DefaultCol,
+    labelCol,
+    wrapperCol,
     buttons,
     toast,
     preserve = DefaultPreserve,
@@ -89,10 +84,11 @@ export function buildForm<T extends object, C, R = T>(
   const formRef = ref<FormInstance | null>(null)
 
   // 解析列配置
-  const resolvedCol = computed(() => unRef(col))
+  const resolvedLabelCol = computed(() => unRef(labelCol))
+  const resolvedWrapperCol = computed(() => unRef(wrapperCol))
 
   const resolvedColumnsMap = new Map<
-    FormItemProp,
+    FormItemProps['name'],
     InternalProFormColumnOptions<T>
   >()
 
@@ -103,46 +99,42 @@ export function buildForm<T extends object, C, R = T>(
       const defaultType: ValueType = unRef(column.type ?? DefaultFormFieldType)
 
       // 最终给表单传递的 props 集合：type 对应的 props + 用户传入的 props
+
       const resolvedProps = merge(
         {},
         ValueTypeMap.value[defaultType].form?.props,
         column.fieldProps
       )
 
-      const prop = unRef(column.prop)
+      const name = unRef(column.name)
 
       const result: InternalProFormColumnOptions<T> = {
         ...column,
         fill: unRef(column.fill ?? true),
-        label: undefined,
+        label: unRef(column.label),
         dict: useDict(column.dict),
         submitted: column.submitted ?? true,
         preserve:
           (column.preserve != null ? column.preserve : preserve) ??
           DefaultPreserve,
-        resolvedKey: typeof prop === 'string' ? prop : prop.join('.'),
+        resolvedKey: Array.isArray(name) ? name.join('.') : name,
         itemProps: {
-          label: unRef(column.label),
-          prop,
+          // title: unRef(column.label),
+          name,
           ...column.itemProps,
         },
         tooltip: column.tooltip
           ? typeof column.tooltip === 'string'
-            ? { content: column.tooltip }
+            ? { title: column.tooltip }
             : column.tooltip
           : undefined,
-        col: {
-          ...resolvedCol.value,
-          ...unRef(column.col),
-        },
+
         type: defaultType,
         resolvedProps,
         show: unRef(column.show ?? true),
       }
 
-      delete result.label
-
-      resolvedColumnsMap.set(prop, result)
+      resolvedColumnsMap.set(name, result)
 
       return result
     })
@@ -220,9 +212,6 @@ export function buildForm<T extends object, C, R = T>(
         ? ElMessage(toastProps as MessageParams)
         : ElNotification(toastProps as NotificationParams)
   })
-
-  // 解析行配置
-  const resolvedRow = computed(() => unRef(row))
 
   const formItemRef: BuildFormBinding<T>['formItemRef'] = new Map()
 
@@ -422,8 +411,8 @@ export function buildForm<T extends object, C, R = T>(
     proFormRef,
     proFormBinding: {
       columns: resolvedColumns,
-      row: resolvedRow,
-      col: resolvedCol,
+      labelCol: resolvedLabelCol,
+      wrapperCol: resolvedWrapperCol,
       formProps: resolvedFormProps,
       buttons: resolvedButtons,
       toast: resolvedToast,

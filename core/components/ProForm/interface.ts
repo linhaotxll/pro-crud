@@ -5,19 +5,17 @@ import type {
   ElButtonProps,
   ElCascaderProps,
   ElColProps,
-  ElFormItemProps,
   ElFormProps,
   ElInputProps,
   ElInputSlots,
-  ElRowProps,
   ExtractMaybeRef,
   MaybeRef,
   ResolvedColumnDict,
   ValueType,
 } from '../common'
+import type { ColProps, FormItemProps, TooltipProps } from 'ant-design-vue'
 import type { ValidateFieldsError } from 'async-validator'
 import type {
-  ElTooltipProps,
   FormInstance,
   FormItemInstance,
   FormItemProp,
@@ -29,10 +27,10 @@ import type {
 import type { Arrayable } from 'element-plus/es/utils'
 import type { CSSProperties, ComputedRef, Ref } from 'vue'
 
-type Tooltip = Partial<ElTooltipProps> & {
+type Tooltip = TooltipProps & {
   slots?: {
-    icon?: (iconStyle: CSSProperties) => JSX.Element
-    content?: () => JSX.Element
+    default?: (style: CSSProperties) => JSX.Element
+    title?: () => JSX.Element
   }
 }
 
@@ -90,7 +88,7 @@ export interface ProFormScope<T extends object> {
   /**
    * 删除对应字段
    */
-  removeFields(prop: FormItemProp): boolean
+  removeFields(prop: FormItemProps['name']): boolean
 
   /**
    * 对整个表单的内容进行验证
@@ -138,15 +136,15 @@ export interface BuildFormResult<T extends object> {
 
 export interface BuildFormBinding<T extends object> {
   columns: ComputedRef<InternalProFormColumnOptions<T>>[]
-  row: ComputedRef<ElRowProps>
-  col: ComputedRef<ElColProps>
+  labelCol: ComputedRef<ColProps | undefined>
+  wrapperCol: ComputedRef<ColProps | undefined>
   formProps: ComputedRef<ElFormProps>
   buttons: ComputedRef<ButtonsOption>
   toast: ComputedRef<null | (() => MessageHandler | NotificationHandle)>
   values: T
   scope: ProFormScope<T>
   formRef: Ref<FormInstance | null>
-  formItemRef: Map<FormItemProp, Ref<FormItemInstance | null>>
+  formItemRef: Map<FormItemProps['name'], Ref<FormItemInstance | null>>
 }
 
 /**
@@ -164,14 +162,14 @@ export interface BuildFormOptionResult<T extends object, R = T> {
   initialValues?: Partial<T>
 
   /**
-   * 通用每列配置
+   * 通用 Label Col 配置
    */
-  col?: MaybeRef<ElColProps>
+  labelCol?: MaybeRef<ColProps>
 
   /**
-   * 通用行配置
+   * 通用 Wrapper Col 配置
    */
-  row?: MaybeRef<ElRowProps>
+  wrapperCol?: MaybeRef<ColProps>
 
   /**
    * 表单被删除时是否保留字段值
@@ -244,12 +242,7 @@ export interface ProFormColumnOptions<T extends object> {
   /**
    * FormItem prop，也是表单的字段名，可使用数组嵌套
    */
-  prop: MaybeRef<FormItemProp>
-
-  /**
-   * FormItem 所在列配置
-   */
-  col?: MaybeRef<ElColProps>
+  name: MaybeRef<FormItemProps['name']>
 
   /**
    * 是否显示整个 FormItem
@@ -285,13 +278,15 @@ export interface ProFormColumnOptions<T extends object> {
   /**
    * Form Item 额外的 props
    */
-  itemProps?: ElFormItemProps
+  itemProps?: FormItemProps
 
   /**
    * FormItem 插槽
    */
   itemSlots?: {
     error?: (error: string) => JSX.Element
+    help?: () => JSX.Element
+    label?: (column: InternalProFormColumnOptions<T>) => JSX.Element
   }
 
   /**
@@ -417,7 +412,7 @@ export interface InternalProFormColumnOptions<T extends object>
   /**
    * 循环时用来指定 key 值
    */
-  resolvedKey: string
+  resolvedKey: string | number | undefined
 
   /**
    * type 自身对应的 props + 自定义传入的 props
@@ -425,9 +420,9 @@ export interface InternalProFormColumnOptions<T extends object>
   resolvedProps: object | undefined
 
   /**
-   * label 通过 itemProps 合并会传递给 FormItem，防止同名属性传递给表单组件，例如 ElInput
+   * label 解绑 ref
    */
-  label: undefined
+  label: string | undefined
 
   /**
    * 同 label

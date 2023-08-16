@@ -17,16 +17,17 @@ export type ValueType =
   | 'date'
   | 'date-week'
   | 'date-month'
+  | 'date-quarter'
   | 'date-year'
-  | 'date-dates'
+  // | 'date-dates'
   | 'date-range'
   | 'date-month-range'
   | 'date-time'
   | 'date-time-range'
   | 'time'
   | 'time-range'
-  | 'auto-complete'
-  | 'cascader'
+  // | 'auto-complete'
+  // | 'cascader'
   | 'dict'
   | 'dict-select'
 
@@ -38,6 +39,11 @@ export interface ValueTypeValue<T = any, R = any> {
 
 export interface ValueTypeForm<T> {
   is?: any
+
+  /**
+   * @default 'value'
+   */
+  vModelName?: string
 
   props?: any
 
@@ -63,34 +69,34 @@ export interface ValueTypeTableRenderParams<T>
 
 const DefaultValueType: Record<ValueType, ValueTypeValue> = {
   text: {
-    form: { is: 'el-input' },
+    form: { is: 'a-input' },
   },
 
   digit: {
-    form: { is: 'el-input-number' },
+    form: { is: 'a-input-number' },
   },
 
   slider: {
-    form: { is: 'el-slider' },
+    form: { is: 'a-slider' },
   },
 
   switch: {
-    form: { is: 'el-switch' },
+    form: { is: 'a-switch', vModelName: 'checked' },
   },
 
   date: {
     form: {
-      is: 'el-date-picker',
+      is: 'a-date-picker',
       props: { placeholder: '请选择日期', valueFormat: 'YYYY-MM-DD' },
     },
   },
 
   'date-week': {
     form: {
-      is: 'el-date-picker',
+      is: 'a-date-picker',
       props: {
         placeholder: '请选择周',
-        type: 'week',
+        picker: 'week',
         format: '第ww周',
         valueFormat: 'YYYY-MM-DD',
       },
@@ -99,10 +105,22 @@ const DefaultValueType: Record<ValueType, ValueTypeValue> = {
 
   'date-month': {
     form: {
-      is: 'el-date-picker',
+      is: 'a-date-picker',
       props: {
         placeholder: '请选择月',
-        type: 'month',
+        picker: 'month',
+        format: 'YYYY-MM',
+        valueFormat: 'YYYY-MM',
+      },
+    },
+  },
+
+  'date-quarter': {
+    form: {
+      is: 'a-date-picker',
+      props: {
+        placeholder: '请选择季度',
+        picker: 'quarter',
         format: 'YYYY-MM',
         valueFormat: 'YYYY-MM',
       },
@@ -111,35 +129,33 @@ const DefaultValueType: Record<ValueType, ValueTypeValue> = {
 
   'date-year': {
     form: {
-      is: 'el-date-picker',
+      is: 'a-date-picker',
       props: {
         placeholder: '请选择年',
-        type: 'year',
+        picker: 'year',
         format: 'YYYY',
         valueFormat: 'YYYY',
       },
     },
   },
 
-  'date-dates': {
-    form: {
-      is: 'el-date-picker',
-      props: {
-        placeholder: '请选择多个日期',
-        type: 'dates',
-        format: 'YYYY-MM-DD',
-        valueFormat: 'YYYY-MM-DD',
-      },
-    },
-  },
+  // 'date-dates': {
+  //   form: {
+  //     is: 'el-date-picker',
+  //     props: {
+  //       placeholder: '请选择多个日期',
+  //       type: 'dates',
+  //       format: 'YYYY-MM-DD',
+  //       valueFormat: 'YYYY-MM-DD',
+  //     },
+  //   },
+  // },
 
   'date-range': {
     form: {
-      is: 'el-date-picker',
+      is: 'a-range-picker',
       props: {
-        startPlaceholder: '请选择开始日期',
-        endPlaceholder: '请选择结束日期',
-        type: 'daterange',
+        placeholder: ['请选择开始日期', '请选择结束日期'],
         format: 'YYYY-MM-DD',
         valueFormat: 'YYYY-MM-DD',
       },
@@ -148,11 +164,10 @@ const DefaultValueType: Record<ValueType, ValueTypeValue> = {
 
   'date-month-range': {
     form: {
-      is: 'el-date-picker',
+      is: 'a-range-picker',
       props: {
-        startPlaceholder: '请选择开始月份',
-        endPlaceholder: '请选择结束月份',
-        type: 'monthrange',
+        placeholder: ['请选择开始月份', '请选择结束月份'],
+        picker: 'month',
         format: 'YYYY-MM',
         valueFormat: 'YYYY-MM',
       },
@@ -161,10 +176,10 @@ const DefaultValueType: Record<ValueType, ValueTypeValue> = {
 
   'date-time': {
     form: {
-      is: 'el-date-picker',
+      is: 'a-date-picker',
       props: {
+        showTime: true,
         placeholder: '请选择日期',
-        type: 'datetime',
         format: 'YYYY-MM-DD HH:mm:ss',
         valueFormat: 'YYYY-MM-DD HH:mm:ss',
       },
@@ -173,27 +188,25 @@ const DefaultValueType: Record<ValueType, ValueTypeValue> = {
 
   'date-time-range': {
     form: {
-      is: 'el-date-picker',
+      is: 'el-range-picker',
       props: {
-        startPlaceholder: '请选择开始日期',
-        endPlaceholder: '请选择结束日期',
-        type: 'datetimerange',
+        showTime: true,
+        placeholder: ['请选择开始日期', '请选择结束日期'],
         format: 'YYYY-MM-DD HH:mm:ss',
         valueFormat: 'YYYY-MM-DD HH:mm:ss',
-        defaultTime: [
-          new Date(2000, 1, 1, 0, 0, 0),
-          new Date(2000, 1, 1, 23, 59, 59),
-        ],
+        // defaultTime: [
+        //   new Date(2000, 1, 1, 0, 0, 0),
+        //   new Date(2000, 1, 1, 23, 59, 59),
+        // ],
       },
     },
   },
 
   time: {
     form: {
-      is: 'el-time-picker',
+      is: 'a-time-picker',
       props: {
         placeholder: '请选择时间',
-        arrowControl: true,
         format: 'HH:mm:ss',
         valueFormat: 'HH:mm:ss',
       },
@@ -202,25 +215,22 @@ const DefaultValueType: Record<ValueType, ValueTypeValue> = {
 
   'time-range': {
     form: {
-      is: 'el-time-picker',
+      is: 'el-time-range-picker',
       props: {
-        startPlaceholder: '请选择开始时间',
-        endPlaceholder: '请选择结束时间',
-        arrowControl: true,
-        isRange: true,
+        placeholder: ['请选择开始时间', '请选择结束时间'],
         format: 'HH:mm:ss',
         valueFormat: 'HH:mm:ss',
       },
     },
   },
 
-  'auto-complete': {
-    form: { is: 'el-autocomplete' },
-  },
+  // 'auto-complete': {
+  //   form: { is: 'el-autocomplete' },
+  // },
 
-  cascader: {
-    form: { is: 'el-cascader' },
-  },
+  // cascader: {
+  //   form: { is: 'el-cascader' },
+  // },
 
   dict: {
     table: {

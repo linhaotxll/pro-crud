@@ -1,5 +1,7 @@
 <script setup lang="ts">
+import { Button as AButton } from 'ant-design-vue'
 import { useRouter } from 'vue-router'
+
 const router = useRouter()
 const routes = router.getRoutes()
 </script>
@@ -7,11 +9,11 @@ const routes = router.getRoutes()
 <template>
   <div class="app">
     <div>
-      <el-button v-for="route in routes" :key="route.path" type="primary">
+      <a-button v-for="route in routes" :key="route.path" type="primary">
         <router-link :to="route.path">
           {{ route.name }}
         </router-link>
-      </el-button>
+      </a-button>
     </div>
 
     <div class="content">

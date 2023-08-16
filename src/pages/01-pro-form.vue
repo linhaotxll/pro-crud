@@ -70,7 +70,7 @@ const { proFormRef, proFormBinding } = buildForm<FormValues>(scope => {
     columns: [
       {
         label: nameLabel,
-        prop: nameProp,
+        name: nameProp,
         type: 'text',
         col: nameCol,
         tooltip: '姓名',
@@ -91,7 +91,7 @@ const { proFormRef, proFormBinding } = buildForm<FormValues>(scope => {
       {
         label: '性别',
         type: 'dict-select',
-        prop: 'gender',
+        name: 'gender',
         itemProps: {
           rules: { required: true, message: '请选择性别' },
         },
@@ -117,8 +117,8 @@ const { proFormRef, proFormBinding } = buildForm<FormValues>(scope => {
         tooltip: {
           placement: 'right',
           slots: {
-            content: () => <span>啦啦啦</span>,
-            icon: style => <span style={style}>i</span>,
+            title: () => <span>啦啦啦</span>,
+            default: style => <span style={style}>i</span>,
           },
         },
         submitted(scope) {
@@ -127,7 +127,7 @@ const { proFormRef, proFormBinding } = buildForm<FormValues>(scope => {
       },
       {
         label: '自定义性别',
-        prop: 'customGender',
+        name: 'customGender',
         show: computed(() => {
           // debugger
           // console.log('aaa: ', scope.getFormValues().gender)
@@ -141,7 +141,7 @@ const { proFormRef, proFormBinding } = buildForm<FormValues>(scope => {
       {
         label: '状态',
         type: 'dict-select',
-        prop: 'status',
+        name: 'status',
         fieldProps: {
           placeholder: '啦啦啦',
         },
@@ -154,44 +154,44 @@ const { proFormRef, proFormBinding } = buildForm<FormValues>(scope => {
       {
         label: '信息',
         type: 'info',
-        prop: personProp,
+        name: personProp,
       },
 
       {
         label: '昵称',
         type: 'nickname',
-        prop: 'nickname',
+        name: 'nickname',
       },
 
       {
         label: '数字',
         type: 'digit',
-        prop: 'digit',
-        fill: false,
+        name: 'digit',
+        fill: true,
       },
 
       {
         label: '滑块',
         type: 'slider',
-        prop: 'slider',
+        name: 'slider',
       },
 
       {
         label: '开关',
         type: 'switch',
-        prop: 'switch',
+        name: 'switch',
       },
 
       {
         label: '日期',
         type: 'date',
-        prop: 'date',
+        name: 'date',
       },
 
       {
         label: '周',
         type: 'date-week',
-        prop: 'dateWeek',
+        name: 'dateWeek',
         fieldProps: {
           placeholder: '啊啊啊',
         },
@@ -200,55 +200,49 @@ const { proFormRef, proFormBinding } = buildForm<FormValues>(scope => {
       {
         label: '月',
         type: 'date-month',
-        prop: 'dateMonth',
+        name: 'dateMonth',
       },
 
       {
         label: '年',
         type: 'date-year',
-        prop: 'dateYear',
-      },
-
-      {
-        label: '多个日期',
-        type: 'date-dates',
-        prop: 'dateDates',
+        name: 'dateYear',
       },
 
       {
         label: '日期范围',
         type: 'date-range',
-        prop: 'dateRange',
+        name: 'dateRange',
       },
 
       {
         label: '月范围',
         type: 'date-month-range',
-        prop: 'dateMonthRange',
+        name: 'dateMonthRange',
       },
 
       {
         label: '日期时间',
         type: 'date-time',
-        prop: 'dateTime',
+        name: 'dateTime',
       },
 
       {
         label: '日期时间范围',
         type: 'date-time-range',
-        prop: 'dateTimeRange',
+        name: 'dateTimeRange',
       },
 
       {
         label: '时间',
         type: 'time',
-        prop: 'time',
+        name: 'time',
       },
 
       {
         label: '时间范围',
         type: 'time-range',
-        prop: 'timeRange',
+        name: 'timeRange',
       },
     ],
 

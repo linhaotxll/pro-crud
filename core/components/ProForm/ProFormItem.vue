@@ -1,38 +1,38 @@
 <template>
-  <el-col v-bind="column.col">
-    <el-form-item ref="formItemRef" v-bind="column.itemProps">
-      <template #label="{ label }">
-        <span>{{ label }}</span>
+  <a-form-item ref="formItemRef" v-bind="column.itemProps">
+    <template #label>
+      <pro-render
+        v-if="column.itemSlots?.label"
+        :render="column.itemSlots.label"
+        :ctx="column"
+      />
+      <span v-else>{{ column.label }}</span>
 
-        <el-tooltip v-if="column.tooltip" v-bind="column.tooltip">
-          <pro-render
-            v-if="column.tooltip.slots?.icon"
-            :render="column.tooltip.slots.icon"
-            :ctx="tooltipIconStyle"
-          />
-          <el-icon v-else :style="tooltipIconStyle" :size="18">
-            <Warning />
-          </el-icon>
+      <a-tooltip v-if="column.tooltip" v-bind="column.tooltip">
+        <pro-render
+          v-if="column.tooltip.slots?.default"
+          :render="column.tooltip.slots.default"
+          :ctx="tooltipIconStyle"
+        />
+        <question-circle-outlined v-else :style="tooltipIconStyle" />
 
-          <template v-if="column.tooltip.slots?.content" #content>
-            <pro-render :render="column.tooltip.slots.content" />
-          </template>
-        </el-tooltip>
-      </template>
+        <template v-if="column.tooltip.slots?.title" #title>
+          <pro-render :render="column.tooltip.slots.title" />
+        </template>
+      </a-tooltip>
+    </template>
 
-      <template v-if="column.itemSlots?.error" #error="{ error }">
-        <pro-render :render="column.itemSlots.error" :ctx="error" />
-      </template>
+    <template v-if="column.itemSlots?.help" #help="ctx">
+      <pro-render :render="column.itemSlots.help" :ctx="ctx" />
+    </template>
 
-      <dynamic-v-model :column="column" :values="values" />
-    </el-form-item>
-  </el-col>
+    <dynamic-v-model :column="column" :values="values" />
+  </a-form-item>
 </template>
 
 <script lang="ts" setup generic="T extends object">
-import { Warning } from '@element-plus/icons-vue'
-import { onUnmounted, toRaw } from 'vue'
-import { ref } from 'vue'
+import { QuestionCircleOutlined } from '@ant-design/icons-vue'
+import { onUnmounted, toRaw, ref } from 'vue'
 
 import DynamicVModel from './DynamicVModel.vue'
 
@@ -41,7 +41,6 @@ import type {
   InternalProFormColumnOptions,
   ProFormScope,
 } from './interface'
-import type { FormItemInstance } from 'element-plus'
 import type { CSSProperties } from 'vue'
 
 defineOptions({
@@ -55,14 +54,16 @@ const props = defineProps<{
   values: any
 }>()
 
-const formItemRef = ref<FormItemInstance | null>(null)
+const formItemRef = ref<any | null>(null)
 
 const formItemRefs = toRaw(props).formItemRefMap
-formItemRefs?.set(props.column.itemProps!.prop!, formItemRef)
+if (props.column.itemProps!.name) {
+  formItemRefs?.set(props.column.itemProps!.name, formItemRef)
+}
 
 onUnmounted(() => {
-  if (!props.column.preserve) {
-    props.scope?.removeFields(props.column.itemProps!.prop!)
+  if (!props.column.preserve && props.column.itemProps!.name) {
+    props.scope?.removeFields(props.column.itemProps!.name)
   }
 })
 
