@@ -1,5 +1,5 @@
 import { merge } from 'lodash-es'
-import { computed, isRef, nextTick, ref, watch } from 'vue'
+import { computed, inject, isRef, nextTick, ref, watch } from 'vue'
 
 import {
   DefaultPageNumber,
@@ -11,6 +11,8 @@ import { useColumns } from './useColumns'
 import { useToolbar } from './useToolbar'
 
 import { resolveRef, unRef } from '../common'
+
+import { GlobalOption } from '~/constant'
 
 import type {
   BuildProTableOptionResult,
@@ -77,7 +79,6 @@ export function buildTable<T extends object, C, P extends object = any>(
     toolbar: originToolbar,
     params,
   } = options(scope, ctx)
-  // debugger
 
   // 真实数据
   const data = ref([]) as Ref<T[]>
@@ -172,20 +173,23 @@ export function buildTable<T extends object, C, P extends object = any>(
       return false
     }
 
-    return {
-      layout: '->, prev, pager, next, jumper',
-      ...pagination,
-      pageSize: pageSize.value,
-      currentPage: pageNumber.value,
-      'onUpdate:currentPage': (pageN: number) => {
-        reload(pageN)
-      },
+    return merge(
+      { layout: '->, prev, pager, next, jumper' },
+      inject(GlobalOption)?.pagination,
+      pagination,
+      {
+        pageSize: pageSize.value,
+        currentPage: pageNumber.value,
+        'onUpdate:currentPage': (pageN: number) => {
+          reload(pageN)
+        },
 
-      'onUpdate:pageSize'(pageSize: number) {
-        reload(undefined, pageSize)
-      },
-      total: total.value,
-    }
+        'onUpdate:pageSize'(pageSize: number) {
+          reload(undefined, pageSize)
+        },
+        total: total.value,
+      }
+    )
   })
 
   // 解析 table props

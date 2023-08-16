@@ -24,6 +24,7 @@ import type {
   PopconfirmEmits,
   DialogProps,
   DialogEmits,
+  PaginationEmits,
 } from 'element-plus'
 import type { ExtractPropTypes } from 'vue'
 
@@ -61,7 +62,9 @@ export type ElButtonProps = Partial<ButtonProps & ToHandles<ButtonEmits>>
 
 export type ElTableColumnProps<T> = Partial<TableColumnCtx<T>>
 export type ElTableProps<T> = TableProps<T>
-export type ElPaginationProps = Partial<PaginationProps>
+export type ElPaginationProps = Partial<
+  PaginationProps & ToHandles<PaginationEmits>
+>
 
 /**
  * ElTable 事件

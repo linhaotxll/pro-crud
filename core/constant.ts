@@ -1,4 +1,4 @@
-import type { ValueTypeValue } from './components/common'
+import type { ElPaginationProps, ValueTypeValue } from './components/common'
 import type {
   CrudDialogOption,
   TransformQueryParams,
@@ -31,6 +31,11 @@ export interface ProComponentsOptions {
    * 全局 crud 添加、编辑、查看弹窗公共配置
    */
   dialog?: CrudDialogOption
+
+  /**
+   * 全局分页配置
+   */
+  pagination?: ElPaginationProps
 
   /**
    * 注入扩展类型
