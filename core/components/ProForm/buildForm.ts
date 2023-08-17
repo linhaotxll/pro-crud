@@ -8,7 +8,7 @@ import {
 import { get, has, merge, set, unset } from 'lodash-es'
 import { computed, ref, toRaw } from 'vue'
 
-import { DefaultProProColumn, ShowButton } from './constant'
+import { DefaultProFormCol, DefaultProProColumn, ShowButton } from './constant'
 import { useValues } from './useValues'
 
 import { unRef, useDict, ValueTypeMap } from '../common'
@@ -77,6 +77,8 @@ export function buildForm<T extends object, C, R = T>(
     wrapperCol,
     buttons,
     toast,
+    row,
+    col = DefaultProFormCol,
     request = {},
   } = options(scope, ctx)
 
@@ -99,7 +101,7 @@ export function buildForm<T extends object, C, R = T>(
     return computed(() => {
       // 合并默认 Column 配置
       const mergeColumn: ProFormColumnOptions<T> = merge(
-        {},
+        { col },
         DefaultProProColumn,
         c
       )
@@ -186,14 +188,11 @@ export function buildForm<T extends object, C, R = T>(
     const mergeButtons = merge({}, defaultButtons, buttons)
 
     const formLabelSpan = resolvedFormProps.value.labelCol?.span ?? 0
-    const mergedFormLabelCol = merge(
-      { offset: formLabelSpan },
-      unRef(mergeButtons.wrapperCol)
-    )
+    const mergeCol = merge({ offset: formLabelSpan }, unRef(mergeButtons.col))
 
     const result: ButtonsOption = {
       show: unRef(mergeButtons.show),
-      wrapperCol: mergedFormLabelCol,
+      col: mergeCol,
       space: unRef(mergeButtons.space),
       list: Object.keys(mergeButtons.list ?? {}).reduce<ButtonsOption['list']>(
         (prev, curr) => {
@@ -433,6 +432,7 @@ export function buildForm<T extends object, C, R = T>(
       scope,
       formRef,
       formItemRef,
+      row: computed(() => unRef(row)),
     },
   }
 

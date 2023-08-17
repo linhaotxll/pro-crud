@@ -1,22 +1,27 @@
 <template>
   <a-form ref="formRef" v-bind="formProps.value" :model="values">
-    <template v-for="column in columns">
-      <pro-form-item
-        v-if="column.value.show"
-        :key="column.value.resolvedKey"
-        :column="column.value"
-        :scope="scope"
-        :form-item-ref-map="formItemRef"
-        :values="values"
-      />
-    </template>
+    <a-row v-bind="row.value">
+      <template v-for="column in columns">
+        <a-col
+          v-if="column.value.show"
+          v-bind="column.value.col"
+          :key="column.value.resolvedKey"
+        >
+          <pro-form-item
+            :column="column.value"
+            :scope="scope"
+            :form-item-ref-map="formItemRef"
+            :values="values"
+          />
+        </a-col>
+      </template>
 
-    <a-form-item
-      v-if="buttons.value.show"
-      :wrapper-col="buttons.value.wrapperCol"
-    >
-      <pro-button-group :config="buttons.value" />
-    </a-form-item>
+      <a-col v-if="buttons.value.show" v-bind="buttons.value.col">
+        <a-form-item>
+          <pro-button-group :config="buttons.value" />
+        </a-form-item>
+      </a-col>
+    </a-row>
   </a-form>
 </template>
 

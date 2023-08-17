@@ -1,6 +1,6 @@
 import type { ProFormColumnOptions } from './interface'
 import type { ValueType, ElColProps, ElRowProps } from '../common'
-import type { FormItemInstance } from 'ant-design-vue'
+import type { ColProps, FormItemInstance } from 'ant-design-vue'
 import type { NamePath } from 'ant-design-vue/es/form/interface'
 import type { InjectionKey, Ref } from 'vue'
 
@@ -48,3 +48,5 @@ export const DefaultProProColumn: ProFormColumnOptions<any> = {
   submitted: true,
   fill: true,
 }
+
+export const DefaultProFormCol: ColProps = { span: 24 }

@@ -1,9 +1,12 @@
-// import { Search, Refresh } from '@element-plus/icons-vue'
 import { SearchOutlined, SyncOutlined } from '@ant-design/icons-vue'
 import { merge } from 'lodash-es'
 import { computed, h } from 'vue'
 
-import { DefaultButtonsCol } from './constant'
+import {
+  DefaultButtonsCol,
+  DefaultSearchCol,
+  DefaultSearchRow,
+} from './constant'
 
 import { unRef } from '../common'
 import { buildForm } from '../ProForm'
@@ -13,7 +16,6 @@ import type {
   BuildSearchResult,
   ProSearchScope,
 } from './interface'
-// import type { ElColProps, ElRowProps } from '../common'
 import type { ButtonsOption } from '../ProForm'
 import type { ColProps } from 'ant-design-vue'
 
@@ -37,7 +39,8 @@ export function buildSearch<T extends object, C, R = T>(
     const props = options(scope)
 
     const buttons: ButtonsOption = {
-      wrapperCol: computed(() => {
+      col: computed(() => {
+        // debugger
         const defaultCol: ColProps = merge(
           DefaultButtonsCol,
           unRef(props.wrapperCol)
@@ -78,10 +81,7 @@ export function buildSearch<T extends object, C, R = T>(
             return prev
           }, 0) ?? 0
 
-        const resolveButtons = merge(
-          unRef(props.buttons?.wrapperCol),
-          defaultCol
-        )
+        const resolveButtons = merge(unRef(props.buttons?.col), defaultCol)
         const span = +resolveButtons.span!
 
         let offset = 0
@@ -123,9 +123,10 @@ export function buildSearch<T extends object, C, R = T>(
 
     const result = merge(props, {
       buttons: mergedButtons,
-      formProps: { wrapperCol: { span: 4 } },
+      col: DefaultSearchCol,
+      row: DefaultSearchRow,
     })
-    console.log(1, result)
+
     return result
   }, ctx)
 

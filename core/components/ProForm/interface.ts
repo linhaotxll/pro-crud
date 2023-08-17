@@ -15,6 +15,7 @@ import type {
   FormProps,
   ButtonProps,
   SpaceProps,
+  RowProps,
 } from 'ant-design-vue'
 import type {
   NamePath,
@@ -139,6 +140,7 @@ export interface BuildFormBinding<T extends object> {
   scope: ProFormScope<T>
   formRef: Ref<FormInstance | null>
   formItemRef: Map<NamePath, Ref<FormItemInstance | null>>
+  row: ComputedRef<RowProps | undefined>
 }
 
 /**
@@ -154,6 +156,16 @@ export interface BuildFormOptionResult<T extends object, R = T> {
    * 表单初始值
    */
   initialValues?: Partial<T>
+
+  /**
+   * 通用 row 配置
+   */
+  row?: MaybeRef<RowProps>
+
+  /**
+   * 通用 col 配置
+   */
+  col?: MaybeRef<ColProps>
 
   /**
    * 通用 Label Col 配置
@@ -244,6 +256,11 @@ export interface ProFormColumnOptions<T extends object> {
    * @default true
    */
   show?: MaybeRef<boolean>
+
+  /**
+   * 每个 FormItem 所在列配置
+   */
+  col?: MaybeRef<ColProps>
 
   /**
    * 表单被删除时是否保留字段值
@@ -345,7 +362,7 @@ export interface ButtonsOption {
   /**
    * 按钮列配置
    */
-  wrapperCol?: MaybeRef<ColProps>
+  col?: MaybeRef<ColProps>
 
   /**
    * 按钮间距配置

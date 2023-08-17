@@ -36,6 +36,8 @@ import { onUnmounted, toRaw, ref } from 'vue'
 
 import DynamicVModel from './DynamicVModel.vue'
 
+import { unRef } from '../common'
+
 import type {
   BuildFormBinding,
   InternalProFormColumnOptions,
@@ -56,16 +58,21 @@ const props = defineProps<{
 
 const formItemRef = ref<any | null>(null)
 
-const formItemRefs = toRaw(props).formItemRefMap
-if (props.column.itemProps!.name) {
-  formItemRefs?.set(props.column.itemProps!.name, formItemRef)
-}
+init()
 
 onUnmounted(() => {
-  if (!props.column.preserve && props.column.itemProps!.name) {
-    props.scope?.removeFields(props.column.itemProps!.name)
+  const name = unRef(props.column.itemProps?.name)
+  if (!props.column.preserve && name) {
+    props.scope?.removeFields(name)
   }
 })
+
+function init() {
+  const name = unRef(props.column.itemProps?.name)
+  if (name) {
+    toRaw(props).formItemRefMap.set(name, formItemRef)
+  }
+}
 
 const tooltipIconStyle: CSSProperties = {
   alignSelf: 'center',
