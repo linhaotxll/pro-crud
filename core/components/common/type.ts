@@ -26,8 +26,8 @@ export type ValueType =
   | 'date-time-range'
   | 'time'
   | 'time-range'
-  // | 'auto-complete'
-  // | 'cascader'
+  | 'auto-complete'
+  | 'cascader'
   | 'dict'
   | 'dict-select'
 
@@ -188,7 +188,7 @@ const DefaultValueType: Record<ValueType, ValueTypeValue> = {
 
   'date-time-range': {
     form: {
-      is: 'el-range-picker',
+      is: 'a-range-picker',
       props: {
         showTime: true,
         placeholder: ['请选择开始日期', '请选择结束日期'],
@@ -215,7 +215,7 @@ const DefaultValueType: Record<ValueType, ValueTypeValue> = {
 
   'time-range': {
     form: {
-      is: 'el-time-range-picker',
+      is: 'a-time-range-picker',
       props: {
         placeholder: ['请选择开始时间', '请选择结束时间'],
         format: 'HH:mm:ss',
@@ -224,13 +224,13 @@ const DefaultValueType: Record<ValueType, ValueTypeValue> = {
     },
   },
 
-  // 'auto-complete': {
-  //   form: { is: 'el-autocomplete' },
-  // },
+  'auto-complete': {
+    form: { is: 'a-auto-complete' },
+  },
 
-  // cascader: {
-  //   form: { is: 'el-cascader' },
-  // },
+  cascader: {
+    form: { is: 'a-cascader' },
+  },
 
   dict: {
     table: {

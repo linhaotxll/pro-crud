@@ -2,14 +2,13 @@ import cloneDeep from 'clone-deep'
 import {
   ElMessage,
   ElNotification,
-  type FormItemProp,
   type MessageParams,
   type NotificationParams,
 } from 'element-plus'
 import { get, has, merge, set, unset } from 'lodash-es'
 import { computed, ref, toRaw } from 'vue'
 
-import { DefaultFormFieldType, DefaultPreserve, ShowButton } from './constant'
+import { DefaultProProColumn, ShowButton } from './constant'
 import { useValues } from './useValues'
 
 import { unRef, useDict, ValueTypeMap } from '../common'
@@ -20,18 +19,22 @@ import type {
   BuildFormResult,
   ButtonsOption,
   InternalProFormColumnOptions,
+  ProFormColumnOptions,
   ProFormInstance,
   ProFormScope,
   SuccessToastType,
 } from './interface'
-import type { Arrayable, ElFormProps, ValueType } from '../common'
-import type { FormItemProps } from 'ant-design-vue'
+import type { Arrayable, ValueType } from '../common'
 import type {
+  FormItemProps,
   FormInstance,
   FormItemInstance,
-  FormValidateCallback,
-  FormValidationResult,
-} from 'element-plus'
+  FormProps,
+} from 'ant-design-vue'
+import type {
+  NamePath,
+  ValidateOptions,
+} from 'ant-design-vue/es/form/interface'
 import type { Ref } from 'vue'
 
 export function buildForm<T extends object, C = undefined, R = T>(
@@ -60,7 +63,7 @@ export function buildForm<T extends object, C, R = T>(
     getFieldValue,
     removeFields,
     validate,
-    validateField,
+    validateFields,
     scrollToField,
     clearValidate,
     getFieldInstance,
@@ -74,7 +77,6 @@ export function buildForm<T extends object, C, R = T>(
     wrapperCol,
     buttons,
     toast,
-    preserve = DefaultPreserve,
     request = {},
   } = options(scope, ctx)
 
@@ -93,56 +95,67 @@ export function buildForm<T extends object, C, R = T>(
   >()
 
   // 解析列配置
-  const resolvedColumns = columns.map(column => {
+  const resolvedColumns = columns.map(c => {
     return computed(() => {
-      // 默认 type 类型
-      const defaultType: ValueType = unRef(column.type ?? DefaultFormFieldType)
-
-      // 最终给表单传递的 props 集合：type 对应的 props + 用户传入的 props
-
-      const resolvedProps = merge(
+      // 合并默认 Column 配置
+      const mergeColumn: ProFormColumnOptions<T> = merge(
         {},
-        ValueTypeMap.value[defaultType].form?.props,
-        column.fieldProps
+        DefaultProProColumn,
+        c
       )
 
-      const name = unRef(column.name)
+      // 解析 type 类型
+      const resolvedType: ValueType = unRef(mergeColumn.type)
 
-      const result: InternalProFormColumnOptions<T> = {
-        ...column,
-        fill: unRef(column.fill ?? true),
-        label: unRef(column.label),
-        dict: useDict(column.dict),
-        submitted: column.submitted ?? true,
-        preserve:
-          (column.preserve != null ? column.preserve : preserve) ??
-          DefaultPreserve,
+      const name = unRef(mergeColumn.name)
+
+      // @ts-ignore
+      const resolvedColumn: InternalProFormColumnOptions<T> = {
+        type: resolvedType,
         resolvedKey: Array.isArray(name) ? name.join('.') : name,
-        itemProps: {
-          // title: unRef(column.label),
-          name,
-          ...column.itemProps,
-        },
-        tooltip: column.tooltip
-          ? typeof column.tooltip === 'string'
-            ? { title: column.tooltip }
-            : column.tooltip
-          : undefined,
-
-        type: defaultType,
-        resolvedProps,
-        show: unRef(column.show ?? true),
+        resolvedProps: merge(
+          {},
+          ValueTypeMap.value[resolvedType].form?.props,
+          mergeColumn.fieldProps
+        ),
+        itemProps: { name },
       }
 
-      resolvedColumnsMap.set(name, result)
+      type Keys = keyof typeof mergeColumn
+      ;(Object.keys(mergeColumn) as Keys[]).forEach(key => {
+        switch (key) {
+          case 'dict':
+            resolvedColumn.dict = useDict(mergeColumn.dict)
+            break
 
-      return result
+          case 'tooltip':
+            resolvedColumn.tooltip =
+              typeof mergeColumn.tooltip === 'string'
+                ? { title: mergeColumn.tooltip }
+                : mergeColumn.tooltip
+            break
+
+          case 'fieldProps':
+          case 'itemProps':
+            Object.keys(mergeColumn[key]).forEach(k => {
+              ;(resolvedColumn[key] ||= {})[k] = unRef(mergeColumn[key][k])
+            })
+            break
+
+          default:
+            resolvedColumn[key] = unRef(mergeColumn[key])
+        }
+      })
+
+      resolvedColumnsMap.set(name, resolvedColumn)
+
+      return resolvedColumn
     })
   })
 
   // 解析表单配置
-  const resolvedFormProps = computed<ElFormProps>(() => {
-    const result: ElFormProps = {}
+  const resolvedFormProps = computed<FormProps>(() => {
+    const result: FormProps = {}
 
     const originFormProps = unRef(formProps)
 
@@ -157,9 +170,8 @@ export function buildForm<T extends object, C, R = T>(
   })
 
   // 默认按钮
-  const defaultButtons = {
+  const defaultButtons: ButtonsOption = {
     show: true,
-    col: { span: 24 },
     list: {
       confirm: {
         show: true,
@@ -173,9 +185,16 @@ export function buildForm<T extends object, C, R = T>(
   const resolvedButtons = computed(() => {
     const mergeButtons = merge({}, defaultButtons, buttons)
 
+    const formLabelSpan = resolvedFormProps.value.labelCol?.span ?? 0
+    const mergedFormLabelCol = merge(
+      { offset: formLabelSpan },
+      unRef(mergeButtons.wrapperCol)
+    )
+
     const result: ButtonsOption = {
       show: unRef(mergeButtons.show),
-      col: unRef(mergeButtons.col),
+      wrapperCol: mergedFormLabelCol,
+      space: unRef(mergeButtons.space),
       list: Object.keys(mergeButtons.list ?? {}).reduce<ButtonsOption['list']>(
         (prev, curr) => {
           prev![curr] = {
@@ -187,6 +206,8 @@ export function buildForm<T extends object, C, R = T>(
         {}
       ),
     }
+
+    console.log(123, result)
 
     return result
   })
@@ -250,20 +271,22 @@ export function buildForm<T extends object, C, R = T>(
 
     for (const column of resolvedColumns) {
       const { submitted, itemProps, transform } = column.value
-      const prop = itemProps!.prop as FormItemProp
+      const name = unRef(itemProps!.name)
 
-      // 检测字段是否需要提交上传
-      if (
-        submitted === false ||
-        (typeof submitted === 'function' && submitted(scope) === false)
-      ) {
-        unset(params, prop)
-        continue
-      }
+      if (name) {
+        // 检测字段是否需要提交上传
+        if (
+          submitted === false ||
+          (typeof submitted === 'function' && submitted(scope) === false)
+        ) {
+          unset(params, name)
+          continue
+        }
 
-      // 表单数据转换为服务端数据
-      if (typeof transform?.to === 'function') {
-        set(params, prop, transform.to(get(params, prop)))
+        // 表单数据转换为服务端数据
+        if (typeof transform?.to === 'function') {
+          set(params, name, transform.to(get(params, name)))
+        }
       }
     }
 
@@ -276,8 +299,8 @@ export function buildForm<T extends object, C, R = T>(
   /**
    * 重置表单
    */
-  function reset(prop?: Arrayable<FormItemProp>) {
-    formRef.value?.resetFields(prop)
+  function reset(name?: NamePath) {
+    formRef.value?.resetFields(name)
 
     // 删除多余属性，重置已有属性，确保必须是 initialValue
     Object.keys(values).forEach(key => {
@@ -292,14 +315,14 @@ export function buildForm<T extends object, C, R = T>(
   /**
    * 重置表单
    */
-  function resetFields(prop?: Arrayable<FormItemProp>) {
-    return reset(prop)
+  function resetFields(name?: NamePath) {
+    return reset(name)
   }
 
   /**
    * 设置表单
    */
-  function setFieldValue(key: FormItemProp, value: any, transformed = false) {
+  function setFieldValue(key: NamePath, value: any, transformed = false) {
     if (transformed) {
       const column = resolvedColumnsMap.get(key)
       if (column) {
@@ -330,73 +353,63 @@ export function buildForm<T extends object, C, R = T>(
   /**
    * 获取对应字段名的值
    */
-  function getFieldValue(prop: FormItemProp) {
-    return get(values, prop)
+  function getFieldValue(name: NamePath) {
+    return get(values, name)
   }
 
   /**
    * 删除对应字段
    */
-  function removeFields(prop: FormItemProp) {
-    return unset(values, prop)
+  function removeFields(name: NamePath) {
+    return unset(values, name)
   }
 
   /**
    * 对整个表单的内容进行验证
    */
   async function validate(
-    callback?: FormValidateCallback
-  ): FormValidationResult {
+    name?: Arrayable<NamePath> | undefined,
+    options?: ValidateOptions
+  ) {
+    let validated: T | undefined
     try {
-      const validated = (await formRef.value?.validate(callback)) ?? false
-      if (!validated) {
-        return validated
-      }
+      // @ts-ignore
+      validated = await formRef.value!.validate(name, options)
     } catch (e: any) {
       request.validateFail?.(e)
-      return false
     }
-    return true
+    return validated
   }
 
   /**
    * 验证具体的某个字段
    */
-  async function validateField(
-    prop?: Arrayable<FormItemProp> | undefined,
-    callback?: FormValidateCallback | undefined
-  ): FormValidationResult {
-    try {
-      const validated =
-        (await formRef.value?.validateField(prop, callback)) ?? false
-      if (!validated) {
-        return validated
-      }
-    } catch (e: any) {
-      request.validateFail?.(e)
-    }
-    return true
+  async function validateFields(
+    name?: Arrayable<NamePath> | undefined,
+    options?: ValidateOptions
+  ) {
+    return validate(name, options)
   }
 
   /**
    * 滚动到指定的字段
    */
-  function scrollToField(prop: FormItemProp) {
-    return formRef.value!.scrollToField(prop)
+  function scrollToField(name: NamePath, options?: any) {
+    return formRef.value!.scrollToField(name, options)
   }
 
   /**
    * 清理某个字段的表单验证信息
    */
-  function clearValidate(props?: Arrayable<FormItemProp> | undefined) {
-    return formRef.value!.clearValidate(props)
+  function clearValidate(name?: NamePath) {
+    return formRef.value!.clearValidate(name)
   }
 
   /**
    * 获取对应字段实例
    */
-  function getFieldInstance(prop: FormItemProp): FormItemInstance | null {
-    return formItemRef.get(prop)?.value ?? null
+  function getFieldInstance(name: NamePath): FormItemInstance | null {
+    return formItemRef.get(name)?.value ?? null
   }
 
   /**

@@ -1,7 +1,8 @@
-import ElementPlus, { ElInput } from 'element-plus'
+// import ElementPlus, { ElInput } from 'element-plus'
+import { Input } from 'ant-design-vue'
 import { createApp } from 'vue'
 
-import 'element-plus/dist/index.css'
+// import 'element-plus/dist/index.css'
 import './index.css'
 import App from './App.vue'
 import BasicDialog from './components/BasicDialog.vue'
@@ -15,7 +16,7 @@ const app = createApp(App)
 app.component(BasicDialog.name, BasicDialog)
 app.component(BasicInfo.name, BasicInfo)
 
-app.use(ElementPlus, {})
+// app.use(ElementPlus, {})
 
 app.use(ProComponents, {
   types: {
@@ -28,7 +29,7 @@ app.use(ProComponents, {
     nickname: {
       form: {
         render: ({ vModel }) => {
-          return <ElInput v-model={vModel.value} />
+          return <Input v-model:value={vModel.value} />
         },
       },
     },

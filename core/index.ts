@@ -20,6 +20,9 @@ import {
   Switch,
   DatePicker,
   TimePicker,
+  Button,
+  Space,
+  Cascader,
 } from 'ant-design-vue'
 
 import { ProCrud } from './components/ProCrud'
@@ -55,6 +58,9 @@ export const ProComponents: Plugin<ProComponentsOptions> = {
       .use(Switch)
       .use(DatePicker)
       .use(TimePicker)
+      .use(Button)
+      .use(Space)
+      .use(Cascader)
     // app.use(ElSpace, ElIcon, ElDropdown, ElDropdownMenu, ElDropdownItem, ElTree)
 
     // app.directive('v-loading', vLoading)

@@ -29,7 +29,7 @@
 import { get, set } from 'lodash-es'
 import { computed, toRaw } from 'vue'
 
-import { ValueTypeMap } from '../common'
+import { ValueTypeMap, unRef } from '../common'
 
 import type { InternalProFormColumnOptions } from './interface'
 
@@ -52,11 +52,14 @@ function getVModel() {
 
 const vModel = computed({
   get() {
-    console.log(123, get(formValues, props.column.itemProps!.name!))
-    return get(formValues, props.column.itemProps!.name!)
+    const name = unRef(props.column.itemProps!.name)
+    return name ? get(formValues, name) : undefined
   },
   set(newValue) {
-    set(formValues, props.column.itemProps!.name!, newValue)
+    const name = unRef(props.column.itemProps!.name)
+    if (name) {
+      set(formValues, name, newValue)
+    }
   },
 })
 </script>

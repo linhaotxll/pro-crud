@@ -1,6 +1,9 @@
-import { Search, Refresh } from '@element-plus/icons-vue'
+// import { Search, Refresh } from '@element-plus/icons-vue'
+import { SearchOutlined, SyncOutlined } from '@ant-design/icons-vue'
 import { merge } from 'lodash-es'
-import { computed } from 'vue'
+import { computed, h } from 'vue'
+
+import { DefaultButtonsCol } from './constant'
 
 import { unRef } from '../common'
 import { buildForm } from '../ProForm'
@@ -10,8 +13,9 @@ import type {
   BuildSearchResult,
   ProSearchScope,
 } from './interface'
-import type { ElColProps, ElRowProps } from '../common'
+// import type { ElColProps, ElRowProps } from '../common'
 import type { ButtonsOption } from '../ProForm'
+import type { ColProps } from 'ant-design-vue'
 
 export function buildSearch<T extends object, C = undefined, R = T>(
   options: (
@@ -33,19 +37,35 @@ export function buildSearch<T extends object, C, R = T>(
     const props = options(scope)
 
     const buttons: ButtonsOption = {
-      col: computed(() => {
-        const defaultCol: ElColProps = unRef(props.col) ?? { span: 4 }
+      wrapperCol: computed(() => {
+        const defaultCol: ColProps = merge(
+          DefaultButtonsCol,
+          unRef(props.wrapperCol)
+        )
 
         const total =
           props.columns?.reduce<number>((prev, columnComputed) => {
-            const columnCol = unRef(columnComputed.col)
-            const show = unRef(columnComputed.show ?? true)
+            const columnLabelCol: ColProps | undefined = unRef(
+              columnComputed.itemProps?.labelCol
+            )
+            const columnWrapperCol: ColProps | undefined = unRef(
+              columnComputed.itemProps?.wrapperCol
+            )
 
-            const columnTotal = show
-              ? columnCol
-                ? (columnCol.span || 0) + (columnCol.offset || 0)
-                : defaultCol.span!
-              : 0
+            const show = unRef(columnComputed.show!)
+
+            let columnTotal = 0
+            if (show) {
+              if (columnLabelCol) {
+                columnTotal +=
+                  +(columnLabelCol.span ?? 0) + +(columnLabelCol.offset ?? 0)
+              }
+              if (columnWrapperCol) {
+                columnTotal +=
+                  +(columnWrapperCol.span ?? 0) +
+                  +(columnWrapperCol.offset ?? 0)
+              }
+            }
 
             const result = prev + columnTotal
 
@@ -58,8 +78,11 @@ export function buildSearch<T extends object, C, R = T>(
             return prev
           }, 0) ?? 0
 
-        const resolveButtons = merge(unRef(props.buttons?.col), defaultCol)
-        const span = resolveButtons.span!
+        const resolveButtons = merge(
+          unRef(props.buttons?.wrapperCol),
+          defaultCol
+        )
+        const span = +resolveButtons.span!
 
         let offset = 0
         const residueSpan = 24 - total
@@ -81,7 +104,7 @@ export function buildSearch<T extends object, C, R = T>(
           show: true,
           text: '重置',
           props: {
-            icon: Refresh,
+            icon: h(SyncOutlined),
             onClick: () => {
               scope.resetFields()
             },
@@ -91,21 +114,18 @@ export function buildSearch<T extends object, C, R = T>(
         confirm: {
           text: '搜索',
           props: {
-            icon: Search,
+            icon: h(SearchOutlined),
           },
         },
       },
     }
     const mergedButtons = merge(buttons, props.buttons)
 
-    const row: ElRowProps = merge(props.row || {}, { gutter: 16 })
-
-    const col = computed<ElColProps>(() =>
-      merge({}, { span: 4 }, unRef(props.col))
-    )
-
-    const result = merge(props, { buttons: mergedButtons, row, col })
-
+    const result = merge(props, {
+      buttons: mergedButtons,
+      formProps: { wrapperCol: { span: 4 } },
+    })
+    console.log(1, result)
     return result
   }, ctx)
 

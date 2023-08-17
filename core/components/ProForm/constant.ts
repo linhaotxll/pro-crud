@@ -1,5 +1,7 @@
+import type { ProFormColumnOptions } from './interface'
 import type { ValueType, ElColProps, ElRowProps } from '../common'
-import type { FormItemInstance, FormItemProp } from 'element-plus'
+import type { FormItemInstance } from 'ant-design-vue'
+import type { NamePath } from 'ant-design-vue/es/form/interface'
 import type { InjectionKey, Ref } from 'vue'
 
 // 默认显示按钮组按钮
@@ -19,7 +21,7 @@ export const DefaultCol: ElColProps = { span: 24 }
 
 // 注入 FormItemRefs 的 key
 export const FormItemRefKey = Symbol() as InjectionKey<
-  Map<FormItemProp, Ref<FormItemInstance | null>>
+  Map<NamePath, Ref<FormItemInstance | null>>
 >
 
 export const ProFormInstanceNames = [
@@ -38,3 +40,11 @@ export const ProFormInstanceNames = [
   'getFieldInstance',
   'getFormValues',
 ] as const
+
+export const DefaultProProColumn: ProFormColumnOptions<any> = {
+  show: true,
+  preserve: true,
+  type: 'text',
+  submitted: true,
+  fill: true,
+}

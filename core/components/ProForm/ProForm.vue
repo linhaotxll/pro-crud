@@ -11,11 +11,12 @@
       />
     </template>
 
-    <a-col v-if="buttons.value.show" v-bind="buttons.value.col">
-      <a-form-item>
-        <pro-button-group :list="buttons.value.list" />
-      </a-form-item>
-    </a-col>
+    <a-form-item
+      v-if="buttons.value.show"
+      :wrapper-col="buttons.value.wrapperCol"
+    >
+      <pro-button-group :config="buttons.value" />
+    </a-form-item>
   </a-form>
 </template>
 

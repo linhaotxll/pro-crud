@@ -13,10 +13,12 @@ export function useValues<T extends object>(
 
   if (columns) {
     for (const column of columns) {
-      const { transform, prop } = column
+      const { transform, name } = column
       if (typeof transform?.from === 'function') {
-        const resolveProp = unRef(prop)
-        set(values, resolveProp, transform.from(get(values, resolveProp)))
+        const resolvedName = unRef(name)
+        if (resolvedName) {
+          set(values, resolvedName, transform.from(get(values, resolvedName)))
+        }
       }
     }
   }

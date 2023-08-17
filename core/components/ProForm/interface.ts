@@ -1,30 +1,26 @@
 import type {
+  Arrayable,
   DictionaryOption,
-  ElAutoCompleteProps,
-  ElAutoCompleteSlots,
-  ElButtonProps,
-  ElCascaderProps,
-  ElColProps,
-  ElFormProps,
-  ElInputProps,
-  ElInputSlots,
   ExtractMaybeRef,
   MaybeRef,
   ResolvedColumnDict,
   ValueType,
 } from '../common'
-import type { ColProps, FormItemProps, TooltipProps } from 'ant-design-vue'
-import type { ValidateFieldsError } from 'async-validator'
 import type {
+  ColProps,
+  FormItemProps,
+  TooltipProps,
   FormInstance,
   FormItemInstance,
-  FormItemProp,
-  FormValidateCallback,
-  FormValidationResult,
-  MessageHandler,
-  NotificationHandle,
-} from 'element-plus'
-import type { Arrayable } from 'element-plus/es/utils'
+  FormProps,
+  ButtonProps,
+  SpaceProps,
+} from 'ant-design-vue'
+import type {
+  NamePath,
+  ValidateOptions,
+} from 'ant-design-vue/es/form/interface'
+import type { MessageHandler, NotificationHandle } from 'element-plus'
 import type { CSSProperties, ComputedRef, Ref } from 'vue'
 
 type Tooltip = TooltipProps & {
@@ -32,11 +28,6 @@ type Tooltip = TooltipProps & {
     default?: (style: CSSProperties) => JSX.Element
     title?: () => JSX.Element
   }
-}
-
-export type FieldProps = {
-  'auto-complete': ElAutoCompleteProps
-  text: ElInputProps
 }
 
 /**
@@ -56,19 +47,19 @@ export interface ProFormScope<T extends object> {
   /**
    * 重置表单
    */
-  reset(prop?: Arrayable<FormItemProp>): void
+  reset(prop?: Arrayable<NamePath>): void
 
   /**
    * 重置表单
    *
    * @alias reset
    */
-  resetFields(prop?: Arrayable<FormItemProp>): void
+  resetFields(name?: NamePath): void
 
   /**
    * 设置表单字段
    */
-  setFieldValue(prop: FormItemProp, value: any): void
+  setFieldValue(name: NamePath, value: any): void
 
   /**
    * 设置多个表单字段
@@ -83,40 +74,43 @@ export interface ProFormScope<T extends object> {
   /**
    * 获取对应字段名的值
    */
-  getFieldValue(prop: FormItemProp): any
+  getFieldValue(name: NamePath): any
 
   /**
    * 删除对应字段
    */
-  removeFields(prop: FormItemProps['name']): boolean
+  removeFields(name: NamePath): boolean
 
   /**
-   * 对整个表单的内容进行验证
+   * 触发表单验证
    */
-  validate(callback?: FormValidateCallback): FormValidationResult
+  validate(
+    name?: Arrayable<NamePath> | undefined,
+    options?: ValidateOptions
+  ): Promise<T | undefined>
 
   /**
-   * 验证具体的某个字段
+   * 触发表单验证
    */
-  validateField(
-    props?: Arrayable<FormItemProp> | undefined,
-    callback?: FormValidateCallback | undefined
-  ): FormValidationResult
+  validateFields(
+    name?: Arrayable<NamePath> | undefined,
+    options?: ValidateOptions
+  ): Promise<T | undefined>
 
   /**
    * 滚动到指定的字段
    */
-  scrollToField(prop: Arrayable<FormItemProp>): void
+  scrollToField(name: NamePath, options?: any): void
 
   /**
    * 清理某个字段的表单验证信息
    */
-  clearValidate(props?: Arrayable<FormItemProp> | undefined): void
+  clearValidate(nameList?: Arrayable<NamePath>): void
 
   /**
    * 获取对应字段实例
    */
-  getFieldInstance(prop: FormItemProp): FormItemInstance | null
+  getFieldInstance(name: NamePath): FormItemInstance | null
 }
 
 /**
@@ -138,13 +132,13 @@ export interface BuildFormBinding<T extends object> {
   columns: ComputedRef<InternalProFormColumnOptions<T>>[]
   labelCol: ComputedRef<ColProps | undefined>
   wrapperCol: ComputedRef<ColProps | undefined>
-  formProps: ComputedRef<ElFormProps>
+  formProps: ComputedRef<FormProps>
   buttons: ComputedRef<ButtonsOption>
   toast: ComputedRef<null | (() => MessageHandler | NotificationHandle)>
   values: T
   scope: ProFormScope<T>
   formRef: Ref<FormInstance | null>
-  formItemRef: Map<FormItemProps['name'], Ref<FormItemInstance | null>>
+  formItemRef: Map<NamePath, Ref<FormItemInstance | null>>
 }
 
 /**
@@ -154,7 +148,7 @@ export interface BuildFormOptionResult<T extends object, R = T> {
   /**
    * 表单额外的配置，不包含 model
    */
-  formProps?: MaybeRef<ExtractMaybeRef<Omit<ElFormProps, 'model'>>>
+  formProps?: MaybeRef<ExtractMaybeRef<Omit<FormProps, 'model'>>>
 
   /**
    * 表单初始值
@@ -216,7 +210,7 @@ export interface BuildFormOptionResult<T extends object, R = T> {
     /**
      * 表单验证失败
      */
-    validateFail?(error: ValidateFieldsError): void
+    validateFail?(error: any): void
   }
 }
 
@@ -242,7 +236,7 @@ export interface ProFormColumnOptions<T extends object> {
   /**
    * FormItem prop，也是表单的字段名，可使用数组嵌套
    */
-  name: MaybeRef<FormItemProps['name']>
+  name?: MaybeRef<FormItemProps['name']>
 
   /**
    * 是否显示整个 FormItem
@@ -268,17 +262,17 @@ export interface ProFormColumnOptions<T extends object> {
   /**
    * 表单额外的 props
    */
-  fieldProps?: ElInputProps | ElAutoCompleteProps | ElCascaderProps
+  fieldProps?: any
 
   /**
    * 表单插槽
    */
-  fieldSlots?: ElInputSlots | ElAutoCompleteSlots
+  fieldSlots?: any
 
   /**
    * Form Item 额外的 props
    */
-  itemProps?: FormItemProps
+  itemProps?: ExtractMaybeRef<FormItemProps>
 
   /**
    * FormItem 插槽
@@ -324,7 +318,7 @@ export interface ProFormColumnOptions<T extends object> {
      *
      * @returns 表单所需要的值
      */
-    from(serverValue: any): any
+    from?(serverValue: any): any
 
     /**
      * 表单数据转换为服务端所需要的数据
@@ -333,7 +327,7 @@ export interface ProFormColumnOptions<T extends object> {
      *
      * @returns 服务端所需要的值
      */
-    to(formValue: any): any
+    to?(formValue: any): any
   }
 }
 
@@ -350,10 +344,13 @@ export interface ButtonsOption {
 
   /**
    * 按钮列配置
-   *
-   * @default { span: 24 }
    */
-  col?: MaybeRef<ElColProps>
+  wrapperCol?: MaybeRef<ColProps>
+
+  /**
+   * 按钮间距配置
+   */
+  space?: MaybeRef<SpaceProps>
 
   /**
    * 按钮列表
@@ -392,7 +389,7 @@ export interface ButtonOption {
   /**
    * 按钮 props
    */
-  props?: ElButtonProps
+  props?: ButtonProps
 
   /**
    * 插槽
@@ -400,7 +397,6 @@ export interface ButtonOption {
   slots?: {
     default?: () => JSX.Element
     icon?: () => JSX.Element
-    loading?: () => JSX.Element
   }
 }
 

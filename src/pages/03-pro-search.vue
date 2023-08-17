@@ -9,7 +9,7 @@ import { ref } from 'vue'
 
 import { buildSearch } from '~/components/ProSearch'
 
-import type { ColProps, FormProps } from 'element-plus'
+import type { ColProps } from 'ant-design-vue'
 
 // import type { ElColProps, ElFormProps } from '~/components/ProForm'
 
@@ -27,16 +27,16 @@ interface FormValues {
   name: string
 }
 
-const formProps = ref<Partial<FormProps>>({
-  labelWidth: '100px',
-  // onValidate(p, v, m) {
-  //   console.log('field change: ', p, v, m)
-  // },
-})
+// const formProps = ref<FormProps>({
+//   // labelWidth: '100px',
+//   // onValidate(p, v, m) {
+//   //   console.log('field change: ', p, v, m)
+//   // },
+// })
 // const row = ref<Partial<RowProps>>({ gutter: 8 })
 // const formCol = ref<Partial<Partial<ColProps>>>({ span: 6 })
 
-const nameCol = ref<Partial<Partial<ColProps>>>({
+const nameCol = ref<ColProps>({
   span: 4,
   offset: 1,
   // push: 1,
@@ -57,7 +57,7 @@ const { proSearchBinding, proSearchRef } = buildSearch<FormValues>(() => {
       name: '文本内容2',
       cascader: 'guide,disciplines,consistency',
     },
-    formProps,
+    formProps: {},
     // validateFail(error) {
     //   console.log('校验失败: ', error)
     // },
@@ -65,7 +65,7 @@ const { proSearchBinding, proSearchRef } = buildSearch<FormValues>(() => {
     columns: [
       {
         label: '文本',
-        prop: 'name',
+        name: 'name',
         type: 'text',
         tooltip: '姓名',
         col: nameCol,
@@ -101,7 +101,7 @@ const { proSearchBinding, proSearchRef } = buildSearch<FormValues>(() => {
 
       {
         label: '文本2',
-        prop: 'name2',
+        name: 'name2',
         type: 'text',
         tooltip: '姓名2',
       },
@@ -138,7 +138,7 @@ const { proSearchBinding, proSearchRef } = buildSearch<FormValues>(() => {
 
       {
         label: '级联',
-        prop: 'cascader',
+        name: 'cascader',
         type: 'cascader',
         itemProps: {
           // rules: { required: true, message: '请填写' },

@@ -12,6 +12,9 @@
     <button @click="handleToggleConfirmButtonShow">
       Toggle Confirm Button Show
     </button>
+    <button @click="formLabelCol = { span: +formLabelCol.span! + 1 }">
+      Change Form Label Col
+    </button>
   </div>
 </template>
 
@@ -21,7 +24,7 @@ import { ref } from 'vue'
 
 import { buildForm } from '~/components/ProForm'
 
-import type { ColProps, RowProps } from 'element-plus'
+import type { ColProps } from 'ant-design-vue'
 
 const sleep = (time = 2000) => new Promise(r => setTimeout(r, time))
 
@@ -40,51 +43,56 @@ interface FormValues {
   customSex?: string
 }
 
-const labelWidth = ref('100px')
-const row = ref<Partial<RowProps>>({ gutter: 8 })
-const col = ref<Partial<ColProps>>({ span: 14 })
+// const labelWidth = ref('100px')
+// const row = ref<Partial<RowProps>>({ gutter: 8 })
+// const col = ref<Partial<ColProps>>({ span: 14 })
 
-const nameCol = ref<Partial<ColProps>>({ span: 14 })
+const nameCol = ref<ColProps>({ span: 4 })
 const nameLabel = ref('名称')
+const nameType = ref<string>('text')
 
 const buttonsShow = ref(true)
-const buttonsCol = ref<Partial<ColProps>>({ span: 18 })
+// const buttonsCol = ref<Partial<ColProps>>({ span: 18, offset: 6 })
+const formLabelCol = ref<ColProps>({ span: 2 })
 const buttonConfirmShow = ref(true)
 const nameProp = ['info', 'name']
 const personProp = ['person', 'info']
 
 const { proFormRef, proFormBinding } = buildForm<FormValues>(scope => {
   return {
-    row,
-    col,
+    // row,
+    // col,
     initialValues: {
       gender: 3,
       info: { name: 'lalala' },
       person: { info: { name: '111', age: '21' } },
       nickname: 'nic',
+      slider: 0,
     },
     formProps: {
-      labelWidth,
+      labelCol: formLabelCol,
+      wrapperCol: { span: 20 },
+      // scrollToFirstError: true,
     },
 
     columns: [
       {
         label: nameLabel,
         name: nameProp,
-        type: 'text',
-        col: nameCol,
+        type: nameType,
         tooltip: '姓名',
         itemProps: {
+          labelCol: nameCol,
           rules: { required: true, message: '请填写名称' },
         },
-        itemSlots: {
-          error: msg => {
-            return <div style="color: #f99">{msg}</div>
-          },
-        },
+        // itemSlots: {
+        //   error: msg => {
+        //     return <div style="color: #f99">{msg}</div>
+        //   },
+        // },
         fieldProps: {},
         dict: {
-          data: [],
+          data: [{ label: '选项一', value: 1 }],
         },
       },
 
@@ -248,7 +256,10 @@ const { proFormRef, proFormBinding } = buildForm<FormValues>(scope => {
 
     buttons: {
       show: buttonsShow,
-      col: buttonsCol,
+      // wrapperCol: buttonsCol,
+      space: {
+        size: 32,
+      },
       list: {
         confirm: {
           show: buttonConfirmShow,
@@ -259,7 +270,7 @@ const { proFormRef, proFormBinding } = buildForm<FormValues>(scope => {
           show: true,
           text: '重置',
           props: {
-            type: 'danger',
+            type: 'primary',
             onClick() {
               scope.reset()
             },
@@ -332,7 +343,7 @@ const { proFormRef, proFormBinding } = buildForm<FormValues>(scope => {
           text: '验证name',
           props: {
             async onClick() {
-              const res = await scope.validateField([nameProp])
+              const res = await scope.validateFields([nameProp])
               console.log(res)
             },
           },
@@ -375,7 +386,7 @@ const { proFormRef, proFormBinding } = buildForm<FormValues>(scope => {
 })
 
 function handleChangeNameCol() {
-  nameCol.value = { span: nameCol.value.span! + 1 }
+  nameCol.value = { span: +nameCol.value.span! + 1 }
 }
 
 function handleChangeNameLabel() {
@@ -383,7 +394,7 @@ function handleChangeNameLabel() {
 }
 
 function handleChangeNameType() {
-  // nameType.value = nameType.value === 'text' ? 'select' : 'text'
+  nameType.value = nameType.value === 'text' ? 'dict-select' : 'text'
 }
 
 function handleToggleButtonsShow() {
