@@ -13,6 +13,9 @@ import {
   Button,
   Space,
   Cascader,
+  Table,
+  Dropdown,
+  Menu,
 } from 'ant-design-vue'
 
 import { ProCrud } from './components/ProCrud'
@@ -51,6 +54,9 @@ export const ProComponents: Plugin<ProComponentsOptions> = {
       .use(Button)
       .use(Space)
       .use(Cascader)
+      .use(Table)
+      .use(Dropdown)
+      .use(Menu)
     // app.use(ElSpace, ElIcon, ElDropdown, ElDropdownMenu, ElDropdownItem, ElTree)
 
     // app.directive('v-loading', vLoading)

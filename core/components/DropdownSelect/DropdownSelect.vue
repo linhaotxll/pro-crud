@@ -1,34 +1,33 @@
 <template>
-  <el-dropdown
+  <a-dropdown
     popper-class="dropdown-select"
     v-bind="$attrs"
     :trigger="trigger"
-    @command="handleSelectMenu"
+    arrow
   >
     <template #default>
       <slot />
     </template>
 
-    <template #dropdown>
-      <el-dropdown-menu>
-        <el-dropdown-item
+    <template #overlay>
+      <a-menu @click="handleSelectMenu">
+        <a-menu-item
           v-for="option in options"
-          :key="option.command"
-          :command="option.command"
-          :class="{ selected: value === option.command }"
+          :key="option.value"
+          :class="{ selected: value === option.value }"
         >
           {{ option.label }}
-        </el-dropdown-item>
-      </el-dropdown-menu>
+        </a-menu-item>
+      </a-menu>
     </template>
-  </el-dropdown>
+  </a-dropdown>
 </template>
 
 <script lang="ts" setup generic="T extends object = object">
 import type { VNode } from 'vue'
 
 defineProps<{
-  options: { label: string; command: string | number | T }[]
+  options: { label: string; value: string | number | T }[]
   trigger: 'click' | 'hover'
 }>()
 
@@ -40,8 +39,8 @@ defineSlots<{
 
 const value = defineModel<string | number | T>()
 
-function handleSelectMenu(command: string | number | T) {
-  value.value = command
+function handleSelectMenu(ctx: any) {
+  value.value = ctx.key
 }
 </script>
 

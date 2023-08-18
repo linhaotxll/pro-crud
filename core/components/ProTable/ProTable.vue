@@ -9,16 +9,16 @@
         :class="toolbar.value.class"
         :style="toolbar.value.style"
       >
-        <el-space v-bind="toolbar.value.space">
+        <a-space v-bind="toolbar.value.space">
           <div v-for="(item, i) in toolbar.value.list" :key="i">
-            <el-tooltip v-if="item.tooltip!.show" v-bind="item.tooltip">
+            <a-tooltip v-if="item.tooltip!.show" v-bind="item.tooltip">
               <pro-render
                 v-if="item.render"
                 :render="item.render"
                 :ctx="item.props"
               />
-              <el-button v-else v-bind="item.props"></el-button>
-            </el-tooltip>
+              <a-button v-else v-bind="item.props"></a-button>
+            </a-tooltip>
 
             <template v-else>
               <pro-render
@@ -26,48 +26,31 @@
                 :render="item.render"
                 :ctx="item.props"
               />
-              <el-button v-else v-bind="item.props"></el-button>
+              <a-button v-else v-bind="item.props"></a-button>
             </template>
           </div>
-        </el-space>
+        </a-space>
       </div>
     </div>
 
-    <el-table
+    <a-table
       ref="tableRef"
-      v-loading="loading.value.visible"
-      :element-loading-text="loading.value.text"
-      :element-loading-background="loading.value.background"
-      :element-loading-svg="loading.value.svg"
-      :element-loading-spinner="loading.value.spinner"
       class="pro-table"
       v-bind="tableProps.value"
+      :loading="loading.value"
+      :columns="columns.value"
     >
-      <template v-for="column in columns" :key="column.value.columnProps.prop">
-        <pro-table-column v-if="column.value.show" :column="column.value" />
+      <template v-for="(render, name) in tableSlots" :key="name" #[name]="ctx">
+        <pro-render :render="render" :ctx="ctx" />
       </template>
-
-      <template v-if="tableSlots?.empty" #empty>
-        <pro-render :render="tableSlots.empty" />
-      </template>
-
-      <template v-if="tableSlots?.append" #append>
-        <pro-render :render="tableSlots.append" />
-      </template>
-    </el-table>
-
-    <el-pagination
-      v-if="pagination.value !== false"
-      class="pro-pagination"
-      v-bind="pagination.value"
-    />
+    </a-table>
   </div>
 </template>
 
 <script lang="ts" setup generic="T extends object">
 import { toRaw } from 'vue'
 
-import ProTableColumn from './ProTableColumn.vue'
+// import ProTableColumn from './ProTableColumn.vue'
 
 import type { ProTableProps, ProTableInstance } from './interface'
 

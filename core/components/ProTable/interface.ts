@@ -1,26 +1,23 @@
+import type { ValueType, DictionaryOption, ResolvedColumnDict } from '../common'
+import type { ExtractMaybeRef, JSXElement, MaybeRef } from '../common/interface'
 import type {
-  ElButtonProps,
-  ElPaginationProps,
-  ElTableColumnProps,
-  ElTableProps,
-  TableEmit,
-  ElTooltipProps,
-  ElSpaceProps,
-  ValueType,
-  DictionaryOption,
-  ResolvedColumnDict,
-} from '../common'
-import type { ExtractMaybeRef, MaybeRef, ToHandles } from '../common/interface'
-import type { TableColumnCtx, TableInstance, TableProps } from 'element-plus'
+  ButtonProps,
+  SpaceProps,
+  SpinProps,
+  TableProps,
+  TooltipProps,
+} from 'ant-design-vue'
+import type { ColumnType } from 'ant-design-vue/es/table'
+import type {
+  FilterDropdownProps,
+  FilterValue,
+  SorterResult,
+} from 'ant-design-vue/es/table/interface'
+import type {
+  DataIndex,
+  ExpandedRowRender,
+} from 'ant-design-vue/es/vc-table/interface'
 import type { CSSProperties, ComputedRef, Ref } from 'vue'
-
-/**
- * Table Props 中可能是 ref 的属性
- */
-export type TableMaybeRefProps<T> = Omit<
-  ElTableProps<T>,
-  'data' | 'defaultExpandAll' | 'defaultSort'
->
 
 /**
  * ProTable 接受的 props
@@ -28,31 +25,19 @@ export type TableMaybeRefProps<T> = Omit<
 export type ProTableProps<T extends object> = BuildProTableBinding<T>
 
 /**
- * ProTable Loading 配置
- */
-export interface ProTableLoading {
-  visible: boolean
-  text?: string
-  background?: string
-  spinner?: string
-  svg?: string
-}
-
-/**
  * 获取数据函数
  */
 export type FetchTableListRequest<T extends object, P extends object> = (
-  query: FetchTableListQuery<P>
+  query: FetchTableListQuery<T, P>
 ) => Promise<FetchTableDataResult<T>> | FetchTableDataResult<T>
 
 /**
  * 获取数据函数参数
  */
-export type FetchTableListQuery<P extends object> = {
-  page: {
-    pageNumber: number
-    pageSize: number
-  }
+export type FetchTableListQuery<T, P extends object> = {
+  page: { pageNumber: number; pageSize: number }
+  filters: Record<string, FilterValue | null>
+  sorter: SorterResult<T> | SorterResult<T>[]
   params?: P
 }
 
@@ -65,9 +50,24 @@ export type FetchTableDataResult<T> = {
 }
 
 /**
+ * headerCell 插槽参数
+ */
+export type HeaderCellSlotParams<T> = { column: ColumnType<T>; title: string }
+
+/**
+ * bodyCell 插槽参数
+ */
+export type BodyCellSlotParams<T> = {
+  text: any
+  index: number
+  column: ColumnType<T>
+  record: T
+}
+
+/**
  * ProTable 组件实例方法
  */
-export type ProTableInstance<T> = ProTableScope<T>
+export type ProTableInstance = ProTableScope
 
 /**
  * 列配置
@@ -77,17 +77,23 @@ export type ProTableColumnProps<T> = {
    * 列配置
    */
   columnProps?: MaybeRef<
-    ExtractMaybeRef<Omit<ElTableColumnProps<T>, 'label' | 'prop'>>
+    ExtractMaybeRef<Omit<ColumnType<T>, 'title' | 'dataIndex' | 'key'>>
   >
+
+  /**
+   * 分组列配置
+   */
+  children?: ProTableColumnProps<T> | ProTableColumnProps<T>[]
 
   /**
    * 列插槽
    */
-  columnSlots?: {
-    default?(ctx: TableDefaultSlotParams<T>): JSX.Element
+  columnSlots?: ProTableColumnSlots<T>
 
-    header?(ctx: { column: TableColumnCtx<T>; $index: number }): JSX.Element
-  }
+  /**
+   * 唯一索引
+   */
+  key?: MaybeRef<string>
 
   /**
    * 标题
@@ -97,7 +103,7 @@ export type ProTableColumnProps<T> = {
   /**
    * 字段名
    */
-  prop?: MaybeRef<string>
+  name?: MaybeRef<DataIndex>
 
   /**
    * 是否显示列
@@ -117,9 +123,17 @@ export type ProTableColumnProps<T> = {
   dict?: DictionaryOption
 }
 
+/**
+ * 列插槽
+ */
+export type ProTableColumnSlots<T> = {
+  headerCell?(ctx: HeaderCellSlotParams<T>): JSX.Element | string | number
+  bodyCell?(ctx: BodyCellSlotParams<T>): JSX.Element | string | number
+}
+
 export type TableDefaultSlotParams<T> = {
   row: T
-  column: TableColumnCtx<T>
+  // column: TableColumnCtx<T>
   $index: number
 }
 
@@ -127,18 +141,16 @@ export type TableDefaultSlotParams<T> = {
  * @internal
  */
 export interface InternalProTableColumnProps<T> {
-  show: boolean
   type: ValueType | any
   dict?: ResolvedColumnDict
-  columnProps: ElTableColumnProps<T>
-  columnSlots: ProTableColumnProps<T>['columnSlots']
+  columnProps: ColumnType<T>
 }
 
 /**
  * buildTable 返回值
  */
 export type BuildProTableResult<T extends object> = {
-  proTableRef: Ref<ProTableInstance<T> | null>
+  proTableRef: Ref<ProTableInstance | null>
   proTableBinding: BuildProTableBinding<T>
 }
 
@@ -154,22 +166,26 @@ export type BuildProTableOptionResult<T extends object, P extends object> = {
   /**
    * ElTable props
    */
-  tableProps?: ExtractMaybeRef<TableMaybeRefProps<T>> & {
-    defaultExpandAll?: ElTableProps<T>['defaultExpandAll']
-    defaultSort?: ElTableProps<T>['defaultSort']
-  } & Partial<ToHandles<TableEmit<T>>>
+  tableProps?: MaybeRef<ExtractMaybeRef<TableProps>>
 
   /**
-   * ElTable 插槽
+   * 初始页数
+   *
+   * @default 1
    */
-  tableSlots?: TableSlots
+  initialPageNumber?: number
 
   /**
-   * 分页配置，false 不显示
+   * Table 插槽
    */
-  pagination?: MaybeRef<
-    false | Omit<ElPaginationProps, 'pageSize' | 'currentPage' | 'total'>
-  >
+  tableSlots?: TableSlots<T>
+
+  // /**
+  //  * 分页配置，false 不显示
+  //  */
+  // pagination?: MaybeRef<
+  //   false | Omit<ElPaginationProps, 'pageSize' | 'currentPage' | 'total'>
+  // >
 
   /**
    * 列配置
@@ -179,7 +195,7 @@ export type BuildProTableOptionResult<T extends object, P extends object> = {
   /**
    * loading 配置
    */
-  loading?: MaybeRef<ExtractMaybeRef<Omit<ProTableLoading, 'visible'>>>
+  loading?: MaybeRef<ExtractMaybeRef<Omit<SpinProps, 'spinning'>>>
 
   /**
    * toolbar 配置
@@ -206,20 +222,19 @@ export type BuildProTableOptionResult<T extends object, P extends object> = {
  * buildTable 返回需要绑定的 props
  */
 export interface BuildProTableBinding<T extends object> {
-  pagination: ComputedRef<false | ElPaginationProps>
   tableProps: ComputedRef<TableProps<T>>
-  tableSlots: TableSlots | undefined
-  loading: ComputedRef<ProTableLoading>
-  columns: ComputedRef<InternalProTableColumnProps<T>>[]
-  scope: ProTableScope<T>
+  tableSlots: InternalTableSlots<T>
+  loading: ComputedRef<SpinProps>
+  columns: ComputedRef<ColumnType<T>[]>
+  scope: ProTableScope
   toolbar: ComputedRef<InternalProTableToolbarOption>
-  tableRef: Ref<TableInstance | null>
+  // tableRef: Ref<TableInstance | null>
 }
 
 /**
  * ProTable 作用域
  */
-export interface ProTableScope<T> {
+export interface ProTableScope {
   /**
    * 重新加载指定页数数据，默认加载当前页数
    */
@@ -243,49 +258,65 @@ export interface ProTableScope<T> {
   /**
    * 修改列显示状态
    */
-  changeColumnVisible(prop: string, visible: boolean): void
+  // changeColumnVisible(prop: string, visible: boolean): void
 
   /**
    * 修改列顺序
    */
-  changeColumnSort(fromIndex: number, toIndex: number): void
+  // changeColumnSort(fromIndex: number, toIndex: number): void
 
   /**
    * ElTable 原始方法
    */
-  clearSelection(): void
-  getSelectionRows(): T[] | undefined
-  toggleRowSelection(row: T, selected: boolean): void
-  toggleAllSelection(): void
-  toggleRowExpansion(row: T, expanded: boolean | undefined): void
-  setCurrentRow(row: T): void
-  clearSort(): void
-  clearFilter(columnKeys: string[]): void
-  doLayout(): void
-  sort(prop: string, order: string): void
-  scrollTo(options: number | ScrollToOptions, yCoord?: number | undefined): void
-  setScrollTop(top: number | undefined): void
-  setScrollLeft(left: number | undefined): void
+  // clearSelection(): void
+  // getSelectionRows(): T[] | undefined
+  // toggleRowSelection(row: T, selected: boolean): void
+  // toggleAllSelection(): void
+  // toggleRowExpansion(row: T, expanded: boolean | undefined): void
+  // setCurrentRow(row: T): void
+  // clearSort(): void
+  // clearFilter(columnKeys: string[]): void
+  // doLayout(): void
+  // sort(prop: string, order: string): void
+  // scrollTo(options: number | ScrollToOptions, yCoord?: number | undefined): void
+  // setScrollTop(top: number | undefined): void
+  // setScrollLeft(left: number | undefined): void
 
   /**
    * 获取所有列配置
    *
    * @internal
    */
-  _fetProTableColumn(): ComputedRef<InternalProTableColumnProps<T>>[]
+  // _fetProTableColumn(): ComputedRef<InternalProTableColumnProps<T>>[]
 
   /**
    * 设置列的 fixed
    */
-  _setPropFixed(prop: string, fixed?: string | boolean): void
+  // _setPropFixed(prop: string, fixed?: string | boolean): void
 }
 
 /**
  * Table 插槽
  */
-interface TableSlots {
-  empty?(): JSX.Element
-  append?(): JSX.Element
+export interface TableSlots<T> {
+  summary?(): JSXElement
+  title?(data: T[]): JSXElement
+  footer?(data: T[]): JSXElement
+  expandColumnTitle?(): JSXElement
+  expandedRowRender?(ctx: Parameters<ExpandedRowRender<T>>[0]): JSXElement
+  customFilterDropdown?(ctx: FilterDropdownProps<T>): JSXElement
+  customFilterIcon?(ctx: {
+    filtered: boolean
+    column: ColumnType<T>
+  }): JSXElement
+}
+
+/**
+ * @internal
+ */
+export interface InternalTableSlots<T> extends TableSlots<T> {
+  headerCell?(ctx: HeaderCellSlotParams<T>): JSXElement
+  bodyCell?(ctx: BodyCellSlotParams<T>): JSXElement
 }
 
 /**
@@ -300,7 +331,7 @@ export interface ProTableToolbarOption {
   /**
    * 间距配置
    */
-  space?: MaybeRef<ElSpaceProps>
+  space?: MaybeRef<SpaceProps>
 
   /**
    * 操作列表
@@ -360,7 +391,7 @@ export interface ToolbarOption {
   /**
    * button 配置
    */
-  props?: ElButtonProps
+  props?: ButtonProps
 
   /**
    * 提示 配置
@@ -370,13 +401,13 @@ export interface ToolbarOption {
   /**
    * 自定义渲染操作
    */
-  render?: (buttonProps: ElButtonProps) => JSX.Element
+  render?: (buttonProps: ButtonProps) => JSX.Element
 }
 
 /**
  * toolbar 按钮 tooltip 配置
  */
-export interface ToolbarOptionTooltip extends ElTooltipProps {
+export interface ToolbarOptionTooltip extends TooltipProps {
   show?: MaybeRef<boolean>
 }
 
@@ -385,8 +416,8 @@ export interface InternalProTableToolbarOption {
   list: ToolbarOption[]
   style?: string | CSSProperties
   class?: string | string[] | Record<string, boolean>
-  tooltip?: ElTooltipProps
-  space: ElSpaceProps
+  tooltip?: TooltipProps
+  space: SpaceProps
 }
 
 /**

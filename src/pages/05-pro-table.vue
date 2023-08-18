@@ -1,13 +1,4 @@
 <template>
-  <!-- <div>
-    <div>222</div>
-  </div> -->
-
-  <el-button @click="searchBarShow = !searchBarShow">切换 search bar</el-button>
-  <el-button @click="idColumnShow = !idColumnShow">切换 id 列</el-button>
-  <el-button @click="fixedId = !fixedId">固定Id列</el-button>
-  <el-button @click="changeParams">修改params</el-button>
-
   <pro-table ref="proTableRef" v-bind="proTableBinding" />
 </template>
 
@@ -17,8 +8,6 @@ import { ref } from 'vue'
 
 import { buildTable } from '~/components/ProTable'
 
-const border = ref(false)
-const stripe = ref(true)
 const searchBarShow = ref(false)
 const idColumnShow = ref(true)
 const fixedId = ref(true)
@@ -41,94 +30,104 @@ interface Data<T> {
   }
 }
 
-function changeParams() {
-  params.value = { age: ++params.value.age }
-}
-
 const sleep = (time = 2000) => new Promise(r => setTimeout(r, time))
 const { proTableRef, proTableBinding } = buildTable<User>(() => ({
   tableProps: {
-    border,
-    stripe,
-    lazy: true,
+    // title: () => <div>222</div>,
+    // footer: () => 'footer',
+    // expandColumnWidth: 100,
     rowKey: 'id',
-    width: '100%',
-    // height: 'auto',
-    // maxHeight: '100%',
   },
   tableSlots: {
-    empty: () => <div>没东西</div>,
-    append: () => {
-      return <div>合集</div>
-    },
+    title: () => 'title slot',
+    footer: () => 'footer slot',
+    // expandColumnTitle: () => <div>+</div>,
+    // expandedRowRender: ctx => <div>{ctx.record.address}</div>,
   },
   params,
-  loading: ref({
-    text: ref('加载中'),
-  }),
-  pagination: {
-    defaultPageSize: 20,
-    defaultCurrentPage: 3,
-  },
+
   columns: [
     {
       label: '序号',
-      prop: 'index',
+      name: 'index',
       columnProps: {
-        type: 'index',
         width: 100,
         fixed: fixedId,
+      },
+      columnSlots: {
+        bodyCell: ctx => ctx.index,
       },
     },
     {
       label: 'Id',
-      prop: 'id',
+      name: 'id',
       show: idColumnShow,
+      columnProps: { width: 100 },
     },
     {
       label: '姓名',
-      prop: 'name',
+      name: 'name',
+      columnProps: {
+        resizable: true,
+        width: 100,
+      },
     },
     {
       label: '标题',
-      prop: 'title',
+      name: 'title',
       columnProps: {
         width: 300,
       },
     },
     {
       label: '地址',
-      prop: 'url',
+      name: 'url',
       columnProps: {
         width: 200,
       },
     },
     {
       label: '邮件',
-      prop: 'email',
+      name: 'email',
       columnProps: {
         width: 200,
       },
     },
     {
       label: '区域',
-      prop: 'region',
+      name: 'region',
+      columnProps: {
+        width: 200,
+      },
     },
     {
       label: '省',
-      prop: 'province',
+      name: 'province',
+      columnProps: {
+        filters: [
+          { text: '甘肃省', value: '甘肃省' },
+          { text: '浙江省', value: '浙江省' },
+        ],
+        width: 100,
+      },
     },
     {
       label: '城市',
-      prop: 'city',
+      name: 'city',
+      columnProps: {
+        width: 200,
+      },
     },
     {
       label: '邮政编码',
-      prop: 'zip',
+      name: 'zip',
+      columnProps: {
+        width: 200,
+      },
     },
     {
       label: '住址',
-      prop: 'address',
+      name: 'address',
       columnProps: {
         width: 200,
       },
@@ -136,7 +135,7 @@ const { proTableRef, proTableBinding } = buildTable<User>(() => ({
 
     {
       label: '状态',
-      prop: 'status',
+      name: 'status',
       type: 'dict',
       columnProps: { width: 200 },
       dict: {
@@ -160,21 +159,30 @@ const { proTableRef, proTableBinding } = buildTable<User>(() => ({
 
     {
       label: '创建时间',
-      prop: 'createTime',
+      name: 'createTime',
+      columnProps: {
+        width: 200,
+      },
     },
     {
       label: '描述',
-      prop: 'desc',
+      name: 'desc',
       columnProps: {
         width: 500,
       },
     },
   ],
+
   request: {
     async fetchTableData(query) {
+      console.log('query: ', query)
       await sleep()
       const result = await axios.get<Data<User>>('/api/user/list', {
-        params: { ...query.page, ...query.params },
+        params: {
+          ...query.page,
+          ...query.params,
+          province: query.filters.province?.join(','),
+        },
       })
       const { rows, total } = result.data.data
       return { data: rows, total: total }
@@ -195,6 +203,4 @@ const { proTableRef, proTableBinding } = buildTable<User>(() => ({
     },
   },
 }))
-
-console.log('proTableBinding: ', proTableBinding)
 </script>

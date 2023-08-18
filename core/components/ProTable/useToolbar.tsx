@@ -1,7 +1,7 @@
-import { DCaret, Refresh } from '@element-plus/icons-vue'
-import { ElButton } from 'element-plus'
+import { ColumnHeightOutlined, ReloadOutlined } from '@ant-design/icons-vue'
+import { Button } from 'ant-design-vue'
 import { merge } from 'lodash-es'
-import { computed, ref } from 'vue'
+import { computed, h, ref } from 'vue'
 
 import {
   DefaultTableSize,
@@ -23,40 +23,44 @@ import type {
 export function useToolbar<T extends object>(
   tableProps: BuildProTableOptionResult<T, any>['tableProps'],
   originToolbar: BuildProTableOptionResult<T, any>['toolbar'],
-  scope: ProTableScope<T>
+  scope: ProTableScope
 ) {
   // 表格大小
-  const tableSize = ref(tableProps?.size ?? DefaultTableSize)
+  const tableSize = ref(unRef(unRef(tableProps)?.size) ?? DefaultTableSize)
 
   // 默认 toolbar
   const defaultToolbar: ProTableToolbarOption = {
     show: true,
     list: {
       reload: {
-        tooltip: { content: '刷新' },
+        tooltip: { title: '刷新' },
         props: {
-          icon: Refresh,
-          onClick: () => {
-            scope.reload()
-          },
+          icon: h(ReloadOutlined),
+          shape: 'circle',
+          onClick: scope.reload,
         },
       },
 
       density: {
-        tooltip: { content: '密度' },
+        tooltip: { title: '密度' },
         render: props => (
           <DropdownSelect
             trigger="click"
             v-model={tableSize.value}
             options={[
-              { label: '默认', command: ToolbarDensityEnum.Large },
-              { label: '中等', command: ToolbarDensityEnum.Default },
-              { label: '紧凑', command: ToolbarDensityEnum.Small },
+              { label: '默认', value: ToolbarDensityEnum.Large },
+              { label: '中等', value: ToolbarDensityEnum.Default },
+              { label: '紧凑', value: ToolbarDensityEnum.Small },
             ]}
           >
             {{
               default: () => (
-                <ElButton type="primary" circle icon={DCaret} {...props} />
+                <Button
+                  type="primary"
+                  shape="circle"
+                  icon={h(ColumnHeightOutlined)}
+                  {...props}
+                />
               ),
             }}
           </DropdownSelect>

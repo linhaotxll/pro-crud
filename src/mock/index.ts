@@ -17,7 +17,7 @@ function randomNum(minNum: number, maxNum: number) {
 
 const Random = Mock.Random
 
-const userList = Array.from({ length: 431 }).map(() => ({
+const genUser = (i: number): any => ({
   id: Random.id(),
   address: Random.province(),
   region: Random.region(),
@@ -31,18 +31,35 @@ const userList = Array.from({ length: 431 }).map(() => ({
   createTime: Random.date(),
   desc: Random.csentence(),
   status: randomNum(1, 3),
-}))
+  children: i === 2 ? [genUser(0)] : undefined,
+})
+
+const userList = Array.from({ length: 431 }).map((_, i) => genUser(i))
 
 const mock: MockMethod[] = [
   {
     url: '/api/user/list',
     method: 'get',
     response(opt) {
-      const { pageSize, pageNumber, name } = opt.query
+      const { pageSize, pageNumber, name, province } = opt.query
 
-      const newDataList = userList.filter(
-        user => user.name === (name || user.name)
-      )
+      const resolvedProvinces: string[] = province?.split(',') ?? []
+
+      const newDataList = userList.filter(user => {
+        if (name) {
+          if (!(name === user.name)) {
+            return false
+          }
+        }
+
+        if (province) {
+          if (!resolvedProvinces.includes(user.province)) {
+            return false
+          }
+        }
+
+        return true
+      })
 
       return {
         code: 200,

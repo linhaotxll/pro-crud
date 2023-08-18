@@ -1,10 +1,11 @@
-import type { ElPaginationProps, ValueTypeValue } from './components/common'
+import type { ValueTypeValue } from './components/common'
 import type {
   CrudDialogOption,
   TransformQueryParams,
   TransformResponseParams,
 } from './components/ProCrud'
 import type { FetchTableDataResult } from './components/ProTable'
+import type { PaginationProps } from 'ant-design-vue'
 import type { InjectionKey } from 'vue'
 
 export const GlobalOption = Symbol() as InjectionKey<ProComponentsOptions>
@@ -35,7 +36,7 @@ export interface ProComponentsOptions {
   /**
    * 全局分页配置
    */
-  pagination?: ElPaginationProps
+  pagination?: PaginationProps
 
   /**
    * 注入扩展类型

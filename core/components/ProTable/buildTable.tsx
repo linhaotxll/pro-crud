@@ -1,12 +1,7 @@
 import { merge } from 'lodash-es'
 import { computed, inject, isRef, nextTick, ref, watch } from 'vue'
 
-import {
-  DefaultPageNumber,
-  DefaultPageSize,
-  DefaultProTableLoading,
-  ElTableInstanceNames,
-} from './constant'
+import { DefaultPageNumber, DefaultPageSize } from './constant'
 import { useColumns } from './useColumns'
 import { useToolbar } from './useToolbar'
 
@@ -17,12 +12,11 @@ import { GlobalOption } from '~/constant'
 import type {
   BuildProTableOptionResult,
   BuildProTableResult,
+  FetchTableListQuery,
   ProTableInstance,
-  ProTableLoading,
   ProTableScope,
 } from './interface'
-import type { ElPaginationProps } from '../common'
-import type { TableInstance, TableProps } from 'element-plus'
+import type { SpinProps, TableProps } from 'ant-design-vue'
 import type { Ref } from 'vue'
 
 export function buildTable<
@@ -31,49 +25,52 @@ export function buildTable<
   P extends object = any
 >(
   options: (
-    scope: ProTableScope<T>,
+    scope: ProTableScope,
     ctx?: C | undefined
   ) => BuildProTableOptionResult<T, P>
 ): BuildProTableResult<T>
 export function buildTable<T extends object, C, P extends object = any>(
-  options: (scope: ProTableScope<T>, ctx: C) => BuildProTableOptionResult<T, P>,
+  options: (scope: ProTableScope, ctx: C) => BuildProTableOptionResult<T, P>,
   ctx: C
 ): BuildProTableResult<T>
 
 export function buildTable<T extends object, C, P extends object = any>(
-  options: (
-    scope: ProTableScope<T>,
-    ctx?: C
-  ) => BuildProTableOptionResult<T, P>,
+  options: (scope: ProTableScope, ctx?: C) => BuildProTableOptionResult<T, P>,
   ctx?: C | undefined
 ): BuildProTableResult<T> {
-  const elTableRef = ref<TableInstance | null>(null)
+  // const elTableRef = ref<any | null>(null)
 
   // 作用域对象
-  const scope = ElTableInstanceNames.reduce(
-    (prev, curr) => {
-      // @ts-ignore
-      prev[curr] = (...args) => elTableRef.value?.[curr](...args)
-      return prev
-    },
-    {
-      next,
-      previous,
-      reset,
-      reload,
-      _fetProTableColumn,
-      _setPropFixed,
-      changeColumnVisible,
-      changeColumnSort,
-    } as ProTableScope<T>
-  )
+  // const scope = ElTableInstanceNames.reduce(
+  //   (prev, curr) => {
+  //     // @ts-ignore
+  //     prev[curr] = (...args) => elTableRef.value?.[curr](...args)
+  //     return prev
+  //   },
+  //   {
+  //     next,
+  //     previous,
+  //     reset,
+  //     reload,
+  //     _fetProTableColumn,
+  //     // _setPropFixed,
+  //     // changeColumnVisible,
+  //     // changeColumnSort,
+  //   } as ProTableScope<T>
+  // )
+  const scope: ProTableScope = {
+    next,
+    previous,
+    reset,
+    reload,
+  }
 
   const {
     columns: originColumns = [],
     data: originData,
     tableProps = {},
-    tableSlots,
-    pagination: originPagination = {},
+    tableSlots: originTableSlots,
+    initialPageNumber = DefaultPageNumber,
     loading: originLoading,
     request = {},
     toolbar: originToolbar,
@@ -86,22 +83,66 @@ export function buildTable<T extends object, C, P extends object = any>(
   // 加载状态
   const loading = ref(false)
 
-  // 分页
-  const p = unRef(originPagination)
-  const pageNumber = ref(
-    p !== false ? p?.defaultCurrentPage ?? DefaultPageNumber : DefaultPageNumber
+  const { toolbar, tableSize } = useToolbar(tableProps, originToolbar, scope)
+
+  const { columns, tableSlots, onResizeColumn } = useColumns(
+    originColumns,
+    originTableSlots
   )
+
+  // 上一次查询的条件，主要用来 reload 保持数据不变
+  let previousQuery: FetchTableListQuery<T, P>
+
+  // 分页
+  const p = unRef(unRef(tableProps).pagination)
+  const pageNumber = ref(initialPageNumber)
   const pageSize = ref(
     p !== false ? p?.defaultPageSize ?? DefaultPageSize : DefaultPageSize
   )
+  const initialPageSize = pageSize.value
   const total = ref(1)
 
-  // 初始页数
-  const initialPageNumber = pageNumber.value
+  // 解析 table props
+  const resolvedTableProps = computed(() => {
+    const result: TableProps<T> = {
+      dataSource: data.value,
+      size: unRef(tableSize),
+      onChange(page, filters, sorter) {
+        _fetchTableData({
+          page: { pageNumber: page.current!, pageSize: page.pageSize! },
+          filters,
+          sorter,
+        })
+      },
+      onResizeColumn: onResizeColumn.value,
+    }
 
-  const { columns, columnsShow, sort, setFixed } = useColumns(originColumns)
+    const props = unRef(tableProps)
 
-  const { toolbar, tableSize } = useToolbar(tableProps, originToolbar, scope)
+    ;(Object.keys(props) as (keyof TableProps<T>)[]).forEach(key => {
+      // @ts-ignore
+      result[key] = unRef(props[key])
+    })
+
+    const pagination = unRef(props.pagination)
+
+    if (pagination === false) {
+      result.pagination = pagination
+    } else {
+      result.pagination = merge(
+        {},
+        inject(GlobalOption)?.pagination,
+        pagination,
+        {
+          pageSize: pageSize.value,
+          current: pageNumber.value,
+          total: total.value,
+        }
+      )
+    }
+
+    return result
+  })
 
   let resolvedParams = unRef(params)
 
@@ -116,34 +157,32 @@ export function buildTable<T extends object, C, P extends object = any>(
   /**
    * 加载指定页数内容
    */
-  async function _fetchTableData(
-    pageN: number = pageNumber.value,
-    pageS = pageSize.value
-  ) {
+  async function _fetchTableData(query: Partial<FetchTableListQuery<T, P>>) {
     if (originData) {
-      watch(
-        isRef(originData) ? originData : () => originData,
-        _d => {
-          data.value = _d as T[]
-        },
-        { immediate: true }
-      )
       return
     }
 
-    if (typeof request.fetchTableData !== 'function') {
-      throw new Error('fetchTableData must be function.')
-    }
+    const resolvedQuery: FetchTableListQuery<T, P> = merge<
+      FetchTableListQuery<T, P>,
+      Partial<FetchTableListQuery<T, P>>
+    >(
+      {
+        page: { pageNumber: pageNumber.value, pageSize: pageSize.value },
+        filters: {},
+        sorter: [],
+        params: resolvedParams,
+      },
+      query
+    )
+
+    previousQuery = resolvedQuery
 
     loading.value = true
-    pageNumber.value = pageN
-    pageSize.value = pageS
+    pageNumber.value = resolvedQuery.page.pageNumber
+    pageSize.value = resolvedQuery.page.pageSize
 
     try {
-      const tableResult = await request.fetchTableData({
-        page: { pageNumber: pageN, pageSize: pageS },
-        params: resolvedParams,
-      })
+      const tableResult = await request.fetchTableData!(resolvedQuery)
       const { data: d = [], total: t = 1 } = tableResult ?? {}
 
       data.value = d
@@ -155,56 +194,16 @@ export function buildTable<T extends object, C, P extends object = any>(
   }
 
   // 解析 loading 配置
-  const resolvedLoadingConfig = computed<ProTableLoading>(() => {
-    const mergeLoading = merge({}, DefaultProTableLoading, unRef(originLoading))
-    return {
-      visible: loading.value,
-      text: unRef(mergeLoading?.text),
-      background: unRef(mergeLoading?.background),
-      spinner: unRef(mergeLoading?.spinner),
-      svg: unRef(mergeLoading?.svg),
+  const resolvedLoadingConfig = computed(() => {
+    const loadingProps = unRef(originLoading)
+    const result: SpinProps = { spinning: loading.value }
+
+    if (loadingProps) {
+      ;(Object.keys(loadingProps) as (keyof SpinProps)[]).forEach(key => {
+        // @ts-ignore
+        result[key] = unRef(loadingProps[key])
+      })
     }
-  })
-
-  // 解析分页配置
-  const resolvedPagination = computed<false | ElPaginationProps>(() => {
-    const pagination = unRef(originPagination)
-    if (pagination === false) {
-      return false
-    }
-
-    return merge(
-      { layout: '->, prev, pager, next, jumper' },
-      inject(GlobalOption)?.pagination,
-      pagination,
-      {
-        pageSize: pageSize.value,
-        currentPage: pageNumber.value,
-        'onUpdate:currentPage': (pageN: number) => {
-          reload(pageN)
-        },
-
-        'onUpdate:pageSize'(pageSize: number) {
-          reload(undefined, pageSize)
-        },
-        total: total.value,
-      }
-    )
-  })
-
-  // 解析 table props
-  const resolvedTableProps = computed(() => {
-    const result: TableProps<T> = {
-      data: data.value,
-      defaultExpandAll: tableProps.defaultExpandAll,
-      defaultSort: tableProps.defaultSort,
-      size: unRef(tableSize),
-    }
-
-    Object.keys(tableProps).forEach(key => {
-      // @ts-ignore
-      result[key] = unRef(tableProps[key])
-    })
 
     return result
   })
@@ -213,74 +212,92 @@ export function buildTable<T extends object, C, P extends object = any>(
    * 加载下一页数据
    */
   function next() {
-    return _fetchTableData(pageNumber.value + 1)
+    return _fetchTableData({
+      page: { pageNumber: pageNumber.value + 1, pageSize: pageSize.value },
+    })
   }
 
   /**
    * 加载上一页数据
    */
   function previous() {
-    return _fetchTableData(pageNumber.value - 1)
+    return _fetchTableData({
+      page: { pageNumber: pageNumber.value - 1, pageSize: pageSize.value },
+    })
   }
 
   /**
    * 重新加载当前页数据
    */
-  function reload(pageNumber?: number, pageSize?: number) {
-    return _fetchTableData(pageNumber, pageSize)
+  function reload() {
+    return _fetchTableData(previousQuery)
   }
 
   /**
    * 恢复默认页重新加载
    */
   function reset() {
-    return _fetchTableData(initialPageNumber)
+    return _fetchTableData({
+      page: { pageNumber: initialPageNumber, pageSize: initialPageSize },
+    })
   }
 
   /**
    * 获取所有列配置
    */
-  function _fetProTableColumn() {
-    return columns
-  }
+  // function _fetProTableColumn() {
+  //   return columns
+  // }
 
   /**
    * 修改列显示状态
    */
-  function changeColumnVisible(prop: string, visible: boolean) {
-    columnsShow[prop] = visible
-  }
+  // function changeColumnVisible(name: DataIndex, visible: boolean) {
+  //   // columnsShow.set(name, visible)
+  // }
 
   /**
    * 修改列顺序
    */
-  function changeColumnSort(fromIndex: number, toIndex: number) {
-    sort(fromIndex, toIndex)
-  }
+  // function changeColumnSort(fromIndex: number, toIndex: number) {
+  //   // sort(fromIndex, toIndex)
+  // }
 
   /**
    *
    */
-  function _setPropFixed(prop: string, fixed?: boolean | string) {
-    setFixed(prop, fixed)
-  }
+  // function _setPropFixed(prop: string, fixed?: boolean | string) {
+  //   setFixed(prop, fixed)
+  // }
 
   nextTick(() => {
-    reload()
+    if (originData) {
+      watch(
+        isRef(originData) ? originData : () => originData,
+        _d => {
+          data.value = _d as T[]
+        },
+        { immediate: true }
+      )
+    } else {
+      if (typeof request.fetchTableData !== 'function') {
+        throw new Error('fetchTableData must be function.')
+      }
+      reload()
+    }
   })
 
-  const proTableRef = ref<ProTableInstance<T> | null>(null)
+  const proTableRef = ref<ProTableInstance | null>(null)
   const buildProTableResult: BuildProTableResult<T> = {
     proTableRef,
     proTableBinding: {
       columns,
       tableProps: resolvedTableProps,
       tableSlots,
-      pagination: resolvedPagination,
       loading: resolvedLoadingConfig,
       toolbar,
       scope,
-      tableRef: elTableRef,
+      // tableRef: elTableRef,
     },
   }
 

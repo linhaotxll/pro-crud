@@ -1,19 +1,19 @@
 <template>
-  <el-button @click="handleAddData">增加</el-button>
-  <el-button :type="border ? 'primary' : 'default'" @click="toggleBorder"
-    >切换borderd</el-button
-  >
-  <el-button @click="toggleStripe">切换stripe</el-button>
-  <el-button @click="changeName">修改名称</el-button>
-  <el-button @click="changeType">增加宽度</el-button>
-  <pro-table
-    ref="proTableRef"
-    v-bind="proTableBinding"
-    style="margin-top: 16px"
-  />
+  <a-space>
+    <a-button @click="handleAddData">增加</a-button>
+    <a-button :type="bordered ? 'primary' : 'default'" @click="toggleBorder"
+      >切换borderd</a-button
+    >
+    <a-button @click="changeName">修改名称</a-button>
+    <a-button @click="changeType">增加宽度</a-button>
+  </a-space>
+
+  <pro-table ref="proTableRef" v-bind="proTableBinding" />
 </template>
 
 <script lang="tsx" setup>
+import { SmileOutlined } from '@ant-design/icons-vue'
+import { Tag } from 'ant-design-vue'
 import { ref } from 'vue'
 
 import { buildTable } from '~/components/ProTable'
@@ -22,30 +22,25 @@ const data = ref<any>([
   { name: Math.random(), age: '26' },
   { name: Math.random(), age: '27', hasChildren: true },
 ])
-const border = ref(false)
-const stripe = ref(true)
+const bordered = ref(false)
 
 function handleAddData() {
   data.value.push({ name: Math.random(), age: Math.random() })
 }
 
 function toggleBorder() {
-  border.value = !border.value
-}
-
-function toggleStripe() {
-  stripe.value = !stripe.value
+  bordered.value = !bordered.value
 }
 
 function changeName() {
-  nameLabel.value = nameLabel.value + nameLabel.value
+  ageLabel.value = ageLabel.value + ageLabel.value
 }
 
 function changeType() {
   width.value = width.value + 10
 }
 
-const nameLabel = ref('标题')
+const ageLabel = ref('年龄')
 const width = ref(100)
 
 interface TableData {
@@ -56,129 +51,51 @@ interface TableData {
 const { proTableRef, proTableBinding } = buildTable<TableData>(() => ({
   data,
   tableProps: {
-    border,
-    stripe,
-    lazy: true,
+    bordered,
     rowKey: 'name',
-    load(_, __, resolve) {
-      setTimeout(() => {
-        resolve([
-          {
-            name: '王五',
-            age: 24,
-          },
-          {
-            name: '马六',
-            age: 26,
-          },
-        ])
-      }, 1000)
-    },
-    treeProps: {
-      children: 'children',
-      hasChildren: 'hasChildren',
-    },
-
-    defaultSort: {
-      prop: 'age',
-      order: 'ascending',
-    },
-
-    onSelect(s, row) {
-      console.log('select', s, row)
-    },
-    onSelectAll: s => {
-      console.log('select all: ', s)
-    },
-    onSelectionChange: s => {
-      console.log('select change: ', s)
-    },
-    // onCellMouseEnter: (row, column, cell, event) => {
-    //   // console.log('cell mouse enter: ', row, column, cell, event)
-    // },
-
-    onCellClick: (...args) => {
-      console.log('cell click: ', ...args)
-    },
-
-    onCellDblclick: (...args) => {
-      console.log('cell db click: ', ...args)
-    },
-
-    onRowClick: (...args) => {
-      console.log('row click: ', ...args)
-    },
-
-    onSortChange: (...args) => {
-      console.log('sort change: ', ...args)
-    },
-
-    onFilterChange: (...args) => {
-      console.log('filter change: ', ...args)
-    },
-
-    onHeaderDragend(...args) {
-      console.log('drag header: ', ...args)
-    },
-
-    onExpandChange(...args) {
-      console.log('expand: ', ...args)
-    },
   },
-  tableSlots: {
-    empty: () => <div>没东西</div>,
-    append: () => {
-      return <div>合集</div>
-    },
-  },
+  tableSlots: {},
   columns: [
-    // {
-    //   label: '',
-    //   prop: 'expand',
-    //   columnProps: {
-    //     // type: 'expand',
-    //     // width: 100,
-    //   },
-    //   // columnSlots: {
-    //   //   default: props => {
-    //   //     return (
-    //   //       <div>
-    //   //         <div></div>
-    //   //         <p>Age: {props.row.age}</p>
-    //   //         <p>Name: {props.row.name}</p>
-    //   //         <h3>Family</h3>
-    //   //       </div>
-    //   //     )
-    //   //   },
-    //   // },
-    // },
     {
-      label: nameLabel,
-      prop: 'name',
+      label: ageLabel,
+      name: 'name',
       columnProps: {
         width,
       },
-    },
-    {
-      label: '年龄',
-      prop: 'age',
-      columnProps: {
-        sortable: true,
-        filters: [
-          { text: '26', value: '26' },
-          { text: '27', value: '27' },
-          { text: '28', value: '28' },
-          { text: '29', value: '29' },
-        ],
-        filterMethod(value, row, column) {
-          const property = column['property'] as keyof TableData
-          return row[property] === value
+      columnSlots: {
+        headerCell() {
+          return (
+            <span>
+              <SmileOutlined />
+              <span style="margin-left: 8px">Name</span>
+            </span>
+          )
+        },
+        bodyCell(ctx) {
+          return <Tag color="pink">{ctx.text}</Tag>
         },
       },
-      columnSlots: {
-        default: ctx => <div>年龄: {ctx.row.age}</div>,
-        header: ctx => <div>这是年龄: {ctx.$index}</div>,
-      },
+    },
+    {
+      label: ageLabel,
+      name: 'age',
+      // columnProps: {
+      //   sortable: true,
+      //   filters: [
+      //     { text: '26', value: '26' },
+      //     { text: '27', value: '27' },
+      //     { text: '28', value: '28' },
+      //     { text: '29', value: '29' },
+      //   ],
+      //   filterMethod(value, row, column) {
+      //     const property = column['property'] as keyof TableData
+      //     return row[property] === value
+      //   },
+      // },
+      // columnSlots: {
+      //   default: ctx => <div>年龄: {ctx.row.age}</div>,
+      //   header: ctx => <div>这是年龄: {ctx.$index}</div>,
+      // },
     },
   ],
 }))

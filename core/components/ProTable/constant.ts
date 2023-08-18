@@ -1,25 +1,21 @@
-import type { ProTableLoading, ToolbarOption } from './interface'
+import type { ToolbarOption } from './interface'
 import type { ElSpaceProps, ValueType } from '../common'
 
-export const ElTableInstanceNames = [
-  'clearSelection',
-  'getSelectionRows',
-  'toggleRowSelection',
-  'toggleAllSelection',
-  'toggleRowExpansion',
-  'setCurrentRow',
-  'clearSort',
-  'clearFilter',
-  'doLayout',
-  'sort',
-  'scrollTo',
-  'setScrollTop',
-  'setScrollLeft',
-] as const
-
-export const DefaultProTableLoading: Partial<ProTableLoading> = {
-  text: 'loading',
-}
+// export const ElTableInstanceNames = [
+//   'clearSelection',
+//   'getSelectionRows',
+//   'toggleRowSelection',
+//   'toggleAllSelection',
+//   'toggleRowExpansion',
+//   'setCurrentRow',
+//   'clearSort',
+//   'clearFilter',
+//   'doLayout',
+//   'sort',
+//   'scrollTo',
+//   'setScrollTop',
+//   'setScrollLeft',
+// ] as const
 
 export const DefaultPageNumber = 1
 export const DefaultPageSize = 10
@@ -31,7 +27,7 @@ export const DefaultToolbarTooltip: ToolbarOption = {
   tooltip: { placement: 'top', show: true },
   props: {
     type: 'primary',
-    circle: true,
+    // circle: true,
   },
 }
 
