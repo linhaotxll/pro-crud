@@ -1,184 +1,112 @@
 <template>
-  <pro-table ref="proTableRef" v-bind="proTableBinding" />
+  <pro-table v-bind="proTableBinding" />
 </template>
-
-<script lang="tsx" setup>
-import axios from 'axios'
-import { ref } from 'vue'
-
+<script lang="ts" setup>
 import { buildTable } from '~/components/ProTable'
 
-const searchBarShow = ref(false)
+const data = [
+  {
+    key: '1',
+    name: 'John Brown',
+    age: 32,
+    address: 'New York No. 1 Lake Park',
+    tags: ['nice', 'developer'],
+  },
+  {
+    key: '2',
+    name: 'Jim Green',
+    age: 42,
+    address: 'London No. 1 Lake Park',
+    tags: ['loser'],
+  },
+  {
+    key: '3',
+    name: 'Joe Black',
+    age: 32,
+    address: 'Sidney No. 1 Lake Park',
+    tags: ['cool', 'teacher'],
+  },
+]
 
-const params = ref({ age: 24 })
+const { proTableBinding } = buildTable(() => {
+  return {
+    columns: [
+      {
+        label: 'Name',
+        name: 'name',
+        key: 'name',
+        columnProps: {
+          resizable: true,
+          width: 150,
+        },
+      },
+      {
+        label: 'Age',
+        name: 'age',
+        key: 'age',
+        columnProps: {
+          resizable: true,
+          width: 100,
+          minWidth: 100,
+          maxWidth: 200,
+        },
+      },
+      {
+        label: 'Address',
+        name: 'address',
+        key: 'address',
+      },
+      {
+        label: 'Tags',
+        key: 'tags',
+        name: 'tags',
+      },
+      {
+        label: 'Action',
+        key: 'action',
+      },
+    ],
 
-interface User {
-  key: number
-  name: string
-  age: number
-  street: string
-  building: string
-  number: number
-  companyAddress: string
-  companyName: string
-  gender: string
-}
-
-interface Data<T> {
-  data: {
-    pageNumber: number
-    pageSize: number
-    total: number
-    rows: T[]
+    data,
   }
-}
+})
 
-const data = [...Array(100)].map<User>((_, i) => ({
-  key: i,
-  name: 'John Brown',
-  age: i + 1,
-  street: 'Lake Park',
-  building: 'C',
-  number: 2035,
-  companyAddress: 'Lake Street 42',
-  companyName: 'SoftLake Co',
-  gender: 'M',
-}))
+// const columns = ref<TableColumnsType>([
+//   {
+//     dataIndex: 'name',
+//     key: 'name',
+//     resizable: true,
+//     width: 150,
+//   },
+//   {
+//     title: 'Age',
+//     dataIndex: 'age',
+//     key: 'age',
+//     resizable: true,
+//     width: 100,
+//     minWidth: 100,
+//     maxWidth: 200,
+//   },
+//   {
+//     title: 'Address',
+//     dataIndex: 'address',
+//     key: 'address',
+//   },
+//   {
+//     title: 'Tags',
+//     key: 'tags',
+//     dataIndex: 'tags',
+//   },
+//   {
+//     title: 'Action',
+//     key: 'action',
+//   },
+// ])
 
-const sleep = (time = 2000) => new Promise(r => setTimeout(r, time))
-const { proTableRef, proTableBinding } = buildTable<User>(() => ({
-  tableProps: {
-    rowKey: 'id',
-    bordered: true,
-  },
-  tableSlots: {
-    title: () => 'title slot',
-    footer: () => 'footer slot',
-    // expandColumnTitle: () => <div>+</div>,
-    // expandedRowRender: ctx => <div>{ctx.record.address}</div>,
-  },
-  params,
-
-  data,
-
-  columns: [
-    {
-      label: 'Name',
-      name: 'name',
-      columnProps: {
-        width: 100,
-        fixed: true,
-        filters: [
-          {
-            text: 'Joe',
-            value: 'Joe',
-          },
-          {
-            text: 'John',
-            value: 'John',
-          },
-        ],
-      },
-    },
-
-    {
-      label: 'Other',
-      children: [
-        {
-          label: 'Title',
-          name: 'age',
-          columnProps: {
-            width: 200,
-          },
-        },
-
-        {
-          label: 'Address',
-          children: [
-            {
-              label: 'Street',
-              name: 'street',
-              columnProps: {
-                width: 200,
-              },
-            },
-
-            {
-              label: 'Block',
-              name: 'block',
-              children: [
-                {
-                  label: 'Building',
-                  name: 'building',
-                  columnProps: {
-                    width: 100,
-                  },
-                },
-                {
-                  label: 'Door No.',
-                  name: 'number',
-                  columnProps: {
-                    width: 100,
-                  },
-                },
-              ],
-            },
-          ],
-        },
-      ],
-    },
-
-    {
-      label: 'Company',
-      children: [
-        {
-          label: 'Company Address',
-          name: 'companyAddress',
-          columnProps: { width: 200 },
-        },
-        {
-          label: 'Company Name',
-          name: 'companyName',
-          columnProps: { width: 200 },
-        },
-      ],
-    },
-
-    {
-      label: 'Gender',
-      name: 'gender',
-      columnProps: { width: 80, fixed: 'right' },
-    },
-  ],
-
-  request: {
-    async fetchTableData(query) {
-      console.log('query: ', query)
-      await sleep()
-      const result = await axios.get<Data<User>>('/api/user/list', {
-        params: {
-          ...query.page,
-          ...query.params,
-          province: query.filters.province?.join(','),
-        },
-      })
-      const { rows, total } = result.data.data
-      return { data: rows, total: total }
-    },
-  },
-
-  toolbar: {
-    list: {
-      search: {
-        props: {
-          icon: 'Refresh',
-        },
-        tooltip: {
-          show: searchBarShow,
-          content: '搜索',
-        },
-      },
-    },
-  },
-}))
+// const c1 = computed(() => [reactive({ name: 'IconMan' })])
+// console.log(1, c1.value[0])
+// function handleResizeColumn(w: number, col: TableColumnType) {
+//   console.log(1, col)
+//   col.width = w
+// }
 </script>

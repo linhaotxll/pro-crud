@@ -27,8 +27,12 @@ export function useColumns<T extends object>(
   tableColumns: ProTableColumnProps<T>[],
   tableSlots?: TableSlots<T>
 ) {
+  // 解析后的 slots
   const resolvedTableSlots: InternalTableSlots<T> = { ...tableSlots }
   const resolvedShow = reactive<Map<DataIndex, boolean>>(new Map())
+
+  // 是否存在可伸缩的列，可伸缩的事件
+  let hasResizeColumn = false
   const onResizeColumn: Ref<
     ((w: number, column: ColumnType<T>) => void) | undefined
   > = ref()
@@ -38,7 +42,10 @@ export function useColumns<T extends object>(
     for (const column of tableColumns) {
       const result = resolveColumn(column)
       if (result) {
-        resolvedColumns.push(result.columnProps)
+        // 如果需要伸缩，则对每个列配置进行响应式处理，确保在响应事件中修改列宽度能够改变页面
+        resolvedColumns.push(
+          hasResizeColumn ? reactive(result.columnProps) : result.columnProps
+        )
       }
     }
 
@@ -66,16 +73,23 @@ export function useColumns<T extends object>(
     }
   }
 
+  /**
+   * 解析列配置
+   * @param column
+   * @returns
+   */
   function resolveColumn(column: ProTableColumnProps<T>) {
     const name = unRef(column.name)
     const show = name
       ? resolvedShow.get(name) ?? DefaultTableColumnShow
       : DefaultTableColumnShow
 
+    // 不显示的列不需要进一步解析
     if (!show) {
       return
     }
 
+    // 解析好的列配置
     const result: InternalProTableColumnProps<T> = {
       type: unRef(column.type ?? DefaultColumnType),
       dict: useDict(column.dict),
@@ -85,6 +99,7 @@ export function useColumns<T extends object>(
       },
     }
 
+    // 遍历 columnProps，每个值都可能为响应式对象，确保能追踪到变化
     const p = unRef(column.columnProps)
     if (p) {
       Object.keys(p).forEach(key => {
@@ -93,17 +108,20 @@ export function useColumns<T extends object>(
       })
     }
 
+    // 注入 slots
     if (column.columnSlots) {
       ;(
         Object.keys(column.columnSlots) as (keyof ProTableColumnSlots<T>)[]
       ).forEach(type => injectTableSlot(type, column, DefaultValueSlot[type]))
     }
 
+    // 处理子表头
     if (column.children) {
       const resolvedChildren = Array.isArray(column.children)
         ? column.children
         : [column.children]
 
+      // 解析子列配置，加入到当前列中
       for (const c of resolvedChildren) {
         const resolvedChild = resolveColumn(c)
         if (resolvedChild) {
@@ -113,10 +131,10 @@ export function useColumns<T extends object>(
       }
     }
 
-    // console.log(name, result.columnProps.resizable)
+    // 如果有一个列需要伸缩，那么就会设置伸缩事件
     if (result.columnProps.resizable && !onResizeColumn.value) {
+      hasResizeColumn = true
       onResizeColumn.value = (w, c) => {
-        console.log(c)
         c.width = w
       }
     }

@@ -62,7 +62,7 @@ const { proTableRef, proTableBinding } = buildTable<User>(() => ({
       label: 'Id',
       name: 'id',
       show: idColumnShow,
-      columnProps: { width: 100 },
+      // columnProps: { width: 100 },
     },
     {
       label: '姓名',

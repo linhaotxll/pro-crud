@@ -48,21 +48,21 @@
 </template>
 
 <script lang="ts" setup generic="T extends object">
-import { toRaw } from 'vue'
+// import { toRaw } from 'vue'
 
 // import ProTableColumn from './ProTableColumn.vue'
 
-import type { ProTableProps, ProTableInstance } from './interface'
+import type { ProTableProps } from './interface'
 
 defineOptions({ name: 'ProTable' })
 
-const p = defineProps<ProTableProps<T>>()
+defineProps<ProTableProps<T>>()
 
-const tableRef = toRaw(p).tableRef
+// const tableRef = toRaw(p).tableRef
 
-defineExpose<ProTableInstance<T>>({
-  ...p.scope,
-})
+// defineExpose<ProTableInstance<T>>({
+//   ...p.scope,
+// })
 </script>
 
 <style scoped>
