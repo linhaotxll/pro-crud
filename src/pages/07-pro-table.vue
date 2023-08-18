@@ -2,6 +2,8 @@
   <pro-table v-bind="proTableBinding" />
 </template>
 <script lang="ts" setup>
+import { ref } from 'vue'
+
 import { buildTable } from '~/components/ProTable'
 
 const data = [
@@ -28,11 +30,16 @@ const data = [
   },
 ]
 
+const nameColShow = ref(false)
+const nameColLabel = ref('Name')
+const ageKey = ref('age')
+
 const { proTableBinding } = buildTable(() => {
   return {
     columns: [
       {
-        label: 'Name',
+        show: nameColShow,
+        label: nameColLabel,
         name: 'name',
         key: 'name',
         columnProps: {
@@ -42,7 +49,7 @@ const { proTableBinding } = buildTable(() => {
       },
       {
         label: 'Age',
-        name: 'age',
+        name: ageKey,
         key: 'age',
         columnProps: {
           resizable: true,
@@ -68,6 +75,31 @@ const { proTableBinding } = buildTable(() => {
     ],
 
     data,
+
+    toolbar: {
+      list: {
+        toggleName: {
+          tooltip: { title: '切换Name' },
+          props: {
+            shape: 'circle',
+            onClick() {
+              nameColShow.value = !nameColShow.value
+              nameColLabel.value = `${nameColLabel.value}${nameColLabel.value}`
+            },
+          },
+        },
+
+        toggleAge: {
+          tooltip: { title: '切换Age' },
+          props: {
+            shape: 'circle',
+            onClick() {
+              ageKey.value = ageKey.value === 'age' ? 'name' : 'age'
+            },
+          },
+        },
+      },
+    },
   }
 })
 

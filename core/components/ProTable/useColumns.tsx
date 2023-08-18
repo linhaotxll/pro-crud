@@ -12,7 +12,6 @@ import type {
   TableSlots,
 } from './interface'
 import type { ColumnType } from 'ant-design-vue/es/table'
-import type { DataIndex } from 'ant-design-vue/es/vc-table/interface'
 import type { Ref } from 'vue'
 
 const DefaultValueSlot: Record<
@@ -29,7 +28,6 @@ export function useColumns<T extends object>(
 ) {
   // 解析后的 slots
   const resolvedTableSlots: InternalTableSlots<T> = { ...tableSlots }
-  const resolvedShow = reactive<Map<DataIndex, boolean>>(new Map())
 
   // 是否存在可伸缩的列，可伸缩的事件
   let hasResizeColumn = false
@@ -40,6 +38,7 @@ export function useColumns<T extends object>(
   const columns = computed(() => {
     const resolvedColumns: ColumnType<T>[] = []
     for (const column of tableColumns) {
+      // debugger
       const result = resolveColumn(column)
       if (result) {
         // 如果需要伸缩，则对每个列配置进行响应式处理，确保在响应事件中修改列宽度能够改变页面
@@ -80,9 +79,7 @@ export function useColumns<T extends object>(
    */
   function resolveColumn(column: ProTableColumnProps<T>) {
     const name = unRef(column.name)
-    const show = name
-      ? resolvedShow.get(name) ?? DefaultTableColumnShow
-      : DefaultTableColumnShow
+    const show = unRef(column.show ?? DefaultTableColumnShow)
 
     // 不显示的列不需要进一步解析
     if (!show) {
