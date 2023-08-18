@@ -1,22 +1,6 @@
 import type { ToolbarOption } from './interface'
 import type { ElSpaceProps, ValueType } from '../common'
 
-// export const ElTableInstanceNames = [
-//   'clearSelection',
-//   'getSelectionRows',
-//   'toggleRowSelection',
-//   'toggleAllSelection',
-//   'toggleRowExpansion',
-//   'setCurrentRow',
-//   'clearSort',
-//   'clearFilter',
-//   'doLayout',
-//   'sort',
-//   'scrollTo',
-//   'setScrollTop',
-//   'setScrollLeft',
-// ] as const
-
 export const DefaultPageNumber = 1
 export const DefaultPageSize = 10
 

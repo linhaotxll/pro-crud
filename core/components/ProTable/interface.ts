@@ -180,13 +180,6 @@ export type BuildProTableOptionResult<T extends object, P extends object> = {
    */
   tableSlots?: TableSlots<T>
 
-  // /**
-  //  * 分页配置，false 不显示
-  //  */
-  // pagination?: MaybeRef<
-  //   false | Omit<ElPaginationProps, 'pageSize' | 'currentPage' | 'total'>
-  // >
-
   /**
    * 列配置
    */
