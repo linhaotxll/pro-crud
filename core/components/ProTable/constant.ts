@@ -37,7 +37,7 @@ export const DefaultToolbarSpace: ElSpaceProps = { size: 16 }
 // toolbar 密度枚举
 export const enum ToolbarDensityEnum {
   Large = 'large',
-  Default = 'default',
+  Default = 'middle',
   Small = 'small',
 }
 
