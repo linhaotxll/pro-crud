@@ -34,7 +34,7 @@ interface FormValues {
 //   // },
 // })
 // const row = ref<Partial<RowProps>>({ gutter: 8 })
-// const formCol = ref<Partial<Partial<ColProps>>>({ span: 6 })
+const formCol = ref<ColProps>({ span: 6 })
 
 const nameCol = ref<ColProps>({
   span: 4,
@@ -52,7 +52,7 @@ const nameCol = ref<ColProps>({
 const { proSearchBinding, proSearchRef } = buildSearch<FormValues>(() => {
   return {
     // row,
-    // col: formCol,
+    col: formCol,
     initialValues: {
       name: '文本内容2',
       cascader: 'guide,disciplines,consistency',

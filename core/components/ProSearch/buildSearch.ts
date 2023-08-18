@@ -2,14 +2,10 @@ import { SearchOutlined, SyncOutlined } from '@ant-design/icons-vue'
 import { merge } from 'lodash-es'
 import { computed, h } from 'vue'
 
-import {
-  DefaultButtonsCol,
-  DefaultSearchCol,
-  DefaultSearchRow,
-} from './constant'
+import { DefaultSearchCol, DefaultSearchRow } from './constant'
 
 import { unRef } from '../common'
-import { buildForm } from '../ProForm'
+import { buildForm, DefaultProProColumn } from '../ProForm'
 
 import type {
   BuildSearchOptionResult,
@@ -40,33 +36,22 @@ export function buildSearch<T extends object, C, R = T>(
 
     const buttons: ButtonsOption = {
       col: computed(() => {
-        // debugger
-        const defaultCol: ColProps = merge(
-          DefaultButtonsCol,
-          unRef(props.wrapperCol)
-        )
+        const defaultCol: ColProps = merge(DefaultSearchCol, unRef(props.col))
 
         const total =
-          props.columns?.reduce<number>((prev, columnComputed) => {
-            const columnLabelCol: ColProps | undefined = unRef(
-              columnComputed.itemProps?.labelCol
-            )
-            const columnWrapperCol: ColProps | undefined = unRef(
-              columnComputed.itemProps?.wrapperCol
-            )
+          props.columns?.reduce<number>((prev, column) => {
+            // 每个列所占的格子数量
+            const columnCol: ColProps | undefined = unRef(column.col)
 
-            const show = unRef(columnComputed.show!)
+            const show = unRef(column.show ?? DefaultProProColumn.show)
 
             let columnTotal = 0
             if (show) {
-              if (columnLabelCol) {
+              if (columnCol) {
+                columnTotal += +(columnCol.span ?? 0) + +(columnCol.offset ?? 0)
+              } else {
                 columnTotal +=
-                  +(columnLabelCol.span ?? 0) + +(columnLabelCol.offset ?? 0)
-              }
-              if (columnWrapperCol) {
-                columnTotal +=
-                  +(columnWrapperCol.span ?? 0) +
-                  +(columnWrapperCol.offset ?? 0)
+                  +(defaultCol.span ?? 0) + +(defaultCol.offset ?? 0)
               }
             }
 
