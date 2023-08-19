@@ -94,7 +94,7 @@ const { proTableBinding } = buildTable(() => {
           props: {
             shape: 'circle',
             onClick() {
-              ageKey.value = ageKey.value === 'age' ? 'name' : 'age'
+              ageKey.value = ageKey.value === 'age' ? 'name' : ''
             },
           },
         },
