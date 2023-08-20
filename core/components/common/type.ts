@@ -4,11 +4,7 @@ import { inject, type WritableComputedRef } from 'vue'
 import { GlobalOption } from '~/constant'
 
 import type { InternalProFormColumnOptions } from '../ProForm'
-import type {
-  BodyCellSlotParams,
-  InternalProTableColumnProps,
-  TableDefaultSlotParams,
-} from '../ProTable'
+import type { BodyCellSlotParams } from '../ProTable'
 
 export type ValueType =
   | 'text'
@@ -57,12 +53,6 @@ export interface ValueTypeTable<T> {
   is?: any
   props?: any
   render?: (ctx: BodyCellSlotParams<T>) => JSX.Element
-}
-
-export interface ValueTypeTableRenderParams<T>
-  extends TableDefaultSlotParams<T> {
-  text: any
-  internalColumn: InternalProTableColumnProps<T>
 }
 
 const DefaultValueType: Record<ValueType, ValueTypeValue> = {

@@ -12,6 +12,7 @@ import type {
   TableProps,
   TooltipProps,
 } from 'ant-design-vue'
+import type { SizeType } from 'ant-design-vue/es/config-provider'
 import type {
   FilterDropdownProps,
   FilterValue,
@@ -135,12 +136,6 @@ export type ProTableColumnSlots<T> = {
   bodyCell?(ctx: BodyCellSlotParams<T>): JSXElement
 }
 
-export type TableDefaultSlotParams<T> = {
-  row: T
-  // column: TableColumnCtx<T>
-  $index: number
-}
-
 /**
  * @internal
  */
@@ -167,6 +162,11 @@ export type BuildProTableOptionResult<T extends object, P extends object> = {
    * 数据源(不推荐)
    */
   data?: MaybeRef<T[]>
+
+  /**
+   * 默认数据源
+   */
+  defaultData?: T[]
 
   /**
    * ElTable props
@@ -206,14 +206,41 @@ export type BuildProTableOptionResult<T extends object, P extends object> = {
   params?: MaybeRef<P>
 
   /**
-   * 请求配置
+   * 是否需要首次触发请求
+   *
+   * @default true
    */
-  request?: {
-    /**
-     * 获取数据请求
-     */
-    fetchTableData?: FetchTableListRequest<T, P>
-  }
+  immediate?: boolean
+
+  /**
+   * 获取数据请求
+   */
+  fetchTableData?: FetchTableListRequest<T, P>
+
+  /**
+   * table 尺寸发生改变
+   */
+  onSizeChange?: (size: SizeType) => void
+
+  /**
+   * loading 被修改时触发，一般是网络请求导致的
+   */
+  onLoadingChange?: (loading: boolean) => void
+
+  /**
+   * 数据加载完成后触发,会多次触发
+   */
+  onLoad?: (dataSource: T[]) => void
+
+  /**
+   * Table 的数据发生改变时触发
+   */
+  onDataSourceChange?: (dataSource: T[]) => void
+
+  /**
+   * 数据加载失败时触发
+   */
+  onRequestError?: (error: any) => void
 }
 
 /**

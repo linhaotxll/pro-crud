@@ -66,24 +66,52 @@ export function buildTable<T extends object, C, P extends object = any>(
   }
 
   const {
+    immediate = true,
     columns: originColumns = [],
     data: originData,
+    defaultData = [],
     tableProps = {},
     tableSlots: originTableSlots,
     initialPageNumber = DefaultPageNumber,
     loading: originLoading,
-    request = {},
     toolbar: originToolbar,
     params,
+    onLoad,
+    fetchTableData,
+    onSizeChange,
+    onLoadingChange,
+    onDataSourceChange,
+    onRequestError,
   } = options(scope, ctx)
 
   // 真实数据
-  const data = ref([]) as Ref<T[]>
+  const data = ref(defaultData) as Ref<T[]>
+
+  // 监听数据变化
+  if (onDataSourceChange) {
+    watch(data, _data => {
+      onDataSourceChange(_data)
+    })
+  }
 
   // 加载状态
   const loading = ref(false)
 
+  // 监听 loading 变化
+  if (onLoadingChange) {
+    watch(loading, _loading => {
+      onLoadingChange(_loading)
+    })
+  }
+
   const { toolbar, tableSize } = useToolbar(tableProps, originToolbar, scope)
+
+  // 监听 table 尺寸变化
+  if (onSizeChange) {
+    watch(tableSize, size => {
+      onSizeChange(size)
+    })
+  }
 
   const { columns, tableSlots, onResizeColumn } = useColumns(
     originColumns,
@@ -182,12 +210,16 @@ export function buildTable<T extends object, C, P extends object = any>(
     pageSize.value = resolvedQuery.page.pageSize
 
     try {
-      const tableResult = await request.fetchTableData!(resolvedQuery)
+      const tableResult = await fetchTableData?.(resolvedQuery)
       const { data: d = [], total: t = 1 } = tableResult ?? {}
 
       data.value = d
 
       total.value = t
+
+      onLoad?.(d)
+    } catch (e) {
+      onRequestError?.(e)
     } finally {
       loading.value = false
     }
@@ -277,13 +309,15 @@ export function buildTable<T extends object, C, P extends object = any>(
         _d => {
           data.value = _d as T[]
         },
-        { immediate: true }
+        { immediate }
       )
     } else {
-      if (typeof request.fetchTableData !== 'function') {
+      if (typeof fetchTableData !== 'function') {
         throw new Error('fetchTableData must be function.')
       }
-      reload()
+      if (immediate) {
+        reload()
+      }
     }
   })
 
