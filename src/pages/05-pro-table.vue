@@ -3,6 +3,7 @@
 </template>
 
 <script lang="tsx" setup>
+import { Tag } from 'ant-design-vue'
 import axios from 'axios'
 import { ref } from 'vue'
 
@@ -123,6 +124,9 @@ const { proTableRef, proTableBinding } = buildTable<User>(() => ({
       name: 'zip',
       columnProps: {
         width: 200,
+      },
+      columnSlots: {
+        bodyCell: ctx => <Tag>{ctx.text}</Tag>,
       },
     },
     {

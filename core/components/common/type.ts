@@ -5,6 +5,7 @@ import { GlobalOption } from '~/constant'
 
 import type { InternalProFormColumnOptions } from '../ProForm'
 import type {
+  BodyCellSlotParams,
   InternalProTableColumnProps,
   TableDefaultSlotParams,
 } from '../ProTable'
@@ -19,7 +20,6 @@ export type ValueType =
   | 'date-month'
   | 'date-quarter'
   | 'date-year'
-  // | 'date-dates'
   | 'date-range'
   | 'date-month-range'
   | 'date-time'
@@ -55,10 +55,8 @@ export interface ValueTypeForm<T> {
 
 export interface ValueTypeTable<T> {
   is?: any
-
   props?: any
-
-  render?: (ctx: ValueTypeTableRenderParams<T>) => JSX.Element
+  render?: (ctx: BodyCellSlotParams<T>) => JSX.Element
 }
 
 export interface ValueTypeTableRenderParams<T>
@@ -138,18 +136,6 @@ const DefaultValueType: Record<ValueType, ValueTypeValue> = {
       },
     },
   },
-
-  // 'date-dates': {
-  //   form: {
-  //     is: 'el-date-picker',
-  //     props: {
-  //       placeholder: '请选择多个日期',
-  //       type: 'dates',
-  //       format: 'YYYY-MM-DD',
-  //       valueFormat: 'YYYY-MM-DD',
-  //     },
-  //   },
-  // },
 
   'date-range': {
     form: {

@@ -1,5 +1,8 @@
-import type { ToolbarOption } from './interface'
-import type { ElSpaceProps, ValueType } from '../common'
+import { h, resolveComponent } from 'vue'
+
+import { ValueTypeMap, type ElSpaceProps, type ValueType } from '../common'
+
+import type { ProTableColumnSlots, ToolbarOption } from './interface'
 
 export const DefaultPageNumber = 1
 export const DefaultPageSize = 10
@@ -11,7 +14,7 @@ export const DefaultToolbarTooltip: ToolbarOption = {
   tooltip: { placement: 'top', show: true },
   props: {
     type: 'primary',
-    // circle: true,
+    shape: 'circle',
   },
 }
 
@@ -32,3 +35,28 @@ export const DefaultTableSize = 'large'
 export const DefaultTableColumnShow = true
 
 export const DefaultColumnType: ValueType = 'text'
+
+// 不同 type 表格渲染类型
+export const DefaultTableCellRenderMap: Partial<
+  Record<ValueType, ProTableColumnSlots<any>['bodyCell']>
+> = {
+  dict: injectTableCell('dict'),
+  'dict-select': injectTableCell('dict-select'),
+}
+
+function injectTableCell(
+  valueType: ValueType
+): ProTableColumnSlots<any>['bodyCell'] {
+  return ctx => {
+    const defaultTableType = ValueTypeMap.value[valueType]?.table
+    if (defaultTableType) {
+      const { is: Comp, props, render } = defaultTableType
+      if (Comp) {
+        return h(resolveComponent(Comp), { ...props, ctx })
+      } else if (render) {
+        return render(ctx)
+      }
+    }
+    return null
+  }
+}

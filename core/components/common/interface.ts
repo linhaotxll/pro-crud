@@ -30,4 +30,4 @@ export type UnionToTuple<T, U = T> = [T] extends [never]
 
 export declare type Arrayable<T> = T | T[]
 
-export type JSXElement = JSX.Element | number | string
+export type JSXElement = JSX.Element | number | string | undefined | null

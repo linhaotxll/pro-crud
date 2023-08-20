@@ -1,6 +1,10 @@
-import { computed, reactive, ref } from 'vue'
+import { computed, markRaw, reactive, ref } from 'vue'
 
-import { DefaultColumnType, DefaultTableColumnShow } from './constant'
+import {
+  DefaultColumnType,
+  DefaultTableCellRenderMap,
+  DefaultTableColumnShow,
+} from './constant'
 
 import { unRef, useDict } from '../common'
 
@@ -8,19 +12,10 @@ import type {
   InternalProTableColumnProps,
   InternalTableSlots,
   ProTableColumnProps,
-  ProTableColumnSlots,
   TableSlots,
 } from './interface'
-import type { ColumnType } from 'ant-design-vue/es/table'
+import type { ColumnType, ValueType } from '../common'
 import type { Ref } from 'vue'
-
-const DefaultValueSlot: Record<
-  keyof ProTableColumnSlots<any>,
-  (ctx: any) => any
-> = {
-  headerCell: ctx => ctx.title,
-  bodyCell: ctx => ctx.text,
-}
 
 export function useColumns<T extends object>(
   tableColumns: ProTableColumnProps<T>[],
@@ -38,12 +33,13 @@ export function useColumns<T extends object>(
   const columns = computed(() => {
     const resolvedColumns: ColumnType<T>[] = []
     for (const column of tableColumns) {
-      // debugger
       const result = resolveColumn(column)
       if (result) {
         // 如果需要伸缩，则对每个列配置进行响应式处理，确保在响应事件中修改列宽度能够改变页面
         resolvedColumns.push(
-          hasResizeColumn ? reactive(result.columnProps) : result.columnProps
+          hasResizeColumn
+            ? (reactive(result.columnProps) as ColumnType<T>)
+            : result.columnProps
         )
       }
     }
@@ -51,22 +47,45 @@ export function useColumns<T extends object>(
     return resolvedColumns
   })
 
-  function injectTableSlot(
-    type: keyof ProTableColumnSlots<T>,
-    column: ProTableColumnProps<T>,
-    defaultValue: (ctx: any) => any
-  ) {
+  /**
+   * 注入 header cell 插槽
+   * @param column
+   */
+  function injectHeaderCell(column: ProTableColumnProps<T>) {
     const resolvedKey = unRef(column.key || column.name)
-    if (column.columnSlots?.[type] && !resolvedTableSlots[type]) {
-      resolvedTableSlots[type] = ctx => {
-        const $default = <span>{defaultValue(ctx)}</span>
+    if (column.columnSlots?.headerCell && !resolvedTableSlots.headerCell) {
+      resolvedTableSlots.headerCell = ctx => {
+        const genDefault = () => ctx.title
 
         if (
           ctx.column.key === resolvedKey ||
           ctx.column.dataIndex === resolvedKey
         ) {
-          return column.columnSlots?.[type]?.(ctx as any) ?? $default
+          return column.columnSlots?.headerCell?.(ctx) ?? genDefault()
         }
+        return genDefault()
+      }
+    }
+  }
+
+  /**
+   * 注入 body cell 插槽
+   * @param column
+   */
+  function injectBodyCell(c: ProTableColumnProps<T>) {
+    if (c.columnSlots?.bodyCell && !resolvedTableSlots.bodyCell) {
+      resolvedTableSlots.bodyCell = ctx => {
+        const __column = ctx.column.__column
+        const resolvedKey = unRef(ctx.column.key || ctx.column.dataIndex)
+        const $default = ctx.text
+
+        if (
+          ctx.column.key === resolvedKey ||
+          ctx.column.dataIndex === resolvedKey
+        ) {
+          return __column!.columnSlots?.bodyCell?.(ctx) ?? $default
+        }
+
         return $default
       }
     }
@@ -86,15 +105,24 @@ export function useColumns<T extends object>(
       return
     }
 
+    const resolvedType: ValueType = unRef(column.type ?? DefaultColumnType)
+
     // 解析好的列配置
     const result: InternalProTableColumnProps<T> = {
-      type: unRef(column.type ?? DefaultColumnType),
+      type: resolvedType,
       dict: useDict(column.dict),
       columnProps: {
         title: unRef(column.label),
         dataIndex: name,
+        __column: null!,
+      },
+      columnSlots: {
+        ...column.columnSlots,
+        bodyCell: DefaultTableCellRenderMap[resolvedType],
       },
     }
+
+    result.columnProps.__column = markRaw(result)
 
     // 遍历 columnProps，每个值都可能为响应式对象，确保能追踪到变化
     const p = unRef(column.columnProps)
@@ -107,9 +135,8 @@ export function useColumns<T extends object>(
 
     // 注入 slots
     if (column.columnSlots) {
-      ;(
-        Object.keys(column.columnSlots) as (keyof ProTableColumnSlots<T>)[]
-      ).forEach(type => injectTableSlot(type, column, DefaultValueSlot[type]))
+      injectHeaderCell(column)
+      injectBodyCell(column)
     }
 
     // 处理子表头
@@ -138,6 +165,8 @@ export function useColumns<T extends object>(
 
     return result
   }
+
+  console.log('resolvedTableSlots: ', resolvedTableSlots.bodyCell)
 
   return { columns, onResizeColumn, tableSlots: resolvedTableSlots }
 }

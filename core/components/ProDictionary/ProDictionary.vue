@@ -5,15 +5,15 @@
 <script lang="ts" setup generic="T">
 import { computed } from 'vue'
 
-import type { ValueTypeTableRenderParams } from '../common'
+import type { BodyCellSlotParams } from '../ProTable'
 
 defineOptions({ name: 'ProDictionary' })
 
 const p = defineProps<{
-  ctx: ValueTypeTableRenderParams<T>
+  ctx: BodyCellSlotParams<T>
 }>()
 
 const content = computed(() =>
-  p.ctx.internalColumn.dict?.optionsNameMap.value.get(p.ctx.text)
+  p.ctx.column.__column!.dict?.optionsNameMap.value.get(p.ctx.text)
 )
 </script>

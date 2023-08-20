@@ -1,4 +1,9 @@
-import type { ValueType, DictionaryOption, ResolvedColumnDict } from '../common'
+import type {
+  ValueType,
+  DictionaryOption,
+  ResolvedColumnDict,
+  ColumnType,
+} from '../common'
 import type { ExtractMaybeRef, JSXElement, MaybeRef } from '../common/interface'
 import type {
   ButtonProps,
@@ -7,7 +12,6 @@ import type {
   TableProps,
   TooltipProps,
 } from 'ant-design-vue'
-import type { ColumnType } from 'ant-design-vue/es/table'
 import type {
   FilterDropdownProps,
   FilterValue,
@@ -127,8 +131,8 @@ export type ProTableColumnProps<T> = {
  * 列插槽
  */
 export type ProTableColumnSlots<T> = {
-  headerCell?(ctx: HeaderCellSlotParams<T>): JSX.Element | string | number
-  bodyCell?(ctx: BodyCellSlotParams<T>): JSX.Element | string | number
+  headerCell?(ctx: HeaderCellSlotParams<T>): JSXElement
+  bodyCell?(ctx: BodyCellSlotParams<T>): JSXElement
 }
 
 export type TableDefaultSlotParams<T> = {
@@ -144,6 +148,7 @@ export interface InternalProTableColumnProps<T> {
   type: ValueType | any
   dict?: ResolvedColumnDict
   columnProps: ColumnType<T>
+  columnSlots?: ProTableColumnSlots<T> | undefined
 }
 
 /**
