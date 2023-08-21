@@ -69,9 +69,10 @@ const vModel = computed({
   width: 100%;
 }
 
+.dynamic-v-model.fill :deep(.ant-input),
 .dynamic-v-model.fill :deep(.ant-select),
 .dynamic-v-model.fill :deep(.ant-input-number),
-.dynamic-v-model.fill :deep(.ant-date-editor) {
+.dynamic-v-model.fill :deep(.ant-picker) {
   width: 100%;
   box-sizing: border-box;
 }
