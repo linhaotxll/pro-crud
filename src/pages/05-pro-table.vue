@@ -137,29 +137,29 @@ const { proTableRef, proTableBinding } = buildTable<User>(scope => ({
     //   },
     // },
 
-    // {
-    //   label: '状态',
-    //   name: 'status',
-    //   type: 'dict',
-    //   columnProps: { width: 200 },
-    //   dict: {
-    //     // data: [
-    //     //   { label: '状态一', value: 1 },
-    //     //   { label: '状态儿', value: 2 },
-    //     //   { label: '状态三', value: 3 },
-    //     // ],
+    {
+      label: '状态',
+      name: 'status',
+      type: 'dict-select',
+      columnProps: { width: 200 },
+      dict: {
+        // data: [
+        //   { label: '状态一', value: 1 },
+        //   { label: '状态儿', value: 2 },
+        //   { label: '状态三', value: 3 },
+        // ],
 
-    //     async fetchData() {
-    //       await sleep(5000)
+        async fetchData() {
+          await sleep(500)
 
-    //       return [
-    //         { label: '状态一', value: 1 },
-    //         { label: '状态儿', value: 2 },
-    //         { label: '状态三', value: 3 },
-    //       ]
-    //     },
-    //   },
-    // },
+          return [
+            { label: '状态一', value: 1 },
+            { label: '状态儿', value: 2 },
+            { label: '状态三', value: 3 },
+          ]
+        },
+      },
+    },
 
     // {
     //   label: '创建时间',

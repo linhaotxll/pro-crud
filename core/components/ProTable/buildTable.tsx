@@ -31,23 +31,26 @@ export function buildTable<
   P extends object = any
 >(
   options: (
-    scope: ProTableScope,
+    scope: ProTableScope<T>,
     ctx?: C | undefined
   ) => BuildProTableOptionResult<T, P>
 ): BuildProTableResult<T>
 export function buildTable<T extends object, C, P extends object = any>(
-  options: (scope: ProTableScope, ctx: C) => BuildProTableOptionResult<T, P>,
+  options: (scope: ProTableScope<T>, ctx: C) => BuildProTableOptionResult<T, P>,
   ctx: C
 ): BuildProTableResult<T>
 
 export function buildTable<T extends object, C, P extends object = any>(
-  options: (scope: ProTableScope, ctx?: C) => BuildProTableOptionResult<T, P>,
+  options: (
+    scope: ProTableScope<T>,
+    ctx?: C
+  ) => BuildProTableOptionResult<T, P>,
   ctx?: C | undefined
 ): BuildProTableResult<T> {
   // const elTableRef = ref<any | null>(null)
 
   // 作用域对象
-  const scope: ProTableScope = {
+  const scope: ProTableScope<T> = {
     next,
     previous,
     reset,
@@ -55,6 +58,7 @@ export function buildTable<T extends object, C, P extends object = any>(
     startEditable(rowKey, columnName) {
       startEditable(rowKey, columnName)
     },
+    editFormScope: null!,
   }
 
   const {
@@ -98,7 +102,9 @@ export function buildTable<T extends object, C, P extends object = any>(
   }
 
   // debugger
-  const { proFormBinding: editFormBinding } = buildForm<any>(() => {
+  const { proFormBinding: editFormBinding } = buildForm<any>(editFormScope => {
+    scope.editFormScope = editFormScope
+
     return {
       columns: originColumns.map(column => ({
         name: column.name as any,
@@ -123,7 +129,7 @@ export function buildTable<T extends object, C, P extends object = any>(
 
   provide(EditableTableData, editableTableData)
 
-  const startEditable: ProTableScope['startEditable'] = (
+  const startEditable: ProTableScope<T>['startEditable'] = (
     rowKey,
     columnName
   ) => {
@@ -351,7 +357,7 @@ export function buildTable<T extends object, C, P extends object = any>(
     }
   })
 
-  const proTableRef = ref<ProTableInstance | null>(null)
+  const proTableRef = ref<ProTableInstance<T> | null>(null)
   const buildProTableResult: BuildProTableResult<T> = {
     proTableRef,
     proTableBinding: {

@@ -5,7 +5,7 @@ import type {
   ColumnType,
 } from '../common'
 import type { ExtractMaybeRef, JSXElement, MaybeRef } from '../common/interface'
-import type { BuildFormBinding } from '../ProForm'
+import type { BuildFormBinding, ProFormScope } from '../ProForm'
 import type {
   ButtonProps,
   SpaceProps,
@@ -73,7 +73,7 @@ export type BodyCellSlotParams<T> = {
 /**
  * ProTable 组件实例方法
  */
-export type ProTableInstance = ProTableScope
+export type ProTableInstance<T extends object> = ProTableScope<T>
 
 /**
  * 列配置
@@ -163,7 +163,7 @@ export interface InternalProTableColumnProps<T> {
  * buildTable 返回值
  */
 export type BuildProTableResult<T extends object> = {
-  proTableRef: Ref<ProTableInstance | null>
+  proTableRef: Ref<ProTableInstance<T> | null>
   proTableBinding: BuildProTableBinding<T>
 }
 
@@ -288,7 +288,7 @@ export interface BuildProTableBinding<T extends object> {
   tableSlots: InternalTableSlots<T>
   loading: ComputedRef<SpinProps>
   columns: ComputedRef<ColumnType<T>[]>
-  scope: ProTableScope
+  scope: ProTableScope<T>
   toolbar: ComputedRef<InternalProTableToolbarOption>
   editFormBinding: BuildFormBinding<any>
 }
@@ -296,7 +296,7 @@ export interface BuildProTableBinding<T extends object> {
 /**
  * ProTable 作用域
  */
-export interface ProTableScope {
+export interface ProTableScope<T extends object> {
   /**
    * 重新加载指定页数数据，默认加载当前页数
    */
@@ -316,6 +316,8 @@ export interface ProTableScope {
    * 加载下一页
    */
   next(): Promise<void>
+
+  editFormScope: ProFormScope<T>
 
   /**
    * 开始编辑

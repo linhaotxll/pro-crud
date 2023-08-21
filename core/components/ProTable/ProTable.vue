@@ -33,13 +33,7 @@
       </div>
     </div>
 
-    <a-config-provider
-      :theme="{
-        token: {
-          marginLG: 0,
-        },
-      }"
-    >
+    <a-config-provider :theme="configTokenTheme">
       <a-form
         v-bind="editFormBinding.formProps.value"
         :model="editFormBinding.values"
@@ -74,6 +68,14 @@ import type { ProTableProps } from './interface'
 defineOptions({ name: 'ProTable' })
 
 defineProps<ProTableProps<T>>()
+
+const configTokenTheme = {
+  token: {
+    marginLG: 0,
+    marginXS: 0,
+    marginXXS: 0,
+  },
+}
 
 // const tableRef = toRaw(p).tableRef
 
