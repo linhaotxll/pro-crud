@@ -151,20 +151,18 @@ const { proTableRef, proTableBinding } = buildTable<User>(() => ({
     },
   ],
 
-  request: {
-    async fetchTableData(query) {
-      console.log('query: ', query)
-      await sleep()
-      const result = await axios.get<Data<User>>('/api/user/list', {
-        params: {
-          ...query.page,
-          ...query.params,
-          province: query.filters.province?.join(','),
-        },
-      })
-      const { rows, total } = result.data.data
-      return { data: rows, total: total }
-    },
+  async fetchTableData(query) {
+    console.log('query: ', query)
+    await sleep()
+    const result = await axios.get<Data<User>>('/api/user/list', {
+      params: {
+        ...query.page,
+        ...query.params,
+        province: query.filters.province?.join(','),
+      },
+    })
+    const { rows, total } = result.data.data
+    return { data: rows, total: total }
   },
 
   toolbar: {

@@ -17,7 +17,7 @@ export interface ProComponentsOptions {
    * @param {TransformQueryParams} ctx 查询参数，包含分页，搜索条件
    * @returns 转换后的参数，直接传递给 fetchPaginationData 请求
    */
-  transformQuery?(ctx: TransformQueryParams<any>): any
+  transformQuery?(ctx: TransformQueryParams<any, any>): any
 
   /**
    * 转换请求后的响应数据

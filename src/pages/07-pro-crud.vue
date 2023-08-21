@@ -10,49 +10,49 @@ const { proCrudBinding, proCrudRef } = buildCrud(() => {
     columns: [
       {
         label: '摄像机名称',
-        prop: 'cameraName',
+        name: 'cameraName',
         search: { show: true },
       },
 
       {
         label: '摄像机编号',
-        prop: 'number',
+        name: 'number',
         search: { show: true },
       },
 
       {
         label: '摄像机位置',
-        prop: 'addr',
+        name: 'addr',
         search: { show: false },
       },
 
       {
         label: '摄像机名IP',
-        prop: 'ip',
+        name: 'ip',
         search: { show: false },
       },
 
       {
         label: '摄像机端口',
-        prop: 'port',
+        name: 'port',
         search: { show: false },
       },
 
       {
         label: '主码流',
-        prop: 'mainStream',
+        name: 'mainStream',
         search: { show: false },
       },
 
       {
         label: '副码流',
-        prop: 'deputyStream',
+        name: 'deputyStream',
         search: { show: false },
       },
 
       {
         label: '摄像机状态',
-        prop: 'status',
+        name: 'status',
         type: 'dict-select',
         search: { show: true },
         dict: {
@@ -62,7 +62,7 @@ const { proCrudBinding, proCrudRef } = buildCrud(() => {
 
       {
         label: '录像机类型',
-        prop: 'type',
+        name: 'type',
         type: 'dict-select',
         search: { show: true },
         dict: {
@@ -72,47 +72,47 @@ const { proCrudBinding, proCrudRef } = buildCrud(() => {
 
       {
         label: 'X坐标(3D)',
-        prop: 'x3',
+        name: 'x3',
         search: { show: false },
         table: { show: false },
       },
 
       {
         label: 'Y坐标(3D)',
-        prop: 'y3',
+        name: 'y3',
         search: { show: false },
         table: { show: false },
       },
 
       {
         label: 'Z坐标(3D)',
-        prop: 'z3',
+        name: 'z3',
         search: { show: false },
         table: { show: false },
       },
 
       {
         label: '用户名',
-        prop: 'userName',
+        name: 'userName',
         search: { show: false },
       },
 
       {
         label: '密码',
-        prop: 'password',
+        name: 'password',
         search: { show: false },
       },
 
       {
         label: '摄像机通道',
-        prop: 'channelInfo',
+        name: 'channelInfo',
         search: { show: false },
         table: { show: false },
       },
 
       {
         label: '录像机通道',
-        prop: 'videoAisle',
+        name: 'videoAisle',
         search: { show: false },
         table: { show: false },
       },
