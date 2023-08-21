@@ -17,7 +17,7 @@
   },
   "keywords": [
     "vue3",
-    "element-plus",
+    "ant-design-vue",
     "crud"
   ],
   "author": "linh",
@@ -28,9 +28,7 @@
   "license": "ISC",
   "homepage": "https://github.com/linhaotxl/pro-crud",
   "dependencies": {
-    "@element-plus/icons-vue": "^2.1.0",
     "clone-deep": "^4.0.1",
-    "element-plus": "^2.3.9",
     "lodash-es": "^4.17.21",
     "vue": "^3.3.4"
   },

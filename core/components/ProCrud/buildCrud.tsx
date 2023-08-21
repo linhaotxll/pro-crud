@@ -1,6 +1,6 @@
-import { Plus } from '@element-plus/icons-vue'
+import { PlusOutlined } from '@ant-design/icons-vue'
 import { merge } from 'lodash-es'
-import { computed, inject, provide, ref } from 'vue'
+import { computed, h, inject, provide, ref } from 'vue'
 
 import { compose } from './compose'
 import {
@@ -196,7 +196,7 @@ const buildSearchMiddlewre: Middleware<
     return {
       columns: ctx.columns.search.map<ProFormColumnOptions<any>>(column => ({
         label: column.label,
-        prop: column.prop,
+        name: column.name,
         type: column.type,
         dict: column.dict,
         ...column.search,
@@ -221,15 +221,16 @@ const buildTableMiddleware: Middleware<
     const operateColumn = useOperate(ctx)
 
     const { show: _, toolbar, ...rest } = ctx.optionResult.table || {}
+
     return {
       toolbar: merge<ProTableToolbarOption, ProTableToolbarOption | undefined>(
         {
           list: {
             add: {
               show: true,
-              tooltip: { content: '添加' },
+              tooltip: { title: '添加' },
               props: {
-                icon: Plus,
+                icon: h(PlusOutlined),
                 onClick: ctx.scope.addForm.showDialog,
               },
             },
@@ -241,18 +242,18 @@ const buildTableMiddleware: Middleware<
       columns: ctx.columns.table
         .map<ProTableColumnProps<any>>(column => ({
           label: column.label,
-          prop: column.prop,
+          name: column.name,
           dict: column.dict,
           type: column.type,
           ...column.table,
         }))
         .concat(operateColumn),
 
-      request: {
-        fetchTableData,
-      },
+      fetchTableData,
     }
   })
+
+  console.log('proTableBinding: ', proTableBinding)
 
   let globalOption: ProComponentsOptions | undefined
   const transformQuery =
@@ -270,7 +271,7 @@ const buildTableMiddleware: Middleware<
    * 获取数据
    */
   async function fetchTableData(
-    query: FetchTableListQuery<any>
+    query: FetchTableListQuery<any, any>
   ): Promise<FetchTableDataResult<any>> {
     const {
       scope: { search },
@@ -337,7 +338,7 @@ const buildAddFormMiddleware: Middleware<
     const columns = ctx.columns.addForm.map<ProFormColumnOptions<any>>(
       column => ({
         label: column.label,
-        prop: column.prop,
+        name: column.name,
         dict: column.dict,
         type: column.type,
         ...column.addForm,
@@ -420,7 +421,7 @@ const buildEditFormMiddleware: Middleware<
     const columns = ctx.columns.editForm.map<ProFormColumnOptions<any>>(
       column => ({
         label: column.label,
-        prop: column.prop,
+        name: column.name,
         dict: column.dict,
         type: column.type,
         ...column.editForm,
@@ -502,7 +503,7 @@ const buildViewFormMiddleware: Middleware<
     const columns = ctx.columns.viewForm.map<ProFormColumnOptions<any>>(
       column => ({
         label: column.label,
-        prop: column.prop,
+        name: column.name,
         dict: column.dict,
         type: column.type,
         ...column.viewForm,

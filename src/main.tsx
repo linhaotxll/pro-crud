@@ -1,8 +1,6 @@
-// import ElementPlus, { ElInput } from 'element-plus'
 import { Input } from 'ant-design-vue'
 import { createApp } from 'vue'
 
-// import 'element-plus/dist/index.css'
 import './index.css'
 import App from './App.vue'
 import BasicDialog from './components/BasicDialog.vue'

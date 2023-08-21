@@ -11,8 +11,6 @@ import { buildSearch } from '~/components/ProSearch'
 
 import type { ColProps } from 'ant-design-vue'
 
-// import type { ElColProps, ElFormProps } from '~/components/ProForm'
-
 // const sleep = (time = 2000) => new Promise(r => setTimeout(r, time))
 
 // const fetchStatusData = async () => {

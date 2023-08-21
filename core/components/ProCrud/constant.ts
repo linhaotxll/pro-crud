@@ -9,7 +9,7 @@ export const ProSearchRef = Symbol() as InjectionKey<
 >
 
 export const ProTableRef = Symbol() as InjectionKey<
-  Ref<ProTableInstance<any> | null>
+  Ref<ProTableInstance | null>
 >
 
 export const AddFormRef = Symbol() as InjectionKey<
@@ -36,6 +36,5 @@ export const DefaultOperateButton: CrudTableOperateButtonProps<any> = {
 }
 
 export const DefaultDialogOption: CrudDialogOption = {
-  props: { appendToBody: true, modal: true, draggable: true },
-  is: 'el-dialog',
+  is: 'a-modal',
 }

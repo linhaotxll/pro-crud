@@ -76,32 +76,6 @@ export function useToolbar<T extends object>(
       //     },
       //   },
       // },
-
-      // settings: {
-      //   tooltip: { content: '列设置' },
-      //   render: props => (
-      //     <ToolbarSettings
-      //       columns={columns}
-      //       // @ts-ignore
-      //       onVisible={(prop: string, visible: boolean) => {
-      //         scope.changeColumnVisible(prop, visible)
-      //       }}
-      //       onSort={(fromIndex: number, toIndex: number) => {
-      //         scope.changeColumnSort(fromIndex, toIndex)
-      //       }}
-      //       onFixed={(prop: string, fixed?: string | boolean) => {
-      //         //
-      //         scope._setPropFixed(prop, fixed)
-      //       }}
-      //     >
-      //       {{
-      //         reference: () => (
-      //           <ElButton type="primary" circle icon="Tools" {...props} />
-      //         ),
-      //       }}
-      //     </ToolbarSettings>
-      //   ),
-      // },
     },
   }
 

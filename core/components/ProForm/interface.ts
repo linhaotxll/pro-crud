@@ -16,12 +16,13 @@ import type {
   ButtonProps,
   SpaceProps,
   RowProps,
+  MessageArgsProps,
 } from 'ant-design-vue'
 import type {
   NamePath,
   ValidateOptions,
 } from 'ant-design-vue/es/form/interface'
-import type { MessageHandler, NotificationHandle } from 'element-plus'
+import type { NotificationArgsProps } from 'ant-design-vue/es/notification'
 import type { CSSProperties, ComputedRef, Ref } from 'vue'
 
 type Tooltip = TooltipProps & {
@@ -135,7 +136,6 @@ export interface BuildFormBinding<T extends object> {
   wrapperCol: ComputedRef<ColProps | undefined>
   formProps: ComputedRef<FormProps>
   buttons: ComputedRef<ButtonsOption>
-  toast: ComputedRef<null | (() => MessageHandler | NotificationHandle)>
   values: T
   scope: ProFormScope<T>
   formRef: Ref<FormInstance | null>
@@ -195,13 +195,7 @@ export interface BuildFormOptionResult<T extends object, R = T> {
   /**
    * 接口调用成功是否需要提示信息
    */
-  toast?: MaybeRef<
-    | false
-    | {
-        type: SuccessToastType
-        props?: any
-      }
-  >
+  toast?: SuccessToastOptions
 
   request?: {
     /**
@@ -230,6 +224,17 @@ export interface BuildFormOptionResult<T extends object, R = T> {
  * 表单提交成功提示类型
  */
 export type SuccessToastType = 'message' | 'notification'
+
+export type SuccessToastOptions =
+  | false
+  | {
+      type: 'message'
+      props?: MessageArgsProps
+    }
+  | {
+      type: 'notification'
+      props?: NotificationArgsProps
+    }
 
 /**
  * 表单实例方法

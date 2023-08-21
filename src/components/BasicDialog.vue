@@ -9,7 +9,6 @@
 </template>
 
 <script lang="ts" setup>
-// import type { DialogProps } from 'element-plus'
 import type { VNode } from 'vue'
 
 defineOptions({ name: 'BasicDialog' })

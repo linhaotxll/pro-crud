@@ -1,3 +1,4 @@
+import { merge } from 'lodash-es'
 import { computed, markRaw, reactive, ref } from 'vue'
 
 import {
@@ -24,6 +25,9 @@ export function useColumns<T extends object>(
   // 解析后的 slots
   const resolvedTableSlots: InternalTableSlots<T> = { ...tableSlots }
 
+  injectHeaderCell()
+  injectBodyCell()
+
   // 是否存在可伸缩的列，可伸缩的事件
   let hasResizeColumn = false
   const onResizeColumn: Ref<
@@ -33,6 +37,7 @@ export function useColumns<T extends object>(
   const columns = computed(() => {
     const resolvedColumns: ColumnType<T>[] = []
     for (const column of tableColumns) {
+      // debugger
       const result = resolveColumn(column)
       if (result) {
         // 如果需要伸缩，则对每个列配置进行响应式处理，确保在响应事件中修改列宽度能够改变页面
@@ -51,19 +56,19 @@ export function useColumns<T extends object>(
    * 注入 header cell 插槽
    * @param column
    */
-  function injectHeaderCell(column: ProTableColumnProps<T>) {
-    const resolvedKey = unRef(column.key || column.name)
-    if (column.columnSlots?.headerCell && !resolvedTableSlots.headerCell) {
+  function injectHeaderCell() {
+    if (!resolvedTableSlots.headerCell) {
       resolvedTableSlots.headerCell = ctx => {
-        const genDefault = () => ctx.title
-
+        const __column = ctx.column.__column
+        const $default = ctx.title
+        const resolvedKey = unRef(ctx.column.key || ctx.column.dataIndex)
         if (
           ctx.column.key === resolvedKey ||
           ctx.column.dataIndex === resolvedKey
         ) {
-          return column.columnSlots?.headerCell?.(ctx) ?? genDefault()
+          return __column!.columnSlots?.headerCell?.(ctx) ?? $default
         }
-        return genDefault()
+        return $default
       }
     }
   }
@@ -72,16 +77,18 @@ export function useColumns<T extends object>(
    * 注入 body cell 插槽
    * @param column
    */
-  function injectBodyCell(c: ProTableColumnProps<T>) {
-    if (c.columnSlots?.bodyCell && !resolvedTableSlots.bodyCell) {
+  function injectBodyCell() {
+    if (!resolvedTableSlots.bodyCell) {
       resolvedTableSlots.bodyCell = ctx => {
+        // debugger
         const __column = ctx.column.__column
         const resolvedKey = unRef(ctx.column.key || ctx.column.dataIndex)
         const $default = ctx.text
 
         if (
           ctx.column.key === resolvedKey ||
-          ctx.column.dataIndex === resolvedKey
+          ctx.column.dataIndex === resolvedKey ||
+          __column!.renderCell
         ) {
           return __column!.columnSlots?.bodyCell?.(ctx) ?? $default
         }
@@ -111,15 +118,16 @@ export function useColumns<T extends object>(
     const result: InternalProTableColumnProps<T> = {
       type: resolvedType,
       dict: useDict(column.dict),
+      renderCell: column.renderCell,
       columnProps: {
         title: unRef(column.label),
         dataIndex: name,
         __column: null!,
       },
-      columnSlots: {
-        ...column.columnSlots,
-        bodyCell: DefaultTableCellRenderMap[resolvedType],
-      },
+      columnSlots: merge(
+        { bodyCell: DefaultTableCellRenderMap[resolvedType] },
+        column.columnSlots
+      ),
     }
 
     result.columnProps.__column = markRaw(result)
@@ -131,12 +139,6 @@ export function useColumns<T extends object>(
         // @ts-ignore
         result.columnProps[key] = unRef(p[key])
       })
-    }
-
-    // 注入 slots
-    if (column.columnSlots) {
-      injectHeaderCell(column)
-      injectBodyCell(column)
     }
 
     // 处理子表头
@@ -166,7 +168,7 @@ export function useColumns<T extends object>(
     return result
   }
 
-  console.log('resolvedTableSlots: ', resolvedTableSlots.bodyCell)
+  // console.log('resolvedTableSlots: ', resolvedTableSlots.bodyCell)
 
   return { columns, onResizeColumn, tableSlots: resolvedTableSlots }
 }

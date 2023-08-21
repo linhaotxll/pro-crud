@@ -48,8 +48,6 @@ defineOptions({ name: 'ProCrud' })
 
 const proSearchRef = inject(ProSearchRef)
 const proTableRef = inject(ProTableRef)
-// const addFormRef = inject(AddFormRef)
-// const editFormRef = inject(EddFormRef)
 
 defineProps<ProCrudProps<T, S, A, E>>()
 </script>

@@ -9,7 +9,7 @@
     </template>
 
     <template #footer>
-      <pro-button-group :list="formProps.buttons.value.list" />
+      <pro-button-group :config="formProps.buttons.value" />
     </template>
   </component>
 </template>

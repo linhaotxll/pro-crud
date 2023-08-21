@@ -1,4 +1,4 @@
-import { ElButton, ElMessage, ElMessageBox, ElPopconfirm } from 'element-plus'
+import { Button, Modal, Popconfirm, Space, message } from 'ant-design-vue'
 import { merge } from 'lodash-es'
 
 import { DefaultOperateButton } from './constant'
@@ -10,11 +10,10 @@ import type {
   BuildCrudContext,
   CrudTableOperateButtonProps,
   CrudTableOperateConfirmProps,
-  CrudDeleteMessageBoxProps,
+  CrudTableOperateModalProps,
 } from './interface'
-import type { ElButtonProps, ElPopconfirmProps } from '../common'
-import type { TableDefaultSlotParams } from '../ProTable'
-import type { Action } from 'element-plus'
+import type { BodyCellSlotParams } from '../ProTable'
+import type { ButtonProps, PopconfirmProps } from 'ant-design-vue'
 
 export function useOperate<
   T extends object,
@@ -24,15 +23,12 @@ export function useOperate<
   A extends object,
   E extends object
 >(ctx: BuildCrudContext<T, R, S, S1, A, E>) {
-  async function deleteItem(row: TableDefaultSlotParams<T>) {
-    const response = await ctx.optionResult.request?.deleteRequest?.(
-      row.row,
-      row.$index
-    )
+  async function deleteItem(options: BodyCellSlotParams<T>) {
+    const response = await ctx.optionResult.request?.deleteRequest?.(options)
 
     if (response) {
       ctx.scope.table.reload()
-      ElMessage.success('删除成功')
+      message.success('删除成功')
     }
   }
 
@@ -42,7 +38,8 @@ export function useOperate<
   >(
     {
       label: '操作',
-      prop: 'operate',
+      name: 'operate',
+      renderCell: true,
       buttons: {
         edit: {
           show: true,
@@ -50,9 +47,9 @@ export function useOperate<
           order: 1,
           props: {
             type: 'primary',
-            onClick(e, { row }) {
+            onClick(e, { record }) {
               e.stopPropagation()
-              ctx.scope.editForm.showDialog(row)
+              ctx.scope.editForm.showDialog(record)
             },
           },
         },
@@ -60,22 +57,24 @@ export function useOperate<
           show: true,
           text: '删除',
           order: 2,
-          props: { type: 'danger' },
-          confirmType: 'messagebox',
+          props: {
+            danger: true,
+            type: 'primary',
+            onClick(e, ctx) {
+              e.stopPropagation()
+              return deleteItem(ctx)
+            },
+          },
+          confirmType: 'modal',
           confirmProps: {
             onConfirm(e, ctx) {
               e.stopPropagation()
-              deleteItem(ctx)
+              return deleteItem(ctx)
             },
-            callback(action: Action, ctx) {
-              if (action === 'confirm') {
-                deleteItem(ctx)
-              }
-            },
-            cancelButtonText: '取消',
-            confirmButtonText: '删除',
-            confirmButtonType: 'danger',
-            width: 200,
+            onOk: deleteItem,
+            cancelText: '取消',
+            okText: '删除',
+            okType: 'danger',
           },
         },
         view: {
@@ -83,10 +82,10 @@ export function useOperate<
           text: '查看',
           order: 0,
           props: {
-            type: 'info',
-            onClick(e, { row }) {
+            type: 'default',
+            onClick(e, { record }) {
               e.stopPropagation()
-              ctx.scope.viewForm.showDialog(row)
+              ctx.scope.viewForm.showDialog(record)
             },
           },
         },
@@ -96,78 +95,83 @@ export function useOperate<
     ctx.optionResult.operates
   )
 
+  console.log('mergeOperate: ', mergeOperate, ctx.optionResult.operates)
+
   const generateButton = (
     option: CrudTableOperateButtonProps<T>,
-    ctx: TableDefaultSlotParams<any>
+    ctx: BodyCellSlotParams<any>
   ) => {
     if (!unRef(option.show)) {
       return null
     }
 
-    const buttonProps: ElButtonProps = {
+    const buttonProps: ButtonProps = {
       ...option.props,
       onClick(e) {
-        if (option.confirmType === 'messagebox') {
+        const { confirmType } = option
+        if (confirmType === 'modal') {
           const confirmOption =
-            option.confirmProps as CrudDeleteMessageBoxProps<T>
-          ElMessageBox.confirm(
-            confirmOption.message ?? '确认删除该项目？',
-            confirmOption.title ?? '提示',
-            {
-              ...confirmOption,
-              callback: (action: Action) => {
-                confirmOption.callback?.(action, ctx)
-              },
-            }
-          )
-        } else {
+            option.confirmProps as CrudTableOperateModalProps<T>
+          Modal.confirm({
+            ...confirmOption,
+            title: confirmOption.title ?? '确认删除该项目？',
+            onOk(...args: unknown[]) {
+              console.log('modal ok: ', ...args)
+              confirmOption.onOk?.apply(null, [ctx])
+            },
+          })
+        } else if (confirmType === false) {
           option.props?.onClick?.(e, ctx)
         }
       },
     }
-    const $inner = <ElButton {...buttonProps}>{option.text}</ElButton>
 
-    if (option.confirmType === false || option.confirmType === 'messagebox') {
+    const $inner = <Button {...buttonProps}>{option.text}</Button>
+
+    if (option.confirmType === false || option.confirmType === 'modal') {
       return $inner
     }
 
-    const onConfirm: ElPopconfirmProps['onConfirm'] = (e: MouseEvent) => {
+    const onConfirm: PopconfirmProps['onConfirm'] = (e: MouseEvent) => {
       ;(option.confirmProps as CrudTableOperateConfirmProps<T>)?.onConfirm?.(
         e,
         ctx
       )
     }
-    const popconfirmProps: ElPopconfirmProps = {
-      ...(option.confirmProps as ElPopconfirmProps),
+    const popconfirmProps: PopconfirmProps = {
+      ...(option.confirmProps as PopconfirmProps),
       title: (option.confirmProps?.title as string) ?? '确认删除该项目？',
       onConfirm,
     }
     return (
-      <ElPopconfirm {...popconfirmProps}>
+      <Popconfirm {...popconfirmProps}>
         {{
-          reference: () => $inner,
+          default: () => $inner,
         }}
-      </ElPopconfirm>
+      </Popconfirm>
     )
   }
 
   const operateColumn: CrudTableOperateProps<T> = {
     ...mergeOperate,
     columnSlots: {
-      default: ctx => {
+      bodyCell: ctx => {
+        // console.log('mergeOperate: ', mergeOperate.buttons)
         return (
-          <>
+          <Space>
             {Object.keys(mergeOperate.buttons!)
               .map(key =>
                 merge({}, DefaultOperateButton, mergeOperate.buttons![key])
               )
               .sort((prev, curr) => unRef(prev.order!) - unRef(curr.order!))
               .map(button => generateButton(button, ctx))}
-          </>
+          </Space>
         )
       },
     },
   }
+
+  console.log('operateColumn: ', operateColumn)
 
   return operateColumn
 }

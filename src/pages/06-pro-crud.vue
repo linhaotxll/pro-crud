@@ -51,7 +51,6 @@ const rules = {
 }
 
 const formProps = {
-  labelWidth: '100px',
   rules,
 }
 
@@ -65,7 +64,7 @@ const { proCrudBinding, proCrudRef } = buildCrud<
     columns: [
       {
         label: '标题',
-        prop: 'title',
+        name: 'title',
         search: {
           show: computed(() => {
             return scope.search.getFieldValue('name') === 'IconMan'
@@ -75,21 +74,21 @@ const { proCrudBinding, proCrudRef } = buildCrud<
 
       {
         label: '姓名',
-        prop: 'name',
+        name: 'name',
         search: { show: true },
         addForm: {},
       },
 
       {
         label: '邮件',
-        prop: 'email',
+        name: 'email',
         search: { show: true },
         addForm: {},
       },
 
       {
         label: '状态',
-        prop: 'status',
+        name: 'status',
         type: 'dict-select',
         search: { show: true },
         addForm: {},
@@ -107,94 +106,84 @@ const { proCrudBinding, proCrudRef } = buildCrud<
         },
       },
 
-      { label: '区域', prop: 'region', search: { show: false } },
-      { label: '省份', prop: 'province', search: { show: false } },
-      { label: '城市', prop: 'city', search: { show: false } },
-      { label: '邮编', prop: 'zip', search: { show: false } },
+      { label: '区域', name: 'region', search: { show: false } },
+      { label: '省份', name: 'province', search: { show: false } },
+      { label: '城市', name: 'city', search: { show: false } },
+      { label: '邮编', name: 'zip', search: { show: false } },
 
-      { label: '描述', prop: 'desc', search: { show: false } },
-      { label: 'URL', prop: 'url', search: { show: false } },
-      { label: '创建时间', prop: 'createTime', search: { show: false } },
+      { label: '描述', name: 'desc', search: { show: false } },
+      { label: 'URL', name: 'url', search: { show: false } },
+      { label: '创建时间', name: 'createTime', search: { show: false } },
     ],
 
     form: {
       formProps,
+      toast: false,
     },
 
     dialog: {
       props: {
-        showClose: false,
-        onOpen() {
-          console.log('onOpen')
-        },
-        onOpened() {
-          console.log('onOpened')
-        },
-        onClose() {
-          console.log('onClose')
-        },
-        onClosed() {
-          console.log('onClosed')
-        },
-      },
-      is: 'basic-dialog',
-    },
-
-    editFormDialog: {
-      props: {
-        showClose: true,
+        // showClose: false,
+        // onOpen() {
+        //   console.log('onOpen')
+        // },
+        // onOpened() {
+        //   console.log('onOpened')
+        // },
+        // onClose() {
+        //   console.log('onClose')
+        // },
+        // onClosed() {
+        //   console.log('onClosed')
+        // },
       },
     },
 
-    addForm: {
-      formProps: {
-        rules: {
-          zip: { required: true, message: '请填写邮政编码' },
-        },
-      },
-    },
-
-    editForm: {
-      col: { span: 24 },
-      formProps: {},
-    },
-
-    // viewForm: {
-    //   formProps,
+    // editFormDialog: {
+    //   props: {
+    //     showClose: true,
+    //   },
     // },
 
-    table: {
-      toolbar: {
-        list: {
-          add: {
-            show: true,
-            text: '添加',
-            props: {
-              onClick() {
-                console.log(123)
-                scope.addForm.showDialog()
-              },
-            },
-            tooltip: {
-              content: '添加',
-            },
-          },
-        },
-      },
-    },
+    // addForm: {
+    //   formProps: {
+    //     rules: {
+    //       zip: { required: true, message: '请填写邮政编码' },
+    //     },
+    //   },
+    // },
 
-    search: {
-      // initialValues: { name: 'IconMan' },
-      buttons: {
-        list: {},
-      },
-    },
+    // editForm: {
+    //   col: { span: 24 },
+    //   formProps: {},
+    // },
 
-    // addForm: {},
+    // table: {
+    //   toolbar: {
+    //     list: {
+    //       add: {
+    //         show: true,
+    //         text: '添加',
+    //         props: {
+    //           onClick() {
+    //             console.log(123)
+    //             scope.addForm.showDialog()
+    //           },
+    //         },
+    //         tooltip: {
+    //           content: '添加',
+    //         },
+    //       },
+    //     },
+    //   },
+    // },
 
-    // editForm: {},
-
-    // viewForm: {},
+    // search: {
+    //   // initialValues: { name: 'IconMan' },
+    //   buttons: {
+    //     list: {},
+    //   },
+    // },
 
     operates: {
       show: showOperate,
@@ -239,12 +228,12 @@ const { proCrudBinding, proCrudRef } = buildCrud<
         return { rows, total }
       },
 
-      async deleteRequest(row) {
+      async deleteRequest({ record }) {
         await sleep()
 
         const response = await axios.post(
           '/api/user/delete',
-          { userId: row.id },
+          { userId: record.id },
           { headers: { 'Content-Type': 'application/json' } }
         )
         return !!response.data.data

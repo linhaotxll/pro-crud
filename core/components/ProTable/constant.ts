@@ -1,8 +1,9 @@
 import { h, resolveComponent } from 'vue'
 
-import { ValueTypeMap, type ElSpaceProps, type ValueType } from '../common'
+import { ValueTypeMap, type ValueType } from '../common'
 
 import type { ProTableColumnSlots, ToolbarOption } from './interface'
+import type { SpaceProps } from 'ant-design-vue'
 
 export const DefaultPageNumber = 1
 export const DefaultPageSize = 10
@@ -19,7 +20,7 @@ export const DefaultToolbarTooltip: ToolbarOption = {
 }
 
 // toolbar 默认间距配置
-export const DefaultToolbarSpace: ElSpaceProps = { size: 16 }
+export const DefaultToolbarSpace: SpaceProps = { size: 16 }
 
 // toolbar 密度枚举
 export const enum ToolbarDensityEnum {

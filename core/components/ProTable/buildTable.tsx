@@ -41,23 +41,6 @@ export function buildTable<T extends object, C, P extends object = any>(
   // const elTableRef = ref<any | null>(null)
 
   // 作用域对象
-  // const scope = ElTableInstanceNames.reduce(
-  //   (prev, curr) => {
-  //     // @ts-ignore
-  //     prev[curr] = (...args) => elTableRef.value?.[curr](...args)
-  //     return prev
-  //   },
-  //   {
-  //     next,
-  //     previous,
-  //     reset,
-  //     reload,
-  //     _fetProTableColumn,
-  //     // _setPropFixed,
-  //     // changeColumnVisible,
-  //     // changeColumnSort,
-  //   } as ProTableScope<T>
-  // )
   const scope: ProTableScope = {
     next,
     previous,

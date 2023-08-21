@@ -1,14 +1,21 @@
-import cloneDeep from 'clone-deep'
 import {
-  ElMessage,
-  ElNotification,
-  type MessageParams,
-  type NotificationParams,
-} from 'element-plus'
+  type FormItemProps,
+  type FormInstance,
+  type FormItemInstance,
+  type FormProps,
+  message,
+  notification,
+} from 'ant-design-vue'
+import cloneDeep from 'clone-deep'
 import { get, has, merge, set, unset } from 'lodash-es'
 import { computed, ref, toRaw } from 'vue'
 
-import { DefaultProFormCol, DefaultProProColumn, ShowButton } from './constant'
+import {
+  DefaultProFormCol,
+  DefaultProProColumn,
+  DefaultSuccessToastOptions,
+  ShowButton,
+} from './constant'
 import { useValues } from './useValues'
 
 import { unRef, useDict, ValueTypeMap } from '../common'
@@ -22,15 +29,8 @@ import type {
   ProFormColumnOptions,
   ProFormInstance,
   ProFormScope,
-  SuccessToastType,
 } from './interface'
 import type { Arrayable, ValueType } from '../common'
-import type {
-  FormItemProps,
-  FormInstance,
-  FormItemInstance,
-  FormProps,
-} from 'ant-design-vue'
 import type {
   NamePath,
   ValidateOptions,
@@ -206,31 +206,7 @@ export function buildForm<T extends object, C, R = T>(
       ),
     }
 
-    console.log(123, result)
-
     return result
-  })
-
-  // 解析提示配置
-  const resolvedToast = computed(() => {
-    const mergeToast = unRef(toast ?? { type: 'message' as SuccessToastType })
-    if (mergeToast === false) {
-      return null
-    }
-
-    let type: SuccessToastType = 'message'
-    let toastProps: MessageParams | NotificationParams = {
-      type: 'success',
-      message: '提交成功',
-    }
-
-    type = mergeToast.type
-    toastProps = merge(toastProps, mergeToast.props)
-
-    return () =>
-      type === 'message'
-        ? ElMessage(toastProps as MessageParams)
-        : ElNotification(toastProps as NotificationParams)
   })
 
   const formItemRef: BuildFormBinding<T>['formItemRef'] = new Map()
@@ -253,11 +229,15 @@ export function buildForm<T extends object, C, R = T>(
     const result = (await request.submitRequest?.(params)) ?? false
 
     // 提示
-    const showToast = resolvedToast.value
-    if (showToast !== null) {
-      if (result) {
-        showToast()
-        request.successRequest?.()
+    if (result) {
+      request.successRequest?.()
+      if (toast !== false) {
+        const mergeToast = merge({}, DefaultSuccessToastOptions, toast)
+        if (mergeToast.type === 'message') {
+          message.success(mergeToast.props)
+        } else if (mergeToast.type === 'notification') {
+          notification.success(mergeToast.props!)
+        }
       }
     }
   }
@@ -427,7 +407,6 @@ export function buildForm<T extends object, C, R = T>(
       wrapperCol: resolvedWrapperCol,
       formProps: resolvedFormProps,
       buttons: resolvedButtons,
-      toast: resolvedToast,
       values,
       scope,
       formRef,

@@ -1,11 +1,4 @@
-import type {
-  DictionaryOption,
-  ElButtonProps,
-  ElDialogProps,
-  ElPopconfirmProps,
-  MaybeRef,
-  ValueType,
-} from '../common'
+import type { DictionaryOption, MaybeRef, ValueType } from '../common'
 import type {
   BuildFormBinding,
   BuildFormOptionResult,
@@ -18,16 +11,15 @@ import type {
 } from '../ProForm'
 import type { BuildSearchBinding, ProSearchScope } from '../ProSearch'
 import type {
+  BodyCellSlotParams,
   BuildProTableBinding,
   BuildProTableOptionResult,
   FetchTableDataResult,
   FetchTableListQuery,
   ProTableColumnProps,
-  ProTableInstance,
   ProTableScope,
-  TableDefaultSlotParams,
 } from '../ProTable'
-import type { Action, ElMessageBoxOptions } from 'element-plus'
+import type { ButtonProps, ModalProps, PopconfirmProps } from 'ant-design-vue'
 import type { ComputedRef, Ref } from 'vue'
 
 /**
@@ -54,9 +46,7 @@ export interface ProCrudRequest<
   S extends object,
   S1 extends object,
   A extends object,
-  // A1 extends object,
   E extends object
-  // E1 extends object
 > {
   /**
    * 转换请求前的参数
@@ -64,7 +54,7 @@ export interface ProCrudRequest<
    * @param {TransformQueryParams} ctx 查询参数，包含分页，搜索条件
    * @returns 转换后的参数，直接传递给 fetchPaginationData 请求
    */
-  transformQuery?(ctx: TransformQueryParams<S>): S1
+  transformQuery?(ctx: TransformQueryParams<S, any>): S1
 
   /**
    * 转换请求后的响应数据
@@ -89,7 +79,7 @@ export interface ProCrudRequest<
    * @param row 行数据
    * @returns {boolean} 删除是否成功，返回 true 会有提示信息
    */
-  deleteRequest?: (row: T, index: number) => Promise<boolean>
+  deleteRequest?: (options: BodyCellSlotParams<T>) => Promise<boolean>
 
   /**
    * 添加接口
@@ -111,11 +101,11 @@ export interface ProCrudRequest<
 /**
  * 分页请求入参转换函数参数
  */
-export interface TransformQueryParams<S extends object> {
+export interface TransformQueryParams<S extends object, P extends object> {
   /**
    * 分页信息，排序信息
    */
-  query: FetchTableListQuery<any>
+  query: FetchTableListQuery<any, P>
 
   /**
    * 表单值
@@ -141,7 +131,7 @@ export interface ProCrudScope<
   E extends object
 > {
   search: ProSearchScope<S>
-  table: ProTableScope<T>
+  table: ProTableScope
   addForm: CrudFormScope<A>
   editForm: CrudFormScope<E>
   viewForm: CrudFormScope<T>
@@ -380,10 +370,10 @@ export type CrudViewFormOptionResult = Omit<CrudFormOption, 'buttons'> & {
  * ProCrud 弹窗配置
  */
 export interface CrudDialogOption {
-  props?: ElDialogProps
+  props?: ModalProps
 
   /**
-   * @default 'el-dialog'
+   * @default 'a-modal'
    */
   is?: any
 }
@@ -439,8 +429,8 @@ export interface CrudTableOperateButtonProps<T extends object> {
   /**
    * 按钮 props
    */
-  props?: Omit<ElButtonProps, 'onClick'> & {
-    onClick?: (e: MouseEvent, ctx: TableDefaultSlotParams<T>) => void
+  props?: Omit<ButtonProps, 'onClick'> & {
+    onClick?: (e: MouseEvent, ctx: BodyCellSlotParams<T>) => void
   }
 
   /**
@@ -448,32 +438,32 @@ export interface CrudTableOperateButtonProps<T extends object> {
    *
    * @default false
    */
-  confirmType?: 'popconfirm' | 'messagebox' | false
+  confirmType?: 'popconfirm' | 'modal' | false
 
   /**
    * 确认弹窗 props
    */
-  confirmProps?: CrudTableOperateConfirmProps<T> | CrudDeleteMessageBoxProps<T>
+  confirmProps?: CrudTableOperateConfirmProps<T> | CrudTableOperateModalProps<T>
 }
 
 /**
  * Popconfirm props，onConfirm 事件多了一个参数：行数据
  */
 export type CrudTableOperateConfirmProps<T extends object> = Omit<
-  ElPopconfirmProps,
+  PopconfirmProps,
   'onConfirm'
 > & {
-  onConfirm?(e: MouseEvent, ctx: TableDefaultSlotParams<T>): void
+  onConfirm?(e: MouseEvent, ctx: BodyCellSlotParams<T>): void
 }
 
 /**
  * MessageBox props，callback 多了一个参数：行数据
  */
-export type CrudDeleteMessageBoxProps<T extends object> = Omit<
-  ElMessageBoxOptions,
-  'callback'
+export type CrudTableOperateModalProps<T extends object> = Omit<
+  ModalProps,
+  'onOk'
 > & {
-  callback?(action: Action, ctx: TableDefaultSlotParams<T>): void
+  onOk?(ctx: BodyCellSlotParams<T>): void
 }
 
 /**
@@ -481,7 +471,7 @@ export type CrudDeleteMessageBoxProps<T extends object> = Omit<
  */
 export interface ProCrudInstance {
   proSearchRef: Ref<ProFormInstance<any> | null>
-  proTableRef: Ref<ProTableInstance<any> | null>
+  // proTableRef: Ref<ProTableInstance<any> | null>
 }
 
 /**
@@ -503,7 +493,7 @@ export interface ProCrudColumnOption<
   /**
    * 字段值
    */
-  prop: MaybeRef<string>
+  name: MaybeRef<string>
 
   /**
    * 类型
@@ -518,7 +508,7 @@ export interface ProCrudColumnOption<
   /**
    * 查询表单列配置
    */
-  search?: Omit<ProFormColumnOptions<S>, 'label' | 'prop' | 'type' | 'dict'>
+  search?: ProCrudFormOptions<S>
 
   /**
    * 表格列配˙
@@ -528,23 +518,28 @@ export interface ProCrudColumnOption<
   /**
    * 编辑表单列配置
    */
-  editForm?: Omit<ProFormColumnOptions<E>, 'label' | 'prop' | 'type' | 'dict'>
+  editForm?: ProCrudFormOptions<E>
 
   /**
    * 新增表单列配置
    */
-  addForm?: Omit<ProFormColumnOptions<A>, 'label' | 'prop' | 'type' | 'dict'>
+  addForm?: ProCrudFormOptions<A>
 
   /**
    * 详情表单列配置
    */
-  viewForm?: Omit<ProFormColumnOptions<T>, 'label' | 'prop' | 'type' | 'dict'>
+  viewForm?: ProCrudFormOptions<T>
 
   /**
    * 表格列配置
    */
   column?: Omit<ProTableColumnProps<T>, 'label' | 'prop'>
 }
+
+export type ProCrudFormOptions<T extends object> = Omit<
+  ProFormColumnOptions<T>,
+  'label' | 'name' | 'type' | 'dict'
+>
 
 export type BuildCrudContext<
   T extends object,

@@ -126,6 +126,11 @@ export type ProTableColumnProps<T> = {
    * 字典配置
    */
   dict?: DictionaryOption
+
+  /**
+   * 是否渲染单元格
+   */
+  renderCell?: boolean
 }
 
 /**
@@ -142,6 +147,7 @@ export type ProTableColumnSlots<T> = {
 export interface InternalProTableColumnProps<T> {
   type: ValueType | any
   dict?: ResolvedColumnDict
+  renderCell?: boolean
   columnProps: ColumnType<T>
   columnSlots?: ProTableColumnSlots<T> | undefined
 }
@@ -279,45 +285,6 @@ export interface ProTableScope {
    * 加载下一页
    */
   next(): Promise<void>
-
-  /**
-   * 修改列显示状态
-   */
-  // changeColumnVisible(prop: string, visible: boolean): void
-
-  /**
-   * 修改列顺序
-   */
-  // changeColumnSort(fromIndex: number, toIndex: number): void
-
-  /**
-   * ElTable 原始方法
-   */
-  // clearSelection(): void
-  // getSelectionRows(): T[] | undefined
-  // toggleRowSelection(row: T, selected: boolean): void
-  // toggleAllSelection(): void
-  // toggleRowExpansion(row: T, expanded: boolean | undefined): void
-  // setCurrentRow(row: T): void
-  // clearSort(): void
-  // clearFilter(columnKeys: string[]): void
-  // doLayout(): void
-  // sort(prop: string, order: string): void
-  // scrollTo(options: number | ScrollToOptions, yCoord?: number | undefined): void
-  // setScrollTop(top: number | undefined): void
-  // setScrollLeft(left: number | undefined): void
-
-  /**
-   * 获取所有列配置
-   *
-   * @internal
-   */
-  // _fetProTableColumn(): ComputedRef<InternalProTableColumnProps<T>>[]
-
-  /**
-   * 设置列的 fixed
-   */
-  // _setPropFixed(prop: string, fixed?: string | boolean): void
 }
 
 /**
