@@ -5,6 +5,7 @@ import {
   DefaultColumnType,
   DefaultTableCellRenderMap,
   DefaultTableColumnShow,
+  injectValueTypeTableCell,
 } from './constant'
 
 import { unRef, useDict } from '../common'
@@ -116,6 +117,7 @@ export function useColumns<T extends object>(
 
     // 解析好的列配置
     const result: InternalProTableColumnProps<T> = {
+      name,
       type: resolvedType,
       dict: useDict(column.dict),
       renderCell: column.renderCell,
@@ -125,11 +127,16 @@ export function useColumns<T extends object>(
         __column: null!,
       },
       columnSlots: merge(
-        { bodyCell: DefaultTableCellRenderMap[resolvedType] },
+        {
+          bodyCell:
+            DefaultTableCellRenderMap[resolvedType] ??
+            injectValueTypeTableCell(resolvedType),
+        },
         column.columnSlots
       ),
     }
 
+    //
     result.columnProps.__column = markRaw(result)
 
     // 遍历 columnProps，每个值都可能为响应式对象，确保能追踪到变化
@@ -168,7 +175,9 @@ export function useColumns<T extends object>(
     return result
   }
 
-  // console.log('resolvedTableSlots: ', resolvedTableSlots.bodyCell)
-
-  return { columns, onResizeColumn, tableSlots: resolvedTableSlots }
+  return {
+    columns,
+    onResizeColumn,
+    tableSlots: resolvedTableSlots,
+  }
 }

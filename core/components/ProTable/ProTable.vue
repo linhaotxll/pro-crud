@@ -33,17 +33,34 @@
       </div>
     </div>
 
-    <a-table
-      ref="tableRef"
-      class="pro-table"
-      v-bind="tableProps.value"
-      :loading="loading.value"
-      :columns="columns.value"
+    <a-config-provider
+      :theme="{
+        token: {
+          marginLG: 0,
+        },
+      }"
     >
-      <template v-for="(render, name) in tableSlots" :key="name" #[name]="ctx">
-        <pro-render :render="render" :ctx="ctx" />
-      </template>
-    </a-table>
+      <a-form
+        v-bind="editFormBinding.formProps.value"
+        :model="editFormBinding.values"
+      >
+        <a-table
+          ref="tableRef"
+          class="pro-table"
+          v-bind="tableProps.value"
+          :loading="loading.value"
+          :columns="columns.value"
+        >
+          <template
+            v-for="(render, name) in tableSlots"
+            :key="name"
+            #[name]="ctx"
+          >
+            <pro-render :render="render" :ctx="ctx" />
+          </template>
+        </a-table>
+      </a-form>
+    </a-config-provider>
   </div>
 </template>
 

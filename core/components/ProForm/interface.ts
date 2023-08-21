@@ -141,6 +141,10 @@ export interface BuildFormBinding<T extends object> {
   formRef: Ref<FormInstance | null>
   formItemRef: Map<NamePath, Ref<FormItemInstance | null>>
   row: ComputedRef<RowProps | undefined>
+  resolvedColumnsMap: Map<
+    FormItemProps['name'],
+    InternalProFormColumnOptions<T>
+  >
 }
 
 /**

@@ -19,6 +19,7 @@ import {
   Tag,
   Spin,
   Modal,
+  ConfigProvider,
 } from 'ant-design-vue'
 
 import { ProCrud } from './components/ProCrud'
@@ -63,6 +64,7 @@ export const ProComponents: Plugin<ProComponentsOptions> = {
       .use(Tag)
       .use(Spin)
       .use(Modal)
+      .use(ConfigProvider)
     // app.use(ElSpace, ElIcon, ElDropdown, ElDropdownMenu, ElDropdownItem, ElTree)
 
     // app.directive('v-loading', vLoading)

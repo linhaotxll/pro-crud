@@ -1,11 +1,16 @@
 import { merge } from 'lodash-es'
-import { computed, inject, isRef, nextTick, ref, watch } from 'vue'
+import { computed, inject, isRef, nextTick, provide, ref, watch } from 'vue'
 
-import { DefaultPageNumber, DefaultPageSize } from './constant'
+import {
+  DefaultPageNumber,
+  DefaultPageSize,
+  EditableTableData,
+} from './constant'
 import { useColumns } from './useColumns'
 import { useToolbar } from './useToolbar'
 
 import { resolveRef, unRef } from '../common'
+import { buildForm } from '../ProForm'
 
 import { GlobalOption } from '~/constant'
 
@@ -15,6 +20,7 @@ import type {
   FetchTableListQuery,
   ProTableInstance,
   ProTableScope,
+  ProvideEditTableOptions,
 } from './interface'
 import type { SpinProps, TableProps } from 'ant-design-vue'
 import type { Ref } from 'vue'
@@ -46,6 +52,9 @@ export function buildTable<T extends object, C, P extends object = any>(
     previous,
     reset,
     reload,
+    startEditable(rowKey, columnName) {
+      startEditable(rowKey, columnName)
+    },
   }
 
   const {
@@ -54,6 +63,7 @@ export function buildTable<T extends object, C, P extends object = any>(
     data: originData,
     defaultData = [],
     tableProps = {},
+    editable = false,
     tableSlots: originTableSlots,
     initialPageNumber = DefaultPageNumber,
     loading: originLoading,
@@ -85,6 +95,43 @@ export function buildTable<T extends object, C, P extends object = any>(
     watch(loading, _loading => {
       onLoadingChange(_loading)
     })
+  }
+
+  // debugger
+  const { proFormBinding: editFormBinding } = buildForm<any>(() => {
+    return {
+      columns: originColumns.map(column => ({
+        name: column.name as any,
+        show: true,
+        type: column.type,
+        dict: column.dict,
+      })),
+      formProps: { colon: false },
+      buttons: { show: false },
+    }
+  })
+
+  const editableTableData: ProvideEditTableOptions | undefined =
+    editable !== false
+      ? {
+          ...editable,
+          editCellName: ref(),
+          editRowKeys: ref([]),
+          editFormBinding,
+        }
+      : undefined
+
+  provide(EditableTableData, editableTableData)
+
+  const startEditable: ProTableScope['startEditable'] = (
+    rowKey,
+    columnName
+  ) => {
+    console.log(123)
+    if (editableTableData) {
+      editableTableData.editRowKeys.value.push(rowKey)
+      columnName && (editableTableData.editCellName.value = columnName)
+    }
   }
 
   const { toolbar, tableSize } = useToolbar(tableProps, originToolbar, scope)
@@ -314,7 +361,7 @@ export function buildTable<T extends object, C, P extends object = any>(
       loading: resolvedLoadingConfig,
       toolbar,
       scope,
-      // tableRef: elTableRef,
+      editFormBinding,
     },
   }
 

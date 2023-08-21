@@ -10,15 +10,15 @@ import cloneDeep from 'clone-deep'
 import { get, has, merge, set, unset } from 'lodash-es'
 import { computed, ref, toRaw } from 'vue'
 
+import { buildFormColumn } from './buildFormColumn'
 import {
   DefaultProFormCol,
-  DefaultProProColumn,
   DefaultSuccessToastOptions,
   ShowButton,
 } from './constant'
 import { useValues } from './useValues'
 
-import { unRef, useDict, ValueTypeMap } from '../common'
+import { unRef } from '../common'
 
 import type {
   BuildFormBinding,
@@ -26,11 +26,10 @@ import type {
   BuildFormResult,
   ButtonsOption,
   InternalProFormColumnOptions,
-  ProFormColumnOptions,
   ProFormInstance,
   ProFormScope,
 } from './interface'
-import type { Arrayable, ValueType } from '../common'
+import type { Arrayable } from '../common'
 import type {
   NamePath,
   ValidateOptions,
@@ -101,61 +100,7 @@ export function buildForm<T extends object, C, R = T>(
 
   // 解析列配置
   const resolvedColumns = columns.map(c => {
-    return computed(() => {
-      // 合并默认 Column 配置
-      const mergeColumn: ProFormColumnOptions<T> = merge(
-        { col },
-        DefaultProProColumn,
-        c
-      )
-
-      // 解析 type 类型
-      const resolvedType: ValueType = unRef(mergeColumn.type)
-
-      const name = unRef(mergeColumn.name)
-
-      // @ts-ignore
-      const resolvedColumn: InternalProFormColumnOptions<T> = {
-        type: resolvedType,
-        resolvedKey: Array.isArray(name) ? name.join('.') : name,
-        resolvedProps: merge(
-          {},
-          ValueTypeMap.value[resolvedType].form?.props,
-          mergeColumn.fieldProps
-        ),
-        itemProps: { name },
-      }
-
-      type Keys = keyof typeof mergeColumn
-      ;(Object.keys(mergeColumn) as Keys[]).forEach(key => {
-        switch (key) {
-          case 'dict':
-            resolvedColumn.dict = useDict(mergeColumn.dict)
-            break
-
-          case 'tooltip':
-            resolvedColumn.tooltip =
-              typeof mergeColumn.tooltip === 'string'
-                ? { title: mergeColumn.tooltip }
-                : mergeColumn.tooltip
-            break
-
-          case 'fieldProps':
-          case 'itemProps':
-            Object.keys(mergeColumn[key]).forEach(k => {
-              ;(resolvedColumn[key] ||= {})[k] = unRef(mergeColumn[key][k])
-            })
-            break
-
-          default:
-            resolvedColumn[key] = unRef(mergeColumn[key])
-        }
-      })
-
-      resolvedColumnsMap.set(name, resolvedColumn)
-
-      return resolvedColumn
-    })
+    return computed(() => buildFormColumn(col, resolvedColumnsMap, c))
   })
 
   // 解析表单配置
@@ -414,6 +359,7 @@ export function buildForm<T extends object, C, R = T>(
       scope,
       formRef,
       formItemRef,
+      resolvedColumnsMap,
       row: computed(() => unRef(row)),
     },
   }

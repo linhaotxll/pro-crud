@@ -5,6 +5,7 @@ import type {
   ColumnType,
 } from '../common'
 import type { ExtractMaybeRef, JSXElement, MaybeRef } from '../common/interface'
+import type { BuildFormBinding } from '../ProForm'
 import type {
   ButtonProps,
   SpaceProps,
@@ -131,6 +132,11 @@ export type ProTableColumnProps<T> = {
    * 是否渲染单元格
    */
   renderCell?: boolean
+
+  /**
+   * 编辑配置
+   */
+  editable?: false | ((text: any, record: T, index: number) => boolean)
 }
 
 /**
@@ -145,6 +151,7 @@ export type ProTableColumnSlots<T> = {
  * @internal
  */
 export interface InternalProTableColumnProps<T> {
+  name: DataIndex | undefined
   type: ValueType | any
   dict?: ResolvedColumnDict
   renderCell?: boolean
@@ -219,9 +226,21 @@ export type BuildProTableOptionResult<T extends object, P extends object> = {
   immediate?: boolean
 
   /**
+   * 编辑配置
+   */
+  editable?: ProTableEditable
+
+  /**
    * 获取数据请求
    */
   fetchTableData?: FetchTableListRequest<T, P>
+
+  /**
+   * 提交编辑内容
+   */
+  submitEditable?: (
+    values: T & { [name: string]: any }
+  ) => Promise<boolean> | boolean
 
   /**
    * table 尺寸发生改变
@@ -249,6 +268,18 @@ export type BuildProTableOptionResult<T extends object, P extends object> = {
   onRequestError?: (error: any) => void
 }
 
+export type ProTableEditable = false | ProTableEditableOptions
+
+export interface ProTableEditableOptions {
+  type?: 'cell' | 'single' | 'multiple'
+}
+
+export interface ProvideEditTableOptions extends ProTableEditableOptions {
+  editRowKeys: Ref<DataIndex[]>
+  editCellName: Ref<string | number | undefined>
+  editFormBinding: BuildFormBinding<any>
+}
+
 /**
  * buildTable 返回需要绑定的 props
  */
@@ -259,7 +290,7 @@ export interface BuildProTableBinding<T extends object> {
   columns: ComputedRef<ColumnType<T>[]>
   scope: ProTableScope
   toolbar: ComputedRef<InternalProTableToolbarOption>
-  // tableRef: Ref<TableInstance | null>
+  editFormBinding: BuildFormBinding<any>
 }
 
 /**
@@ -285,6 +316,14 @@ export interface ProTableScope {
    * 加载下一页
    */
   next(): Promise<void>
+
+  /**
+   * 开始编辑
+   *
+   * @param rowKey 需要编辑的行 id，使用 rowKey
+   * @param columnName 单元格编辑提供的列 name
+   */
+  startEditable(rowKey: DataIndex, columnName?: any): void
 }
 
 /**
