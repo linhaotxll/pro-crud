@@ -437,11 +437,9 @@ const { proFormBinding, proFormRef } = buildForm<FormValues>(scope => {
       },
     },
 
-    request: {
-      async submitRequest(values) {
-        console.log('submit: ', values)
-        return true
-      },
+    async submitRequest(values) {
+      console.log('submit: ', values)
+      return true
     },
   }
 })

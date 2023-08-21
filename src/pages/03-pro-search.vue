@@ -456,11 +456,9 @@ const { proSearchBinding, proSearchRef } = buildSearch<FormValues>(() => {
     //   type: 'notification',
     // },
 
-    request: {
-      async submitRequest(values) {
-        console.log('submit: ', values)
-        return true
-      },
+    async submitRequest(values) {
+      console.log('submit: ', values)
+      return true
     },
   }
 })

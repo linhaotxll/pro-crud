@@ -371,15 +371,13 @@ const { proFormRef, proFormBinding } = buildForm<FormValues>(scope => {
       },
     },
 
-    request: {
-      async submitRequest(values) {
-        console.log('submit: ', values)
-        return false
-      },
+    async submitRequest(values) {
+      console.log('submit: ', values)
+      return false
+    },
 
-      validateFail(error) {
-        console.log('校验失败: ', error)
-      },
+    validateFail(error) {
+      console.log('校验失败: ', error)
     },
     // toast: false,
   }

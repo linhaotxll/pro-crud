@@ -197,27 +197,25 @@ export interface BuildFormOptionResult<T extends object, R = T> {
    */
   toast?: SuccessToastOptions
 
-  request?: {
-    /**
-     * 表单提交前触发，可用来转换提交数据
-     */
-    beforeSubmit?: (values: T) => R | Promise<R>
+  /**
+   * 表单提交前触发，可用来转换提交数据
+   */
+  beforeSubmit?: (values: T) => R | Promise<R>
 
-    /**
-     * 提交表单调用的接口配置
-     */
-    submitRequest?: (values: R) => Promise<boolean>
+  /**
+   * 提交表单调用的接口配置
+   */
+  submitRequest?: (values: R) => Promise<boolean>
 
-    /**
-     * 接口调用成功时（submitRequest 返回 true）调用
-     */
-    successRequest?: () => void
+  /**
+   * 接口调用成功时（submitRequest 返回 true）调用
+   */
+  successRequest?: () => void
 
-    /**
-     * 表单验证失败
-     */
-    validateFail?(error: any): void
-  }
+  /**
+   * 表单验证失败
+   */
+  validateFail?(error: any): void
 }
 
 /**

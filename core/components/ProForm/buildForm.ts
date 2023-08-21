@@ -79,7 +79,10 @@ export function buildForm<T extends object, C, R = T>(
     toast,
     row,
     col = DefaultProFormCol,
-    request = {},
+    beforeSubmit,
+    submitRequest,
+    successRequest,
+    validateFail,
   } = options(scope, ctx)
 
   const values = useValues(initialValues, columns)
@@ -223,14 +226,14 @@ export function buildForm<T extends object, C, R = T>(
     }
 
     // 数据转换
-    const params = await beforeSubmit(values)
+    const params = await _beforeSubmit(values)
 
     // 调用接口
-    const result = (await request.submitRequest?.(params)) ?? false
+    const result = (await submitRequest?.(params)) ?? false
 
     // 提示
     if (result) {
-      request.successRequest?.()
+      successRequest?.()
       if (toast !== false) {
         const mergeToast = merge({}, DefaultSuccessToastOptions, toast)
         if (mergeToast.type === 'message') {
@@ -245,7 +248,7 @@ export function buildForm<T extends object, C, R = T>(
   /**
    * 提交表单前参数处理
    */
-  async function beforeSubmit(values: T) {
+  async function _beforeSubmit(values: T) {
     const params = cloneDeep(toRaw(values))
 
     for (const column of resolvedColumns) {
@@ -270,8 +273,8 @@ export function buildForm<T extends object, C, R = T>(
     }
 
     // 调用用户自定义的处理参数函数
-    return (typeof request.beforeSubmit === 'function'
-      ? await request.beforeSubmit(params)
+    return (typeof beforeSubmit === 'function'
+      ? await beforeSubmit(params)
       : params) as unknown as R
   }
 
@@ -355,7 +358,7 @@ export function buildForm<T extends object, C, R = T>(
       // @ts-ignore
       validated = await formRef.value!.validate(name, options)
     } catch (e: any) {
-      request.validateFail?.(e)
+      validateFail?.(e)
     }
     return validated
   }

@@ -368,12 +368,10 @@ const buildAddFormMiddleware: Middleware<
       ctx.optionResult.addForm,
       {
         columns,
-        request: {
-          submitRequest: ctx.optionResult.request?.addRequest,
-          successRequest() {
-            hideDialog()
-            ctx.scope.table.reload()
-          },
+        submitRequest: ctx.optionResult.request?.addRequest,
+        successRequest() {
+          hideDialog()
+          ctx.scope.table.reload()
         },
       }
     )
@@ -451,12 +449,10 @@ const buildEditFormMiddleware: Middleware<
       ctx.optionResult.editForm,
       {
         columns,
-        request: {
-          submitRequest: ctx.optionResult.request?.editRequest,
-          successRequest() {
-            hideDialog()
-            ctx.scope.table.reload()
-          },
+        submitRequest: ctx.optionResult.request?.editRequest,
+        successRequest() {
+          hideDialog()
+          ctx.scope.table.reload()
         },
       }
     )
