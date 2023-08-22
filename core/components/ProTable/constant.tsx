@@ -1,4 +1,4 @@
-import { FormItem, type SpaceProps } from 'ant-design-vue'
+import { ConfigProvider, FormItem, type SpaceProps } from 'ant-design-vue'
 import { h, inject, resolveComponent } from 'vue'
 
 import { ValueTypeMap, type ValueType } from '../common'
@@ -11,6 +11,7 @@ import type {
   ToolbarOption,
 } from './interface'
 import type { Key } from 'ant-design-vue/es/_util/type'
+import type { ThemeConfig } from 'ant-design-vue/es/config-provider/context'
 import type { InjectionKey } from 'vue'
 
 export const DefaultPageNumber = 1
@@ -54,8 +55,12 @@ export const DefaultTableCellRenderMap: Partial<
 }
 
 export const EditableTableData = Symbol() as InjectionKey<
-  ProvideEditTableOptions | undefined
+  ProvideEditTableOptions<any> | undefined
 >
+
+const EditableTableCellTheme: ThemeConfig = {
+  token: { marginLG: 0, marginXS: 0, marginXXS: 0 },
+}
 
 export function injectValueTypeTableCell(
   valueType: ValueType
@@ -94,12 +99,14 @@ export function injectValueTypeTableCell(
         })
 
         return (
-          <FormItem name={resolvedName}>
-            <DynamicVModel
-              values={editableData.values}
-              column={internalColumn}
-            />
-          </FormItem>
+          <ConfigProvider theme={EditableTableCellTheme}>
+            <FormItem name={resolvedName}>
+              <DynamicVModel
+                values={editableData.values}
+                column={internalColumn}
+              />
+            </FormItem>
+          </ConfigProvider>
         )
       }
     }

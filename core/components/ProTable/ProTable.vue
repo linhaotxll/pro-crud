@@ -33,25 +33,23 @@
       </div>
     </div>
 
-    <a-config-provider :theme="configTokenTheme">
-      <a-form :model="editableTableData?.values">
-        <a-table
-          ref="tableRef"
-          class="pro-table"
-          v-bind="tableProps.value"
-          :loading="loading.value"
-          :columns="columns.value"
+    <a-form :model="editableTableData?.values">
+      <a-table
+        ref="tableRef"
+        class="pro-table"
+        v-bind="tableProps.value"
+        :loading="loading.value"
+        :columns="columns.value"
+      >
+        <template
+          v-for="(render, name) in tableSlots"
+          :key="name"
+          #[name]="ctx"
         >
-          <template
-            v-for="(render, name) in tableSlots"
-            :key="name"
-            #[name]="ctx"
-          >
-            <pro-render :render="render" :ctx="ctx" />
-          </template>
-        </a-table>
-      </a-form>
-    </a-config-provider>
+          <pro-render :render="render" :ctx="ctx" />
+        </template>
+      </a-table>
+    </a-form>
   </div>
 </template>
 
@@ -65,14 +63,6 @@ import type { ProTableProps } from './interface'
 defineOptions({ name: 'ProTable' })
 
 defineProps<ProTableProps<T>>()
-
-const configTokenTheme = {
-  token: {
-    marginLG: 0,
-    marginXS: 0,
-    marginXXS: 0,
-  },
-}
 
 // const tableRef = toRaw(p).tableRef
 
