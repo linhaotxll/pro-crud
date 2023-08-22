@@ -13,11 +13,10 @@ import type { ColProps, FormItemProps } from 'ant-design-vue'
 import type { MaybeRef } from 'vue'
 
 export function buildFormColumn<T extends object>(
-  col: MaybeRef<ColProps>,
-  resolvedColumnsMap: Map<
-    FormItemProps['name'],
-    InternalProFormColumnOptions<T>
-  >,
+  col: MaybeRef<ColProps> | undefined,
+  resolvedColumnsMap:
+    | Map<FormItemProps['name'], InternalProFormColumnOptions<T>>
+    | undefined,
   column: ProFormColumnOptions<T>
 ) {
   // 合并默认 Column 配置
@@ -70,7 +69,9 @@ export function buildFormColumn<T extends object>(
     }
   })
 
-  resolvedColumnsMap.set(name, resolvedColumn)
+  if (resolvedColumnsMap) {
+    resolvedColumnsMap.set(name, resolvedColumn)
+  }
 
   return resolvedColumn
 }

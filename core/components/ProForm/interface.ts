@@ -310,7 +310,7 @@ export interface ProFormColumnOptions<T extends object> {
   /**
    * 字典配置
    */
-  dict?: DictionaryOption
+  dict?: DictionaryOption | ResolvedColumnDict
 
   /**
    * 提示信息

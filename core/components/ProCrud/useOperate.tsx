@@ -95,8 +95,6 @@ export function useOperate<
     ctx.optionResult.operates
   )
 
-  console.log('mergeOperate: ', mergeOperate, ctx.optionResult.operates)
-
   const generateButton = (
     option: CrudTableOperateButtonProps<T>,
     ctx: BodyCellSlotParams<any>
@@ -170,8 +168,6 @@ export function useOperate<
       },
     },
   }
-
-  console.log('operateColumn: ', operateColumn)
 
   return operateColumn
 }

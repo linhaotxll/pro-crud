@@ -253,8 +253,6 @@ const buildTableMiddleware: Middleware<
     }
   })
 
-  console.log('proTableBinding: ', proTableBinding)
-
   let globalOption: ProComponentsOptions | undefined
   const transformQuery =
     ctx.optionResult.request?.transformQuery ??

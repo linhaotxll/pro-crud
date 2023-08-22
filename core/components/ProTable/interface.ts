@@ -5,14 +5,16 @@ import type {
   ColumnType,
 } from '../common'
 import type { ExtractMaybeRef, JSXElement, MaybeRef } from '../common/interface'
-import type { BuildFormBinding, ProFormScope } from '../ProForm'
 import type {
   ButtonProps,
+  ModalProps,
+  PopconfirmProps,
   SpaceProps,
   SpinProps,
   TableProps,
   TooltipProps,
 } from 'ant-design-vue'
+import type { Key } from 'ant-design-vue/es/_util/type'
 import type { SizeType } from 'ant-design-vue/es/config-provider'
 import type {
   FilterDropdownProps,
@@ -68,12 +70,13 @@ export type BodyCellSlotParams<T> = {
   index: number
   column: ColumnType<T>
   record: T
+  editable: boolean
 }
 
 /**
  * ProTable 组件实例方法
  */
-export type ProTableInstance<T extends object> = ProTableScope<T>
+export type ProTableInstance = ProTableScope
 
 /**
  * 列配置
@@ -136,8 +139,82 @@ export type ProTableColumnProps<T> = {
   /**
    * 编辑配置
    */
-  editable?: false | ((text: any, record: T, index: number) => boolean)
+  editable?: ProTableColumnEditable<T>
 }
+
+/**
+ * 操作列配置
+ */
+export type ProTableActionColumnProps<T> = Omit<
+  ProTableColumnProps<T>,
+  'type' | 'dict' | 'editable'
+> & {
+  // 操作配置
+  actions?: ProTableActions<T>
+}
+
+export type ProTableActions<T> = {
+  [name: string]: ProTableActionProps<T> | undefined
+}
+/**
+ * 操作列按钮配置
+ */
+export interface ProTableActionProps<T> {
+  /**
+   * 是否展示
+   */
+  show?: MaybeRef<boolean>
+
+  /**
+   * 按钮文本
+   */
+  text?: MaybeRef<string>
+
+  /**
+   * 按钮顺序
+   */
+  order?: MaybeRef<number>
+
+  /**
+   * 按钮 props
+   */
+  props?: Omit<ButtonProps, 'onClick'> & {
+    onClick?: (e: MouseEvent, ctx: BodyCellSlotParams<T>) => void
+  }
+
+  /**
+   * 点击按钮确认弹窗类型，false 则不需要
+   *
+   * @default false
+   */
+  confirmType?: 'popconfirm' | 'modal' | false
+
+  /**
+   * 确认弹窗 props
+   */
+  confirmProps?: ProTableActionConfirmProps<T> | ProTableActionModalProps<T>
+}
+
+/**
+ * Popconfirm props，onConfirm 事件多了一个参数：行数据
+ */
+export type ProTableActionConfirmProps<T> = Omit<
+  PopconfirmProps,
+  'onConfirm'
+> & {
+  onConfirm?(e: MouseEvent, ctx: BodyCellSlotParams<T>): void
+}
+
+/**
+ * MessageBox props，callback 多了一个参数：行数据
+ */
+export type ProTableActionModalProps<T> = Omit<ModalProps, 'onOk'> & {
+  onOk?(ctx: BodyCellSlotParams<T>): void
+}
+
+export type ProTableColumnEditable<T> =
+  | false
+  | ((ctx: BodyCellSlotParams<T>) => boolean)
 
 /**
  * 列插槽
@@ -155,6 +232,7 @@ export interface InternalProTableColumnProps<T> {
   type: ValueType | any
   dict?: ResolvedColumnDict
   renderCell?: boolean
+  editable?: ProTableColumnEditable<T>
   columnProps: ColumnType<T>
   columnSlots?: ProTableColumnSlots<T> | undefined
 }
@@ -163,7 +241,7 @@ export interface InternalProTableColumnProps<T> {
  * buildTable 返回值
  */
 export type BuildProTableResult<T extends object> = {
-  proTableRef: Ref<ProTableInstance<T> | null>
+  proTableRef: Ref<ProTableInstance | null>
   proTableBinding: BuildProTableBinding<T>
 }
 
@@ -182,7 +260,7 @@ export type BuildProTableOptionResult<T extends object, P extends object> = {
   defaultData?: T[]
 
   /**
-   * ElTable props
+   * Table props
    */
   tableProps?: MaybeRef<ExtractMaybeRef<TableProps>>
 
@@ -202,6 +280,11 @@ export type BuildProTableOptionResult<T extends object, P extends object> = {
    * 列配置
    */
   columns?: ProTableColumnProps<T>[]
+
+  /**
+   * 操作列配置
+   */
+  action?: ProTableActionColumnProps<T>
 
   /**
    * loading 配置
@@ -228,7 +311,7 @@ export type BuildProTableOptionResult<T extends object, P extends object> = {
   /**
    * 编辑配置
    */
-  editable?: ProTableEditable
+  editable?: ProTableEditable<T>
 
   /**
    * 获取数据请求
@@ -268,16 +351,31 @@ export type BuildProTableOptionResult<T extends object, P extends object> = {
   onRequestError?: (error: any) => void
 }
 
-export type ProTableEditable = false | ProTableEditableOptions
+export type ProTableEditable<T> = false | ProTableEditableOptions<T>
 
-export interface ProTableEditableOptions {
+export interface ProTableEditableOptions<T> {
   type?: 'cell' | 'single' | 'multiple'
+
+  actions?: ProTableEditableActions<T>
 }
 
-export interface ProvideEditTableOptions extends ProTableEditableOptions {
-  editRowKeys: Ref<DataIndex[]>
-  editCellName: Ref<string | number | undefined>
-  editFormBinding: BuildFormBinding<any>
+export interface ProTableEditableActions<T> extends ProTableActions<T> {
+  /**
+   * 确认按钮配置
+   */
+  ok: ProTableActionProps<T>
+
+  /**
+   * 取消按钮配置
+   */
+  cancel: ProTableActionProps<T>
+}
+
+export interface ProvideEditTableOptions<T> extends ProTableEditableOptions<T> {
+  editRowKeys: Ref<Key[]>
+  values: Record<string, any>
+
+  getRowKey(record: any): Key
 }
 
 /**
@@ -288,15 +386,16 @@ export interface BuildProTableBinding<T extends object> {
   tableSlots: InternalTableSlots<T>
   loading: ComputedRef<SpinProps>
   columns: ComputedRef<ColumnType<T>[]>
-  scope: ProTableScope<T>
+  scope: ProTableScope
   toolbar: ComputedRef<InternalProTableToolbarOption>
-  editFormBinding: BuildFormBinding<any>
+  editableTableData: ProvideEditTableOptions<T> | undefined
+  // editFormBinding: BuildFormBinding<any>
 }
 
 /**
  * ProTable 作用域
  */
-export interface ProTableScope<T extends object> {
+export interface ProTableScope {
   /**
    * 重新加载指定页数数据，默认加载当前页数
    */
@@ -317,15 +416,26 @@ export interface ProTableScope<T extends object> {
    */
   next(): Promise<void>
 
-  editFormScope: ProFormScope<T>
-
   /**
    * 开始编辑
    *
    * @param rowKey 需要编辑的行 id，使用 rowKey
-   * @param columnName 单元格编辑提供的列 name
    */
-  startEditable(rowKey: DataIndex, columnName?: any): void
+  startEditable(rowKey: Key): void
+
+  /**
+   * 取消编辑
+   *
+   * @param rowKey 需要编辑的行 id，使用 rowKey
+   */
+  cancelEditable(rowKey: Key): void
+
+  /**
+   * 检测是否处于编辑状态
+   * @param rowKey
+   * @param columnName
+   */
+  validateEditable(rowKey: Key): boolean
 }
 
 /**

@@ -1,14 +1,16 @@
+import { FormItem, type SpaceProps } from 'ant-design-vue'
 import { h, inject, resolveComponent } from 'vue'
 
 import { ValueTypeMap, type ValueType } from '../common'
-import { ProFormItem } from '../ProForm'
+import { DynamicVModel, buildFormColumn } from '../ProForm'
 
 import type {
+  ProTableActionProps,
   ProTableColumnSlots,
   ProvideEditTableOptions,
   ToolbarOption,
 } from './interface'
-import type { FormItemProps, SpaceProps } from 'ant-design-vue'
+import type { Key } from 'ant-design-vue/es/_util/type'
 import type { InjectionKey } from 'vue'
 
 export const DefaultPageNumber = 1
@@ -60,37 +62,45 @@ export function injectValueTypeTableCell(
 ): ProTableColumnSlots<any>['bodyCell'] {
   return ctx => {
     const editableData = inject(EditableTableData)
-    console.log('editableData: ', editableData?.editRowKeys.value)
 
-    // debugger
-    // ctx.column.row
     if (editableData) {
-      const { name } = ctx.column.__column!
-      console.log(123, name, editableData.editRowKeys.value, ctx.record.id)
+      const { name, editable } = ctx.column.__column!
+      let rowKey: Key
 
-      if (name && editableData.editRowKeys.value.includes(ctx.record.id)) {
-        const internalColumn =
-          editableData.editFormBinding.resolvedColumnsMap.get(
-            name as FormItemProps['name']
-          ) ??
-          editableData.editFormBinding.columns.find(c => c.value.name === name)
-            ?.value
+      const isEditable =
+        editable === false
+          ? false
+          : typeof editable === 'function'
+          ? editable(ctx)
+          : true
 
-        console.log(
-          666,
-          internalColumn,
-          editableData.editFormBinding.resolvedColumnsMap
+      if (
+        isEditable &&
+        name &&
+        editableData.editRowKeys.value.includes(
+          (rowKey = editableData.getRowKey(ctx.record))
         )
-        if (internalColumn) {
-          return (
-            <ProFormItem
+      ) {
+        const resolvedName = [rowKey]
+        if (Array.isArray(name)) resolvedName.push(...name)
+        else if (name) resolvedName.push(name as string | number)
+
+        const { dict, type } = ctx.column.__column!
+        const internalColumn = buildFormColumn(undefined, undefined, {
+          name: resolvedName,
+          dict,
+          show: true,
+          type,
+        })
+
+        return (
+          <FormItem name={resolvedName}>
+            <DynamicVModel
+              values={editableData.values}
               column={internalColumn}
-              scope={editableData.editFormBinding.scope}
-              values={editableData.editFormBinding.values}
-              formItemRefMap={editableData.editFormBinding.formItemRef}
             />
-          )
-        }
+          </FormItem>
+        )
       }
     }
 
@@ -104,27 +114,12 @@ export function injectValueTypeTableCell(
       }
     }
 
-    // console.log('editableData:', editableData)
-    // @ts-ignore
-    // if (name && _editRowKeys && _editRowKeys.value.includes(name)) {
-    //   console.log(555)
-    // map
-    // edit column form props
-    // scope
-    // values
-
-    //   console.log('column: ', column)
-
-    //   // return h(resolveComponent('ProFormItem'), { column })
-    //   // 构建 buildFormColumn
-    //   // <pro-form-item
-    //   //         :column="column.value"
-    //   //         :scope="scope"
-    //   //         :form-item-ref-map="formItemRef"
-    //   //         :values="values"
-    //   //       />
-    // }
-
     return null
   }
+}
+
+export const DefaultActionColumn: ProTableActionProps<any> = {
+  show: true,
+  order: 1,
+  confirmType: false,
 }

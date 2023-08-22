@@ -34,7 +34,7 @@ const genUser = (i: number): any => ({
   children: i === 2 ? [genUser(0)] : undefined,
 })
 
-const userList = Array.from({ length: 1 }).map((_, i) => genUser(i))
+const userList = Array.from({ length: 421 }).map((_, i) => genUser(i))
 
 const mock: MockMethod[] = [
   {

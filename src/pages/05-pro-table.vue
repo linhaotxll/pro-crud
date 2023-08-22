@@ -3,7 +3,6 @@
 </template>
 
 <script lang="tsx" setup>
-import { Button } from 'ant-design-vue'
 import axios from 'axios'
 import { ref } from 'vue'
 
@@ -37,7 +36,7 @@ const { proTableRef, proTableBinding } = buildTable<User>(scope => ({
     // title: () => <div>222</div>,
     // footer: () => 'footer',
     // expandColumnWidth: 100,
-    // rowKey: 'id',
+    rowKey: 'id',
   },
   tableSlots: {
     title: () => 'title slot',
@@ -175,28 +174,23 @@ const { proTableRef, proTableBinding } = buildTable<User>(scope => ({
     //     width: 500,
     //   },
     // },
+  ],
 
-    {
-      label: '操作',
-      renderCell: true,
-      columnProps: {
-        fixed: 'right',
-      },
-      columnSlots: {
-        bodyCell: ctx => {
-          return (
-            <Button
-              onClick={() => {
-                scope.startEditable(ctx.record.id)
-              }}
-            >
-              编辑
-            </Button>
-          )
+  action: {
+    show: true,
+    actions: {
+      edit: {
+        text: '编辑',
+        show: true,
+        props: {
+          type: 'primary',
+          onClick(_, ctx) {
+            scope.startEditable(ctx.record.id)
+          },
         },
       },
     },
-  ],
+  },
 
   editable: {},
 

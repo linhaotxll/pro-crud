@@ -1,16 +1,25 @@
 import { merge } from 'lodash-es'
-import { computed, inject, isRef, nextTick, provide, ref, watch } from 'vue'
+import {
+  computed,
+  inject,
+  isRef,
+  nextTick,
+  provide,
+  reactive,
+  ref,
+  watch,
+} from 'vue'
 
 import {
   DefaultPageNumber,
   DefaultPageSize,
   EditableTableData,
 } from './constant'
+import { useAction } from './useAction'
 import { useColumns } from './useColumns'
 import { useToolbar } from './useToolbar'
 
 import { resolveRef, unRef } from '../common'
-import { buildForm } from '../ProForm'
 
 import { GlobalOption } from '~/constant'
 
@@ -23,6 +32,7 @@ import type {
   ProvideEditTableOptions,
 } from './interface'
 import type { SpinProps, TableProps } from 'ant-design-vue'
+import type { Key } from 'ant-design-vue/es/_util/type'
 import type { Ref } from 'vue'
 
 export function buildTable<
@@ -31,34 +41,37 @@ export function buildTable<
   P extends object = any
 >(
   options: (
-    scope: ProTableScope<T>,
+    scope: ProTableScope,
     ctx?: C | undefined
   ) => BuildProTableOptionResult<T, P>
 ): BuildProTableResult<T>
 export function buildTable<T extends object, C, P extends object = any>(
-  options: (scope: ProTableScope<T>, ctx: C) => BuildProTableOptionResult<T, P>,
+  options: (scope: ProTableScope, ctx: C) => BuildProTableOptionResult<T, P>,
   ctx: C
 ): BuildProTableResult<T>
 
 export function buildTable<T extends object, C, P extends object = any>(
-  options: (
-    scope: ProTableScope<T>,
-    ctx?: C
-  ) => BuildProTableOptionResult<T, P>,
+  options: (scope: ProTableScope, ctx?: C) => BuildProTableOptionResult<T, P>,
   ctx?: C | undefined
 ): BuildProTableResult<T> {
   // const elTableRef = ref<any | null>(null)
 
   // 作用域对象
-  const scope: ProTableScope<T> = {
+  const scope: ProTableScope = {
     next,
     previous,
     reset,
     reload,
-    startEditable(rowKey, columnName) {
-      startEditable(rowKey, columnName)
+    startEditable,
+    cancelEditable,
+    validateEditable(rowKey) {
+      const editableTableData = inject(EditableTableData)
+      if (!editableTableData) {
+        return false
+      }
+
+      return editableTableData.editRowKeys.value.includes(rowKey)
     },
-    editFormScope: null!,
   }
 
   const {
@@ -73,6 +86,7 @@ export function buildTable<T extends object, C, P extends object = any>(
     loading: originLoading,
     toolbar: originToolbar,
     params,
+    action,
     onLoad,
     fetchTableData,
     onSizeChange,
@@ -102,41 +116,78 @@ export function buildTable<T extends object, C, P extends object = any>(
   }
 
   // debugger
-  const { proFormBinding: editFormBinding } = buildForm<any>(editFormScope => {
-    scope.editFormScope = editFormScope
+  // const { proFormBinding: editFormBinding } = buildForm<any>(editFormScope => {
+  //   scope.editFormScope = editFormScope
 
-    return {
-      columns: originColumns.map(column => ({
-        name: column.name as any,
-        show: true,
-        type: column.type,
-        dict: column.dict,
-      })),
-      formProps: { colon: false },
-      buttons: { show: false },
-    }
-  })
+  //   return {
+  //     columns: originColumns.map(column => ({
+  //       name: column.name as any,
+  //       show: true,
+  //       type: column.type,
+  //       dict: column.dict,
+  //     })),
+  //     formProps: { colon: false },
+  //     buttons: { show: false },
+  //   }
+  // })
 
-  const editableTableData: ProvideEditTableOptions | undefined =
+  const editableTableData: ProvideEditTableOptions<T> | undefined =
     editable !== false
       ? {
           ...editable,
-          editCellName: ref(),
           editRowKeys: ref([]),
-          editFormBinding,
+          values: reactive({}),
+          getRowKey,
         }
       : undefined
 
   provide(EditableTableData, editableTableData)
 
-  const startEditable: ProTableScope<T>['startEditable'] = (
-    rowKey,
-    columnName
-  ) => {
-    console.log(123)
+  /**
+   * 开始编辑行
+   * @param rowKey
+   */
+  function startEditable(rowKey: Key) {
     if (editableTableData) {
       editableTableData.editRowKeys.value.push(rowKey)
-      columnName && (editableTableData.editCellName.value = columnName)
+
+      const record = data.value.find(record => getRowKey(record) === rowKey)
+
+      if (record) {
+        // TODO:
+        editableTableData.values[rowKey] = { ...record }
+      }
+    }
+  }
+
+  /**
+   * 取消编辑行
+   */
+  function cancelEditable(rowKey: Key) {
+    let index = -1
+    if (
+      editableTableData &&
+      (index = editableTableData.editRowKeys.value.indexOf(rowKey)) !== -1
+    ) {
+      editableTableData.editRowKeys.value.splice(index, 1)
+
+      // TODO:
+      delete editableTableData.values[rowKey]
+    }
+  }
+
+  /**
+   * 获取 rowKey
+   * @param record
+   * @returns
+   */
+  function getRowKey(record: T) {
+    const rowKey = resolvedTableProps.value.rowKey
+    if (typeof rowKey === 'function') {
+      return rowKey(record)
+    }
+    if (typeof rowKey === 'string') {
+      return (record as any)[rowKey]
     }
   }
 
@@ -148,11 +199,6 @@ export function buildTable<T extends object, C, P extends object = any>(
       onSizeChange(size)
     })
   }
-
-  const { columns, tableSlots, onResizeColumn } = useColumns(
-    originColumns,
-    originTableSlots
-  )
 
   // 上一次查询的条件，主要用来 reload 保持数据不变
   let previousQuery: FetchTableListQuery<T, P>
@@ -207,6 +253,13 @@ export function buildTable<T extends object, C, P extends object = any>(
 
     return result
   })
+
+  const { columns, tableSlots, onResizeColumn } = useColumns(
+    scope,
+    originColumns.concat(useAction(scope, action, editable, getRowKey)),
+    originTableSlots,
+    getRowKey
+  )
 
   let resolvedParams = unRef(params)
 
@@ -357,7 +410,7 @@ export function buildTable<T extends object, C, P extends object = any>(
     }
   })
 
-  const proTableRef = ref<ProTableInstance<T> | null>(null)
+  const proTableRef = ref<ProTableInstance | null>(null)
   const buildProTableResult: BuildProTableResult<T> = {
     proTableRef,
     proTableBinding: {
@@ -367,7 +420,8 @@ export function buildTable<T extends object, C, P extends object = any>(
       loading: resolvedLoadingConfig,
       toolbar,
       scope,
-      editFormBinding,
+      editableTableData,
+      // editFormBinding,
     },
   }
 

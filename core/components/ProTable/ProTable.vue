@@ -34,10 +34,7 @@
     </div>
 
     <a-config-provider :theme="configTokenTheme">
-      <a-form
-        v-bind="editFormBinding.formProps.value"
-        :model="editFormBinding.values"
-      >
+      <a-form :model="editableTableData?.values">
         <a-table
           ref="tableRef"
           class="pro-table"
