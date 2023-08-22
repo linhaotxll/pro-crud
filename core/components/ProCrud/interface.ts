@@ -16,10 +16,13 @@ import type {
   BuildProTableOptionResult,
   FetchTableDataResult,
   FetchTableListQuery,
+  ProTableActionColumnProps,
+  ProTableActionProps,
+  ProTableActions,
   ProTableColumnProps,
   ProTableScope,
 } from '../ProTable'
-import type { ButtonProps, ModalProps, PopconfirmProps } from 'ant-design-vue'
+import type { ModalProps } from 'ant-design-vue'
 import type { ComputedRef, Ref } from 'vue'
 
 /**
@@ -315,7 +318,7 @@ export interface BuildCrudOptionReturn<
    */
   table?: Omit<
     BuildProTableOptionResult<T, any>,
-    'data' | 'columns' | 'request'
+    'data' | 'columns' | 'request' | 'action'
   > & {
     show?: MaybeRef<boolean>
   }
@@ -335,7 +338,7 @@ export interface BuildCrudOptionReturn<
   /**
    * 操作列配置
    */
-  operates?: CrudTableOperateProps<T>
+  action?: CrudTableOperateProps<T>
 }
 
 /**
@@ -382,88 +385,24 @@ export interface CrudDialogOption {
  * 操作列配置
  */
 export interface CrudTableOperateProps<T extends object>
-  extends ProTableColumnProps<T> {
+  extends Omit<ProTableActionColumnProps<T>, 'actions'> {
   // 按钮组配置
-  buttons?: {
+  actions: {
     /**
      * 编辑按钮
      */
-    edit?: CrudTableOperateButtonProps<T>
+    edit?: ProTableActionProps<T>
 
     /**
      * 删除按钮
      */
-    delete?: CrudTableOperateButtonProps<T>
+    delete?: ProTableActionProps<T>
 
     /**
      * 查看按钮
      */
-    view?: CrudTableOperateButtonProps<T>
-
-    /**
-     * 其他按钮
-     */
-    [name: string]: CrudTableOperateButtonProps<T> | undefined
-  }
-}
-
-/**
- * 操作列按钮配置
- */
-export interface CrudTableOperateButtonProps<T extends object> {
-  /**
-   * 是否展示
-   */
-  show?: MaybeRef<boolean>
-
-  /**
-   * 按钮文本
-   */
-  text?: MaybeRef<string>
-
-  /**
-   * 按钮顺序
-   */
-  order?: MaybeRef<number>
-
-  /**
-   * 按钮 props
-   */
-  props?: Omit<ButtonProps, 'onClick'> & {
-    onClick?: (e: MouseEvent, ctx: BodyCellSlotParams<T>) => void
-  }
-
-  /**
-   * 点击按钮确认弹窗类型，false 则不需要
-   *
-   * @default false
-   */
-  confirmType?: 'popconfirm' | 'modal' | false
-
-  /**
-   * 确认弹窗 props
-   */
-  confirmProps?: CrudTableOperateConfirmProps<T> | CrudTableOperateModalProps<T>
-}
-
-/**
- * Popconfirm props，onConfirm 事件多了一个参数：行数据
- */
-export type CrudTableOperateConfirmProps<T extends object> = Omit<
-  PopconfirmProps,
-  'onConfirm'
-> & {
-  onConfirm?(e: MouseEvent, ctx: BodyCellSlotParams<T>): void
-}
-
-/**
- * MessageBox props，callback 多了一个参数：行数据
- */
-export type CrudTableOperateModalProps<T extends object> = Omit<
-  ModalProps,
-  'onOk'
-> & {
-  onOk?(ctx: BodyCellSlotParams<T>): void
+    view?: ProTableActionProps<T>
+  } & ProTableActions<T>
 }
 
 /**

@@ -218,7 +218,7 @@ const buildTableMiddleware: Middleware<
 
     next()
 
-    const operateColumn = useOperate(ctx)
+    const actionColumn = useOperate(ctx)
 
     const { show: _, toolbar, ...rest } = ctx.optionResult.table || {}
 
@@ -239,15 +239,14 @@ const buildTableMiddleware: Middleware<
         toolbar
       ),
       ...rest,
-      columns: ctx.columns.table
-        .map<ProTableColumnProps<any>>(column => ({
-          label: column.label,
-          name: column.name,
-          dict: column.dict,
-          type: column.type,
-          ...column.table,
-        }))
-        .concat(operateColumn),
+      action: actionColumn,
+      columns: ctx.columns.table.map<ProTableColumnProps<any>>(column => ({
+        label: column.label,
+        name: column.name,
+        dict: column.dict,
+        type: column.type,
+        ...column.table,
+      })),
 
       fetchTableData,
     }

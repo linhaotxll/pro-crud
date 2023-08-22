@@ -1,19 +1,8 @@
-import { Button, Modal, Popconfirm, Space, message } from 'ant-design-vue'
+import { message } from 'ant-design-vue'
 import { merge } from 'lodash-es'
 
-import { DefaultOperateButton } from './constant'
-
-import { unRef } from '../common'
-
-import type {
-  CrudTableOperateProps,
-  BuildCrudContext,
-  CrudTableOperateButtonProps,
-  CrudTableOperateConfirmProps,
-  CrudTableOperateModalProps,
-} from './interface'
+import type { CrudTableOperateProps, BuildCrudContext } from './interface'
 import type { BodyCellSlotParams } from '../ProTable'
-import type { ButtonProps, PopconfirmProps } from 'ant-design-vue'
 
 export function useOperate<
   T extends object,
@@ -40,7 +29,7 @@ export function useOperate<
       label: '操作',
       name: 'operate',
       renderCell: true,
-      buttons: {
+      actions: {
         edit: {
           show: true,
           text: '编辑',
@@ -92,82 +81,8 @@ export function useOperate<
       },
       columnProps: { width: 250 },
     },
-    ctx.optionResult.operates
+    ctx.optionResult.action
   )
 
-  const generateButton = (
-    option: CrudTableOperateButtonProps<T>,
-    ctx: BodyCellSlotParams<any>
-  ) => {
-    if (!unRef(option.show)) {
-      return null
-    }
-
-    const buttonProps: ButtonProps = {
-      ...option.props,
-      onClick(e) {
-        const { confirmType } = option
-        if (confirmType === 'modal') {
-          const confirmOption =
-            option.confirmProps as CrudTableOperateModalProps<T>
-          Modal.confirm({
-            ...confirmOption,
-            title: confirmOption.title ?? '确认删除该项目？',
-            onOk(...args: unknown[]) {
-              console.log('modal ok: ', ...args)
-              confirmOption.onOk?.apply(null, [ctx])
-            },
-          })
-        } else if (confirmType === false) {
-          option.props?.onClick?.(e, ctx)
-        }
-      },
-    }
-
-    const $inner = <Button {...buttonProps}>{option.text}</Button>
-
-    if (option.confirmType === false || option.confirmType === 'modal') {
-      return $inner
-    }
-
-    const onConfirm: PopconfirmProps['onConfirm'] = (e: MouseEvent) => {
-      ;(option.confirmProps as CrudTableOperateConfirmProps<T>)?.onConfirm?.(
-        e,
-        ctx
-      )
-    }
-    const popconfirmProps: PopconfirmProps = {
-      ...(option.confirmProps as PopconfirmProps),
-      title: (option.confirmProps?.title as string) ?? '确认删除该项目？',
-      onConfirm,
-    }
-    return (
-      <Popconfirm {...popconfirmProps}>
-        {{
-          default: () => $inner,
-        }}
-      </Popconfirm>
-    )
-  }
-
-  const operateColumn: CrudTableOperateProps<T> = {
-    ...mergeOperate,
-    columnSlots: {
-      bodyCell: ctx => {
-        // console.log('mergeOperate: ', mergeOperate.buttons)
-        return (
-          <Space>
-            {Object.keys(mergeOperate.buttons!)
-              .map(key =>
-                merge({}, DefaultOperateButton, mergeOperate.buttons![key])
-              )
-              .sort((prev, curr) => unRef(prev.order!) - unRef(curr.order!))
-              .map(button => generateButton(button, ctx))}
-          </Space>
-        )
-      },
-    },
-  }
-
-  return operateColumn
+  return mergeOperate
 }

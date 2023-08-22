@@ -1,6 +1,6 @@
 import type { ProSearchInstance } from './../ProSearch/interface'
 import type { ProTableInstance } from './../ProTable/interface'
-import type { CrudDialogOption, CrudTableOperateButtonProps } from './interface'
+import type { CrudDialogOption } from './interface'
 import type { ProFormInstance } from '../ProForm'
 import type { InjectionKey, Ref } from 'vue'
 
@@ -27,12 +27,6 @@ export const ViewFormRef = Symbol() as InjectionKey<
 // 默认显示搜索栏，添加表单，编辑表单，查看表单，table
 export const DefaultShow = {
   show: true,
-}
-
-export const DefaultOperateButton: CrudTableOperateButtonProps<any> = {
-  show: true,
-  order: 1,
-  confirmType: false,
 }
 
 export const DefaultDialogOption: CrudDialogOption = {
