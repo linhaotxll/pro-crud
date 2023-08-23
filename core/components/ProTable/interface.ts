@@ -5,6 +5,7 @@ import type {
   ColumnType,
 } from '../common'
 import type { ExtractMaybeRef, JSXElement, MaybeRef } from '../common/interface'
+import type { ActionOption, ActionsList } from '../ProButton'
 import type {
   ButtonProps,
   ModalProps,
@@ -150,44 +151,22 @@ export type ProTableActionColumnProps<T> = Omit<
   'type' | 'dict' | 'editable'
 > & {
   // 操作配置
-  actions?: ProTableActions<T>
+  actions?: ActionsList<ProTableActions<T>>
 }
 
-export type ProTableActions<T> = {
-  [name: string]: ProTableActionProps<T> | undefined
-}
+export type ProTableActions<T> = Record<string, ProTableActionProps<T>>
+
 /**
  * 操作列按钮配置
  */
-export interface ProTableActionProps<T> {
-  /**
-   * 是否展示
-   */
-  show?: MaybeRef<boolean>
-
-  /**
-   * 按钮文本
-   */
-  text?: MaybeRef<string>
-
-  /**
-   * 按钮顺序
-   */
-  order?: MaybeRef<number>
-
+export interface ProTableActionProps<T>
+  extends Omit<ActionOption, 'props' | 'confirmProps'> {
   /**
    * 按钮 props
    */
   props?: Omit<ButtonProps, 'onClick'> & {
     onClick?: (e: MouseEvent, ctx: BodyCellSlotParams<T>) => void
   }
-
-  /**
-   * 点击按钮确认弹窗类型，false 则不需要
-   *
-   * @default false
-   */
-  confirmType?: 'popconfirm' | 'modal' | false
 
   /**
    * 确认弹窗 props
@@ -353,22 +332,31 @@ export type BuildProTableOptionResult<T extends object, P extends object> = {
 
 export type ProTableEditable<T> = false | ProTableEditableOptions<T>
 
+/**
+ * ProTable 编辑配置
+ */
 export interface ProTableEditableOptions<T> {
   type?: 'cell' | 'single' | 'multiple'
 
-  actions?: ProTableEditableActions<T>
+  /**
+   * 编辑模式下的操作
+   */
+  actions?: ActionsList<ProTableEditableActions<T>>
 }
 
-export interface ProTableEditableActions<T> extends ProTableActions<T> {
+/**
+ * 编辑模式下操作
+ */
+export interface ProTableEditableActions<T> {
   /**
    * 确认按钮配置
    */
-  ok: ProTableActionProps<T>
+  ok?: ProTableActionProps<T>
 
   /**
    * 取消按钮配置
    */
-  cancel: ProTableActionProps<T>
+  cancel?: ProTableActionProps<T>
 }
 
 export interface ProvideEditTableOptions<T> extends ProTableEditableOptions<T> {
@@ -389,7 +377,6 @@ export interface BuildProTableBinding<T extends object> {
   scope: ProTableScope
   toolbar: ComputedRef<InternalProTableToolbarOption>
   editableTableData: ProvideEditTableOptions<T> | undefined
-  // editFormBinding: BuildFormBinding<any>
 }
 
 /**
@@ -562,12 +549,3 @@ export interface InternalProTableToolbarOption {
   tooltip?: TooltipProps
   space: SpaceProps
 }
-
-/**
- * 列配置节点
- */
-// export interface ColumnSettingsNode {
-//   label: string
-//   prop: string
-//   children?: ColumnSettingsNode[]
-// }

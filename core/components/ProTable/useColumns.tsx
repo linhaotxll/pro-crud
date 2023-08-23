@@ -22,7 +22,7 @@ import type { Key } from 'ant-design-vue/es/_util/type'
 import type { Ref } from 'vue'
 
 export function useColumns<T extends object>(
-  scope: ProTableScope<T>,
+  scope: ProTableScope,
   tableColumns: ProTableColumnProps<T>[],
   tableSlots: TableSlots<T> | undefined,
   getRowKey: (record: T) => Key
@@ -142,7 +142,6 @@ export function useColumns<T extends object>(
       ),
     }
 
-    //
     result.columnProps.__column = markRaw(result)
 
     // 遍历 columnProps，每个值都可能为响应式对象，确保能追踪到变化

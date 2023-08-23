@@ -12,7 +12,7 @@ import type {
   BuildSearchResult,
   ProSearchScope,
 } from './interface'
-import type { ButtonsOption } from '../ProForm'
+import type { ProFormActionsOptions } from '../ProForm'
 import type { ColProps } from 'ant-design-vue'
 
 export function buildSearch<T extends object, C = undefined, R = T>(
@@ -34,8 +34,9 @@ export function buildSearch<T extends object, C, R = T>(
     // @ts-ignore
     const props = options(scope)
 
-    const buttons: ButtonsOption = {
+    const buttons: ProFormActionsOptions = {
       col: computed(() => {
+        // debugger
         const defaultCol: ColProps = merge(DefaultSearchCol, unRef(props.col))
 
         const total =
@@ -66,7 +67,7 @@ export function buildSearch<T extends object, C, R = T>(
             return prev
           }, 0) ?? 0
 
-        const resolveButtons = merge(unRef(props.buttons?.col), defaultCol)
+        const resolveButtons = merge(unRef(props.actions?.col), defaultCol)
         const span = +resolveButtons.span!
 
         let offset = 0
@@ -83,7 +84,7 @@ export function buildSearch<T extends object, C, R = T>(
         }
       }),
 
-      show: props.buttons?.show,
+      show: props.actions?.show,
       list: {
         reset: {
           show: true,
@@ -104,10 +105,10 @@ export function buildSearch<T extends object, C, R = T>(
         },
       },
     }
-    const mergedButtons = merge(buttons, props.buttons)
+    const mergedButtons = merge(buttons, props.actions)
 
     const result = merge(props, {
-      buttons: mergedButtons,
+      actions: mergedButtons,
       col: DefaultSearchCol,
       row: DefaultSearchRow,
     })

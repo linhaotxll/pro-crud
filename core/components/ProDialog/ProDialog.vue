@@ -9,7 +9,10 @@
     </template>
 
     <template #footer>
-      <pro-button-group :config="formProps.buttons.value" />
+      <pro-button-group
+        :actions="formProps.actions.value.list"
+        :space="formProps.actions.value.space"
+      />
     </template>
   </component>
 </template>

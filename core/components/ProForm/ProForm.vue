@@ -16,9 +16,12 @@
         </a-col>
       </template>
 
-      <a-col v-if="buttons.value.show" v-bind="buttons.value.col">
+      <a-col v-if="actions.value.show" v-bind="actions.value.col">
         <a-form-item>
-          <pro-button-group :config="buttons.value" />
+          <pro-button-group
+            :actions="actions.value.list"
+            :space="actions.value.space"
+          />
         </a-form-item>
       </a-col>
     </a-row>

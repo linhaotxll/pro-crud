@@ -254,7 +254,7 @@ const { proFormRef, proFormBinding } = buildForm<FormValues>(scope => {
       },
     ],
 
-    buttons: {
+    actions: {
       show: buttonsShow,
       // wrapperCol: buttonsCol,
       space: {
@@ -263,6 +263,7 @@ const { proFormRef, proFormBinding } = buildForm<FormValues>(scope => {
       list: {
         confirm: {
           show: buttonConfirmShow,
+          text: '啦啦啦',
           props: {},
         },
 

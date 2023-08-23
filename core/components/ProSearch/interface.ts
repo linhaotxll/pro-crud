@@ -1,6 +1,9 @@
+import type { ActionOption, ActionsOption } from '../ProButton'
 import type {
   BuildFormBinding,
   BuildFormOptionResult,
+  ProFormActionCommon,
+  ProFormActions,
   ProFormScope,
 } from '../ProForm'
 import type { Ref } from 'vue'
@@ -33,7 +36,21 @@ export interface BuildSearchResult<T extends object> {
 /**
  * buildSearch option 返回值
  */
-export type BuildSearchOptionResult<
-  T extends object,
-  R = T
-> = BuildFormOptionResult<T, R>
+export type BuildSearchOptionResult<T extends object, R = T> = Omit<
+  BuildFormOptionResult<T, R>,
+  'actions'
+> & { actions: ProSearchActionsOptions }
+
+/**
+ * ProSearch 操作
+ */
+export interface ProSearchOptions extends ProFormActions {
+  /**
+   * 取消按钮
+   */
+  cancel?: ActionOption
+}
+
+export interface ProSearchActionsOptions
+  extends ProFormActionCommon,
+    ActionsOption<ProSearchOptions> {}

@@ -185,6 +185,7 @@ const { proTableRef, proTableBinding } = buildTable<User>(scope => ({
         props: {
           type: 'primary',
           onClick(_, ctx) {
+            console.log(1, ctx)
             scope.startEditable(ctx.record.id)
           },
         },

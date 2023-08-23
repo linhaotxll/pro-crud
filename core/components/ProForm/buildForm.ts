@@ -11,11 +11,7 @@ import { get, has, merge, set, unset } from 'lodash-es'
 import { computed, ref, toRaw } from 'vue'
 
 import { buildFormColumn } from './buildFormColumn'
-import {
-  DefaultProFormCol,
-  DefaultSuccessToastOptions,
-  ShowButton,
-} from './constant'
+import { DefaultProFormCol, DefaultSuccessToastOptions } from './constant'
 import { useValues } from './useValues'
 
 import { unRef } from '../common'
@@ -24,12 +20,13 @@ import type {
   BuildFormBinding,
   BuildFormOptionResult,
   BuildFormResult,
-  ButtonsOption,
   InternalProFormColumnOptions,
+  ProFormActionsOptions,
   ProFormInstance,
   ProFormScope,
 } from './interface'
 import type { Arrayable } from '../common'
+import type { ColProps } from 'ant-design-vue'
 import type {
   NamePath,
   ValidateOptions,
@@ -74,7 +71,7 @@ export function buildForm<T extends object, C, R = T>(
     formProps,
     labelCol,
     wrapperCol,
-    buttons,
+    actions,
     toast,
     row,
     col = DefaultProFormCol,
@@ -120,7 +117,7 @@ export function buildForm<T extends object, C, R = T>(
   })
 
   // 默认按钮
-  const defaultButtons: ButtonsOption = {
+  const defaultActions: ProFormActionsOptions = {
     show: true,
     list: {
       confirm: {
@@ -132,27 +129,19 @@ export function buildForm<T extends object, C, R = T>(
   }
 
   // 解析按钮组配置
-  const resolvedButtons = computed(() => {
-    const mergeButtons = merge({}, defaultButtons, buttons)
+  const resolvedActions = computed(() => {
+    const mergeButtons = merge(defaultActions, actions)
 
     const formLabelSpan = resolvedFormProps.value.labelCol?.span ?? 0
-    const mergeCol = merge({ offset: formLabelSpan }, unRef(mergeButtons.col))
+    const mergeCol: ColProps = merge(
+      { offset: formLabelSpan },
+      unRef(mergeButtons.col)
+    )
 
-    const result: ButtonsOption = {
+    const result: ProFormActionsOptions = merge(mergeButtons, {
       show: unRef(mergeButtons.show),
       col: mergeCol,
-      space: unRef(mergeButtons.space),
-      list: Object.keys(mergeButtons.list ?? {}).reduce<ButtonsOption['list']>(
-        (prev, curr) => {
-          prev![curr] = {
-            ...mergeButtons.list![curr],
-            show: unRef(mergeButtons.list![curr]?.show ?? ShowButton),
-          }
-          return prev
-        },
-        {}
-      ),
-    }
+    })
 
     return result
   })
@@ -354,7 +343,7 @@ export function buildForm<T extends object, C, R = T>(
       labelCol: resolvedLabelCol,
       wrapperCol: resolvedWrapperCol,
       formProps: resolvedFormProps,
-      buttons: resolvedButtons,
+      actions: resolvedActions,
       values,
       scope,
       formRef,

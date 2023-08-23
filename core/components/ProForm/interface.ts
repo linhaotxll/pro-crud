@@ -6,6 +6,7 @@ import type {
   ResolvedColumnDict,
   ValueType,
 } from '../common'
+import type { ActionOption, ActionsOption } from '../ProButton'
 import type {
   ColProps,
   FormItemProps,
@@ -13,8 +14,6 @@ import type {
   FormInstance,
   FormItemInstance,
   FormProps,
-  ButtonProps,
-  SpaceProps,
   RowProps,
   MessageArgsProps,
 } from 'ant-design-vue'
@@ -135,7 +134,7 @@ export interface BuildFormBinding<T extends object> {
   labelCol: ComputedRef<ColProps | undefined>
   wrapperCol: ComputedRef<ColProps | undefined>
   formProps: ComputedRef<FormProps>
-  buttons: ComputedRef<ButtonsOption>
+  actions: ComputedRef<ProFormActionsOptions>
   values: T
   scope: ProFormScope<T>
   formRef: Ref<FormInstance | null>
@@ -194,7 +193,7 @@ export interface BuildFormOptionResult<T extends object, R = T> {
   /**
    * 按钮组
    */
-  buttons?: ButtonsOption
+  actions?: ProFormActionsOptions
 
   /**
    * 接口调用成功是否需要提示信息
@@ -220,6 +219,24 @@ export interface BuildFormOptionResult<T extends object, R = T> {
    * 表单验证失败
    */
   validateFail?(error: any): void
+}
+
+export interface ProFormActionCommon {
+  col?: MaybeRef<ColProps>
+}
+
+export interface ProFormActionsOptions
+  extends ProFormActionCommon,
+    ActionsOption<ProFormActions> {}
+
+/**
+ * ProForm 操作
+ */
+export interface ProFormActions {
+  /**
+   * 确认按钮
+   */
+  confirm?: ActionOption
 }
 
 /**
@@ -352,75 +369,6 @@ export interface ProFormColumnOptions<T extends object> {
      * @returns 服务端所需要的值
      */
     to?(formValue: any): any
-  }
-}
-
-/**
- * 按钮组配置
- */
-export interface ButtonsOption {
-  /**
-   * 是否显示按钮组
-   *
-   * @default true
-   */
-  show?: MaybeRef<boolean>
-
-  /**
-   * 按钮列配置
-   */
-  col?: MaybeRef<ColProps>
-
-  /**
-   * 按钮间距配置
-   */
-  space?: MaybeRef<SpaceProps>
-
-  /**
-   * 按钮列表
-   */
-  list?: ProFormButtons
-}
-
-export interface ProFormButtons {
-  /**
-   * 确认按钮
-   */
-  confirm?: ButtonOption
-
-  /**
-   * 其余按钮
-   */
-  [type: string]: ButtonOption | undefined
-}
-
-/**
- * 按钮配置
- */
-export interface ButtonOption {
-  /**
-   * 是否显示
-   *
-   * @default trues
-   */
-  show?: MaybeRef<boolean>
-
-  /**
-   * 按钮文本
-   */
-  text?: string
-
-  /**
-   * 按钮 props
-   */
-  props?: ButtonProps
-
-  /**
-   * 插槽
-   */
-  slots?: {
-    default?: () => JSX.Element
-    icon?: () => JSX.Element
   }
 }
 

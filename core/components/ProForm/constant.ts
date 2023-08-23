@@ -1,20 +1,7 @@
 import type { ProFormColumnOptions, SuccessToastOptions } from './interface'
-import type { ValueType } from '../common'
-import type { ColProps, FormItemInstance, RowProps } from 'ant-design-vue'
+import type { ColProps, FormItemInstance } from 'ant-design-vue'
 import type { NamePath } from 'ant-design-vue/es/form/interface'
 import type { InjectionKey, Ref } from 'vue'
-
-// 默认显示按钮组按钮
-export const ShowButton = true
-
-// 默认表单类型为 text
-export const DefaultFormFieldType: ValueType = 'text'
-
-// 删除表单是否保留字段
-export const DefaultPreserve = true
-
-// 默认行配置
-export const DefaultRow: RowProps = {}
 
 // 默认列配置
 export const DefaultCol: ColProps = { span: 24 }

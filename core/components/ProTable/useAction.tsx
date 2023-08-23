@@ -1,22 +1,15 @@
-import { Button, Modal, Popconfirm, Space } from 'ant-design-vue'
 import { merge } from 'lodash-es'
 
-import { DefaultActionColumn } from './constant'
-
-import { unRef } from '../common'
+import { ProButtonGroup } from '../ProButton'
 
 import type {
-  BodyCellSlotParams,
   ProTableActionColumnProps,
-  ProTableActionConfirmProps,
-  ProTableActionModalProps,
-  ProTableActionProps,
   ProTableActions,
   ProTableEditable,
   ProTableEditableActions,
   ProTableScope,
 } from './interface'
-import type { ButtonProps, PopconfirmProps } from 'ant-design-vue'
+import type { ActionsList } from '../ProButton'
 import type { Key } from 'ant-design-vue/es/_util/type'
 
 export function useAction<T extends object>(
@@ -25,16 +18,18 @@ export function useAction<T extends object>(
   editable: ProTableEditable<T>,
   getRowKey: (record: T) => Key
 ) {
-  const mergedAction = merge<
-    ProTableActions<T>,
-    ProTableActions<T> | undefined
+  // 合并 ProTable 操作列按钮组组
+  const mergedAction: ActionsList<ProTableActions<T>> = merge<
+    ActionsList<ProTableActions<T>>,
+    ActionsList<ProTableActions<T>> | undefined
   >({}, actionColumn?.actions)
 
-  const mergedEditAction =
+  // 合并 ProTable 编辑操作列按钮组
+  const mergedEditAction: ActionsList<ProTableEditableActions<T>> | null =
     editable !== false
       ? merge<
-          ProTableEditableActions<T>,
-          ProTableEditableActions<T> | undefined
+          ActionsList<ProTableEditableActions<T>>,
+          ActionsList<ProTableEditableActions<T>> | undefined
         >(
           {
             ok: { text: '确认', show: true },
@@ -64,78 +59,26 @@ export function useAction<T extends object>(
   >({ label: '操作', renderCell: true }, actionColumn, {
     columnSlots: {
       bodyCell: ctx => {
-        const resolvedActions = ctx.editable
-          ? mergedEditAction ?? {}
-          : mergedAction
-        return (
-          <Space>
-            {Object.keys(resolvedActions)
-              .map<ProTableActionProps<T>>(key =>
-                merge({}, DefaultActionColumn, resolvedActions[key])
-              )
-              .sort((prev, curr) => unRef(prev.order!) - unRef(curr.order!))
-              .map(button => generateButton(button, ctx))}
-          </Space>
-        )
+        const resolvedActions: ActionsList<
+          ProTableEditableActions<T> | ProTableActions<T>
+        > | null = ctx.editable ? mergedEditAction : mergedAction
+
+        // 在 onClick 事件中注入 ctx
+        if (resolvedActions) {
+          Object.keys(resolvedActions).forEach(key => {
+            const originClick = resolvedActions[key]?.props?.onClick
+            if (originClick) {
+              resolvedActions[key]!.props!.onClick = e => {
+                originClick(e, ctx)
+              }
+            }
+          })
+        }
+
+        return <ProButtonGroup actions={resolvedActions as any} />
       },
     },
   })
-
-  const generateButton = (
-    option: ProTableActionProps<T>,
-    ctx: BodyCellSlotParams<any>
-  ) => {
-    if (!unRef(option.show)) {
-      return null
-    }
-
-    const buttonProps: ButtonProps = {
-      ...option.props,
-      onClick(e) {
-        const { confirmType } = option
-        if (confirmType === 'modal') {
-          const confirmOption =
-            option.confirmProps as ProTableActionModalProps<T>
-
-          Modal.confirm({
-            ...confirmOption,
-            title: confirmOption.title ?? '确认删除该项目？',
-            onOk(...args: unknown[]) {
-              console.log('modal ok: ', ...args)
-              confirmOption.onOk?.apply(null, [ctx])
-            },
-          })
-        } else if (confirmType === false) {
-          option.props?.onClick?.(e, ctx)
-        }
-      },
-    }
-
-    const $inner = <Button {...buttonProps}>{option.text}</Button>
-
-    if (option.confirmType === false || option.confirmType === 'modal') {
-      return $inner
-    }
-
-    const onConfirm: PopconfirmProps['onConfirm'] = (e: MouseEvent) => {
-      ;(option.confirmProps as ProTableActionConfirmProps<T>)?.onConfirm?.(
-        e,
-        ctx
-      )
-    }
-    const popconfirmProps: PopconfirmProps = {
-      ...(option.confirmProps as PopconfirmProps),
-      title: (option.confirmProps?.title as string) ?? '确认删除该项目？',
-      onConfirm,
-    }
-    return (
-      <Popconfirm {...popconfirmProps}>
-        {{
-          default: () => $inner,
-        }}
-      </Popconfirm>
-    )
-  }
 
   return mergedActionColumn
 }

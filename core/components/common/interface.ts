@@ -28,6 +28,8 @@ export type UnionToTuple<T, U = T> = [T] extends [never]
   ? []
   : [LastInUnion<T>, ...UnionToTuple<Exclude<U, LastInUnion<T>>>]
 
-export declare type Arrayable<T> = T | T[]
+export type Arrayable<T> = T | T[]
 
 export type JSXElement = JSX.Element | number | string | undefined | null
+
+export type ValueOf<T> = T[keyof T]
