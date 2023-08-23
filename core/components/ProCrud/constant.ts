@@ -31,4 +31,10 @@ export const DefaultShow = {
 
 export const DefaultDialogOption: CrudDialogOption = {
   is: 'a-modal',
+  props: { width: '40%' },
+}
+
+export const DefaultCrudForm = {
+  col: { span: 12 },
+  row: { gutter: 16 },
 }

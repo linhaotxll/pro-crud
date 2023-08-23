@@ -9,21 +9,9 @@
     <pro-table v-if="tableShow.value" ref="proTableRef" v-bind="tableBinding" />
 
     <pro-dialog
-      v-if="addFormShow.value"
-      :dialog-props="addFormDialog.value"
-      :form-props="addFormBinding"
-    />
-
-    <pro-dialog
-      v-if="editFormShow.value"
-      :dialog-props="editFormDialog.value"
-      :form-props="editFormBinding"
-    />
-
-    <pro-dialog
-      v-if="viewFormShow.value"
-      :dialog-props="viewFormDialog.value"
-      :form-props="viewFormBinding"
+      v-if="modalShow?.value"
+      :dialog-props="modalProps?.value"
+      :form-props="modalFormProps.value"
     />
   </div>
 </template>

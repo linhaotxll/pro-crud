@@ -5,6 +5,7 @@ import { computed, h, inject, provide, ref } from 'vue'
 import { compose } from './compose'
 import {
   AddFormRef,
+  DefaultCrudForm,
   DefaultDialogOption,
   DefaultShow,
   EditFormRef,
@@ -26,18 +27,19 @@ import { useDialog } from './useDialog'
 import { useOperate } from './useOperate'
 
 import { unRef, useDict } from '../common'
-import {
-  buildForm,
-  type ButtonsOption,
-  type ProFormColumnOptions,
-} from '../ProForm'
+import { buildForm, type ProFormColumnOptions } from '../ProForm'
 import { buildSearch } from '../ProSearch'
 import { buildTable } from '../ProTable'
 
 import { GlobalOption } from '~/constant'
 
 import type { Middleware } from './compose'
-import type { CrudDialogOption, CrudFormOption } from './interface'
+import type {
+  CrudDialogOption,
+  CrudFormOption,
+  SearchAction,
+} from './interface'
+import type { ActionsOption } from '../ProButton'
 import type { BuildFormOptionResult } from '../ProForm'
 import type {
   FetchTableDataResult,
@@ -99,6 +101,7 @@ export function buildCrud<
     binding: {},
     dialog: {},
     originCtx: ctx,
+    modalType: ref(),
     options,
   } as BuildCrudContext<T, R, S, S1, A, E>
 
@@ -133,20 +136,41 @@ export function buildCrud<
     },
   } = context
 
+  const modalShow = computed(() => {
+    return addFormShow.value || editFormShow.value || viewFormShow.value
+  })
+
+  const modalProps = computed<CrudDialogOption | undefined>(() => {
+    const modalType = context.modalType.value
+    if (!modalType) return
+
+    if (modalType === 'add') return addFormDialog.value
+    if (modalType === 'edit') return editFormDialog.value
+    if (modalType === 'view') return viewFormDialog.value
+
+    return undefined
+  })
+
+  const modalFormProps = computed(() => {
+    const modalType = context.modalType.value
+    if (!modalType) return undefined
+
+    if (modalType === 'add') return addFormBinding
+    if (modalType === 'edit') return editFormBinding
+    if (modalType === 'view') return viewFormBinding
+
+    return undefined
+  })
+
   const proCrudBinding: BuildCrudBinding<T, S, A, E> = {
     searchShow,
     searchBinding,
     tableShow,
     tableBinding,
-    addFormShow,
-    addFormBinding,
-    addFormDialog,
-    editFormShow,
-    editFormBinding,
-    editFormDialog,
-    viewFormShow,
-    viewFormBinding,
-    viewFormDialog,
+
+    modalShow,
+    modalProps,
+    modalFormProps,
   }
 
   // @ts-ignore
@@ -163,11 +187,14 @@ const buildSearchMiddlewre: Middleware<
 
     const {
       show: _,
-      buttons: customButtons,
+      actions: customActions,
       ...rest
     } = ctx.optionResult.search || {}
 
-    const buttons = merge<ButtonsOption, ButtonsOption | undefined>(
+    const actions = merge<
+      ActionsOption<SearchAction>,
+      ActionsOption<SearchAction> | undefined
+    >(
       {
         list: {
           confirm: {
@@ -190,7 +217,7 @@ const buildSearchMiddlewre: Middleware<
           },
         },
       },
-      customButtons
+      customActions
     )
 
     return {
@@ -201,7 +228,7 @@ const buildSearchMiddlewre: Middleware<
         dict: column.dict,
         ...column.search,
       })),
-      buttons,
+      actions,
       ...rest,
     }
   })
@@ -302,7 +329,12 @@ const buildAddFormMiddleware: Middleware<
   BuildCrudContext<any, any, any, any, any, any>
 > = (ctx, next) => {
   const { proFormBinding, proFormRef } = buildForm(scope => {
-    const { showDialog, hideDialog, merged } = useDialog(scope)
+    const { showDialog: _showDialog, hideDialog, merged } = useDialog(scope)
+
+    function showDialog(values: object | undefined) {
+      _showDialog(values)
+      ctx.modalType.value = 'add'
+    }
 
     ctx.scope.addForm = {
       ...scope,
@@ -321,7 +353,7 @@ const buildAddFormMiddleware: Middleware<
         CrudDialogOption | undefined
       >(
         { ...DefaultDialogOption },
-        { props: { title: '新增' } },
+        { props: { title: '新增', onCancel: hideDialog } },
         inject(GlobalOption)?.dialog,
         ctx.optionResult.dialog,
         ctx.optionResult.addFormDialog
@@ -344,19 +376,29 @@ const buildAddFormMiddleware: Middleware<
 
     return merge<
       CrudFormOptionResult,
+      CrudFormOptionResult,
       CrudFormOption | undefined,
       CrudFormOptionResult | undefined,
       BuildFormOptionResult<any>
     >(
+      { ...DefaultCrudForm },
       {
-        col: { span: 12 },
-        buttons: {
+        formProps: { disabled: false },
+        actions: {
           show: false,
           list: {
             cancel: {
               text: '取消',
               show: true,
               props: { onClick: hideDialog },
+            },
+            confirm: {
+              show: true,
+              props: {
+                onClick: () => {
+                  console.log('add')
+                },
+              },
             },
           },
         },
@@ -383,7 +425,12 @@ const buildEditFormMiddleware: Middleware<
   BuildCrudContext<any, any, any, any, any, any>
 > = (ctx, next) => {
   const { proFormBinding, proFormRef } = buildForm(scope => {
-    const { showDialog, hideDialog, merged } = useDialog(scope)
+    const { showDialog: _showDialog, hideDialog, merged } = useDialog(scope)
+
+    function showDialog(values: object | undefined) {
+      _showDialog(values)
+      ctx.modalType.value = 'edit'
+    }
 
     ctx.scope.editForm = {
       ...scope,
@@ -402,7 +449,7 @@ const buildEditFormMiddleware: Middleware<
         CrudDialogOption | undefined
       >(
         { ...DefaultDialogOption },
-        { props: { title: '编辑' } },
+        { props: { title: '编辑', onCancel: hideDialog } },
         inject(GlobalOption)?.dialog,
         ctx.optionResult.dialog,
         ctx.optionResult.editFormDialog
@@ -425,19 +472,30 @@ const buildEditFormMiddleware: Middleware<
 
     return merge<
       CrudFormOptionResult,
+      CrudFormOptionResult,
       CrudFormOption | undefined,
       CrudFormOptionResult | undefined,
       BuildFormOptionResult<any>
     >(
+      { ...DefaultCrudForm },
       {
-        col: { span: 12 },
-        buttons: {
+        formProps: { disabled: false },
+        actions: {
           show: false,
           list: {
             cancel: {
               text: '取消',
               show: true,
               props: { onClick: hideDialog },
+            },
+            confirm: {
+              show: true,
+              props: {
+                onClick: () => {
+                  // debugger
+                  console.log('edit')
+                },
+              },
             },
           },
         },
@@ -463,7 +521,12 @@ const buildViewFormMiddleware: Middleware<
   BuildCrudContext<any, any, any, any, any, any>
 > = (ctx, next) => {
   const { proFormBinding, proFormRef } = buildForm(scope => {
-    const { showDialog, hideDialog, merged } = useDialog(scope)
+    const { showDialog: _showDialog, hideDialog, merged } = useDialog(scope)
+
+    function showDialog(values: object | undefined) {
+      _showDialog(values)
+      ctx.modalType.value = 'view'
+    }
 
     ctx.scope.viewForm = {
       ...scope,
@@ -482,7 +545,7 @@ const buildViewFormMiddleware: Middleware<
         CrudDialogOption | undefined
       >(
         { ...DefaultDialogOption },
-        { props: { title: '查看' } },
+        { props: { title: '查看', onCancel: hideDialog } },
         inject(GlobalOption)?.dialog,
         ctx.optionResult.dialog,
         ctx.optionResult.viewFormDialog
@@ -506,16 +569,18 @@ const buildViewFormMiddleware: Middleware<
     return merge<
       CrudFormOptionResult,
       CrudFormOption | undefined,
+      CrudFormOption | undefined,
       CrudFormOptionResult | undefined,
       BuildFormOptionResult<any>
     >(
+      { ...DefaultCrudForm },
       {
-        col: { span: 12 },
-        buttons: {
+        formProps: { disabled: true },
+        actions: {
           show: false,
           list: {
             cancel: {
-              text: '取消',
+              text: '关闭',
               show: true,
               props: { onClick: hideDialog },
             },
@@ -527,11 +592,11 @@ const buildViewFormMiddleware: Middleware<
       ctx.optionResult.viewForm,
       {
         columns,
-        formProps: { disabled: true },
       }
     )
   })
 
+  console.log(123, proFormBinding.formProps.value)
   ctx.binding.viewForm = proFormBinding
   provide(ViewFormRef, proFormRef)
 }

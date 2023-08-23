@@ -1,10 +1,8 @@
 import type { DictionaryOption, MaybeRef, ValueType } from '../common'
+import type { ActionOption, ActionsOption } from '../ProButton'
 import type {
   BuildFormBinding,
   BuildFormOptionResult,
-  ButtonOption,
-  ButtonsOption,
-  ProFormButtons,
   ProFormColumnOptions,
   ProFormInstance,
   ProFormScope,
@@ -190,50 +188,67 @@ export interface BuildCrudBinding<
    */
   tableBinding: BuildProTableBinding<T>
 
-  /**
-   * 是否显示添加表单
-   */
-  addFormShow: ComputedRef<boolean>
+  // /**
+  //  * 是否显示添加表单
+  //  */
+  // addFormShow: ComputedRef<boolean>
+
+  // /**
+  //  * 添加表单配置
+  //  */
+  // addFormBinding: BuildSearchBinding<A>
+
+  // /**
+  //  * 添加表单弹窗配置
+  //  */
+  // addFormDialog: ComputedRef<CrudDialogOption>
+
+  // /**
+  //  * 是否显示编辑表单
+  //  */
+  // editFormShow: ComputedRef<boolean>
+
+  // /**
+  //  * 编辑表单配置
+  //  */
+  // editFormBinding: BuildSearchBinding<E>
+
+  // /**
+  //  * 编辑表单弹窗配置
+  //  */
+  // editFormDialog: ComputedRef<CrudDialogOption>
+
+  // /**
+  //  * 是否显示查看表单
+  //  */
+  // viewFormShow: ComputedRef<boolean>
+
+  // /**
+  //  * 查看表单配置
+  //  */
+  // viewFormBinding: BuildSearchBinding<T>
+
+  // /**
+  //  * 查看表单弹窗配置
+  //  */
+  // viewFormDialog: ComputedRef<CrudDialogOption>
 
   /**
-   * 添加表单配置
+   * 是否显示表单弹窗
    */
-  addFormBinding: BuildSearchBinding<A>
+  modalShow?: ComputedRef<boolean>
 
   /**
-   * 添加表单弹窗配置
+   * 弹窗配置
    */
-  addFormDialog: ComputedRef<CrudDialogOption>
+  modalProps: ComputedRef<CrudDialogOption | undefined>
 
   /**
-   * 是否显示编辑表单
+   * 弹窗表单配置
    */
-  editFormShow: ComputedRef<boolean>
-
-  /**
-   * 编辑表单配置
-   */
-  editFormBinding: BuildSearchBinding<E>
-
-  /**
-   * 编辑表单弹窗配置
-   */
-  editFormDialog: ComputedRef<CrudDialogOption>
-
-  /**
-   * 是否显示查看表单
-   */
-  viewFormShow: ComputedRef<boolean>
-
-  /**
-   * 查看表单配置
-   */
-  viewFormBinding: BuildSearchBinding<T>
-
-  /**
-   * 查看表单弹窗配置
-   */
-  viewFormDialog: ComputedRef<CrudDialogOption>
+  modalFormProps: ComputedRef<
+    BuildFormBinding<A> | BuildFormBinding<E> | BuildFormBinding<T> | undefined
+  >
 }
 
 /**
@@ -271,7 +286,7 @@ export interface BuildCrudOptionReturn<
   /**
    * 搜索栏配置
    */
-  search?: CrudFormOption
+  search?: CrudSearchOptionResult
 
   /**
    * 添加、编辑、查看表单公共配置
@@ -352,21 +367,46 @@ export type CrudFormOption = Omit<
 }
 
 /**
+ * 确定按钮
+ */
+export interface ConfirmAction {
+  confirm?: ActionOption
+}
+
+/**
+ * 取消按钮
+ */
+export interface CancelAction {
+  cancel?: ActionOption
+}
+
+/**
+ * 搜索按钮
+ */
+export interface SearchAction {
+  confirm?: ActionOption
+  reset?: ActionOption
+}
+
+/**
  * ProCrud AddForm、EditForm 配置
  */
-export type CrudFormOptionResult = Omit<CrudFormOption, 'buttons'> & {
-  buttons?: Omit<ButtonsOption, 'list'> & {
-    list?: ProFormButtons & { cancel?: ButtonOption }
-  }
+export type CrudFormOptionResult = Omit<CrudFormOption, 'actions'> & {
+  actions?: ActionsOption<ConfirmAction & CancelAction>
+}
+
+/**
+ * ProCrud Search
+ */
+export type CrudSearchOptionResult = Omit<CrudFormOption, 'actions'> & {
+  actions?: ActionsOption<SearchAction>
 }
 
 /**
  * ProCrud ViewForm 配置
  */
-export type CrudViewFormOptionResult = Omit<CrudFormOption, 'buttons'> & {
-  buttons?: Omit<ButtonsOption, 'list'> & {
-    list?: { cancel?: ButtonOption; [name: string]: ButtonOption | undefined }
-  }
+export type CrudViewFormOptionResult = Omit<CrudFormOption, 'actions'> & {
+  actions?: ActionsOption<CancelAction>
 }
 
 /**
@@ -518,4 +558,7 @@ export type BuildCrudContext<
     viewForm: ComputedRef<CrudDialogOption>
   }
   options: BuildCrudOption<any, T, R, S, S1, A, E>
+  modalType: Ref<ModalType | undefined>
 }
+
+export type ModalType = 'view' | 'edit' | 'add'
