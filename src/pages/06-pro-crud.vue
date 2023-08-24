@@ -121,6 +121,8 @@ const { proCrudBinding, proCrudRef } = buildCrud<
       toast: false,
     },
 
+    editToast: '编辑666',
+
     dialog: {
       props: {
         // showClose: false,

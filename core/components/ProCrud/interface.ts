@@ -20,6 +20,7 @@ import type {
   ProTableColumnProps,
   ProTableScope,
 } from '../ProTable'
+import type { SuccessToastOptions } from '../Toast'
 import type { ModalProps } from 'ant-design-vue'
 import type { ComputedRef, Ref } from 'vue'
 
@@ -132,7 +133,7 @@ export interface ProCrudScope<
   E extends object
 > {
   search: ProSearchScope<S>
-  table: ProTableScope
+  table: ProTableScope<T>
   addForm: CrudFormScope<A>
   editForm: CrudFormScope<E>
   viewForm: CrudFormScope<T>
@@ -209,6 +210,21 @@ export interface BuildCrudBinding<
   modalFormProps: ComputedRef<
     BuildFormBinding<A> | BuildFormBinding<E> | BuildFormBinding<T> | undefined
   >
+
+  /**
+   * 删除成功提示
+   */
+  deleteToast?: SuccessToastOptions
+
+  /**
+   * 新增成功提示
+   */
+  addToast?: SuccessToastOptions
+
+  /**
+   * 编辑成功提示
+   */
+  editToast?: SuccessToastOptions
 }
 
 /**
@@ -314,6 +330,27 @@ export interface BuildCrudOptionReturn<
    * 操作列配置
    */
   action?: CrudTableOperateProps<T>
+
+  /**
+   * 删除成功提示
+   *
+   * @default '删除成功'
+   */
+  deleteToast?: SuccessToastOptions
+
+  /**
+   * 新增成功提示
+   *
+   * @default '新增成功'
+   */
+  addToast?: SuccessToastOptions
+
+  /**
+   * 编辑成功提示
+   *
+   * @default '编辑成功'
+   */
+  editToast?: SuccessToastOptions
 }
 
 /**

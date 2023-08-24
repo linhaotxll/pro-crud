@@ -1,4 +1,4 @@
-import type { ProFormColumnOptions, SuccessToastOptions } from './interface'
+import type { ProFormColumnOptions } from './interface'
 import type { ColProps, FormItemInstance } from 'ant-design-vue'
 import type { NamePath } from 'ant-design-vue/es/form/interface'
 import type { InjectionKey, Ref } from 'vue'
@@ -37,9 +37,3 @@ export const DefaultProProColumn: ProFormColumnOptions<any> = {
 }
 
 export const DefaultProFormCol: ColProps = { span: 24 }
-
-export const DefaultSuccessToastOptions: SuccessToastOptions = {
-  type: 'message',
-  // @ts-ignore
-  props: { content: '保存成功', message: '保存成功' },
-}

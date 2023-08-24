@@ -1,20 +1,13 @@
-import {
-  type FormItemProps,
-  type FormInstance,
-  type FormItemInstance,
-  type FormProps,
-  message,
-  notification,
-} from 'ant-design-vue'
 import cloneDeep from 'clone-deep'
 import { get, has, merge, set, unset } from 'lodash-es'
 import { computed, ref, toRaw } from 'vue'
 
 import { buildFormColumn } from './buildFormColumn'
-import { DefaultProFormCol, DefaultSuccessToastOptions } from './constant'
+import { DefaultProFormCol } from './constant'
 import { useValues } from './useValues'
 
 import { unRef } from '../common'
+import { showToast } from '../Toast'
 
 import type {
   BuildFormBinding,
@@ -26,7 +19,13 @@ import type {
   ProFormScope,
 } from './interface'
 import type { Arrayable } from '../common'
-import type { ColProps } from 'ant-design-vue'
+import type {
+  FormItemProps,
+  FormInstance,
+  FormItemInstance,
+  FormProps,
+  ColProps,
+} from 'ant-design-vue'
 import type {
   NamePath,
   ValidateOptions,
@@ -168,14 +167,7 @@ export function buildForm<T extends object, C, R = T>(
     // 提示
     if (result) {
       successRequest?.()
-      if (toast !== false) {
-        const mergeToast = merge({}, DefaultSuccessToastOptions, toast)
-        if (mergeToast.type === 'message') {
-          message.success(mergeToast.props)
-        } else if (mergeToast.type === 'notification') {
-          notification.success(mergeToast.props!)
-        }
-      }
+      showToast(toast)
     }
   }
 

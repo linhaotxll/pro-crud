@@ -6,6 +6,7 @@ import type {
 } from '../common'
 import type { ExtractMaybeRef, JSXElement, MaybeRef } from '../common/interface'
 import type { ActionOption, ActionsList } from '../ProButton'
+import type { SuccessToastOptions } from '../Toast'
 import type {
   ButtonProps,
   ModalProps,
@@ -343,6 +344,13 @@ export interface ProTableEditableOptions<T> {
    * 编辑模式下的操作
    */
   actions?: ActionsList<ProTableEditableActions<T>>
+
+  /**
+   * 编辑成功提示
+   *
+   * @default '编辑成功'
+   */
+  toast?: SuccessToastOptions
 }
 
 /**

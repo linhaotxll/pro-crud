@@ -5,8 +5,10 @@ import { computed, h, inject, provide, ref } from 'vue'
 import { compose } from './compose'
 import {
   AddFormRef,
+  DefaultAddFormToast,
   DefaultCrudForm,
   DefaultDialogOption,
+  DefaultEditFormToast,
   DefaultShow,
   EditFormRef,
   ProSearchRef,
@@ -30,6 +32,7 @@ import { unRef, useDict } from '../common'
 import { buildForm, type ProFormColumnOptions } from '../ProForm'
 import { buildSearch } from '../ProSearch'
 import { buildTable } from '../ProTable'
+import { showToast } from '../Toast'
 
 import { GlobalOption } from '~/constant'
 
@@ -134,6 +137,7 @@ export function buildCrud<
       editForm: editFormDialog,
       viewForm: viewFormDialog,
     },
+    optionResult: { deleteToast, addToast, editToast },
   } = context
 
   const modalShow = computed(() => {
@@ -171,6 +175,9 @@ export function buildCrud<
     modalShow,
     modalProps,
     modalFormProps,
+    deleteToast,
+    addToast,
+    editToast,
   }
 
   // @ts-ignore
@@ -394,11 +401,7 @@ const buildAddFormMiddleware: Middleware<
             },
             confirm: {
               show: true,
-              props: {
-                onClick: () => {
-                  console.log('add')
-                },
-              },
+              props: { onClick: scope.submit },
             },
           },
         },
@@ -410,6 +413,7 @@ const buildAddFormMiddleware: Middleware<
         submitRequest: ctx.optionResult.request?.addRequest,
         successRequest() {
           hideDialog()
+          showToast(ctx.optionResult.addToast, DefaultAddFormToast)
           ctx.scope.table.reload()
         },
       }
@@ -490,12 +494,7 @@ const buildEditFormMiddleware: Middleware<
             },
             confirm: {
               show: true,
-              props: {
-                onClick: () => {
-                  // debugger
-                  console.log('edit')
-                },
-              },
+              props: { onClick: scope.submit },
             },
           },
         },
@@ -507,6 +506,7 @@ const buildEditFormMiddleware: Middleware<
         submitRequest: ctx.optionResult.request?.editRequest,
         successRequest() {
           hideDialog()
+          showToast(ctx.optionResult.editToast, DefaultEditFormToast)
           ctx.scope.table.reload()
         },
       }

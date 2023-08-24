@@ -1,7 +1,9 @@
-import { message } from 'ant-design-vue'
 import { merge } from 'lodash-es'
 
+import { EditSuccessToast } from './constant'
+
 import { ProButtonGroup } from '../ProButton'
+import { showToast } from '../Toast'
 
 import type {
   BuildProTableOptionResult,
@@ -52,7 +54,7 @@ export function useAction<T extends object>(
                         if (values) {
                           const result = await onSubmit?.(values, ctx)
                           if (result) {
-                            message.success('编辑成功')
+                            showToast(editable.toast ?? EditSuccessToast)
                             scope.cancelEditable(getRowKey(ctx.record))
                             scope.reload()
                           }

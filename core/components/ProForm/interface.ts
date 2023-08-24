@@ -7,6 +7,7 @@ import type {
   ValueType,
 } from '../common'
 import type { ActionOption, ActionsOption } from '../ProButton'
+import type { SuccessToastOptions } from '../Toast'
 import type {
   ColProps,
   FormItemProps,
@@ -15,13 +16,11 @@ import type {
   FormItemInstance,
   FormProps,
   RowProps,
-  MessageArgsProps,
 } from 'ant-design-vue'
 import type {
   NamePath,
   ValidateOptions,
 } from 'ant-design-vue/es/form/interface'
-import type { NotificationArgsProps } from 'ant-design-vue/es/notification'
 import type { CSSProperties, ComputedRef, Ref } from 'vue'
 
 type Tooltip = TooltipProps & {
@@ -238,22 +237,6 @@ export interface ProFormActions {
    */
   confirm?: ActionOption
 }
-
-/**
- * 表单提交成功提示类型
- */
-export type SuccessToastType = 'message' | 'notification'
-
-export type SuccessToastOptions =
-  | false
-  | {
-      type: 'message'
-      props?: MessageArgsProps
-    }
-  | {
-      type: 'notification'
-      props?: NotificationArgsProps
-    }
 
 /**
  * 表单实例方法

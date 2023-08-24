@@ -1,5 +1,8 @@
-import { message } from 'ant-design-vue'
 import { merge } from 'lodash-es'
+
+import { ConfirmDeleteContent, DeleteRecordToast } from './constant'
+
+import { showToast } from '../Toast'
 
 import type { CrudTableOperateProps, BuildCrudContext } from './interface'
 import type { BodyCellSlotParams } from '../ProTable'
@@ -17,7 +20,7 @@ export function useOperate<
 
     if (response) {
       ctx.scope.table.reload()
-      message.success('删除成功')
+      showToast(ctx.optionResult.deleteToast ?? DeleteRecordToast)
     }
   }
 
@@ -60,6 +63,7 @@ export function useOperate<
               e.stopPropagation()
               return deleteItem(ctx)
             },
+            title: ConfirmDeleteContent,
             onOk: deleteItem,
             cancelText: '取消',
             okText: '删除',
