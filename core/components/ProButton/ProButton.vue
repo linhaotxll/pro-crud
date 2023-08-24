@@ -18,6 +18,8 @@ export default defineComponent({
   },
 
   setup(props) {
+    const [modal, ContextHolder] = Modal.useModal()
+
     return () => {
       const config = props.config
       if (!config) {
@@ -29,9 +31,12 @@ export default defineComponent({
       const $inner = config.render ? (
         <ProRender render={config.render} />
       ) : (
-        <Button {...rest} onClick={handleClickButton}>
-          {config.text}
-        </Button>
+        <>
+          <ContextHolder />
+          <Button {...rest} onClick={handleClickButton}>
+            {config.text}
+          </Button>
+        </>
       )
 
       const $wrapper =
@@ -45,9 +50,7 @@ export default defineComponent({
 
       function handleClickButton(e: MouseEvent) {
         if (config.confirmType === 'modal') {
-          Modal.confirm({
-            ...config.confirmProps,
-          })
+          modal.confirm(config.confirmProps)
           return
         }
 

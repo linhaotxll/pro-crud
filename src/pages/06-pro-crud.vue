@@ -4,7 +4,7 @@
 
 <script lang="tsx" setup>
 import axios from 'axios'
-import { computed, ref } from 'vue'
+import { computed } from 'vue'
 
 // import BasicDialog from '../components/BasicDialog.vue'
 
@@ -44,7 +44,7 @@ interface UserSearchForm {
 
 const sleep = (time = 1000) => new Promise(r => setTimeout(r, time))
 
-const showOperate = ref(true)
+// const showOperate = ref(true)
 
 const rules = {
   name: { required: true, message: '请填写名称' },
@@ -141,6 +141,8 @@ const { proCrudBinding, proCrudRef } = buildCrud<
       },
     },
 
+    // actions: {},
+
     // editFormDialog: {
     //   props: {
     //     showClose: true,
@@ -187,22 +189,7 @@ const { proCrudBinding, proCrudRef } = buildCrud<
     //   },
     // },
 
-    operates: {
-      show: showOperate,
-      columnProps: {
-        width: 240,
-        fixed: 'right',
-      },
-      buttons: {
-        delete: {
-          confirmType: 'popconfirm',
-          confirmProps: {
-            title: 'aaa',
-            confirmButtonType: 'primary',
-          },
-        },
-      },
-    },
+    // actions: {},
 
     request: {
       transformQuery(options) {

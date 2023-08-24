@@ -329,7 +329,7 @@ export interface BuildCrudOptionReturn<
   /**
    * 操作列配置
    */
-  action?: CrudTableOperateProps<T>
+  actions?: CrudTableOperateProps<T>
 
   /**
    * 删除成功提示
@@ -439,7 +439,7 @@ export interface CrudTableOperateProps<T extends object>
      * 查看按钮
      */
     view?: ProTableActionProps<T>
-  } & ProTableActions<T>
+  } & ProTableActions<any>
 }
 
 /**

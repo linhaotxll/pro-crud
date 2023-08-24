@@ -99,7 +99,7 @@ export function buildTable<T extends object, C, P extends object = any>(
     loading: originLoading,
     toolbar: originToolbar,
     params,
-    action,
+    actions,
     onLoad,
     fetchTableData,
     submitEditable,
@@ -254,7 +254,7 @@ export function buildTable<T extends object, C, P extends object = any>(
   const { columns, tableSlots, onResizeColumn } = useColumns(
     scope,
     originColumns.concat(
-      useAction(scope, action, editable, getRowKey, submitEditable)
+      useAction(scope, actions, editable, getRowKey, submitEditable)
     ),
     originTableSlots,
     getRowKey

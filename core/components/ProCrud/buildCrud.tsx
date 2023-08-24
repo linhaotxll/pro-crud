@@ -273,7 +273,7 @@ const buildTableMiddleware: Middleware<
         toolbar
       ),
       ...rest,
-      action: actionColumn,
+      actions: actionColumn,
       columns: ctx.columns.table.map<ProTableColumnProps<any>>(column => ({
         label: column.label,
         name: column.name,
