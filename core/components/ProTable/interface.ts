@@ -77,7 +77,7 @@ export type BodyCellSlotParams<T> = {
 /**
  * ProTable 组件实例方法
  */
-export type ProTableInstance = ProTableScope
+export type ProTableInstance<T> = ProTableScope<T>
 
 /**
  * 列配置
@@ -220,7 +220,7 @@ export interface InternalProTableColumnProps<T> {
  * buildTable 返回值
  */
 export type BuildProTableResult<T extends object> = {
-  proTableRef: Ref<ProTableInstance | null>
+  proTableRef: Ref<ProTableInstance<T> | null>
   proTableBinding: BuildProTableBinding<T>
 }
 
@@ -298,10 +298,11 @@ export type BuildProTableOptionResult<T extends object, P extends object> = {
   fetchTableData?: FetchTableListRequest<T, P>
 
   /**
-   * 提交编辑内容
+   * 提交编辑行内容
    */
   submitEditable?: (
-    values: T & { [name: string]: any }
+    values: T,
+    ctx: BodyCellSlotParams<T>
   ) => Promise<boolean> | boolean
 
   /**
@@ -363,7 +364,11 @@ export interface ProvideEditTableOptions<T> extends ProTableEditableOptions<T> {
   editRowKeys: Ref<Key[]>
   values: Record<string, any>
 
-  getRowKey(record: any): Key
+  getRowKey(
+    record: T
+    // index: number,
+    // rowKey?: Key | GetRowKey<T> | undefined
+  ): Key
 }
 
 /**
@@ -374,7 +379,7 @@ export interface BuildProTableBinding<T extends object> {
   tableSlots: InternalTableSlots<T>
   loading: ComputedRef<SpinProps>
   columns: ComputedRef<ColumnType<T>[]>
-  scope: ProTableScope
+  scope: ProTableScope<T>
   toolbar: ComputedRef<InternalProTableToolbarOption>
   editableTableData: ProvideEditTableOptions<T> | undefined
 }
@@ -382,7 +387,7 @@ export interface BuildProTableBinding<T extends object> {
 /**
  * ProTable 作用域
  */
-export interface ProTableScope {
+export interface ProTableScope<T> {
   /**
    * 重新加载指定页数数据，默认加载当前页数
    */
@@ -423,6 +428,19 @@ export interface ProTableScope {
    * @param columnName
    */
   validateEditable(rowKey: Key): boolean
+
+  /**
+   * 获取行数据
+   * @param rowKey
+   */
+  getRowData(rowKey: Key): T | undefined
+
+  /**
+   * 设置行数据
+   * @param rowKey
+   * @param data
+   */
+  setRowData(rowKey: Key, data: Partial<T>): void
 }
 
 /**

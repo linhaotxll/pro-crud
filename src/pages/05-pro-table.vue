@@ -185,7 +185,8 @@ const { proTableRef, proTableBinding } = buildTable<User>(scope => ({
         props: {
           type: 'primary',
           onClick(_, ctx) {
-            console.log(1, ctx)
+            // console.log(1, ctx.record.id)
+            // debugger
             scope.startEditable(ctx.record.id)
           },
         },
@@ -207,6 +208,17 @@ const { proTableRef, proTableBinding } = buildTable<User>(scope => ({
     })
     const { rows, total } = result.data.data
     return { data: rows, total: total }
+  },
+
+  async submitEditable(values, ctx) {
+    const result = await axios.post<boolean>('/api/user/update', {
+      // data: {
+      userId: ctx.record.id,
+      ...values,
+      // },
+    })
+
+    return !!result.data
   },
 
   toolbar: {

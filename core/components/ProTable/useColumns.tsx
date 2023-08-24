@@ -15,17 +15,17 @@ import type {
   InternalTableSlots,
   ProTableColumnProps,
   ProTableScope,
+  ProvideEditTableOptions,
   TableSlots,
 } from './interface'
 import type { ColumnType, ValueType } from '../common'
-import type { Key } from 'ant-design-vue/es/_util/type'
 import type { Ref } from 'vue'
 
 export function useColumns<T extends object>(
-  scope: ProTableScope,
+  scope: ProTableScope<T>,
   tableColumns: ProTableColumnProps<T>[],
   tableSlots: TableSlots<T> | undefined,
-  getRowKey: (record: T) => Key
+  getRowKey: ProvideEditTableOptions<T>['getRowKey']
 ) {
   // 解析后的 slots
   const resolvedTableSlots: InternalTableSlots<T> = { ...tableSlots }
@@ -86,20 +86,11 @@ export function useColumns<T extends object>(
     if (!resolvedTableSlots.bodyCell) {
       resolvedTableSlots.bodyCell = ctx => {
         const __column = ctx.column.__column
-        const resolvedKey = unRef(ctx.column.key || ctx.column.dataIndex)
         const $default = ctx.text
 
         ctx.editable = scope.validateEditable(getRowKey(ctx.record)) ?? false
 
-        if (
-          ctx.column.key === resolvedKey ||
-          ctx.column.dataIndex === resolvedKey ||
-          __column!.renderCell
-        ) {
-          return __column!.columnSlots?.bodyCell?.(ctx) ?? $default
-        }
-
-        return $default
+        return __column!.columnSlots?.bodyCell?.(ctx) ?? $default
       }
     }
   }

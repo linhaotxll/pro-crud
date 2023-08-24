@@ -34,7 +34,7 @@ const genUser = (i: number): any => ({
   children: i === 2 ? [genUser(0)] : undefined,
 })
 
-const userList = Array.from({ length: 1 }).map((_, i) => genUser(i))
+const userList = Array.from({ length: 4 }).map((_, i) => genUser(i))
 
 const mock: MockMethod[] = [
   {
@@ -99,7 +99,7 @@ const mock: MockMethod[] = [
     url: '/api/user/add',
     method: 'post',
     response(opt) {
-      const data = opt.body
+      const data = { ...opt.body, id: Random.id() }
 
       userList.unshift(data as any)
 

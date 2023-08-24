@@ -41,23 +41,26 @@ export function buildTable<
   P extends object = any
 >(
   options: (
-    scope: ProTableScope,
+    scope: ProTableScope<T>,
     ctx?: C | undefined
   ) => BuildProTableOptionResult<T, P>
 ): BuildProTableResult<T>
 export function buildTable<T extends object, C, P extends object = any>(
-  options: (scope: ProTableScope, ctx: C) => BuildProTableOptionResult<T, P>,
+  options: (scope: ProTableScope<T>, ctx: C) => BuildProTableOptionResult<T, P>,
   ctx: C
 ): BuildProTableResult<T>
 
 export function buildTable<T extends object, C, P extends object = any>(
-  options: (scope: ProTableScope, ctx?: C) => BuildProTableOptionResult<T, P>,
+  options: (
+    scope: ProTableScope<T>,
+    ctx?: C
+  ) => BuildProTableOptionResult<T, P>,
   ctx?: C | undefined
 ): BuildProTableResult<T> {
   // const elTableRef = ref<any | null>(null)
 
   // 作用域对象
-  const scope: ProTableScope = {
+  const scope: ProTableScope<T> = {
     next,
     previous,
     reset,
@@ -65,12 +68,22 @@ export function buildTable<T extends object, C, P extends object = any>(
     startEditable,
     cancelEditable,
     validateEditable(rowKey) {
-      const editableTableData = inject(EditableTableData)
       if (!editableTableData) {
         return false
       }
 
       return editableTableData.editRowKeys.value.includes(rowKey)
+    },
+    getRowData(rowKey) {
+      if (editableTableData) {
+        return editableTableData.values[rowKey]
+      }
+      return undefined
+    },
+    setRowData(rowKey, data) {
+      if (editableTableData) {
+        editableTableData.values[rowKey] = data
+      }
     },
   }
 
@@ -89,11 +102,24 @@ export function buildTable<T extends object, C, P extends object = any>(
     action,
     onLoad,
     fetchTableData,
+    submitEditable,
     onSizeChange,
     onLoadingChange,
     onDataSourceChange,
     onRequestError,
   } = options(scope, ctx)
+
+  const editableTableData: ProvideEditTableOptions<T> | undefined =
+    editable !== false
+      ? {
+          ...editable,
+          editRowKeys: ref([]),
+          values: reactive({}),
+          getRowKey,
+        }
+      : undefined
+
+  provide(EditableTableData, editableTableData)
 
   // 真实数据
   const data = ref(defaultData) as Ref<T[]>
@@ -115,34 +141,6 @@ export function buildTable<T extends object, C, P extends object = any>(
     })
   }
 
-  // debugger
-  // const { proFormBinding: editFormBinding } = buildForm<any>(editFormScope => {
-  //   scope.editFormScope = editFormScope
-
-  //   return {
-  //     columns: originColumns.map(column => ({
-  //       name: column.name as any,
-  //       show: true,
-  //       type: column.type,
-  //       dict: column.dict,
-  //     })),
-  //     formProps: { colon: false },
-  //     buttons: { show: false },
-  //   }
-  // })
-
-  const editableTableData: ProvideEditTableOptions<T> | undefined =
-    editable !== false
-      ? {
-          ...editable,
-          editRowKeys: ref([]),
-          values: reactive({}),
-          getRowKey,
-        }
-      : undefined
-
-  provide(EditableTableData, editableTableData)
-
   /**
    * 开始编辑行
    * @param rowKey
@@ -154,8 +152,7 @@ export function buildTable<T extends object, C, P extends object = any>(
       const record = data.value.find(record => getRowKey(record) === rowKey)
 
       if (record) {
-        // TODO:
-        editableTableData.values[rowKey] = { ...record }
+        scope.setRowData(rowKey, { ...record })
       }
     }
   }
@@ -256,7 +253,9 @@ export function buildTable<T extends object, C, P extends object = any>(
 
   const { columns, tableSlots, onResizeColumn } = useColumns(
     scope,
-    originColumns.concat(useAction(scope, action, editable, getRowKey)),
+    originColumns.concat(
+      useAction(scope, action, editable, getRowKey, submitEditable)
+    ),
     originTableSlots,
     getRowKey
   )
@@ -410,7 +409,7 @@ export function buildTable<T extends object, C, P extends object = any>(
     }
   })
 
-  const proTableRef = ref<ProTableInstance | null>(null)
+  const proTableRef = ref<ProTableInstance<T> | null>(null)
   const buildProTableResult: BuildProTableResult<T> = {
     proTableRef,
     proTableBinding: {

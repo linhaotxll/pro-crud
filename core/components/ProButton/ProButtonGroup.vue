@@ -50,6 +50,7 @@ const resolvedSpace = computed<SpaceProps | null>(() => {
   const space = unRef(p.space)
   const result = space
     ? Object.keys(space).reduce((prev, key) => {
+        // @ts-ignore
         prev[key] = unRef(space[key])
         return prev
       }, {})
