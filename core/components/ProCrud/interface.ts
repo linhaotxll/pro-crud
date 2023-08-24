@@ -188,50 +188,10 @@ export interface BuildCrudBinding<
    */
   tableBinding: BuildProTableBinding<T>
 
-  // /**
-  //  * 是否显示添加表单
-  //  */
-  // addFormShow: ComputedRef<boolean>
-
-  // /**
-  //  * 添加表单配置
-  //  */
-  // addFormBinding: BuildSearchBinding<A>
-
-  // /**
-  //  * 添加表单弹窗配置
-  //  */
-  // addFormDialog: ComputedRef<CrudDialogOption>
-
-  // /**
-  //  * 是否显示编辑表单
-  //  */
-  // editFormShow: ComputedRef<boolean>
-
-  // /**
-  //  * 编辑表单配置
-  //  */
-  // editFormBinding: BuildSearchBinding<E>
-
-  // /**
-  //  * 编辑表单弹窗配置
-  //  */
-  // editFormDialog: ComputedRef<CrudDialogOption>
-
-  // /**
-  //  * 是否显示查看表单
-  //  */
-  // viewFormShow: ComputedRef<boolean>
-
-  // /**
-  //  * 查看表单配置
-  //  */
-  // viewFormBinding: BuildSearchBinding<T>
-
-  // /**
-  //  * 查看表单弹窗配置
-  //  */
-  // viewFormDialog: ComputedRef<CrudDialogOption>
+  /**
+   * 弹窗类型
+   */
+  modalType: Ref<ModalType | undefined>
 
   /**
    * 是否显示表单弹窗

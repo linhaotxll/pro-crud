@@ -24,10 +24,12 @@ export default defineComponent({
         return null
       }
 
+      const { onClick: originClick, ...rest } = config.props ?? {}
+
       const $inner = config.render ? (
         <ProRender render={config.render} />
       ) : (
-        <Button {...config.props} onClick={handleClickButton}>
+        <Button {...rest} onClick={handleClickButton}>
           {config.text}
         </Button>
       )
@@ -50,7 +52,6 @@ export default defineComponent({
         }
 
         if (config.confirmType === false) {
-          const originClick = config.props?.onClick
           if (typeof originClick === 'function') {
             originClick(e)
           } else if (Array.isArray(originClick)) {
@@ -64,10 +65,4 @@ export default defineComponent({
     }
   },
 })
-
-// defineOptions({ name: 'ProButtons' })
-
-// defineProps<{
-//   config: ActionOption
-// }>()
 </script>

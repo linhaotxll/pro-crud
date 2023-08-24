@@ -167,7 +167,7 @@ export function buildCrud<
     searchBinding,
     tableShow,
     tableBinding,
-
+    modalType: context.modalType,
     modalShow,
     modalProps,
     modalFormProps,
