@@ -596,7 +596,6 @@ const buildViewFormMiddleware: Middleware<
     )
   })
 
-  console.log(123, proFormBinding.formProps.value)
   ctx.binding.viewForm = proFormBinding
   provide(ViewFormRef, proFormRef)
 }
