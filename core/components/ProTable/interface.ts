@@ -151,7 +151,9 @@ export type ProTableActionColumnProps<T> = Omit<
   ProTableColumnProps<T>,
   'type' | 'dict' | 'editable'
 > & {
-  // 操作配置
+  /**
+   * 操作按钮组
+   */
   actions?: ActionsList<ProTableActions<T>>
 }
 

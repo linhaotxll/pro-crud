@@ -141,7 +141,17 @@ const { proCrudBinding, proCrudRef } = buildCrud<
       },
     },
 
-    // actions: {},
+    action: {
+      actions: {
+        edit: { show: false },
+      },
+      // edit: { show: false },
+      // a: {},
+      // edit: {},
+      // actions: {
+      //   edit: {},
+      // },
+    },
 
     // editFormDialog: {
     //   props: {

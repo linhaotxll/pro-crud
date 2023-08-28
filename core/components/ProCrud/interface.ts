@@ -1,5 +1,5 @@
 import type { DictionaryOption, MaybeRef, ValueType } from '../common'
-import type { ActionOption, ActionsOption } from '../ProButton'
+import type { ActionOption, ActionsList, ActionsOption } from '../ProButton'
 import type {
   BuildFormBinding,
   BuildFormOptionResult,
@@ -16,7 +16,6 @@ import type {
   FetchTableListQuery,
   ProTableActionColumnProps,
   ProTableActionProps,
-  ProTableActions,
   ProTableColumnProps,
   ProTableScope,
 } from '../ProTable'
@@ -260,6 +259,11 @@ export interface BuildCrudOptionReturn<
   columns?: ProCrudColumnOption<T, S, A, E>[]
 
   /**
+   * 操作列配置
+   */
+  action?: CrudActionOption<T>
+
+  /**
    * 搜索栏配置
    */
   search?: CrudSearchOptionResult
@@ -327,11 +331,6 @@ export interface BuildCrudOptionReturn<
   autoReload?: boolean
 
   /**
-   * 操作列配置
-   */
-  actions?: CrudTableOperateProps<T>
-
-  /**
    * 删除成功提示
    *
    * @default '删除成功'
@@ -351,6 +350,13 @@ export interface BuildCrudOptionReturn<
    * @default '编辑成功'
    */
   editToast?: SuccessToastOptions
+}
+
+export type CrudActionOption<T extends object> = Omit<
+  ProTableActionColumnProps<T>,
+  'actions'
+> & {
+  actions?: ActionsList<CrudTableActions<T>>
 }
 
 /**
@@ -419,27 +425,23 @@ export interface CrudDialogOption {
 }
 
 /**
- * 操作列配置
+ * Crud 操作列配置
  */
-export interface CrudTableOperateProps<T extends object>
-  extends Omit<ProTableActionColumnProps<T>, 'actions'> {
-  // 按钮组配置
-  actions: {
-    /**
-     * 编辑按钮
-     */
-    edit?: ProTableActionProps<T>
+export interface CrudTableActions<T extends object> {
+  /**
+   * 编辑按钮
+   */
+  edit?: ProTableActionProps<T>
 
-    /**
-     * 删除按钮
-     */
-    delete?: ProTableActionProps<T>
+  /**
+   * 删除按钮
+   */
+  delete?: ProTableActionProps<T>
 
-    /**
-     * 查看按钮
-     */
-    view?: ProTableActionProps<T>
-  } & ProTableActions<any>
+  /**
+   * 查看按钮
+   */
+  view?: ProTableActionProps<T>
 }
 
 /**

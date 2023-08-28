@@ -4,8 +4,8 @@ import { ConfirmDeleteContent, DeleteRecordToast } from './constant'
 
 import { showToast } from '../Toast'
 
-import type { CrudTableOperateProps, BuildCrudContext } from './interface'
-import type { BodyCellSlotParams } from '../ProTable'
+import type { BuildCrudContext, CrudActionOption } from './interface'
+import type { BodyCellSlotParams, ProTableActionColumnProps } from '../ProTable'
 
 export function useOperate<
   T extends object,
@@ -24,9 +24,9 @@ export function useOperate<
     }
   }
 
-  const mergeOperate: CrudTableOperateProps<T> = merge<
-    CrudTableOperateProps<T>,
-    CrudTableOperateProps<T> | undefined
+  const mergeOperate: ProTableActionColumnProps<T> = merge<
+    ProTableActionColumnProps<T>,
+    CrudActionOption<T> | undefined
   >(
     {
       label: '操作',
