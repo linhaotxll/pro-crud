@@ -4,7 +4,11 @@ import { defineComponent } from 'vue'
 
 import { ProRender } from '../ProRender'
 
-import type { ActionConfirmProps, ActionOption } from './interface'
+import type {
+  ActionConfirmProps,
+  ActionModalProps,
+  ActionOption,
+} from './interface'
 import type { PropType } from 'vue'
 
 export default defineComponent({
@@ -18,9 +22,10 @@ export default defineComponent({
   },
 
   setup(props) {
-    const [modal, ContextHolder] = Modal.useModal()
+    const [modal, contextHolder] = Modal.useModal()
 
     return () => {
+      const ContextHolder = contextHolder()
       const config = props.config
       if (!config) {
         return null
@@ -32,6 +37,7 @@ export default defineComponent({
         <ProRender render={config.render} />
       ) : (
         <>
+          {/* @ts-ignore */}
           <ContextHolder />
           <Button {...rest} onClick={handleClickButton}>
             {config.text}
@@ -50,7 +56,7 @@ export default defineComponent({
 
       function handleClickButton(e: MouseEvent) {
         if (config.confirmType === 'modal') {
-          modal.confirm(config.confirmProps)
+          modal.confirm(config.confirmProps as ActionModalProps)
           return
         }
 

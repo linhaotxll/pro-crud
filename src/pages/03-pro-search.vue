@@ -432,7 +432,7 @@ const { proSearchBinding, proSearchRef } = buildSearch<FormValues>(() => {
       },
     ],
 
-    buttons: {
+    actions: {
       // col: { span: 6 },
       // show: true,
       // list: {

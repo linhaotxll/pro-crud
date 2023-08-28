@@ -23,7 +23,7 @@ import type {
 export function useToolbar<T extends object>(
   tableProps: BuildProTableOptionResult<T, any>['tableProps'],
   originToolbar: BuildProTableOptionResult<T, any>['toolbar'],
-  scope: ProTableScope
+  scope: ProTableScope<T>
 ) {
   // 表格大小
   const tableSize = ref(unRef(unRef(tableProps)?.size) ?? DefaultTableSize)

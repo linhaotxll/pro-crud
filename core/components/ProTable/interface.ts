@@ -266,7 +266,7 @@ export type BuildProTableOptionResult<T extends object, P extends object> = {
   /**
    * 操作列配置
    */
-  actions?: ProTableActionColumnProps<T>
+  action?: ProTableActionColumnProps<T>
 
   /**
    * loading 配置
