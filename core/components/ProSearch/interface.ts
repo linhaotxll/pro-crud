@@ -39,7 +39,7 @@ export interface BuildSearchResult<T extends object> {
 export type BuildSearchOptionResult<T extends object, R = T> = Omit<
   BuildFormOptionResult<T, R>,
   'actions'
-> & { actions: ProSearchActionsOptions }
+> & { actions?: ProSearchActionsOptions }
 
 /**
  * ProSearch 操作

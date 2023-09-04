@@ -61,6 +61,10 @@ const { proCrudBinding, proCrudRef } = buildCrud<
   FetchUserListInput
 >(scope => {
   return {
+    search: {
+      // row: { gutter: 0 },
+    },
+
     columns: [
       {
         label: '标题',

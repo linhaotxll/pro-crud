@@ -166,6 +166,7 @@ export function buildCrud<
     return undefined
   })
 
+  console.log('searchBinding: ', searchBinding)
   const proCrudBinding: BuildCrudBinding<T, S, A, E> = {
     searchShow,
     searchBinding,
@@ -227,19 +228,21 @@ const buildSearchMiddlewre: Middleware<
       customActions
     )
 
-    return {
-      columns: ctx.columns.search.map<ProFormColumnOptions<any>>(column => ({
+    const columns = ctx.columns.search.map<ProFormColumnOptions<any>>(
+      column => ({
         label: column.label,
         name: column.name,
         type: column.type,
         dict: column.dict,
         ...column.search,
-      })),
-      actions,
-      ...rest,
-    }
+      })
+    )
+
+    return merge({}, rest, { columns, actions })
   })
 
+  // debugger
+  console.log(1, proSearchBinding)
   ctx.binding.search = proSearchBinding
   provide(ProSearchRef, proSearchRef)
 }

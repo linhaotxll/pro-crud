@@ -109,8 +109,8 @@ export function buildSearch<T extends object, C, R = T>(
 
     const result = merge(props, {
       actions: mergedButtons,
-      col: DefaultSearchCol,
-      row: DefaultSearchRow,
+      col: merge({}, DefaultSearchCol, props.col),
+      row: merge({}, DefaultSearchRow, props.row),
     })
 
     return result

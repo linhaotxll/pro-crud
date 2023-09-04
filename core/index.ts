@@ -76,3 +76,4 @@ export const ProComponents: Plugin<ProComponentsOptions> = {
 export * from './components/ProForm'
 export * from './components/ProSearch'
 export * from './components/ProCrud'
+export * from './components/ProTable'

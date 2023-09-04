@@ -1,5 +1,10 @@
 <template>
-  <a-form ref="formRef" v-bind="formProps.value" :model="values">
+  <a-form
+    ref="formRef"
+    v-bind="formProps.value"
+    :model="values"
+    class="pro-search"
+  >
     <a-row v-bind="row.value">
       <template v-for="column in columns">
         <a-col
@@ -46,3 +51,9 @@ defineExpose<ProSearchInstance<T>>({
   ...props.scope,
 })
 </script>
+
+<style scoped>
+.pro-search {
+  overflow: hidden;
+}
+</style>
