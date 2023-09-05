@@ -10,25 +10,27 @@
         :style="toolbar.value.style"
       >
         <a-space v-bind="toolbar.value.space">
-          <div v-for="(item, i) in toolbar.value.list" :key="i">
-            <a-tooltip v-if="item.tooltip!.show" v-bind="item.tooltip">
-              <pro-render
-                v-if="item.render"
-                :render="item.render"
-                :ctx="item.props"
-              />
-              <a-button v-else v-bind="item.props"></a-button>
-            </a-tooltip>
+          <template v-for="(item, i) in toolbar.value.actions">
+            <div v-if="item.show" :key="i">
+              <a-tooltip v-if="item.tooltip!.show" v-bind="item.tooltip">
+                <pro-render
+                  v-if="item.render"
+                  :render="item.render"
+                  :ctx="item.props"
+                />
+                <a-button v-else v-bind="item.props"></a-button>
+              </a-tooltip>
 
-            <template v-else>
-              <pro-render
-                v-if="item.render"
-                :render="item.render"
-                :ctx="item.props"
-              />
-              <a-button v-else v-bind="item.props"></a-button>
-            </template>
-          </div>
+              <template v-else>
+                <pro-render
+                  v-if="item.render"
+                  :render="item.render"
+                  :ctx="item.props"
+                />
+                <a-button v-else v-bind="item.props"></a-button>
+              </template>
+            </div>
+          </template>
         </a-space>
       </div>
     </div>

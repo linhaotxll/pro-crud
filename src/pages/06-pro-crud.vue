@@ -4,7 +4,7 @@
 
 <script lang="tsx" setup>
 import axios from 'axios'
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 
 // import BasicDialog from '../components/BasicDialog.vue'
 
@@ -53,6 +53,8 @@ const rules = {
 const formProps = {
   rules,
 }
+
+const addFormShow = ref(false)
 
 const { proCrudBinding, proCrudRef } = buildCrud<
   User,
@@ -155,6 +157,17 @@ const { proCrudBinding, proCrudRef } = buildCrud<
       // actions: {
       //   edit: {},
       // },
+    },
+
+    addForm: { show: addFormShow },
+
+    table: {
+      toolbar: {
+        // show: false,
+        actions: {
+          reload: { show: false },
+        },
+      },
     },
 
     // editFormDialog: {

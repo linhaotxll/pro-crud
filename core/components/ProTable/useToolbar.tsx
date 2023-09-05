@@ -31,7 +31,7 @@ export function useToolbar<T extends object>(
   // 默认 toolbar
   const defaultToolbar: ProTableToolbarOption = {
     show: true,
-    list: {
+    actions: {
       reload: {
         tooltip: { title: '刷新' },
         props: {
@@ -85,22 +85,20 @@ export function useToolbar<T extends object>(
     const toolbarShow = unRef(toolbar.show!)
     const space = unRef(toolbar.space)
 
-    // debugger
-    const list = Object.keys(toolbar.list ?? {})
+    const actions = Object.keys(toolbar.actions ?? {})
       .map(key => {
-        const show = unRef(
-          toolbar.list![key]!.tooltip?.show ??
-            DefaultToolbarTooltip.tooltip!.show!
-        )
-        return merge({}, DefaultToolbarTooltip, toolbar.list![key]!, {
-          tooltip: { show },
-        })
+        const result = merge({}, DefaultToolbarTooltip, toolbar.actions![key]!)
+
+        result.show = unRef(result.show)
+        result.tooltip!.show = unRef(result.tooltip!.show)
+
+        return result
       })
       .sort((a, b) => (unRef(a.order) ?? 1) - (unRef(b.order) ?? 1))
 
     return {
       show: toolbarShow,
-      list,
+      actions,
       space: merge({}, DefaultToolbarSpace, space),
     }
   })

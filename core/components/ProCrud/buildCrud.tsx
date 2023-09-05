@@ -166,7 +166,6 @@ export function buildCrud<
     return undefined
   })
 
-  console.log('searchBinding: ', searchBinding)
   const proCrudBinding: BuildCrudBinding<T, S, A, E> = {
     searchShow,
     searchBinding,
@@ -258,13 +257,12 @@ const buildTableMiddleware: Middleware<
     const actionColumn = useOperate(ctx)
 
     const { show: _, toolbar, ...rest } = ctx.optionResult.table || {}
-
     return {
       toolbar: merge<ProTableToolbarOption, ProTableToolbarOption | undefined>(
         {
-          list: {
+          actions: {
             add: {
-              show: true,
+              show: ctx.show.addForm,
               tooltip: { title: '添加' },
               props: {
                 icon: h(PlusOutlined),

@@ -18,6 +18,8 @@ import type {
   ProTableActionProps,
   ProTableColumnProps,
   ProTableScope,
+  ProTableToolbarOption,
+  ToolbarOption,
 } from '../ProTable'
 import type { SuccessToastOptions } from '../Toast'
 import type { ModalProps } from 'ant-design-vue'
@@ -313,9 +315,10 @@ export interface BuildCrudOptionReturn<
    */
   table?: Omit<
     BuildProTableOptionResult<T, any>,
-    'data' | 'columns' | 'request' | 'action'
+    'data' | 'columns' | 'request' | 'action' | 'toolbar'
   > & {
     show?: MaybeRef<boolean>
+    toolbar?: ProTableToolbarOption<ProCrudTableToolbarActions>
   }
 
   /**
@@ -350,6 +353,16 @@ export interface BuildCrudOptionReturn<
    * @default '编辑成功'
    */
   editToast?: SuccessToastOptions
+}
+
+/**
+ * ProCrud Table Toolbar Actions
+ */
+export type ProCrudTableToolbarActions = {
+  /**
+   * 添加操作
+   */
+  add?: ToolbarOption
 }
 
 export type CrudActionOption<T extends object> = Omit<

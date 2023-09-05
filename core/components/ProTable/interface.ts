@@ -480,7 +480,7 @@ export interface InternalTableSlots<T> extends TableSlots<T> {
 /**
  * toolbar 配置
  */
-export interface ProTableToolbarOption {
+export interface ProTableToolbarOption<T = any> {
   /**
    * 是否显示
    */
@@ -494,33 +494,35 @@ export interface ProTableToolbarOption {
   /**
    * 操作列表
    */
-  list?: {
-    /**
-     * 刷新按钮
-     */
-    reload?: ToolbarOption
-
-    /**
-     * 导出按钮
-     */
-    export?: ToolbarOption
-
-    /**
-     * 密度按钮
-     */
-    density?: ToolbarOption
-
-    /**
-     * 设置按钮
-     */
-    settings?: ToolbarOption
-
-    /**
-     * 其他
-     */
-    [type: string]: ToolbarOption | undefined
-  }
+  actions?: ProTableToolbarActions<T>
 }
+
+export type ProTableToolbarActions<T> = {
+  /**
+   * 刷新按钮
+   */
+  reload?: ToolbarOption
+
+  /**
+   * 导出按钮
+   */
+  export?: ToolbarOption
+
+  /**
+   * 密度按钮
+   */
+  density?: ToolbarOption
+
+  /**
+   * 设置按钮
+   */
+  settings?: ToolbarOption
+
+  /**
+   * 其他
+   */
+  [type: string]: ToolbarOption | undefined
+} & T
 
 /**
  * toolbar 按钮配置
@@ -571,7 +573,7 @@ export interface ToolbarOptionTooltip extends TooltipProps {
 
 export interface InternalProTableToolbarOption {
   show: boolean
-  list: ToolbarOption[]
+  actions: ToolbarOption[]
   style?: string | CSSProperties
   class?: string | string[] | Record<string, boolean>
   tooltip?: TooltipProps
