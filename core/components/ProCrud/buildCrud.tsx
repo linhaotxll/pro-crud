@@ -240,8 +240,6 @@ const buildSearchMiddlewre: Middleware<
     return merge({}, rest, { columns, actions })
   })
 
-  // debugger
-  console.log(1, proSearchBinding)
   ctx.binding.search = proSearchBinding
   provide(ProSearchRef, proSearchRef)
 }
@@ -274,7 +272,7 @@ const buildTableMiddleware: Middleware<
         toolbar
       ),
       ...rest,
-      actions: actionColumn,
+      action: actionColumn,
       columns: ctx.columns.table.map<ProTableColumnProps<any>>(column => ({
         label: column.label,
         name: column.name,

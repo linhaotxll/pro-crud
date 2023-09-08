@@ -149,7 +149,7 @@ const { proCrudBinding, proCrudRef } = buildCrud<
 
     action: {
       actions: {
-        edit: { show: false },
+        // edit: { show: false },
       },
       // edit: { show: false },
       // a: {},
