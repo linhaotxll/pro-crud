@@ -222,7 +222,7 @@ const { proTableRef, proTableBinding } = buildTable<User>(scope => ({
   },
 
   toolbar: {
-    list: {
+    actions: {
       search: {
         props: {
           icon: 'Refresh',

@@ -77,7 +77,7 @@ const { proTableBinding } = buildTable(() => {
     data,
 
     toolbar: {
-      list: {
+      actions: {
         toggleName: {
           tooltip: { title: '切换Name' },
           props: {

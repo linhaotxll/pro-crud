@@ -480,7 +480,7 @@ export interface InternalTableSlots<T> extends TableSlots<T> {
 /**
  * toolbar 配置
  */
-export interface ProTableToolbarOption<T = any> {
+export interface ProTableToolbarOption<T = object> {
   /**
    * 是否显示
    */

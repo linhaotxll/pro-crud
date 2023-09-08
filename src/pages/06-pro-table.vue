@@ -166,7 +166,7 @@ const { proTableRef, proTableBinding } = buildTable<User>(() => ({
   },
 
   toolbar: {
-    list: {
+    actions: {
       search: {
         props: {
           icon: 'Refresh',
