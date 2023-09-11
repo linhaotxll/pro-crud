@@ -520,11 +520,6 @@ export interface ProCrudColumnOption<
    * 详情表单列配置
    */
   viewForm?: ProCrudFormOptions<T>
-
-  /**
-   * 表格列配置
-   */
-  // column?: Omit<ProTableColumnProps<T>, 'label' | 'prop'>
 }
 
 export type ProCrudFormOptions<T extends object> = Omit<
