@@ -524,7 +524,7 @@ export interface ProCrudColumnOption<
   /**
    * 表格列配置
    */
-  column?: Omit<ProTableColumnProps<T>, 'label' | 'prop'>
+  // column?: Omit<ProTableColumnProps<T>, 'label' | 'prop'>
 }
 
 export type ProCrudFormOptions<T extends object> = Omit<
