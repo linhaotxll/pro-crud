@@ -8,6 +8,8 @@ import type { BodyCellSlotParams } from '../ProTable'
 
 export type ValueType =
   | 'text'
+  | 'password'
+  | 'textarea'
   | 'digit'
   | 'slider'
   | 'switch'
@@ -58,6 +60,14 @@ export interface ValueTypeTable<T> {
 const DefaultValueType: Record<ValueType, ValueTypeValue> = {
   text: {
     form: { is: 'a-input' },
+  },
+
+  password: {
+    form: { is: 'a-input-password' },
+  },
+
+  textarea: {
+    form: { is: 'a-textarea' },
   },
 
   digit: {
