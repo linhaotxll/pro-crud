@@ -21,7 +21,7 @@ export function buildFormColumn<T extends object>(
 ) {
   // 合并默认 Column 配置
   const mergeColumn: ProFormColumnOptions<T> = merge(
-    { col: unRef(col) },
+    { col: { ...unRef(col) } },
     DefaultProProColumn,
     column
   )

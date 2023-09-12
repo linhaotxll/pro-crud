@@ -54,7 +54,7 @@ const formProps = {
   rules,
 }
 
-const addFormShow = ref(false)
+const addFormShow = ref(true)
 
 const { proCrudBinding, proCrudRef } = buildCrud<
   User,
@@ -76,6 +76,7 @@ const { proCrudBinding, proCrudRef } = buildCrud<
             return scope.search.getFieldValue('name') === 'IconMan'
           }),
         },
+        addForm: { col: { span: 24 } },
       },
 
       {
