@@ -376,6 +376,7 @@ const buildAddFormMiddleware: Middleware<
         name: column.name,
         dict: column.dict,
         type: column.type,
+        ...column.form,
         ...column.addForm,
       })
     )
@@ -469,6 +470,7 @@ const buildEditFormMiddleware: Middleware<
         name: column.name,
         dict: column.dict,
         type: column.type,
+        ...column.form,
         ...column.editForm,
       })
     )
@@ -561,6 +563,7 @@ const buildViewFormMiddleware: Middleware<
         name: column.name,
         dict: column.dict,
         type: column.type,
+        ...column.form,
         ...column.viewForm,
       })
     )

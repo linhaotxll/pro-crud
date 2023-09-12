@@ -507,6 +507,11 @@ export interface ProCrudColumnOption<
   table?: Omit<ProTableColumnProps<T>, 'label' | 'prop' | 'dict'>
 
   /**
+   * 新增、编辑、查看通用表单配置
+   */
+  form?: ProCrudFormOptions<any>
+
+  /**
    * 编辑表单列配置
    */
   editForm?: ProCrudFormOptions<E>

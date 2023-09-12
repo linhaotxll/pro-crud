@@ -76,7 +76,9 @@ const { proCrudBinding, proCrudRef } = buildCrud<
             return scope.search.getFieldValue('name') === 'IconMan'
           }),
         },
-        addForm: { col: { span: 24 } },
+        form: { col: { span: 24 } },
+        // addForm: { col: { span: 24 } },
+        // editForm: { col: { span: 12 } },
       },
 
       {
