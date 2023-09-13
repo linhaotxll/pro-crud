@@ -100,6 +100,7 @@ export function buildTable<T extends object, C, P extends object = any>(
     toolbar: originToolbar,
     params,
     action,
+    fetchDictCollection,
     onLoad,
     fetchTableData,
     submitEditable,
@@ -257,7 +258,8 @@ export function buildTable<T extends object, C, P extends object = any>(
       useAction(scope, action, editable, getRowKey, submitEditable)
     ),
     originTableSlots,
-    getRowKey
+    getRowKey,
+    fetchDictCollection
   )
 
   let resolvedParams = unRef(params)

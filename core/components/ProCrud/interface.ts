@@ -1,4 +1,9 @@
-import type { DictionaryOption, MaybeRef, ValueType } from '../common'
+import type {
+  DictionaryCollectionOptions,
+  DictionaryOption,
+  MaybeRef,
+  ValueType,
+} from '../common'
 import type { ActionOption, ActionsList, ActionsOption } from '../ProButton'
 import type {
   BuildFormBinding,
@@ -254,7 +259,7 @@ export interface BuildCrudOptionReturn<
   S1 extends object,
   A extends object,
   E extends object
-> {
+> extends DictionaryCollectionOptions {
   /**
    * 所有列配置
    */

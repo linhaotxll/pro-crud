@@ -1,5 +1,6 @@
 import type {
   Arrayable,
+  DictionaryCollectionOptions,
   DictionaryOption,
   ExtractMaybeRef,
   MaybeRef,
@@ -148,7 +149,8 @@ export interface BuildFormBinding<T extends object> {
 /**
  * buildForm option 返回值
  */
-export interface BuildFormOptionResult<T extends object, R = T> {
+export interface BuildFormOptionResult<T extends object, R = T>
+  extends DictionaryCollectionOptions {
   /**
    * 表单额外的配置，不包含 model
    */

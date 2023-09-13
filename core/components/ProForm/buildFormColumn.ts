@@ -2,13 +2,13 @@ import { merge } from 'lodash-es'
 
 import { DefaultProProColumn } from './constant'
 
-import { ValueTypeMap, unRef, useDict } from '../common'
+import { ValueTypeMap, unRef } from '../common'
 
 import type {
   InternalProFormColumnOptions,
   ProFormColumnOptions,
 } from './interface'
-import type { ValueType } from '../common'
+import type { DictionaryOption, ResolvedColumnDict, ValueType } from '../common'
 import type { ColProps, FormItemProps } from 'ant-design-vue'
 import type { MaybeRef } from 'vue'
 
@@ -17,7 +17,13 @@ export function buildFormColumn<T extends object>(
   resolvedColumnsMap:
     | Map<FormItemProps['name'], InternalProFormColumnOptions<T>>
     | undefined,
-  column: ProFormColumnOptions<T>
+  column: ProFormColumnOptions<T>,
+  createColumnDict:
+    | ((
+        dict: DictionaryOption | ResolvedColumnDict | undefined
+      ) => ResolvedColumnDict)
+    | undefined,
+  dict?: ResolvedColumnDict | undefined
 ) {
   // 合并默认 Column 配置
   const mergeColumn: ProFormColumnOptions<T> = merge(
@@ -47,7 +53,7 @@ export function buildFormColumn<T extends object>(
   ;(Object.keys(mergeColumn) as Keys[]).forEach(key => {
     switch (key) {
       case 'dict':
-        resolvedColumn.dict = useDict(mergeColumn.dict)
+        resolvedColumn.dict = dict || createColumnDict?.(mergeColumn.dict)
         break
 
       case 'tooltip':

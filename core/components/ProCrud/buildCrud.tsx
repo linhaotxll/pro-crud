@@ -21,14 +21,13 @@ import {
   type BuildCrudOptionReturn,
   type BuildCrudReturn,
   type CrudFormOptionResult,
-  type ProCrudColumnOption,
   type ProCrudInstance,
   type ProCrudScope,
 } from './interface'
 import { useDialog } from './useDialog'
 import { useOperate } from './useOperate'
 
-import { unRef, useDict } from '../common'
+import { unRef, useDictionary } from '../common'
 import { buildForm, type ProFormColumnOptions } from '../ProForm'
 import { buildSearch } from '../ProSearch'
 import { buildTable } from '../ProTable'
@@ -622,7 +621,7 @@ const buildBasicMiddleware: Middleware<
 
   ctx.optionResult.autoReload ??= true
 
-  ctx.columns = normalizeColumns(optionResult.columns)
+  ctx.columns = normalizeColumns(optionResult)
 
   ctx.show = normalizeShow(optionResult)
 
@@ -630,8 +629,9 @@ const buildBasicMiddleware: Middleware<
 }
 
 function normalizeColumns(
-  columns: ProCrudColumnOption<any, any, any, any>[] | undefined
+  options: BuildCrudOptionReturn<any, any, any, any, any, any>
 ) {
+  const { columns, fetchDictCollection } = options
   const initialColumns: BuildCrudContext<
     any,
     any,
@@ -647,9 +647,11 @@ function normalizeColumns(
     viewForm: [],
   }
 
+  const { createColumnDict } = useDictionary(fetchDictCollection)
+
   const result =
     columns?.reduce((prev, curr) => {
-      curr.dict = useDict(curr.dict) as any
+      curr.dict = createColumnDict(curr.dict) as any
 
       if (!(curr.search?.show === false)) {
         prev.search.push(curr)
