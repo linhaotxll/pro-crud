@@ -21,7 +21,7 @@ export function buildFormColumn<T extends object>(
   createColumnDict:
     | ((
         dict: DictionaryOption | ResolvedColumnDict | undefined
-      ) => ResolvedColumnDict)
+      ) => ResolvedColumnDict | undefined)
     | undefined,
   dict?: ResolvedColumnDict | undefined
 ) {
