@@ -13,7 +13,7 @@ export function useDialog<T extends object = any>(form: ProFormInstance<T>) {
     open.value = true
     form.reset()
     if (values) {
-      form.setFieldValues(values)
+      form.setFieldValuesTransform(values)
     }
   }
 
