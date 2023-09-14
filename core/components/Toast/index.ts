@@ -32,7 +32,6 @@ export function showToast(
   defaultToast?: SuccessToastOptions
 ) {
   if (toast !== false) {
-    // debugger
     const content = typeof toast === 'string' ? toast : undefined
     const mergeToast = merge(
       defaultToast,
@@ -41,9 +40,9 @@ export function showToast(
       toast
     )
     if (mergeToast.type === 'message') {
-      message.success(mergeToast.props as any)
+      // @ts-ignore
+      message.success(mergeToast.props.title)
     } else if (mergeToast.type === 'notification') {
-      console.log(111, mergeToast.props)
       notification.success(mergeToast.props)
     }
   }
