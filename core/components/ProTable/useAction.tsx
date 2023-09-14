@@ -8,6 +8,8 @@ import { showToast } from '../Toast'
 import type {
   BuildProTableOptionResult,
   ProTableActionColumnProps,
+  ProTableActionConfirmProps,
+  ProTableActionModalProps,
   ProTableActions,
   ProTableEditable,
   ProTableEditableActions,
@@ -89,6 +91,26 @@ export function useAction<T extends object>(
               const originClick = resolvedActions[key]!.props!.onClick
               resolvedActions[key]!.props!.onClick = e => {
                 originClick?.(e, ctx)
+              }
+
+              const modalProps = resolvedActions[key]!.confirmProps as
+                | ProTableActionModalProps<T>
+                | undefined
+              if (modalProps) {
+                const originOnOk = modalProps?.onOk
+                modalProps.onOk = () => {
+                  originOnOk?.(ctx)
+                }
+              }
+
+              const confirmProps = resolvedActions[key]!.confirmProps as
+                | ProTableActionConfirmProps<T>
+                | undefined
+              if (confirmProps) {
+                const originOnConfirm = confirmProps.onConfirm
+                confirmProps.onConfirm = e => {
+                  originOnConfirm?.(e, ctx)
+                }
               }
             }
           })
