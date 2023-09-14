@@ -46,67 +46,6 @@ export type ProCrudProps<
 > = BuildCrudBinding<T, S, A, E>
 
 /**
- * ProCrud 请求配置
- */
-export interface ProCrudRequest<
-  T extends object,
-  R extends object,
-  S extends object,
-  S1 extends object,
-  A extends object,
-  E extends object
-> {
-  /**
-   * 转换请求前的参数
-   *
-   * @param {TransformQueryParams} ctx 查询参数，包含分页，搜索条件
-   * @returns 转换后的参数，直接传递给 fetchPaginationData 请求
-   */
-  transformQuery?(ctx: TransformQueryParams<S, any>): S1
-
-  /**
-   * 转换请求后的响应数据
-   *
-   * @param {TransformResponseParams} ctx 响应参数，包含响应数据、查询数据
-   */
-  transformResponse?(
-    ctx: TransformResponseParams<S1, R>
-  ): FetchTableDataResult<T>
-
-  /**
-   * 获取分页接口
-   *
-   * @param params 若有 transformQuery 则是其结果，没有则是 TransformQueryParams<F>
-   * @returns 返回结果，若有 transformResponse 则是其转换结果，没有则必须是 FetchTableDataResult
-   */
-  fetchPaginationData?(params: S1): Promise<R>
-
-  /**
-   * 删除接口
-   *
-   * @param row 行数据
-   * @returns {boolean} 删除是否成功，返回 true 会有提示信息
-   */
-  deleteRequest?: (options: BodyCellSlotParams<T>) => Promise<boolean>
-
-  /**
-   * 添加接口
-   *
-   * @param form 编辑表单数据
-   * @returns {boolean} 添加是否成功，返回 true 会有提示信息
-   */
-  addRequest?: (form: A) => Promise<boolean>
-
-  /**
-   * 编辑接口
-   *
-   * @param form 编辑表单数据 + 行数据
-   * @returns {boolean} 编辑是否成功，返回 true 会有提示信息
-   */
-  editRequest?: (form: E) => Promise<boolean>
-}
-
-/**
  * 分页请求入参转换函数参数
  */
 export interface TransformQueryParams<S extends object, P extends object> {
@@ -320,16 +259,11 @@ export interface BuildCrudOptionReturn<
    */
   table?: Omit<
     BuildProTableOptionResult<T, any>,
-    'data' | 'columns' | 'request' | 'action' | 'toolbar'
+    'data' | 'columns' | 'action' | 'toolbar'
   > & {
     show?: MaybeRef<boolean>
     toolbar?: ProTableToolbarOption<ProCrudTableToolbarActions>
   }
-
-  /**
-   * 请求配置
-   */
-  request?: ProCrudRequest<T, R, S, S1, A, E>
 
   /**
    * 点击重置后是否自动调用查询接口
@@ -358,6 +292,55 @@ export interface BuildCrudOptionReturn<
    * @default '编辑成功'
    */
   editToast?: SuccessToastOptions
+
+  /**
+   * 转换请求前的参数
+   *
+   * @param {TransformQueryParams} ctx 查询参数，包含分页，搜索条件
+   * @returns 转换后的参数，直接传递给 fetchPaginationData 请求
+   */
+  transformQuery?(ctx: TransformQueryParams<S, any>): S1
+
+  /**
+   * 转换请求后的响应数据
+   *
+   * @param {TransformResponseParams} ctx 响应参数，包含响应数据、查询数据
+   */
+  transformResponse?(
+    ctx: TransformResponseParams<S1, R>
+  ): FetchTableDataResult<T>
+
+  /**
+   * 获取分页接口
+   *
+   * @param params 若有 transformQuery 则是其结果，没有则是 TransformQueryParams<F>
+   * @returns 返回结果，若有 transformResponse 则是其转换结果，没有则必须是 FetchTableDataResult
+   */
+  fetchPaginationData?(params: S1): Promise<R>
+
+  /**
+   * 删除接口
+   *
+   * @param row 行数据
+   * @returns {boolean} 删除是否成功，返回 true 会有提示信息
+   */
+  deleteRequest?: (options: BodyCellSlotParams<T>) => Promise<boolean>
+
+  /**
+   * 添加接口
+   *
+   * @param form 编辑表单数据
+   * @returns {boolean} 添加是否成功，返回 true 会有提示信息
+   */
+  addRequest?: (form: A) => Promise<boolean>
+
+  /**
+   * 编辑接口
+   *
+   * @param form 编辑表单数据 + 行数据
+   * @returns {boolean} 编辑是否成功，返回 true 会有提示信息
+   */
+  editRequest?: (form: E) => Promise<boolean>
 }
 
 /**
@@ -380,10 +363,7 @@ export type CrudActionOption<T extends object> = Omit<
 /**
  * ProCrud 添加、编辑、查看表单配置
  */
-export type CrudFormOption = Omit<
-  BuildFormOptionResult<any>,
-  'columns' | 'request'
-> & {
+export type CrudFormOption = Omit<BuildFormOptionResult<any>, 'columns'> & {
   show?: MaybeRef<boolean>
 }
 

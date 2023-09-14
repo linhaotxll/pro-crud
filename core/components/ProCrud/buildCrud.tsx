@@ -286,10 +286,9 @@ const buildTableMiddleware: Middleware<
 
   let globalOption: ProComponentsOptions | undefined
   const transformQuery =
-    ctx.optionResult.request?.transformQuery ??
-    ensureGlobalOption()?.transformQuery
+    ctx.optionResult.transformQuery ?? ensureGlobalOption()?.transformQuery
   const transformResponse =
-    ctx.optionResult.request?.transformResponse ??
+    ctx.optionResult.transformResponse ??
     ensureGlobalOption()?.transformResponse
 
   function ensureGlobalOption() {
@@ -304,16 +303,14 @@ const buildTableMiddleware: Middleware<
   ): Promise<FetchTableDataResult<any>> {
     const {
       scope: { search },
-      optionResult: { request },
+      optionResult: { fetchPaginationData },
     } = ctx
     const form = search.getFormValues()
     const params = { query, form }
 
     const transformInput = transformQuery?.(params) ?? params
 
-    const response = (await request?.fetchPaginationData?.(
-      transformInput
-    )) as any
+    const response = (await fetchPaginationData?.(transformInput)) as any
 
     const transformOutput = (transformResponse?.({
       query: transformInput,
@@ -409,7 +406,7 @@ const buildAddFormMiddleware: Middleware<
       ctx.optionResult.addForm,
       {
         columns,
-        submitRequest: ctx.optionResult.request?.addRequest,
+        submitRequest: ctx.optionResult.addRequest,
         successRequest() {
           hideDialog()
           showToast(ctx.optionResult.addToast, DefaultAddFormToast)
@@ -503,7 +500,7 @@ const buildEditFormMiddleware: Middleware<
       ctx.optionResult.editForm,
       {
         columns,
-        submitRequest: ctx.optionResult.request?.editRequest,
+        submitRequest: ctx.optionResult.editRequest,
         successRequest() {
           hideDialog()
           showToast(ctx.optionResult.editToast, DefaultEditFormToast)

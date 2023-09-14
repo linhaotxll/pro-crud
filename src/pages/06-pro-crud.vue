@@ -221,57 +221,55 @@ const { proCrudBinding, proCrudRef } = buildCrud<
 
     // actions: {},
 
-    request: {
-      transformQuery(options) {
-        return {
-          pageSize: options.query.page.pageSize,
-          pageNumber: options.query.page.pageNumber,
-          name: options.form.name,
-        }
-      },
+    transformQuery(options) {
+      return {
+        pageSize: options.query.page.pageSize,
+        pageNumber: options.query.page.pageNumber,
+        name: options.form.name,
+      }
+    },
 
-      transformResponse(options) {
-        return {
-          data: options.response.rows,
-          total: options.response.total,
-        }
-      },
+    transformResponse(options) {
+      return {
+        data: options.response.rows,
+        total: options.response.total,
+      }
+    },
 
-      async fetchPaginationData(query) {
-        await sleep()
-        const result = await axios.get<UserResponse>('/api/user/list', {
-          params: query,
-        })
+    async fetchPaginationData(query) {
+      await sleep()
+      const result = await axios.get<UserResponse>('/api/user/list', {
+        params: query,
+      })
 
-        const { rows, total } = result.data.data
-        return { rows, total }
-      },
+      const { rows, total } = result.data.data
+      return { rows, total }
+    },
 
-      async deleteRequest({ record }) {
-        await sleep()
+    async deleteRequest({ record }) {
+      await sleep()
 
-        const response = await axios.post(
-          '/api/user/delete',
-          { userId: record.id },
-          { headers: { 'Content-Type': 'application/json' } }
-        )
-        return !!response.data.data
-      },
+      const response = await axios.post(
+        '/api/user/delete',
+        { userId: record.id },
+        { headers: { 'Content-Type': 'application/json' } }
+      )
+      return !!response.data.data
+    },
 
-      async addRequest(form) {
-        await sleep()
-        const response = await axios.post('/api/user/add', form)
-        return !!response.data.data
-      },
+    async addRequest(form) {
+      await sleep()
+      const response = await axios.post('/api/user/add', form)
+      return !!response.data.data
+    },
 
-      async editRequest({ id, ...rest }) {
-        await sleep()
-        const response = await axios.post('/api/user/update', {
-          userId: id,
-          ...rest,
-        })
-        return !!response.data.data
-      },
+    async editRequest({ id, ...rest }) {
+      await sleep()
+      const response = await axios.post('/api/user/update', {
+        userId: id,
+        ...rest,
+      })
+      return !!response.data.data
     },
   }
 })
