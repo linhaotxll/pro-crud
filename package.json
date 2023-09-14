@@ -13,7 +13,8 @@
     "build": "vue-tsc --noEmit && vite build",
     "prepare": "husky install",
     "lint:js": "eslint --fix --ext .js,.jsx,.ts,.tsx,.vue",
-    "release": "pnpm run build & release-it"
+    "publish": "pnpm run build & release-it",
+    "release": "release-it"
   },
   "keywords": [
     "vue3",
