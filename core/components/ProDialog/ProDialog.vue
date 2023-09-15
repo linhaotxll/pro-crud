@@ -18,8 +18,6 @@
 </template>
 
 <script lang="ts" setup>
-import { watch } from 'vue'
-
 import { ProButtonGroup } from '../ProButton'
 
 import type { CrudDialogOption } from '../ProCrud'
@@ -27,15 +25,8 @@ import type { BuildSearchBinding } from '../ProSearch/interface'
 
 defineOptions({ name: 'ProDialog' })
 
-const p = defineProps<{
+defineProps<{
   dialogProps?: CrudDialogOption | undefined
   formProps?: BuildSearchBinding<any> | undefined
 }>()
-
-watch(
-  () => p.formProps,
-  f => {
-    console.log(666, f?.actions.value)
-  }
-)
 </script>
