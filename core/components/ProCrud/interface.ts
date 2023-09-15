@@ -474,7 +474,7 @@ export interface ProCrudColumnOption<
   /**
    * 类型
    */
-  type?: MaybeRef<ValueType>
+  type?: MaybeRef<ValueType | string>
 
   /**
    * 字典
