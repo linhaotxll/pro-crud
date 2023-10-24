@@ -132,3 +132,5 @@ export const DefaultActionColumn: ProTableActionProps<any> = {
 }
 
 export const EditSuccessToast = genToast('编辑成功')
+
+export const ProTableRefKey = Symbol() as InjectionKey<any>
