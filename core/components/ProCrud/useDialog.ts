@@ -12,8 +12,11 @@ export function useDialog<T extends object = any>(form: ProFormInstance<T>) {
   function showDialog(values?: T) {
     open.value = true
     form.reset()
+
     if (values) {
-      form.setFieldValues(values)
+      setTimeout(() => {
+        form.setFieldValuesTransform(values)
+      })
     }
   }
 

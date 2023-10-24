@@ -3,12 +3,11 @@ import { computed, markRaw, reactive, ref } from 'vue'
 
 import {
   DefaultColumnType,
-  DefaultTableCellRenderMap,
   DefaultTableColumnShow,
   injectValueTypeTableCell,
 } from './constant'
 
-import { unRef, useDict } from '../common'
+import { unRef, useDictionary } from '../common'
 
 import type {
   InternalProTableColumnProps,
@@ -18,14 +17,15 @@ import type {
   ProvideEditTableOptions,
   TableSlots,
 } from './interface'
-import type { ColumnType, ValueType } from '../common'
+import type { ColumnType, FetchDictCollection, ValueType } from '../common'
 import type { Ref } from 'vue'
 
 export function useColumns<T extends object>(
   scope: ProTableScope<T>,
   tableColumns: ProTableColumnProps<T>[],
   tableSlots: TableSlots<T> | undefined,
-  getRowKey: ProvideEditTableOptions<T>['getRowKey']
+  getRowKey: ProvideEditTableOptions<T>['getRowKey'],
+  fetchDictCollection: FetchDictCollection | undefined
 ) {
   // 解析后的 slots
   const resolvedTableSlots: InternalTableSlots<T> = { ...tableSlots }
@@ -95,6 +95,8 @@ export function useColumns<T extends object>(
     }
   }
 
+  const { createColumnDict } = useDictionary(fetchDictCollection)
+
   /**
    * 解析列配置
    * @param column
@@ -115,7 +117,7 @@ export function useColumns<T extends object>(
     const result: InternalProTableColumnProps<T> = {
       name,
       type: resolvedType,
-      dict: useDict(column.dict),
+      dict: createColumnDict(column.dict),
       editable: column.editable,
       renderCell: column.renderCell,
       columnProps: {
@@ -125,9 +127,7 @@ export function useColumns<T extends object>(
       },
       columnSlots: merge(
         {
-          bodyCell:
-            DefaultTableCellRenderMap[resolvedType] ??
-            injectValueTypeTableCell(resolvedType),
+          bodyCell: injectValueTypeTableCell(resolvedType),
         },
         column.columnSlots
       ),

@@ -6,7 +6,7 @@ import { buildFormColumn } from './buildFormColumn'
 import { DefaultProFormCol } from './constant'
 import { useValues } from './useValues'
 
-import { unRef } from '../common'
+import { unRef, useDictionary } from '../common'
 import { showToast } from '../Toast'
 
 import type {
@@ -74,6 +74,7 @@ export function buildForm<T extends object, C, R = T>(
     toast,
     row,
     col = DefaultProFormCol,
+    fetchDictCollection,
     beforeSubmit,
     submitRequest,
     successRequest,
@@ -94,9 +95,12 @@ export function buildForm<T extends object, C, R = T>(
     InternalProFormColumnOptions<T>
   >()
 
+  const { createColumnDict } = useDictionary(fetchDictCollection)
   // 解析列配置
   const resolvedColumns = columns.map(c => {
-    return computed(() => buildFormColumn(col, resolvedColumnsMap, c))
+    return computed(() =>
+      buildFormColumn(col, resolvedColumnsMap, c, createColumnDict)
+    )
   })
 
   // 解析表单配置

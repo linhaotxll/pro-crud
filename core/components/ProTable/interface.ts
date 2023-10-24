@@ -3,6 +3,7 @@ import type {
   DictionaryOption,
   ResolvedColumnDict,
   ColumnType,
+  DictionaryCollectionOptions,
 } from '../common'
 import type { ExtractMaybeRef, JSXElement, MaybeRef } from '../common/interface'
 import type { ActionOption, ActionsList } from '../ProButton'
@@ -230,7 +231,10 @@ export type BuildProTableResult<T extends object> = {
 /**
  * buildTable option 返回值
  */
-export type BuildProTableOptionResult<T extends object, P extends object> = {
+export type BuildProTableOptionResult<
+  T extends object,
+  P extends object
+> = DictionaryCollectionOptions & {
   /**
    * 数据源(不推荐)
    */

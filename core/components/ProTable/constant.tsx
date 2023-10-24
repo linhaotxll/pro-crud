@@ -46,14 +46,6 @@ export const DefaultTableColumnShow = true
 
 export const DefaultColumnType: ValueType = 'text'
 
-// 不同 type 表格渲染类型
-export const DefaultTableCellRenderMap: Partial<
-  Record<ValueType, ProTableColumnSlots<any>['bodyCell']>
-> = {
-  dict: injectValueTypeTableCell('dict'),
-  'dict-select': injectValueTypeTableCell('dict-select'),
-}
-
 export const EditableTableData = Symbol() as InjectionKey<
   ProvideEditTableOptions<any> | undefined
 >
@@ -91,12 +83,18 @@ export function injectValueTypeTableCell(
         else if (name) resolvedName.push(name as string | number)
 
         const { dict, type } = ctx.column.__column!
-        const internalColumn = buildFormColumn(undefined, undefined, {
-          name: resolvedName,
-          dict,
-          show: true,
-          type,
-        })
+        const internalColumn = buildFormColumn(
+          undefined,
+          undefined,
+          {
+            name: resolvedName,
+            dict,
+            show: true,
+            type,
+          },
+          undefined,
+          dict
+        )
 
         return (
           <ConfigProvider theme={EditableTableCellTheme}>

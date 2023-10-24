@@ -21,14 +21,13 @@ import {
   type BuildCrudOptionReturn,
   type BuildCrudReturn,
   type CrudFormOptionResult,
-  type ProCrudColumnOption,
   type ProCrudInstance,
   type ProCrudScope,
 } from './interface'
 import { useDialog } from './useDialog'
 import { useOperate } from './useOperate'
 
-import { unRef, useDict } from '../common'
+import { unRef, useDictionary } from '../common'
 import { buildForm, type ProFormColumnOptions } from '../ProForm'
 import { buildSearch } from '../ProSearch'
 import { buildTable } from '../ProTable'
@@ -287,10 +286,9 @@ const buildTableMiddleware: Middleware<
 
   let globalOption: ProComponentsOptions | undefined
   const transformQuery =
-    ctx.optionResult.request?.transformQuery ??
-    ensureGlobalOption()?.transformQuery
+    ctx.optionResult.transformQuery ?? ensureGlobalOption()?.transformQuery
   const transformResponse =
-    ctx.optionResult.request?.transformResponse ??
+    ctx.optionResult.transformResponse ??
     ensureGlobalOption()?.transformResponse
 
   function ensureGlobalOption() {
@@ -305,16 +303,14 @@ const buildTableMiddleware: Middleware<
   ): Promise<FetchTableDataResult<any>> {
     const {
       scope: { search },
-      optionResult: { request },
+      optionResult: { fetchPaginationData },
     } = ctx
     const form = search.getFormValues()
     const params = { query, form }
 
     const transformInput = transformQuery?.(params) ?? params
 
-    const response = (await request?.fetchPaginationData?.(
-      transformInput
-    )) as any
+    const response = (await fetchPaginationData?.(transformInput)) as any
 
     const transformOutput = (transformResponse?.({
       query: transformInput,
@@ -376,6 +372,7 @@ const buildAddFormMiddleware: Middleware<
         name: column.name,
         dict: column.dict,
         type: column.type,
+        ...column.form,
         ...column.addForm,
       })
     )
@@ -409,7 +406,7 @@ const buildAddFormMiddleware: Middleware<
       ctx.optionResult.addForm,
       {
         columns,
-        submitRequest: ctx.optionResult.request?.addRequest,
+        submitRequest: ctx.optionResult.addRequest,
         successRequest() {
           hideDialog()
           showToast(ctx.optionResult.addToast, DefaultAddFormToast)
@@ -469,6 +466,7 @@ const buildEditFormMiddleware: Middleware<
         name: column.name,
         dict: column.dict,
         type: column.type,
+        ...column.form,
         ...column.editForm,
       })
     )
@@ -502,7 +500,7 @@ const buildEditFormMiddleware: Middleware<
       ctx.optionResult.editForm,
       {
         columns,
-        submitRequest: ctx.optionResult.request?.editRequest,
+        submitRequest: ctx.optionResult.editRequest,
         successRequest() {
           hideDialog()
           showToast(ctx.optionResult.editToast, DefaultEditFormToast)
@@ -561,6 +559,7 @@ const buildViewFormMiddleware: Middleware<
         name: column.name,
         dict: column.dict,
         type: column.type,
+        ...column.form,
         ...column.viewForm,
       })
     )
@@ -619,7 +618,7 @@ const buildBasicMiddleware: Middleware<
 
   ctx.optionResult.autoReload ??= true
 
-  ctx.columns = normalizeColumns(optionResult.columns)
+  ctx.columns = normalizeColumns(optionResult)
 
   ctx.show = normalizeShow(optionResult)
 
@@ -627,8 +626,9 @@ const buildBasicMiddleware: Middleware<
 }
 
 function normalizeColumns(
-  columns: ProCrudColumnOption<any, any, any, any>[] | undefined
+  options: BuildCrudOptionReturn<any, any, any, any, any, any>
 ) {
+  const { columns, fetchDictCollection } = options
   const initialColumns: BuildCrudContext<
     any,
     any,
@@ -644,9 +644,11 @@ function normalizeColumns(
     viewForm: [],
   }
 
+  const { createColumnDict } = useDictionary(fetchDictCollection)
+
   const result =
     columns?.reduce((prev, curr) => {
-      curr.dict = useDict(curr.dict) as any
+      curr.dict = createColumnDict(curr.dict) as any
 
       if (!(curr.search?.show === false)) {
         prev.search.push(curr)

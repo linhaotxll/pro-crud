@@ -16,7 +16,7 @@ export function useOperate<
   E extends object
 >(ctx: BuildCrudContext<T, R, S, S1, A, E>) {
   async function deleteItem(options: BodyCellSlotParams<T>) {
-    const response = await ctx.optionResult.request?.deleteRequest?.(options)
+    const response = await ctx.optionResult.deleteRequest?.(options)
 
     if (response) {
       ctx.scope.table.reload()

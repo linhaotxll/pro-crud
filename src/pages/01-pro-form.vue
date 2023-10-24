@@ -28,13 +28,13 @@ import type { ColProps } from 'ant-design-vue'
 
 const sleep = (time = 2000) => new Promise(r => setTimeout(r, time))
 
-const fetchStatusData = async () => {
-  await sleep()
-  return [
-    { statusName: '启用', value: 1 },
-    { statusName: '禁用', value: 2 },
-  ]
-}
+// const fetchStatusData = async () => {
+//   await sleep()
+//   return [
+//     { statusName: '启用', value: 1 },
+//     { statusName: '禁用', value: 2 },
+//   ]
+// }
 
 interface FormValues {
   name: string
@@ -68,6 +68,7 @@ const { proFormRef, proFormBinding } = buildForm<FormValues>(scope => {
       person: { info: { name: '111', age: '21' } },
       nickname: 'nic',
       slider: 0,
+      status: 1,
     },
     formProps: {
       labelCol: formLabelCol,
@@ -154,7 +155,12 @@ const { proFormRef, proFormBinding } = buildForm<FormValues>(scope => {
           placeholder: '啦啦啦',
         },
         dict: {
-          fetchData: fetchStatusData,
+          useCollect(dictSet) {
+            // debugger
+            console.log(123, dictSet)
+            return dictSet.status
+          },
+          // fetchData: fetchStatusData,
           labelField: 'statusName',
         },
       },
@@ -379,6 +385,17 @@ const { proFormRef, proFormBinding } = buildForm<FormValues>(scope => {
 
     validateFail(error) {
       console.log('校验失败: ', error)
+    },
+
+    async fetchDictCollection() {
+      console.log('fetch dict collection')
+      await sleep(5000)
+      return {
+        status: [
+          { statusName: '开启', value: 1 },
+          { statusName: '关闭', value: 2 },
+        ],
+      }
     },
     // toast: false,
   }
