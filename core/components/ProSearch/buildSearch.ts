@@ -36,8 +36,10 @@ export function buildSearch<T extends object, C, R = T>(
 
     const buttons: ProFormActionsOptions = {
       col: computed(() => {
-        // debugger
-        const defaultCol: ColProps = merge(DefaultSearchCol, unRef(props.col))
+        const defaultCol: ColProps = merge(
+          { ...DefaultSearchCol },
+          unRef(props.col)
+        )
 
         const total =
           props.columns?.reduce<number>((prev, column) => {
@@ -109,8 +111,8 @@ export function buildSearch<T extends object, C, R = T>(
 
     const result = merge(props, {
       actions: mergedButtons,
-      col: merge({}, DefaultSearchCol, props.col),
-      row: merge({}, DefaultSearchRow, props.row),
+      col: merge({ ...DefaultSearchCol }, props.col),
+      row: merge({ ...DefaultSearchRow }, props.row),
     })
 
     return result
