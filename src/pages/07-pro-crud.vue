@@ -1,438 +1,538 @@
 <template>
-  <pro-crud ref="proCrudRef" class="pro-crud-07" v-bind="proCrudBinding" />
+  <pro-crud v-bind="proCrudBinding" />
 </template>
 
-<script lang="tsx" setup>
-import { useScrollbar } from 'use-scrollbars'
-import { onMounted } from 'vue'
+<script lang="ts" setup>
+// import { MenuTypeOptions, MenuTypeEnum } from '~/enums'
+import { merge } from 'lodash-es'
+import { computed } from 'vue'
 
 import { buildCrud } from '~/index'
 
-const { proCrudBinding, proCrudRef } = buildCrud(scope => {
-  onMounted(() => {
-    const $table = scope.table.getTableRef().value
-    const $container = $table.$el.querySelector('.ant-table-container')
-    const $header = $table.$el.querySelector('.ant-table-header')
+import type { ProCrudScope } from '~/index'
+// import { useGlobalStore } from '~/store'
+// import { generateTree } from '~/utils'
 
-    console.log(1, $container, $header)
+// import type { ProCrudScope } from '@linh-txl/pro-crud'
+// import type { Menu } from '~/typings'
 
-    const barStates = useScrollbar($container)
+defineOptions({ name: 'MenuManager' })
 
-    barStates.setOffset({
-      y: {
-        top: $header,
-      },
-    })
+const enum MenuTypeEnum {
+  /**
+   * 菜单类型（目录）
+   */
+  TYPE_DIR = 'M',
+
+  /**
+   * 菜单类型（菜单）
+   */
+  TYPE_MENU = 'C',
+
+  /**
+   * 菜单类型（按钮）
+   */
+  TYPE_BUTTON = 'F',
+}
+
+// const globalStore = useGlobalStore()
+
+const menuName2Type: Record<any, string> = {
+  [MenuTypeEnum.TYPE_DIR]: '目录名称',
+  [MenuTypeEnum.TYPE_MENU]: '菜单名称',
+  [MenuTypeEnum.TYPE_BUTTON]: '按钮名称',
+}
+
+const MenuTypeOptions = [
+  { label: '目录', value: MenuTypeEnum.TYPE_DIR },
+  { label: '菜单', value: MenuTypeEnum.TYPE_MENU },
+  { label: '按钮', value: MenuTypeEnum.TYPE_BUTTON },
+]
+
+interface Fields {
+  children: string
+  id: string
+  parentId: string
+}
+
+const DefaultFields: Fields = {
+  children: 'children',
+  id: 'id',
+  parentId: 'parentId',
+}
+
+function generateTree<T>(data: any[], fields?: Partial<Fields>) {
+  const resolvedFields: Fields = merge({}, DefaultFields, fields)
+  const { id: _id, parentId, children } = resolvedFields
+
+  const result: T[] = [] // 存放结果集
+  const itemMap: Record<number, T> = {} //
+  for (const item of data) {
+    const id = item[_id]
+    const pid = item[parentId]
+
+    if (!itemMap[id]) {
+      delete item[children]
+      itemMap[id] = item
+    }
+
+    const treeItem = itemMap[id]
+
+    if (pid === 0) {
+      result.push(treeItem)
+    } else {
+      // @ts-ignore
+      ;(itemMap[pid][children] ||= []).push(treeItem)
+    }
+  }
+  return result
+}
+
+async function fetchMenuPageList(_: any) {
+  _
+  return [
+    {
+      searchValue: null,
+      createBy: null,
+      createUser: null,
+      createTime: '2023-10-24 16:24:18',
+      createTimeStr: null,
+      updateBy: null,
+      updateUser: null,
+      updateTime: null,
+      updateTimeStr: null,
+      remark: null,
+      params: {},
+      isDelete: null,
+      menuId: 1,
+      menuName: '无线网络',
+      parentName: null,
+      parentId: 0,
+      orderNum: 1,
+      path: 'wireless-network',
+      component: null,
+      query: null,
+      isFrame: '1',
+      isCache: '0',
+      menuType: 'M',
+      visible: '0',
+      status: '0',
+      perms: 'sys:wifi:dict',
+      icon: '#',
+      children: [],
+    },
+    {
+      searchValue: null,
+      createBy: null,
+      createUser: null,
+      createTime: '2023-10-24 17:04:37',
+      createTimeStr: null,
+      updateBy: null,
+      updateUser: null,
+      updateTime: null,
+      updateTimeStr: null,
+      remark: null,
+      params: {},
+      isDelete: null,
+      menuId: 4,
+      menuName: '视频监控',
+      parentName: null,
+      parentId: 0,
+      orderNum: 1,
+      path: 'video-monitor',
+      component: null,
+      query: null,
+      isFrame: '1',
+      isCache: '0',
+      menuType: 'M',
+      visible: '0',
+      status: '0',
+      perms: 'sys:video:dict',
+      icon: '#',
+      children: [],
+    },
+    {
+      searchValue: null,
+      createBy: null,
+      createUser: null,
+      createTime: '2023-10-24 16:24:50',
+      createTimeStr: null,
+      updateBy: null,
+      updateUser: null,
+      updateTime: null,
+      updateTimeStr: null,
+      remark: null,
+      params: {},
+      isDelete: null,
+      menuId: 2,
+      menuName: '无线网络管理',
+      parentName: null,
+      parentId: 1,
+      orderNum: 1,
+      path: '/wireless-network',
+      component: '1',
+      query: null,
+      isFrame: '1',
+      isCache: '0',
+      menuType: 'C',
+      visible: '0',
+      status: '0',
+      perms: 'sys:wifi:list',
+      icon: '#',
+      children: [],
+    },
+    {
+      searchValue: null,
+      createBy: null,
+      createUser: null,
+      createTime: '2023-10-24 16:25:11',
+      createTimeStr: null,
+      updateBy: null,
+      updateUser: null,
+      updateTime: null,
+      updateTimeStr: null,
+      remark: null,
+      params: {},
+      isDelete: null,
+      menuId: 3,
+      menuName: '无线网络统计分析',
+      parentName: null,
+      parentId: 1,
+      orderNum: 1,
+      path: '/wireless-network/statistics',
+      component: '1',
+      query: null,
+      isFrame: '1',
+      isCache: '0',
+      menuType: 'C',
+      visible: '1',
+      status: '0',
+      perms: 'sys:wifi:stat',
+      icon: '#',
+      children: [],
+    },
+    {
+      searchValue: null,
+      createBy: null,
+      createUser: null,
+      createTime: '2023-10-24 17:28:01',
+      createTimeStr: null,
+      updateBy: null,
+      updateUser: null,
+      updateTime: null,
+      updateTimeStr: null,
+      remark: null,
+      params: {},
+      isDelete: null,
+      menuId: 5,
+      menuName: '摄像机管理',
+      parentName: null,
+      parentId: 4,
+      orderNum: 1,
+      path: '/video-monitor/camera',
+      component: '1',
+      query: null,
+      isFrame: '1',
+      isCache: '0',
+      menuType: 'C',
+      visible: '0',
+      status: '0',
+      perms: 'sys:camera:list',
+      icon: '#',
+      children: [],
+    },
+  ]
+}
+
+const should = (
+  scope: ProCrudScope<any, any, any, any>,
+  conditions: MenuTypeEnum[]
+) => {
+  const add = scope.addForm.getFieldValue('menuType')
+  const addResult = conditions.some(type => add === type)
+
+  if (addResult) {
+    return addResult
+  }
+
+  const edit = scope.editForm.getFieldValue('menuType')
+  const editResult = conditions.some(type => {
+    return edit === type
   })
 
+  if (editResult) {
+    return editResult
+  }
+
+  return false
+}
+
+const { proCrudBinding } = buildCrud<any>(scope => {
   return {
-    async fetchDictCollection() {
-      // debugger
-      console.log(888)
-      return {
-        position: [
-          { addr: '室内', position: 1 },
-          { addr: '室外', position: 2 },
-        ],
-      }
-    },
     columns: [
       {
-        label: '摄像机名称',
-        name: 'cameraName',
-        search: { show: true },
+        label: '名称',
+        name: 'menuName',
+        form: { show: false },
       },
 
       {
-        label: '摄像机编号',
-        name: 'number',
-        search: { show: true },
-      },
-
-      {
-        label: '摄像机位置',
-        name: 'addr',
+        label: '类型',
+        name: 'menuType',
         type: 'dict-select',
         search: { show: false },
+        form: { col: { span: 24 } },
         dict: {
-          useCollect(dictSet) {
-            console.log(111, dictSet.position)
-            return dictSet.position
-          },
-          labelField: 'addr',
-          valueField: 'position',
+          data: MenuTypeOptions,
+        },
+        table: {
+          columnProps: { width: '8%' },
+        },
+      },
+
+      // {
+      //   label: '上级菜单',
+      //   name: 'parentId',
+      //   type: 'dict-tree-select',
+      //   table: { show: false },
+      //   search: { show: false },
+      //   form: {
+      //     show: computed(() => {
+      //       // debugger
+      //       console.log('add: ', JSON.stringify(scope.addForm.getFormValues()))
+      //       const addMenuType = scope.addForm.getFieldValue('menuType')
+      //       if (
+      //         addMenuType === MenuTypeEnum.TYPE_DIR ||
+      //         addMenuType === MenuTypeEnum.TYPE_BUTTON
+      //       ) {
+      //         return true
+      //       }
+
+      //       console.log(
+      //         'edit: ',
+      //         JSON.stringify(scope.editForm.getFormValues())
+      //       )
+      //       const editMenuType = scope.editForm.getFieldValue('menuType')
+      //       if (
+      //         editMenuType === MenuTypeEnum.TYPE_DIR ||
+      //         editMenuType === MenuTypeEnum.TYPE_BUTTON
+      //       ) {
+      //         return true
+      //       }
+      //       return false
+      //     }),
+      //     // show: computed(() =>
+      //     //   should(scope, [MenuTypeEnum.TYPE_MENU, MenuTypeEnum.TYPE_BUTTON])
+      //     // ),
+      //     fieldProps: {
+      //       useData: () => useMenuTree({ immediate: true }),
+      //       treeDefaultExpandAll: true,
+      //       fieldNames: {
+      //         children: 'children',
+      //         label: 'label',
+      //         value: 'id',
+      //       },
+      //     },
+      //   },
+      // },
+
+      {
+        label: computed(
+          () =>
+            menuName2Type[scope.addForm.getFieldValue('menuType')] ||
+            menuName2Type[scope.editForm.getFieldValue('menuType')]
+        ),
+        name: 'menuName',
+        table: { show: false },
+        search: { show: false },
+      },
+
+      {
+        label: '显示排序',
+        name: 'orderNum',
+        type: 'digit',
+        search: { show: false },
+        form: {
+          show: computed(() =>
+            should(scope, [MenuTypeEnum.TYPE_DIR, MenuTypeEnum.TYPE_MENU])
+          ),
+        },
+        table: {
+          columnProps: { width: '6%' },
         },
       },
 
       {
-        label: '摄像机名IP',
-        name: 'ip',
+        label: '权限',
+        name: 'perms',
         search: { show: false },
+        table: {
+          columnProps: { width: '14%' },
+        },
       },
 
       {
-        label: '摄像机端口',
-        name: 'port',
+        label: '组件路径',
+        name: 'component',
+        table: { show: false },
         search: { show: false },
+        form: {
+          show: computed(() => should(scope, [MenuTypeEnum.TYPE_MENU])),
+        },
       },
 
       {
-        label: '主码流',
-        name: 'mainStream',
+        label: '路由地址',
+        name: 'path',
         search: { show: false },
+        table: { show: false },
+        form: {
+          tooltip:
+            '访问的路由地址，如：`user`，如外网地址需内链访问则以`http(s)://`开头',
+          show: computed(() =>
+            should(scope, [MenuTypeEnum.TYPE_DIR, MenuTypeEnum.TYPE_MENU])
+          ),
+        },
       },
 
       {
-        label: '副码流',
-        name: 'deputyStream',
+        label: '外链打开方式',
+        name: 'openType',
         search: { show: false },
+        table: { show: false },
+        form: {
+          tooltip: '外链路由地址必须以`http(s)://`开头',
+          show: computed(() => should(scope, [MenuTypeEnum.TYPE_MENU])),
+        },
+        type: 'dict-select',
+        dict: {
+          data: [
+            { label: '新标签页', value: '1' },
+            { label: 'ifame内嵌', value: '2' },
+          ],
+        },
       },
 
       {
-        label: '摄像机状态',
+        label: '是否是后台页面',
+        name: 'layout',
+        type: 'dict-select',
+        dict: {
+          data: [
+            { label: '是', value: true },
+            { label: '否', value: false },
+          ],
+        },
+        search: { show: false },
+        table: { show: false },
+        form: {
+          tooltip: '选择否将是一个新页面，不包含左侧和顶部内容',
+          show: computed(() => should(scope, [MenuTypeEnum.TYPE_MENU])),
+        },
+      },
+
+      // {
+      //   label: '显示状态',
+      //   name: 'visible',
+      //   type: 'dict-select',
+      //   dict: {
+      //     fetchData: fetchMenuVisibleStatus,
+      //     labelField: 'dictLabel',
+      //     valueField: 'dictValue',
+      //   },
+      //   form: {
+      //     tooltip: '选择隐藏将不会出现在菜单栏，但仍然可以访问',
+      //     show: computed(() => should(scope, [MenuTypeEnum.TYPE_MENU])),
+      //   },
+      //   table: { show: false },
+      // },
+
+      {
+        label: '状态',
         name: 'status',
         type: 'dict-select',
-        search: { show: true },
         dict: {
-          data: [],
+          data: [
+            { labelField: '启用', valueField: '1' },
+            { labelField: '停用', valueField: '0' },
+          ],
+          labelField: 'dictLabel',
+          valueField: 'dictValue',
+        },
+        form: {
+          tooltip: '选择停用将不会出现在菜单栏，也不能被访问',
+          show: computed(() =>
+            should(scope, [MenuTypeEnum.TYPE_DIR, MenuTypeEnum.TYPE_MENU])
+          ),
+        },
+        table: {
+          columnProps: { width: '8%' },
         },
       },
 
       {
-        label: '录像机类型',
-        name: 'type',
-        type: 'dict-select',
-        search: { show: true },
-        dict: {
-          data: [],
+        label: '创建时间',
+        name: 'createTime',
+        search: { show: false },
+        form: { show: false },
+        table: {
+          columnProps: { width: '15%' },
         },
-      },
-
-      {
-        label: 'X坐标(3D)',
-        name: 'x3',
-        search: { show: false },
-        table: { show: false },
-      },
-
-      {
-        label: 'Y坐标(3D)',
-        name: 'y3',
-        search: { show: false },
-        table: { show: false },
-      },
-
-      {
-        label: 'Z坐标(3D)',
-        name: 'z3',
-        search: { show: false },
-        table: { show: false },
-      },
-
-      {
-        label: '用户名',
-        name: 'userName',
-        search: { show: false },
-      },
-
-      {
-        label: '密码',
-        name: 'password',
-        search: { show: false },
-      },
-
-      {
-        label: '摄像机通道',
-        name: 'channelInfo',
-        search: { show: false },
-        table: { show: false },
-      },
-
-      {
-        label: '录像机通道',
-        name: 'videoAisle',
-        search: { show: false },
-        table: { show: false },
       },
     ],
 
-    fetchPaginationData: async () => {
-      return {
-        total: 2,
-        rows: [
-          {
-            cameraId: 69,
-            number: 'jk_sn_104',
-            cameraName: '研学中心一楼大厅东南',
-            addr: 1,
-            aisle: '主通道-1',
-            type: '半球形摄像机',
-            status: '可用',
-            x3: '-13480.219',
-            y3: '-10339.43',
-            z3: '53.072',
-            x2: null,
-            y2: null,
-            areaType: '室内',
-            userName: 'admin',
-            password: 'admin123',
-            ip: '192.168.110.36',
-            port: '37777',
-            mainStream: '0',
-            deputyStream: '1',
-            mappingIp: null,
-            mappingPort: null,
-            videoAisle: '主通道-27',
-          },
-          // {
-          //   cameraId: 68,
-          //   number: 'jk_sn_102',
-          //   cameraName: '研学中心一楼北侧走廊西',
-          //   addr: 2,
-          //   aisle: '主通道-1',
-          //   type: '半球形摄像机',
-          //   status: '可用',
-          //   x3: '-14680.219',
-          //   y3: '-10839.43',
-          //   z3: '53.072',
-          //   x2: null,
-          //   y2: null,
-          //   areaType: '室内',
-          //   userName: 'admin',
-          //   password: 'admin123',
-          //   ip: '192.168.110.35',
-          //   port: '37777',
-          //   mainStream: '0',
-          //   deputyStream: '1',
-          //   mappingIp: null,
-          //   mappingPort: null,
-          //   videoAisle: '主通道-26',
-          // },
-          // {
-          //   cameraId: 67,
-          //   number: 'jk_sn_101',
-          //   cameraName: '研学中心一楼大厅西南',
-          //   addr: '研学楼',
-          //   aisle: '主通道-1',
-          //   type: '半球形摄像机',
-          //   status: '可用',
-          //   x3: '-14580.219',
-          //   y3: '-10339.43',
-          //   z3: '153.072',
-          //   x2: null,
-          //   y2: null,
-          //   areaType: '室内',
-          //   userName: 'admin',
-          //   password: 'admin123',
-          //   ip: '192.168.110.29',
-          //   port: '37777',
-          //   mainStream: '0',
-          //   deputyStream: '1',
-          //   mappingIp: null,
-          //   mappingPort: null,
-          //   videoAisle: '主通道-20',
-          // },
-          // {
-          //   cameraId: 66,
-          //   number: 'jk_sn_100',
-          //   cameraName: '研学中心一楼大厅',
-          //   addr: '研学楼',
-          //   aisle: '主通道-1',
-          //   type: '半球形摄像机',
-          //   status: '可用',
-          //   x3: '-14180.219',
-          //   y3: '-10639.43',
-          //   z3: '3.072',
-          //   x2: null,
-          //   y2: null,
-          //   areaType: '室内',
-          //   userName: 'admin',
-          //   password: 'admin123',
-          //   ip: '192.168.110.28',
-          //   port: '37777',
-          //   mainStream: '0',
-          //   deputyStream: '1',
-          //   mappingIp: null,
-          //   mappingPort: null,
-          //   videoAisle: '主通道-19',
-          // },
-          // {
-          //   cameraId: 64,
-          //   number: 'jk_sw_060',
-          //   cameraName: '北区研学楼东南1',
-          //   addr: '北区',
-          //   aisle: '主通道-1',
-          //   type: '半球形摄像机',
-          //   status: '可用',
-          //   x3: '-9580.219',
-          //   y3: '-9639.43',
-          //   z3: '1303.072',
-          //   x2: null,
-          //   y2: null,
-          //   areaType: '室外',
-          //   userName: 'admin',
-          //   password: 'admin123',
-          //   ip: '192.168.110.11',
-          //   port: '37777',
-          //   mainStream: '0',
-          //   deputyStream: '1',
-          //   mappingIp: null,
-          //   mappingPort: null,
-          //   videoAisle: '通道-2',
-          // },
-          // {
-          //   cameraId: 63,
-          //   number: 'jk_sw_059',
-          //   cameraName: '北区研学楼东南2',
-          //   addr: '北区',
-          //   aisle: '主通道-1',
-          //   type: '球形摄像机',
-          //   status: '可用',
-          //   x3: '-9480.406',
-          //   y3: '-9800',
-          //   z3: '1303.072',
-          //   x2: null,
-          //   y2: null,
-          //   areaType: '室外',
-          //   userName: 'admin',
-          //   password: 'admin123',
-          //   ip: '192.168.110.12',
-          //   port: '37777',
-          //   mainStream: '0',
-          //   deputyStream: '1',
-          //   mappingIp: null,
-          //   mappingPort: null,
-          //   videoAisle: '主通道-3',
-          // },
-          // {
-          //   cameraId: 62,
-          //   number: 'jk_sw_058',
-          //   cameraName: '北区研学楼西北2',
-          //   addr: '北区',
-          //   aisle: '主通道-1',
-          //   type: '球形摄像机',
-          //   status: '可用',
-          //   x3: '-15500.094',
-          //   y3: '-11925.547',
-          //   z3: '1153.072',
-          //   x2: null,
-          //   y2: null,
-          //   areaType: '室外',
-          //   userName: 'admin',
-          //   password: 'admin123',
-          //   ip: '192.168.110.14',
-          //   port: '37777',
-          //   mainStream: '0',
-          //   deputyStream: '1',
-          //   mappingIp: null,
-          //   mappingPort: null,
-          //   videoAisle: '通道-5',
-          // },
-          // {
-          //   cameraId: 61,
-          //   number: 'jk_sw_057',
-          //   cameraName: '研学楼西北1',
-          //   addr: '北区',
-          //   aisle: '主通道-1',
-          //   type: '球形摄像机',
-          //   status: '可用',
-          //   x3: '-15628.188',
-          //   y3: '-11800.102',
-          //   z3: '1153.072',
-          //   x2: null,
-          //   y2: null,
-          //   areaType: '室外',
-          //   userName: 'admin',
-          //   password: 'admin123',
-          //   ip: '192.168.110.13',
-          //   port: '37777',
-          //   mainStream: '0',
-          //   deputyStream: '1',
-          //   mappingIp: null,
-          //   mappingPort: null,
-          //   videoAisle: '通道-4',
-          // },
-          // {
-          //   cameraId: 60,
-          //   number: 'jk_sw_056',
-          //   cameraName: '北区研学楼西南',
-          //   addr: '北区',
-          //   aisle: '主通道-1',
-          //   type: '球形摄像机',
-          //   status: '可用',
-          //   x3: '-16718.562',
-          //   y3: '-9786.16',
-          //   z3: '1553.072',
-          //   x2: null,
-          //   y2: null,
-          //   areaType: '室外',
-          //   userName: 'admin',
-          //   password: 'admin123',
-          //   ip: '192.168.110.15',
-          //   port: '37777',
-          //   mainStream: '0',
-          //   deputyStream: '1',
-          //   mappingIp: null,
-          //   mappingPort: null,
-          //   videoAisle: '通道-6',
-          // },
-          // {
-          //   cameraId: 59,
-          //   number: 'jk_sw_055',
-          //   cameraName: '北区综合楼正门',
-          //   addr: '北区',
-          //   aisle: '主通道-1',
-          //   type: '球形摄像机',
-          //   status: '可用',
-          //   x3: '-22680.344',
-          //   y3: '-7248.457',
-          //   z3: '803.072',
-          //   x2: null,
-          //   y2: null,
-          //   areaType: '室外',
-          //   userName: 'admin',
-          //   password: 'admin123',
-          //   ip: '192.168.110.16',
-          //   port: '37777',
-          //   mainStream: '0',
-          //   deputyStream: '1',
-          //   mappingIp: null,
-          //   mappingPort: null,
-          //   videoAisle: '通道-7',
-          // },
-        ],
-        code: 200,
-        msg: '查询成功',
-      }
+    addForm: {
+      initialValues: {
+        menuType: MenuTypeEnum.TYPE_DIR,
+        status: '1',
+        orderNum: 1,
+      },
     },
-    // deleteRequest: row =>
-    //   removeCamera({ body: { cameraIds: [row.cameraId] } }),
-    // addRequest: form => createCamera({ body: form }),
 
-    operates: {
-      buttons: {
+    form: {
+      col: { span: 24 },
+      formProps: {
+        rules: {
+          menuType: { required: true, message: '请选择类型' },
+          menuName: { required: true, message: '请填写名称' },
+          orderNum: { required: true, message: '请填写排序值' },
+          perms: { required: true, message: '请填写权限' },
+          visible: { required: true, message: '请选择显示状态' },
+          status: { required: true, message: '请选择状态' },
+          layout: { required: true, message: '请选择是否是后台页面' },
+          path: { required: true, message: '请输入路由地址' },
+          component: { required: true, message: '请填写组件路径' },
+        },
+        labelCol: { style: { width: '150px' } },
+      },
+    },
+
+    // search: {
+    //   col: { span: 4 },
+    // },
+
+    table: {
+      tableProps: { pagination: false, rowKey: 'menuId' },
+    },
+
+    viewForm: { show: false },
+
+    action: {
+      actions: {
         view: { show: false },
       },
     },
 
-    table: {
-      autoFill: true,
+    fetchPaginationData: async params => {
+      const menus = await fetchMenuPageList({ query: params.query })
+      return {
+        rows: generateTree(menus, { id: 'menuId' }),
+        total: 1,
+      }
     },
+    // addRequest: form => createMenu({ body: form }),
+    // editRequest: form => updateMenu({ body: form }),
+    // deleteRequest: ctx => deleteMenu({ params: `${ctx.record.menuId}` }),
   }
 })
 </script>
-
-<style scoped>
-.pro-crud-07 {
-  height: 100%;
-}
-
-.pro-crud-07 :deep(.ant-table-container) {
-  position: relative;
-}
-
-.pro-crud-07 :deep(.ant-table-body::-webkit-scrollbar) {
-  width: 0;
-  height: 0;
-}
-</style>
