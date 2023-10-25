@@ -90,6 +90,7 @@ export interface ProCrudScope<
 export interface CrudFormScope<T extends object> extends ProFormScope<T> {
   showDialog(values?: any): void
   hideDialog(): void
+  clear(values?: any): void
 }
 
 /**

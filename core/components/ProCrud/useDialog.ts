@@ -11,6 +11,14 @@ export function useDialog<T extends object = any>(form: ProFormInstance<T>) {
 
   function showDialog(values?: T) {
     open.value = true
+    clear(values)
+  }
+
+  function hideDialog() {
+    open.value = false
+  }
+
+  function clear(values?: T) {
     form.reset()
 
     if (values) {
@@ -18,10 +26,6 @@ export function useDialog<T extends object = any>(form: ProFormInstance<T>) {
         form.setFieldValuesTransform(values)
       })
     }
-  }
-
-  function hideDialog() {
-    open.value = false
   }
 
   function merged(props?: ModalProps) {
@@ -37,5 +41,6 @@ export function useDialog<T extends object = any>(form: ProFormInstance<T>) {
     showDialog,
     hideDialog,
     merged,
+    clear,
   }
 }

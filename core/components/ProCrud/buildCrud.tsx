@@ -331,17 +331,25 @@ const buildAddFormMiddleware: Middleware<
   BuildCrudContext<any, any, any, any, any, any>
 > = (ctx, next) => {
   const { proFormBinding, proFormRef } = buildForm(scope => {
-    const { showDialog: _showDialog, hideDialog, merged } = useDialog(scope)
+    const {
+      showDialog: _showDialog,
+      hideDialog,
+      merged,
+      clear,
+    } = useDialog(scope)
 
     function showDialog(values: object | undefined) {
       _showDialog(values)
       ctx.modalType.value = 'add'
+      ctx.scope.editForm.clear()
+      ctx.scope.viewForm.clear()
     }
 
     ctx.scope.addForm = {
       ...scope,
       showDialog,
       hideDialog,
+      clear,
     }
 
     next()
@@ -425,17 +433,25 @@ const buildEditFormMiddleware: Middleware<
   BuildCrudContext<any, any, any, any, any, any>
 > = (ctx, next) => {
   const { proFormBinding, proFormRef } = buildForm(scope => {
-    const { showDialog: _showDialog, hideDialog, merged } = useDialog(scope)
+    const {
+      showDialog: _showDialog,
+      hideDialog,
+      merged,
+      clear,
+    } = useDialog(scope)
 
     function showDialog(values: object | undefined) {
       _showDialog(values)
       ctx.modalType.value = 'edit'
+      ctx.scope.addForm.clear()
+      ctx.scope.viewForm.clear()
     }
 
     ctx.scope.editForm = {
       ...scope,
       showDialog,
       hideDialog,
+      clear,
     }
 
     next()
@@ -518,17 +534,25 @@ const buildViewFormMiddleware: Middleware<
   BuildCrudContext<any, any, any, any, any, any>
 > = (ctx, next) => {
   const { proFormBinding, proFormRef } = buildForm(scope => {
-    const { showDialog: _showDialog, hideDialog, merged } = useDialog(scope)
+    const {
+      showDialog: _showDialog,
+      hideDialog,
+      merged,
+      clear,
+    } = useDialog(scope)
 
     function showDialog(values: object | undefined) {
       _showDialog(values)
       ctx.modalType.value = 'view'
+      ctx.scope.addForm.clear()
+      ctx.scope.editForm.clear()
     }
 
     ctx.scope.viewForm = {
       ...scope,
       showDialog,
       hideDialog,
+      clear,
     }
 
     next()
