@@ -179,6 +179,11 @@ export function buildCrud<
     editToast,
   }
 
+  inject(GlobalOption)?.hooks?.crud?.({
+    proCrudScope: context.scope,
+    proCrudBinding,
+  })
+
   // @ts-ignore
   return { proCrudRef, proCrudBinding }
 }

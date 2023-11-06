@@ -1,6 +1,6 @@
 import cloneDeep from 'clone-deep'
 import { get, has, merge, set, unset } from 'lodash-es'
-import { computed, ref, toRaw } from 'vue'
+import { computed, inject, ref, toRaw } from 'vue'
 
 import { buildFormColumn } from './buildFormColumn'
 import { DefaultProFormCol } from './constant'
@@ -8,6 +8,8 @@ import { useValues } from './useValues'
 
 import { unRef, useDictionary } from '../common'
 import { showToast } from '../Toast'
+
+import { GlobalOption } from '~/constant'
 
 import type {
   BuildFormBinding,
@@ -348,6 +350,12 @@ export function buildForm<T extends object, C, R = T>(
       row: computed(() => unRef(row)),
     },
   }
+
+  inject(GlobalOption)?.hooks?.form?.({
+    proFormScope: scope,
+    proFormBinding: formBinding.proFormBinding,
+    proFormRef,
+  })
 
   return formBinding
 }

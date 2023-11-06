@@ -1,5 +1,6 @@
 import { Input } from 'ant-design-vue'
-import { createApp } from 'vue'
+import { useScrollbar } from 'use-scrollbars'
+import { createApp, onMounted } from 'vue'
 
 import './index.css'
 import App from './App.vue'
@@ -52,6 +53,25 @@ app.use(ProComponents, {
       form,
     } = ctx
     return { query: { pageSize, pageNumber, ...form } }
+  },
+
+  hooks: {
+    table({ proTableScope }) {
+      onMounted(() => {
+        const barStates = useScrollbar()
+        const tableRef = proTableScope.getTableRef()
+        const tableBody = tableRef.value.$el.querySelector('.ant-table-body')
+        barStates.init({
+          // 将滚动条挂载到 .ant-table-wrapper 上
+          mount: tableBody,
+          // 选中超高的子元素
+          content: tableBody.querySelector('.ant-table-body > table'),
+        })
+        barStates.setOffset({
+          y: { top: tableRef.value.$el.querySelector('.ant-table-header') },
+        })
+      })
+    },
   },
 })
 

@@ -442,5 +442,11 @@ export function buildTable<T extends object, C, P extends object = any>(
     },
   }
 
+  inject(GlobalOption)?.hooks?.table?.({
+    proTableScope: scope,
+    proTableBinding: buildProTableResult.proTableBinding,
+    proTableRef: proTableRef,
+  })
+
   return buildProTableResult
 }

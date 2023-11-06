@@ -1,12 +1,24 @@
 import type { ValueTypeValue } from './components/common'
 import type {
+  BuildCrudBinding,
   CrudDialogOption,
+  ProCrudScope,
   TransformQueryParams,
   TransformResponseParams,
 } from './components/ProCrud'
-import type { FetchTableDataResult } from './components/ProTable'
+import type {
+  BuildFormBinding,
+  ProFormInstance,
+  ProFormScope,
+} from './components/ProForm'
+import type {
+  BuildProTableBinding,
+  FetchTableDataResult,
+  ProTableInstance,
+  ProTableScope,
+} from './components/ProTable'
 import type { PaginationProps } from 'ant-design-vue'
-import type { InjectionKey } from 'vue'
+import type { InjectionKey, Ref } from 'vue'
 
 export const GlobalOption = Symbol() as InjectionKey<ProComponentsOptions>
 
@@ -42,4 +54,35 @@ export interface ProComponentsOptions {
    * 注入扩展类型
    */
   types?: Record<string, ValueTypeValue>
+
+  /**
+   * 全局执行 build hooks
+   */
+  hooks?: {
+    /**
+     * 执行 buildTable 时执行
+     */
+    table?: (ctx: {
+      proTableScope: ProTableScope<any>
+      proTableBinding: BuildProTableBinding<any>
+      proTableRef: Ref<ProTableInstance<any> | null>
+    }) => void
+
+    /**
+     * 执行 buildForm 时执行
+     */
+    form?: (ctx: {
+      proFormScope: ProFormScope<any>
+      proFormBinding: BuildFormBinding<any>
+      proFormRef: Ref<ProFormInstance<any> | null>
+    }) => void
+
+    /**
+     * 执行 buildCrud 时执行
+     */
+    crud?: (ctx: {
+      proCrudScope: ProCrudScope<any, any, any, any>
+      proCrudBinding: BuildCrudBinding<any, any, any, any>
+    }) => void
+  }
 }

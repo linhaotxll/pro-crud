@@ -1,476 +1,148 @@
 <template>
-  <pro-crud v-bind="proCrudBinding" />
+  <pro-crud class="abc" style="max-height: 100%" v-bind="proCrudBinding" />
 </template>
 
 <script lang="ts" setup>
-// import { MenuTypeOptions, MenuTypeEnum } from '~/enums'
-import { merge } from 'lodash-es'
-import { computed } from 'vue'
-
 import { buildCrud } from '~/index'
 
-import type { ProCrudScope } from '~/index'
-// import { useGlobalStore } from '~/store'
-// import { generateTree } from '~/utils'
+defineOptions({ name: 'ParamsManager' })
 
-// import type { ProCrudScope } from '@linh-txl/pro-crud'
-// import type { Menu } from '~/typings'
+const { proCrudBinding } = buildCrud<any>(() => {
+  // })
 
-defineOptions({ name: 'MenuManager' })
-
-const enum MenuTypeEnum {
-  /**
-   * 菜单类型（目录）
-   */
-  TYPE_DIR = 'M',
-
-  /**
-   * 菜单类型（菜单）
-   */
-  TYPE_MENU = 'C',
-
-  /**
-   * 菜单类型（按钮）
-   */
-  TYPE_BUTTON = 'F',
-}
-
-// const globalStore = useGlobalStore()
-
-const menuName2Type: Record<any, string> = {
-  [MenuTypeEnum.TYPE_DIR]: '目录名称',
-  [MenuTypeEnum.TYPE_MENU]: '菜单名称',
-  [MenuTypeEnum.TYPE_BUTTON]: '按钮名称',
-}
-
-const MenuTypeOptions = [
-  { label: '目录', value: MenuTypeEnum.TYPE_DIR },
-  { label: '菜单', value: MenuTypeEnum.TYPE_MENU },
-  { label: '按钮', value: MenuTypeEnum.TYPE_BUTTON },
-]
-
-interface Fields {
-  children: string
-  id: string
-  parentId: string
-}
-
-const DefaultFields: Fields = {
-  children: 'children',
-  id: 'id',
-  parentId: 'parentId',
-}
-
-function generateTree<T>(data: any[], fields?: Partial<Fields>) {
-  const resolvedFields: Fields = merge({}, DefaultFields, fields)
-  const { id: _id, parentId, children } = resolvedFields
-
-  const result: T[] = [] // 存放结果集
-  const itemMap: Record<number, T> = {} //
-  for (const item of data) {
-    const id = item[_id]
-    const pid = item[parentId]
-
-    if (!itemMap[id]) {
-      delete item[children]
-      itemMap[id] = item
-    }
-
-    const treeItem = itemMap[id]
-
-    if (pid === 0) {
-      result.push(treeItem)
-    } else {
-      // @ts-ignore
-      ;(itemMap[pid][children] ||= []).push(treeItem)
-    }
-  }
-  return result
-}
-
-async function fetchMenuPageList(_: any) {
-  _
-  return [
-    {
-      searchValue: null,
-      createBy: null,
-      createUser: null,
-      createTime: '2023-10-24 16:24:18',
-      createTimeStr: null,
-      updateBy: null,
-      updateUser: null,
-      updateTime: null,
-      updateTimeStr: null,
-      remark: null,
-      params: {},
-      isDelete: null,
-      menuId: 1,
-      menuName: '无线网络',
-      parentName: null,
-      parentId: 0,
-      orderNum: 1,
-      path: 'wireless-network',
-      component: null,
-      query: null,
-      isFrame: '1',
-      isCache: '0',
-      menuType: 'M',
-      visible: '0',
-      status: '0',
-      perms: 'sys:wifi:dict',
-      icon: '#',
-      children: [],
-    },
-    {
-      searchValue: null,
-      createBy: null,
-      createUser: null,
-      createTime: '2023-10-24 16:24:50',
-      createTimeStr: null,
-      updateBy: null,
-      updateUser: null,
-      updateTime: null,
-      updateTimeStr: null,
-      remark: null,
-      params: {},
-      isDelete: null,
-      menuId: 2,
-      menuName: '无线网络管理',
-      parentName: null,
-      parentId: 1,
-      orderNum: 1,
-      path: '/wireless-network',
-      component: '1',
-      query: null,
-      isFrame: '1',
-      isCache: '0',
-      menuType: 'C',
-      visible: '0',
-      status: '0',
-      perms: 'sys:wifi:list',
-      icon: '#',
-      children: [],
-    },
-    {
-      searchValue: null,
-      createBy: null,
-      createUser: null,
-      createTime: '2023-10-24 16:25:11',
-      createTimeStr: null,
-      updateBy: null,
-      updateUser: null,
-      updateTime: null,
-      updateTimeStr: null,
-      remark: null,
-      params: {},
-      isDelete: null,
-      menuId: 3,
-      menuName: '无线网络统计分析',
-      parentName: null,
-      parentId: 1,
-      orderNum: 1,
-      path: '/wireless-network/statistics',
-      component: '1',
-      query: null,
-      isFrame: '1',
-      isCache: '0',
-      menuType: 'C',
-      visible: '1',
-      status: '0',
-      perms: 'sys:wifi:stat',
-      icon: '#',
-      children: [],
-    },
-  ]
-}
-
-const should = (
-  scope: ProCrudScope<any, any, any, any>,
-  conditions: MenuTypeEnum[]
-) => {
-  const add = scope.addForm.getFieldValue('menuType')
-  const addResult = conditions.some(type => add === type)
-
-  if (addResult) {
-    return addResult
-  }
-
-  const edit = scope.editForm.getFieldValue('menuType')
-  const editResult = conditions.some(type => {
-    return edit === type
-  })
-
-  if (editResult) {
-    return editResult
-  }
-
-  return false
-}
-
-const { proCrudBinding } = buildCrud<any>(scope => {
   return {
     columns: [
       {
-        label: '名称',
-        name: 'menuName',
+        label: '参数主键',
+        name: 'configId',
+        search: { show: false },
         form: { show: false },
+        table: { columnProps: { width: 100 } },
       },
-
       {
-        label: '类型',
-        name: 'menuType',
+        label: '参数名称',
+        name: 'configName',
+        table: { columnProps: { width: 250 } },
+      },
+      {
+        label: '参数键名',
+        name: 'configKey',
+        table: { columnProps: { width: 100 } },
+      },
+      {
+        label: '参数键值',
+        name: 'configValue',
+        search: { show: false },
+        table: { columnProps: { width: 200 } },
+      },
+      {
+        label: '系统内置',
+        name: 'configType',
         type: 'dict-select',
-        search: { show: false },
-        form: { col: { span: 24 } },
+        table: { columnProps: { width: 100 } },
         dict: {
-          data: MenuTypeOptions,
-        },
-        table: {
-          columnProps: { width: '8%' },
-        },
-      },
-
-      // {
-      //   label: '上级菜单',
-      //   name: 'parentId',
-      //   type: 'dict-tree-select',
-      //   table: { show: false },
-      //   search: { show: false },
-      //   form: {
-      //     show: computed(() => {
-      //       // debugger
-      //       console.log('add: ', JSON.stringify(scope.addForm.getFormValues()))
-      //       const addMenuType = scope.addForm.getFieldValue('menuType')
-      //       if (
-      //         addMenuType === MenuTypeEnum.TYPE_DIR ||
-      //         addMenuType === MenuTypeEnum.TYPE_BUTTON
-      //       ) {
-      //         return true
-      //       }
-
-      //       console.log(
-      //         'edit: ',
-      //         JSON.stringify(scope.editForm.getFormValues())
-      //       )
-      //       const editMenuType = scope.editForm.getFieldValue('menuType')
-      //       if (
-      //         editMenuType === MenuTypeEnum.TYPE_DIR ||
-      //         editMenuType === MenuTypeEnum.TYPE_BUTTON
-      //       ) {
-      //         return true
-      //       }
-      //       return false
-      //     }),
-      //     // show: computed(() =>
-      //     //   should(scope, [MenuTypeEnum.TYPE_MENU, MenuTypeEnum.TYPE_BUTTON])
-      //     // ),
-      //     fieldProps: {
-      //       useData: () => useMenuTree({ immediate: true }),
-      //       treeDefaultExpandAll: true,
-      //       fieldNames: {
-      //         children: 'children',
-      //         label: 'label',
-      //         value: 'id',
-      //       },
-      //     },
-      //   },
-      // },
-
-      {
-        label: computed(
-          () =>
-            menuName2Type[scope.addForm.getFieldValue('menuType')] ||
-            menuName2Type[scope.editForm.getFieldValue('menuType')]
-        ),
-        name: 'menuName',
-        table: { show: false },
-        search: { show: false },
-      },
-
-      {
-        label: '显示排序',
-        name: 'orderNum',
-        type: 'digit',
-        search: { show: false },
-        form: {
-          show: computed(() =>
-            should(scope, [MenuTypeEnum.TYPE_DIR, MenuTypeEnum.TYPE_MENU])
-          ),
-        },
-        table: {
-          columnProps: { width: '6%' },
-        },
-      },
-
-      {
-        label: '权限',
-        name: 'perms',
-        search: { show: false },
-        table: {
-          columnProps: { width: '14%' },
-        },
-      },
-
-      {
-        label: '组件路径',
-        name: 'component',
-        table: { show: false },
-        search: { show: false },
-        form: {
-          show: computed(() => should(scope, [MenuTypeEnum.TYPE_MENU])),
-        },
-      },
-
-      {
-        label: '路由地址',
-        name: 'path',
-        search: { show: false },
-        table: { show: false },
-        form: {
-          tooltip:
-            '访问的路由地址，如：`user`，如外网地址需内链访问则以`http(s)://`开头',
-          show: computed(() =>
-            should(scope, [MenuTypeEnum.TYPE_DIR, MenuTypeEnum.TYPE_MENU])
-          ),
-        },
-      },
-
-      {
-        label: '外链打开方式',
-        name: 'openType',
-        search: { show: false },
-        table: { show: false },
-        form: {
-          tooltip: '外链路由地址必须以`http(s)://`开头',
-          show: computed(() => should(scope, [MenuTypeEnum.TYPE_MENU])),
-        },
-        type: 'dict-select',
-        dict: {
-          data: [
-            { label: '新标签页', value: '1' },
-            { label: 'ifame内嵌', value: '2' },
-          ],
-        },
-      },
-
-      {
-        label: '是否是后台页面',
-        name: 'layout',
-        type: 'dict-select',
-        dict: {
-          data: [
-            { label: '是', value: true },
-            { label: '否', value: false },
-          ],
-        },
-        search: { show: false },
-        table: { show: false },
-        form: {
-          tooltip: '选择否将是一个新页面，不包含左侧和顶部内容',
-          show: computed(() => should(scope, [MenuTypeEnum.TYPE_MENU])),
-        },
-      },
-
-      // {
-      //   label: '显示状态',
-      //   name: 'visible',
-      //   type: 'dict-select',
-      //   dict: {
-      //     fetchData: fetchMenuVisibleStatus,
-      //     labelField: 'dictLabel',
-      //     valueField: 'dictValue',
-      //   },
-      //   form: {
-      //     tooltip: '选择隐藏将不会出现在菜单栏，但仍然可以访问',
-      //     show: computed(() => should(scope, [MenuTypeEnum.TYPE_MENU])),
-      //   },
-      //   table: { show: false },
-      // },
-
-      {
-        label: '状态',
-        name: 'status',
-        type: 'dict-select',
-        dict: {
-          data: [
-            { labelField: '启用', valueField: '1' },
-            { labelField: '停用', valueField: '0' },
-          ],
+          data: [],
+          // fetchData: fetchSystemBuiltInDictioanry,
           labelField: 'dictLabel',
           valueField: 'dictValue',
         },
-        form: {
-          tooltip: '选择停用将不会出现在菜单栏，也不能被访问',
-          show: computed(() =>
-            should(scope, [MenuTypeEnum.TYPE_DIR, MenuTypeEnum.TYPE_MENU])
-          ),
-        },
-        table: {
-          columnProps: { width: '8%' },
-        },
       },
-
       {
         label: '创建时间',
         name: 'createTime',
+        table: { columnProps: { width: 200 } },
         search: { show: false },
         form: { show: false },
-        table: {
-          columnProps: { width: '15%' },
-        },
+      },
+      {
+        label: '备注',
+        name: 'remark',
+        search: { show: false },
+        type: 'textarea',
+        form: { col: { span: 24 } },
+        table: { columnProps: { width: 250 } },
       },
     ],
 
-    addForm: {
-      initialValues: {
-        menuType: MenuTypeEnum.TYPE_DIR,
-        status: '1',
-        orderNum: 1,
-      },
-    },
-
     form: {
-      col: { span: 24 },
+      col: { span: 12 },
       formProps: {
+        labelCol: { style: { width: '100px' } },
         rules: {
-          menuType: { required: true, message: '请选择类型' },
-          menuName: { required: true, message: '请填写名称' },
-          orderNum: { required: true, message: '请填写排序值' },
-          perms: { required: true, message: '请填写权限' },
-          visible: { required: true, message: '请选择显示状态' },
-          status: { required: true, message: '请选择状态' },
-          layout: { required: true, message: '请选择是否是后台页面' },
-          path: { required: true, message: '请输入路由地址' },
-          component: { required: true, message: '请填写组件路径' },
+          configName: { required: true, message: '请填写参数名称' },
+          configKey: { required: true, message: '请填写参数键名' },
+          configValue: { required: true, message: '请填写参数键值' },
+          configType: { required: true, message: '请选择系统内置类型' },
+          remark: { required: true, message: '请填写备注' },
         },
-        labelCol: { style: { width: '150px' } },
       },
     },
 
     table: {
-      tableProps: { pagination: false, rowKey: 'menuId' },
+      tableProps: { rowKey: 'configId' },
+      toolbar: {
+        actions: {
+          // add: { show: computed(() => access.canAddParamsConfig) },
+        },
+      },
     },
-
-    search: { col: { span: 6 } },
-
-    viewForm: { show: false },
 
     action: {
       actions: {
         view: { show: false },
+        // edit: { show: computed(() => access.canEditParamsConfig) },
+        // delete: { show: computed(() => access.canDeleteParamsConfig) },
       },
     },
 
-    fetchPaginationData: async params => {
-      const menus = await fetchMenuPageList({ query: params.query })
+    viewForm: { show: false },
+
+    fetchPaginationData: async () => {
+      const total = 20
       return {
-        rows: generateTree(menus, { id: 'menuId' }),
-        total: 1,
+        total,
+        rows: Array.from({ length: total }).fill({
+          createBy: null,
+          createUserName: 'admin',
+          createTime: '2023-11-02 16:04:31',
+          updateBy: null,
+          updateUserName: 'admin',
+          updateTime: '2023-11-02 16:06:57',
+          remark: '小程序后台域名',
+          configId: 6,
+          configName: '小程序后台域名',
+          configKey: 'SYS_MP_ADMIN_HOST',
+          configValue: 'http://www.ruyiwan.com:8801',
+          configType: 'Y',
+        }),
+        // rows: [
+
+        //   {
+        //     createBy: null,
+        //     createUserName: null,
+        //     createTime: '2022-04-28 09:17:04',
+        //     updateBy: null,
+        //     updateUserName: 'admin',
+        //     updateTime: '2023-11-02 16:09:59',
+        //     remark: '初始化密码 123456',
+        //     configId: 2,
+        //     configName: '用户管理-账号初始密码',
+        //     configKey: 'SYS_USER_INIT_PASSWORD',
+        //     configValue: '1234567',
+        //     configType: 'Y',
+        //   },
+        // ],
+        code: 200,
+        msg: '查询成功',
       }
     },
-    // addRequest: form => createMenu({ body: form }),
-    // editRequest: form => updateMenu({ body: form }),
-    // deleteRequest: ctx => deleteMenu({ params: `${ctx.record.menuId}` }),
   }
 })
 </script>
+
+<style scoped>
+.abc :deep(.ant-table-body::-webkit-scrollbar) {
+  width: 0;
+  height: 0;
+}
+</style>
