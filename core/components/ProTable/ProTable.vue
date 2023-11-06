@@ -78,19 +78,27 @@ const tableRef = inject(ProTableRefKey)
 }
 
 .pro-table-container.auto-fill .pro-table-edit-form {
+  display: flex;
   overflow: auto;
   height: 100%;
   flex: 1;
+  flex-direction: column;
 }
 
 .pro-table.auto-fill {
+  display: flex;
   overflow: auto;
   height: 100%;
+  flex: 1;
+  flex-direction: column;
 }
 
 .pro-table.auto-fill :deep(> .ant-spin-nested-loading) {
+  display: flex;
   overflow: auto;
   height: 100%;
+  flex: 1;
+  flex-direction: column;
 }
 
 .pro-table.auto-fill :deep(> .ant-spin-nested-loading > .ant-spin-container) {
@@ -98,12 +106,15 @@ const tableRef = inject(ProTableRefKey)
   overflow: auto;
   height: 100%;
   flex-direction: column;
+  flex: 1;
 }
 
 .pro-table.auto-fill
   :deep(> .ant-spin-nested-loading > .ant-spin-container > .ant-table) {
-  flex: 1;
+  display: flex;
   overflow: auto;
+  flex: 1;
+  flex-direction: column;
 }
 
 .pro-table.auto-fill
@@ -117,6 +128,7 @@ const tableRef = inject(ProTableRefKey)
   overflow: auto;
   height: 100%;
   flex-direction: column;
+  flex: 1;
 }
 
 .pro-table.auto-fill
