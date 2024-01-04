@@ -1,6 +1,6 @@
 import type {
+  ColumnDictionaryOptions,
   DictionaryCollectionOptions,
-  DictionaryOption,
   MaybeRef,
   ValueType,
 } from '../common'
@@ -461,7 +461,7 @@ export interface ProCrudColumnOption<
   S extends object,
   A extends object,
   E extends object
-> {
+> extends ColumnDictionaryOptions {
   /**
    * 名称
    */
@@ -476,11 +476,6 @@ export interface ProCrudColumnOption<
    * 类型
    */
   type?: MaybeRef<ValueType | string>
-
-  /**
-   * 字典
-   */
-  dict?: DictionaryOption
 
   /**
    * 查询表单列配置

@@ -42,7 +42,7 @@
         :class="{ 'auto-fill': autoFill }"
         v-bind="tableProps.value"
         :loading="loading.value"
-        :columns="columns.value"
+        :columns="resolvedColumns"
       >
         <template
           v-for="(render, name) in tableSlots"
@@ -57,7 +57,7 @@
 </template>
 
 <script lang="ts" setup generic="T extends object">
-import { inject } from 'vue'
+import { computed, inject } from 'vue'
 
 import { ProTableRefKey } from './constant'
 
@@ -65,7 +65,11 @@ import type { ProTableProps } from './interface'
 
 defineOptions({ name: 'ProTable' })
 
-defineProps<ProTableProps<T>>()
+const p = defineProps<ProTableProps<T>>()
+
+const resolvedColumns = computed(() => p.columns.map(c => c.value))
+
+console.log(p)
 
 const tableRef = inject(ProTableRefKey)
 </script>

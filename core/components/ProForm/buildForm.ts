@@ -6,7 +6,7 @@ import { buildFormColumn } from './buildFormColumn'
 import { DefaultProFormCol } from './constant'
 import { useValues } from './useValues'
 
-import { unRef, useDictionary } from '../common'
+import { processDictionary, unRef } from '../common'
 import { showToast } from '../Toast'
 
 import { GlobalOption } from '~/constant'
@@ -97,12 +97,13 @@ export function buildForm<T extends object, C, R = T>(
     InternalProFormColumnOptions<T>
   >()
 
-  const { createColumnDict } = useDictionary(fetchDictCollection)
+  // 解析字典集合
+  const resolveColumnDictionary = processDictionary(fetchDictCollection)
+
   // 解析列配置
   const resolvedColumns = columns.map(c => {
-    return computed(() =>
-      buildFormColumn(col, resolvedColumnsMap, c, createColumnDict)
-    )
+    const dict = resolveColumnDictionary(c)
+    return computed(() => buildFormColumn(col, resolvedColumnsMap, c, dict))
   })
 
   // 解析表单配置

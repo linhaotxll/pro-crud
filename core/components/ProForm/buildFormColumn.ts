@@ -8,7 +8,7 @@ import type {
   InternalProFormColumnOptions,
   ProFormColumnOptions,
 } from './interface'
-import type { DictionaryOption, ResolvedColumnDict, ValueType } from '../common'
+import type { ValueType, useDictionary } from '../common'
 import type { ColProps, FormItemProps } from 'ant-design-vue'
 import type { MaybeRef } from 'vue'
 
@@ -18,12 +18,7 @@ export function buildFormColumn<T extends object>(
     | Map<FormItemProps['name'], InternalProFormColumnOptions<T>>
     | undefined,
   column: ProFormColumnOptions<T>,
-  createColumnDict:
-    | ((
-        dict: DictionaryOption | ResolvedColumnDict | undefined
-      ) => ResolvedColumnDict | undefined)
-    | undefined,
-  dict?: ResolvedColumnDict | undefined
+  resolvedDictionary: ReturnType<typeof useDictionary> | undefined
 ) {
   // 合并默认 Column 配置
   const mergeColumn: ProFormColumnOptions<T> = merge(
@@ -51,9 +46,10 @@ export function buildFormColumn<T extends object>(
   type Keys = keyof typeof mergeColumn
   ;(Object.keys(mergeColumn) as Keys[]).forEach(key => {
     switch (key) {
-      case 'dict':
-        resolvedColumn.dict = dict || createColumnDict?.(mergeColumn.dict)
-        break
+      // case 'dict':
+      //   resolvedColumn.dict = mergeColumn.dict
+      //   // resolvedColumn.dict = dict || createColumnDict?.(mergeColumn.dict)
+      //   break
 
       case 'tooltip':
         resolvedColumn.tooltip =
@@ -73,6 +69,8 @@ export function buildFormColumn<T extends object>(
         resolvedColumn[key] = unRef(mergeColumn[key])
     }
   })
+
+  resolvedColumn.dict = resolvedDictionary
 
   if (resolvedColumnsMap) {
     resolvedColumnsMap.set(name, resolvedColumn)

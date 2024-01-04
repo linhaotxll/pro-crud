@@ -25,12 +25,6 @@ export default defineComponent({
   emits: ['update:value'],
 
   setup(props, { attrs, emit }) {
-    const config = computed(() => {
-      const { dict } = props.column!
-      const { loading, options } = dict || {}
-      return { loading, options }
-    })
-
     const value = computed({
       get: () => props.value,
       set(v) {
@@ -39,20 +33,25 @@ export default defineComponent({
     })
 
     // 当 options 变化时，主动追踪 value 的依赖，更新 el-select 中回显的值
-    watch(config, () => {
-      triggerRef(value)
-    })
+    watch(
+      () => props.column!.dict,
+      () => {
+        triggerRef(value)
+      }
+    )
 
     return () => {
+      const { options, loading } = props.column!.dict!
       return (
         <Select
           {...attrs}
-          options={config.value.options?.value ?? []}
+          options={options.value}
+          loading={loading.value}
           v-model:value={value.value}
         >
           {{
             dropdownRender: (ctx: any) => {
-              return config.value.loading?.value ? (
+              return loading.value ? (
                 <div style={spinContainerStyle}>
                   <Spin />
                 </div>

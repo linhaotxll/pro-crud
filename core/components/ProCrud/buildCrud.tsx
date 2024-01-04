@@ -27,7 +27,7 @@ import {
 import { useDialog } from './useDialog'
 import { useOperate } from './useOperate'
 
-import { unRef, useDictionary } from '../common'
+import { processDictionary, unRef } from '../common'
 import { buildForm, type ProFormColumnOptions } from '../ProForm'
 import { buildSearch } from '../ProSearch'
 import { buildTable } from '../ProTable'
@@ -107,6 +107,7 @@ export function buildCrud<
     options,
   } as BuildCrudContext<T, R, S, S1, A, E>
 
+  // debugger
   compose<BuildCrudContext<T, R, S, S1, A, E>>([
     buildSearchMiddlewre,
     buildTableMiddleware,
@@ -673,11 +674,18 @@ function normalizeColumns(
     viewForm: [],
   }
 
-  const { createColumnDict } = useDictionary(fetchDictCollection)
+  const resolveDictionary = processDictionary(fetchDictCollection)
+
+  // 删除 crud 中的 fetchDictCollection，避免传递给内部的 ProForm、ProTable 进行二次解析
+  delete options.fetchDictCollection
 
   const result =
     columns?.reduce((prev, curr) => {
-      curr.dict = createColumnDict(curr.dict) as any
+      // TODO: 将已经解析好的 dict 赋值给 column，下透到 ProForm、ProTable 组件不会再进行二次解析
+      if (curr.dict) {
+        // @ts-ignore
+        curr.dict = resolveDictionary(curr)
+      }
 
       if (!(curr.search?.show === false)) {
         prev.search.push(curr)

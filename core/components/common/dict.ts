@@ -1,6 +1,16 @@
-import { computed, ref, watch } from 'vue'
+import { computed, isRef, ref, watch } from 'vue'
 
 import type { ComputedRef, Ref } from 'vue'
+
+/**
+ * 字典列配置
+ */
+export interface ColumnDictionaryOptions {
+  /**
+   * 字典配置
+   */
+  dict?: DictionaryOption
+}
 
 /**
  * 字典配置
@@ -54,19 +64,16 @@ export interface DictionaryResolvedOption {
 }
 
 export interface ResolvedColumnDict {
-  symbol: symbol
-  dict: DictionaryOption
   options: Ref<DictionaryResolvedOption[]>
-  optionsNameMap: ComputedRef<Map<any, string>>
+  optionsNameMap: ComputedRef<Record<string, string>>
   loading: Ref<boolean>
 }
 
-const useDictSymbol = Symbol()
-
-export function useDictionary(dictCollection: FetchDictCollection | undefined) {
+export function useDictCollection<T = any>(
+  dictCollection: FetchDictCollection<T> | undefined
+) {
   const loading = ref(false)
-
-  const collection = dictCollection ? ref() : null
+  const dataSource = ref(null) as Ref<T | null>
 
   const startLoading = () => (loading.value = true)
   const cancelLoading = () => (loading.value = false)
@@ -75,39 +82,51 @@ export function useDictionary(dictCollection: FetchDictCollection | undefined) {
     startLoading()
     dictCollection()
       .then(response => {
-        collection!.value = response
+        dataSource.value = response
       })
       .finally(() => {
         cancelLoading()
       })
   }
 
-  /**
-   * 获取字典列表
-   */
-  async function executeWithData(
-    dict: DictionaryOption,
-    options: Ref<DictionaryResolvedOption[]>
-  ) {
-    const {
-      data,
-      fetchData,
-      useCollect,
-      labelField = 'label',
-      valueField = 'value',
-    } = (dict as DictionaryOption) || {}
+  return {
+    dataSource,
+    loading,
+  }
+}
+
+export function useDictionary<T = any>(
+  collection: Ref<T[] | null>,
+  dictOption: DictionaryOption
+) {
+  const {
+    data,
+    fetchData,
+    useCollect,
+    labelField = 'label',
+    valueField = 'value',
+  } = dictOption
+
+  const options = ref([]) as Ref<DictionaryResolvedOption[]>
+
+  const loading = ref(false)
+  const startLoading = () => (loading.value = true)
+  const cancelLoading = () => (loading.value = false)
+
+  async function execute() {
+    const _fetchData: () => Promise<any[]> = Array.isArray(data)
+      ? () => Promise.resolve(data!)
+      : typeof fetchData === 'function'
+      ? fetchData
+      : typeof useCollect === 'function'
+      ? () => useCollect(collection.value)
+      : () => Promise.resolve([])
+
     try {
       startLoading()
 
-      const _fetchData: () => Promise<any[]> = Array.isArray(data)
-        ? () => Promise.resolve(data!)
-        : typeof fetchData === 'function'
-        ? fetchData
-        : typeof useCollect === 'function'
-        ? () => useCollect(collection?.value)
-        : () => Promise.resolve([])
-
       const result = await _fetchData()
+
       options.value = result.map((item, i) => ({
         label: item[labelField],
         value: item[valueField],
@@ -118,43 +137,62 @@ export function useDictionary(dictCollection: FetchDictCollection | undefined) {
     }
   }
 
-  function createColumnDict(
-    dict: DictionaryOption | ResolvedColumnDict | undefined
-  ) {
-    if (!dict) {
-      return
-    }
-
-    if ((dict as ResolvedColumnDict).symbol === useDictSymbol) {
-      return dict as ResolvedColumnDict
-    }
-
-    const options = ref([]) as Ref<DictionaryResolvedOption[]>
-    const optionsNameMap = computed<Map<any, string>>(() =>
-      options.value.reduce((prev, curr) => {
-        prev.set(curr.value, curr.label)
-        return prev
-      }, new Map())
+  if (typeof useCollect === 'function') {
+    watch(
+      collection,
+      () => {
+        execute()
+      },
+      { immediate: true }
     )
-
-    const result: ResolvedColumnDict = {
-      symbol: useDictSymbol,
-      options,
-      optionsNameMap,
-      loading,
-      dict: dict as DictionaryOption,
-    }
-
-    if (result.dict.useCollect && collection) {
-      watch(collection, () => {
-        executeWithData(result.dict, options)
-      })
-    } else {
-      executeWithData(result.dict, options)
-    }
-
-    return result
+  } else {
+    execute()
   }
 
-  return { createColumnDict }
+  const optionsNameMap = computed(() => {
+    return options.value.reduce<Record<string, string>>((prev, curr) => {
+      prev[curr.value] = curr.label
+      return prev
+    }, {})
+  })
+
+  return {
+    options,
+    optionsNameMap,
+    loading,
+    execute,
+  }
+}
+
+export function processDictionary(
+  fetchDictCollection: FetchDictCollection | undefined
+) {
+  // 解析字典集合
+  const { dataSource: collection } = useDictCollection(fetchDictCollection)
+
+  return function (column: ColumnDictionaryOptions) {
+    if (isResolveDictionary(column.dict)) {
+      return column.dict
+    }
+    // 解析字典
+    let resolvedDictionary: ReturnType<typeof useDictionary> | undefined =
+      undefined
+    if (column.dict) {
+      resolvedDictionary = useDictionary(collection, column.dict)
+    }
+
+    return resolvedDictionary
+  }
+}
+
+function isResolveDictionary(
+  value: any
+): value is ReturnType<typeof useDictionary> {
+  return (
+    value &&
+    isRef(value.options) &&
+    isRef(value.optionsNameMap) &&
+    isRef(value.loading) &&
+    typeof value.execute === 'function'
+  )
 }

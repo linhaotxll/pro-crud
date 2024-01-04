@@ -1,10 +1,10 @@
 import type {
   Arrayable,
+  ColumnDictionaryOptions,
   DictionaryCollectionOptions,
-  DictionaryOption,
   ExtractMaybeRef,
   MaybeRef,
-  ResolvedColumnDict,
+  useDictionary,
   ValueType,
 } from '../common'
 import type { ActionOption, ActionsOption } from '../ProButton'
@@ -22,12 +22,12 @@ import type {
   NamePath,
   ValidateOptions,
 } from 'ant-design-vue/es/form/interface'
-import type { CSSProperties, ComputedRef, Ref } from 'vue'
+import type { CSSProperties, ComputedRef, Ref, VNode } from 'vue'
 
 type Tooltip = TooltipProps & {
   slots?: {
-    default?: (style: CSSProperties) => JSX.Element
-    title?: () => JSX.Element
+    default?: (style: CSSProperties) => VNode
+    title?: () => VNode
   }
 }
 
@@ -248,7 +248,8 @@ export type ProFormInstance<T extends object> = ProFormScope<T>
 /**
  * 表单列配置
  */
-export interface ProFormColumnOptions<T extends object> {
+export interface ProFormColumnOptions<T extends object>
+  extends ColumnDictionaryOptions {
   /**
    * FormItem label
    */
@@ -304,15 +305,10 @@ export interface ProFormColumnOptions<T extends object> {
    * FormItem 插槽
    */
   itemSlots?: {
-    error?: (error: string) => JSX.Element
-    help?: () => JSX.Element
-    label?: (column: InternalProFormColumnOptions<T>) => JSX.Element
+    error?: (error: string) => VNode
+    help?: () => VNode
+    label?: (column: InternalProFormColumnOptions<T>) => VNode
   }
-
-  /**
-   * 字典配置
-   */
-  dict?: DictionaryOption | ResolvedColumnDict
 
   /**
    * 提示信息
@@ -390,5 +386,5 @@ export interface InternalProFormColumnOptions<T extends object>
   /**
    * 解析好的字典配置
    */
-  dict?: ResolvedColumnDict
+  dict?: ReturnType<typeof useDictionary>
 }

@@ -13,7 +13,7 @@ const p = defineProps<{
   ctx: BodyCellSlotParams<T>
 }>()
 
-const content = computed(() =>
-  p.ctx.column.__column!.dict?.optionsNameMap.value.get(p.ctx.text)
+const content = computed(
+  () => p.ctx.column.__column!.dict?.optionsNameMap.value[p.ctx.text]
 )
 </script>

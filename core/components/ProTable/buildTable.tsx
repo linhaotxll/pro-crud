@@ -438,7 +438,6 @@ export function buildTable<T extends object, C, P extends object = any>(
       scope,
       editableTableData,
       autoFill,
-      // editFormBinding,
     },
   }
 

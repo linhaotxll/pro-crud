@@ -7,7 +7,7 @@ import {
   injectValueTypeTableCell,
 } from './constant'
 
-import { unRef, useDictionary } from '../common'
+import { processDictionary, unRef } from '../common'
 
 import type {
   InternalProTableColumnProps,
@@ -17,8 +17,9 @@ import type {
   ProvideEditTableOptions,
   TableSlots,
 } from './interface'
+import type { useDictionary } from '../common'
 import type { ColumnType, FetchDictCollection, ValueType } from '../common'
-import type { Ref } from 'vue'
+import type { ComputedRef, Ref } from 'vue'
 
 export function useColumns<T extends object>(
   scope: ProTableScope<T>,
@@ -30,6 +31,9 @@ export function useColumns<T extends object>(
   // 解析后的 slots
   const resolvedTableSlots: InternalTableSlots<T> = { ...tableSlots }
 
+  // 解析字典集合
+  const resolveColumnDictionary = processDictionary(fetchDictCollection)
+
   injectHeaderCell()
   injectBodyCell()
 
@@ -39,23 +43,20 @@ export function useColumns<T extends object>(
     ((w: number, column: ColumnType<T>) => void) | undefined
   > = ref()
 
-  const columns = computed(() => {
-    const resolvedColumns: ColumnType<T>[] = []
-    for (const column of tableColumns) {
-      // debugger
-      const result = resolveColumn(column)
-      if (result) {
-        // 如果需要伸缩，则对每个列配置进行响应式处理，确保在响应事件中修改列宽度能够改变页面
-        resolvedColumns.push(
-          hasResizeColumn
-            ? (reactive(result.columnProps) as ColumnType<T>)
-            : result.columnProps
-        )
-      }
-    }
+  const columns = tableColumns.reduce((prev, column) => {
+    const dict = resolveColumnDictionary(column)
+    const resolvedColumn = computed(() => {
+      const result = resolveColumn(column, dict)
+      // 如果需要伸缩，则对每个列配置进行响应式处理，确保在响应事件中修改列宽度能够改变页面
+      return hasResizeColumn
+        ? (reactive(result.columnProps) as ColumnType<T>)
+        : result.columnProps
+    })
 
-    return resolvedColumns
-  })
+    prev.push(resolvedColumn)
+
+    return prev
+  }, [] as ComputedRef<ColumnType<T>>[])
 
   /**
    * 注入 header cell 插槽
@@ -95,29 +96,31 @@ export function useColumns<T extends object>(
     }
   }
 
-  const { createColumnDict } = useDictionary(fetchDictCollection)
-
   /**
    * 解析列配置
    * @param column
    * @returns
    */
-  function resolveColumn(column: ProTableColumnProps<T>) {
+  function resolveColumn(
+    column: ProTableColumnProps<T>,
+    resolvedDictionary: ReturnType<typeof useDictionary> | undefined
+  ) {
     const name = unRef(column.name)
     const show = unRef(column.show ?? DefaultTableColumnShow)
 
     // 不显示的列不需要进一步解析
-    if (!show) {
-      return
-    }
+    // if (!show) {
+    //   return
+    // }
 
     const resolvedType: ValueType = unRef(column.type ?? DefaultColumnType)
 
     // 解析好的列配置
     const result: InternalProTableColumnProps<T> = {
+      show,
       name,
       type: resolvedType,
-      dict: createColumnDict(column.dict),
+      dict: resolvedDictionary,
       editable: column.editable,
       renderCell: column.renderCell,
       columnProps: {
@@ -152,7 +155,7 @@ export function useColumns<T extends object>(
 
       // 解析子列配置，加入到当前列中
       for (const c of resolvedChildren) {
-        const resolvedChild = resolveColumn(c)
+        const resolvedChild = resolveColumn(c, undefined)
         if (resolvedChild) {
           // @ts-ignore
           ;(result.columnProps.children ||= []).push(resolvedChild.columnProps)

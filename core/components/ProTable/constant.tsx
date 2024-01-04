@@ -88,11 +88,9 @@ export function injectValueTypeTableCell(
           undefined,
           {
             name: resolvedName,
-            dict,
             show: true,
             type,
           },
-          undefined,
           dict
         )
 

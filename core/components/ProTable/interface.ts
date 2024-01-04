@@ -1,9 +1,9 @@
 import type {
   ValueType,
-  DictionaryOption,
-  ResolvedColumnDict,
   ColumnType,
   DictionaryCollectionOptions,
+  useDictionary,
+  ColumnDictionaryOptions,
 } from '../common'
 import type { ExtractMaybeRef, JSXElement, MaybeRef } from '../common/interface'
 import type { ActionOption, ActionsList } from '../ProButton'
@@ -28,7 +28,7 @@ import type {
   DataIndex,
   ExpandedRowRender,
 } from 'ant-design-vue/es/vc-table/interface'
-import type { CSSProperties, ComputedRef, Ref } from 'vue'
+import type { CSSProperties, ComputedRef, Ref, VNode } from 'vue'
 
 /**
  * ProTable 接受的 props
@@ -84,7 +84,7 @@ export type ProTableInstance<T> = ProTableScope<T>
 /**
  * 列配置
  */
-export type ProTableColumnProps<T> = {
+export interface ProTableColumnProps<T> extends ColumnDictionaryOptions {
   /**
    * 列配置
    */
@@ -128,11 +128,6 @@ export type ProTableColumnProps<T> = {
    * @default 'text'
    */
   type?: MaybeRef<ValueType | any>
-
-  /**
-   * 字典配置
-   */
-  dict?: DictionaryOption
 
   /**
    * 是否渲染单元格
@@ -211,9 +206,10 @@ export type ProTableColumnSlots<T> = {
  * @internal
  */
 export interface InternalProTableColumnProps<T> {
+  show: boolean
   name: DataIndex | undefined
   type: ValueType | any
-  dict?: ResolvedColumnDict
+  dict?: ReturnType<typeof useDictionary>
   renderCell?: boolean
   editable?: ProTableColumnEditable<T>
   columnProps: ColumnType<T>
@@ -393,7 +389,7 @@ export interface BuildProTableBinding<T extends object> {
   tableProps: ComputedRef<TableProps<T>>
   tableSlots: InternalTableSlots<T>
   loading: ComputedRef<SpinProps>
-  columns: ComputedRef<ColumnType<T>[]>
+  columns: ComputedRef<ColumnType<T>>[]
   scope: ProTableScope<T>
   toolbar: ComputedRef<InternalProTableToolbarOption>
   editableTableData: ProvideEditTableOptions<T> | undefined
@@ -572,7 +568,7 @@ export interface ToolbarOption {
   /**
    * 自定义渲染操作
    */
-  render?: (buttonProps: ButtonProps) => JSX.Element
+  render?: (buttonProps: ButtonProps) => VNode
 }
 
 /**
