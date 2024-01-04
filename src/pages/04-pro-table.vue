@@ -16,10 +16,18 @@ import { SmileOutlined } from '@ant-design/icons-vue'
 import { Tag } from 'ant-design-vue'
 import { ref } from 'vue'
 
+import { fetchCashierUserOpen } from '../service'
+
 import { buildTable } from '~/components/ProTable'
 
 const data = ref<any>([
-  { name: Math.random(), age: '26' },
+  {
+    name: Math.random(),
+    age: '26',
+    sex: 2,
+    status: 1,
+    merchant: 'FB13AA5AE74F44B8BF03E3E57FA3BE07',
+  },
   { name: Math.random(), age: '27', hasChildren: true },
 ])
 const bordered = ref(false)
@@ -48,6 +56,8 @@ interface TableData {
   age: number
 }
 
+const sleep = (time: number) => new Promise(r => setTimeout(r, time))
+
 const { proTableRef, proTableBinding } = buildTable<TableData>(() => ({
   data,
   tableProps: {
@@ -55,6 +65,15 @@ const { proTableRef, proTableBinding } = buildTable<TableData>(() => ({
     rowKey: 'name',
   },
   tableSlots: {},
+  fetchDictCollection: async () => {
+    await sleep(2000)
+    return {
+      status: [
+        { label: '开启', value: 1 },
+        { label: '关闭', value: 2 },
+      ],
+    }
+  },
   columns: [
     {
       label: ageLabel,
@@ -96,6 +115,42 @@ const { proTableRef, proTableBinding } = buildTable<TableData>(() => ({
       //   default: ctx => <div>年龄: {ctx.row.age}</div>,
       //   header: ctx => <div>这是年龄: {ctx.$index}</div>,
       // },
+    },
+    {
+      label: '性别',
+      name: 'sex',
+      type: 'dict-select',
+      dict: {
+        data: [
+          { label: '男', value: 1 },
+          { label: '女', value: 2 },
+        ],
+      },
+    },
+
+    {
+      label: '状态',
+      name: 'status',
+      type: 'dict-select',
+      dict: {
+        useCollect(dictSet) {
+          return dictSet?.status ?? []
+        },
+      },
+    },
+
+    {
+      label: '商户',
+      name: 'merchant',
+      type: 'dict-select',
+      dict: {
+        fetchData: async () => {
+          const res = await fetchCashierUserOpen()
+          return res.data.userOpenList
+        },
+        labelField: 'company',
+        valueField: 'appId',
+      },
     },
   ],
 }))

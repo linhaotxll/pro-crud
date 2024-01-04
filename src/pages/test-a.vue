@@ -1,112 +1,71 @@
 <template>
-  <div>
-    <!-- custom-scrollbar -->
-    <div ref="elemRef" class="complex-component-example cutom-scrollbar">
-      <div class="content-wrapper">
-        <pre class="content">
-// use-scrollbar
-function hello2() {
-  console.log('hello world!')
-  console.log('I like cola and cola and longcola and longcola and longcola and longcola and longcola')
-  console.log('hello world!')
-  console.log('I like cola and cola')
-  console.log('hello world!')
-  console.log('I like cola and cola')
-  console.log('hello world!')
-  console.log('I like cola and cola')
-  console.log('hello world!')
-  console.log('I like cola and cola')
-  console.log('hello world!')
-  console.log('I like cola and cola')
-  console.log('hello world!')
-  console.log('I like cola and cola')
-  console.log('hello world!')
-  console.log('I like cola and cola')
-  console.log('hello world!')
-  console.log('I like cola and cola')
-}
-
-function world() {
-  console.log('hello world!')
-  console.log('I like cola and cola')
-  console.log('hello world!')
-  console.log('I like cola and cola')
-  console.log('hello world!')
-  console.log('I like cola and cola')
-  console.log('hello world!')
-  console.log('I like cola and cola')
-  console.log('hello world!')
-  console.log('I like cola and cola')
-  console.log('hello world!')
-  console.log('I like cola and cola')
-  console.log('hello world!')
-  console.log('I like cola and cola')
-  console.log('hello world!')
-  console.log('I like cola and cola')
-  console.log('hello world!')
-  console.log('I like cola and cola')
-}
-
-function world() {
-  console.log('hello world!')
-  console.log('I like cola and cola')
-  console.log('hello world!')
-  console.log('I like cola and cola')
-  console.log('hello world!')
-  console.log('I like cola and cola')
-  console.log('hello world!')
-  console.log('I like cola and cola')
-  console.log('hello world!')
-  console.log('I like cola and cola')
-  console.log('hello world!')
-  console.log('I like cola and cola')
-  console.log('hello world!')
-  console.log('I like cola and cola')
-  console.log('hello world!')
-  console.log('I like cola and cola')
-  console.log('hello world!')
-  console.log('I like cola and cola')
-}
-          </pre
-        >
-      </div>
-    </div>
-  </div>
+  <pro-crud v-bind="proCrudBinding" />
 </template>
 
 <script lang="ts" setup>
-import { useScrollbar } from 'use-scrollbars'
-import { ref } from 'vue'
+import { fetchCashierUserOpen } from '../service'
 
-const elemRef = ref<HTMLElement>()
-useScrollbar(elemRef)
+import { buildCrud } from '~/index'
+
+const sleep = (time: number) => new Promise(r => setTimeout(r, time))
+
+const { proCrudBinding } = buildCrud<any>(() => {
+  return {
+    fetchDictCollection: async () => {
+      await sleep(2000)
+
+      return {
+        // cashier: (await fetchCashierUserOpen()).userOpenList,
+        status: [
+          { label: '开启', value: 1 },
+          { label: '关闭', value: 2 },
+        ],
+      }
+    },
+
+    columns: [
+      {
+        label: '性别',
+        name: 'sex',
+        type: 'dict-select',
+        dict: {
+          data: [
+            { label: '男', value: 1 },
+            { label: '女', value: 2 },
+          ],
+        },
+      },
+
+      {
+        label: '状态',
+        name: 'status',
+        type: 'dict-select',
+        dict: {
+          useCollect(dictSet) {
+            return dictSet?.status ?? []
+          },
+        },
+      },
+
+      {
+        label: '商户',
+        name: 'merchant',
+        type: 'dict-select',
+        dict: {
+          fetchData: async () => {
+            // debugger
+            const res = await fetchCashierUserOpen()
+            return res.data.userOpenList
+          },
+          labelField: 'company',
+          valueField: 'appId',
+        },
+      },
+    ],
+
+    // addRequest: form => createMenu({ body: form }),
+    // editRequest: form => updateMenu({ body: form }),
+    // deleteRequest: ctx => deleteMenu({ params: `${ctx.record.menuId}` }),
+  }
+})
 </script>
-
-<style scoped>
-.complex-component-example {
-  position: relative;
-  width: 600px;
-  height: 372px;
-  border: solid 2px black;
-  background: #eeeeee;
-}
-
-.content-wrapper {
-  overflow: auto auto;
-  width: 100%;
-  height: 100%;
-  background: #f8f8f8;
-  box-sizing: border-box;
-}
-
-.complex-component-example .content {
-  margin: 0;
-  width: max-content;
-  color: #000000;
-}
-
-.complex-component-example.cutom-scrollbar .content-wrapper::-webkit-scrollbar {
-  width: 0;
-  height: 0;
-}
-</style>

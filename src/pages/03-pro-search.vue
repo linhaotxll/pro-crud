@@ -1,469 +1,80 @@
-<template>
-  <div>
-    <pro-search ref="proSearchRef" v-bind="proSearchBinding" />
-  </div>
-</template>
+<script lang="ts" setup>
+import { onMounted } from 'vue'
 
-<script lang="tsx" setup>
-import { ref } from 'vue'
+import { fetchCashierUserOpen } from '../service'
 
-import { buildSearch } from '~/components/ProSearch'
+import { buildSearch } from '~/index'
 
-import type { ColProps } from 'ant-design-vue'
+defineOptions({ name: 'ProSearch03Demo' })
 
-// const sleep = (time = 2000) => new Promise(r => setTimeout(r, time))
-
-// const fetchStatusData = async () => {
-//   await sleep()
-//   return [
-//     { statusName: '启用', value: 1 },
-//     { statusName: '禁用', value: 2 },
-//   ]
-// }
-
-interface FormValues {
-  name: string
+// 提交表单
+async function handleSubmit() {
+  return false
 }
 
-// const formProps = ref<FormProps>({
-//   // labelWidth: '100px',
-//   // onValidate(p, v, m) {
-//   //   console.log('field change: ', p, v, m)
-//   // },
-// })
-// const row = ref<Partial<RowProps>>({ gutter: 8 })
-const formCol = ref<ColProps>({ span: 6 })
+const sleep = (time: number) => new Promise(r => setTimeout(r, time))
 
-const nameCol = ref<ColProps>({
-  span: 4,
-  offset: 1,
-  // push: 1,
-  // pull: 1,
-})
-// const nameLabel = ref('名称')
-// // const nameType = ref<ValueType>('auto-complete')
+const { proSearchBinding } = buildSearch<any>(scope => {
+  onMounted(() => {
+    scope.submit()
+  })
 
-// const buttonsShow = ref(true)
-// const buttonConfirmShow = ref(true)
-// const nameProp = ['info', 'name']
-
-const { proSearchBinding, proSearchRef } = buildSearch<FormValues>(() => {
   return {
-    // row,
-    col: formCol,
-    initialValues: {
-      name: '文本内容2',
-      cascader: 'guide,disciplines,consistency',
-    },
-    formProps: {},
-    // validateFail(error) {
-    //   console.log('校验失败: ', error)
-    // },
-
     columns: [
       {
-        label: '文本',
-        name: 'name',
-        type: 'text',
-        tooltip: '姓名',
-        col: nameCol,
-        itemProps: {
-          rules: { required: true, message: '请填写名称' },
-        },
-        itemSlots: {},
-        fieldProps: {
-          clearable: true,
-          onBlur() {
-            console.log('el-input blur')
-          },
-          onFocus() {
-            console.log('el-input focus')
-          },
-          onChange() {
-            console.log('el-input change')
-          },
-          onInput() {
-            console.log('el-input input')
-          },
-          onClear() {
-            console.log('el-input clear')
-          },
-        },
-        fieldSlots: {
-          // prefix: () => <span>prefix</span>,
-          // suffix: () => <span>suffix</span>,
-          // prepend: () => <span>prepend</span>,
-          // append: () => <span>append</span>,
-        },
-      },
-
-      {
-        label: '文本2',
-        name: 'name2',
-        type: 'text',
-        tooltip: '姓名2',
-      },
-
-      // {
-      //   label: '自动补全',
-      //   prop: 'auto',
-      //   type: 'auto-complete',
-      //   itemProps: {
-      //     rules: { required: true, message: '请填写' },
-      //   },
-      //   fieldProps: {
-      //     valueKey: 'key',
-      //     fetchSuggestions(_, cb) {
-      //       sleep().then(() => {
-      //         cb([
-      //           { label: '一', key: 1 },
-      //           { label: '二', key: 2 },
-      //         ])
-      //       })
-      //     },
-      //   },
-      //   fieldSlots: {
-      //     default: () => {
-      //       // console.log(ctx.item)
-      //       return <span>2</span>
-      //     },
-      //     prefix: () => <span>prefix</span>,
-      //     suffix: () => <span>suffix</span>,
-      //     prepend: () => <span>prepend</span>,
-      //     append: () => <span>append</span>,
-      //   },
-      // },
-
-      {
-        label: '级联',
-        name: 'cascader',
-        type: 'cascader',
-        itemProps: {
-          // rules: { required: true, message: '请填写' },
-        },
-        fieldProps: {
-          options: [
-            {
-              value: 'guide',
-              label: 'Guide',
-              children: [
-                {
-                  value: 'disciplines',
-                  label: 'Disciplines',
-                  children: [
-                    {
-                      value: 'consistency',
-                      label: 'Consistency',
-                    },
-                    {
-                      value: 'feedback',
-                      label: 'Feedback',
-                    },
-                    {
-                      value: 'efficiency',
-                      label: 'Efficiency',
-                    },
-                    {
-                      value: 'controllability',
-                      label: 'Controllability',
-                    },
-                  ],
-                },
-                {
-                  value: 'navigation',
-                  label: 'Navigation',
-                  children: [
-                    {
-                      value: 'side nav',
-                      label: 'Side Navigation',
-                    },
-                    {
-                      value: 'top nav',
-                      label: 'Top Navigation',
-                    },
-                  ],
-                },
-              ],
-            },
-            {
-              value: 'component',
-              label: 'Component',
-              children: [
-                {
-                  value: 'basic',
-                  label: 'Basic',
-                  children: [
-                    {
-                      value: 'layout',
-                      label: 'Layout',
-                    },
-                    {
-                      value: 'color',
-                      label: 'Color',
-                    },
-                    {
-                      value: 'typography',
-                      label: 'Typography',
-                    },
-                    {
-                      value: 'icon',
-                      label: 'Icon',
-                    },
-                    {
-                      value: 'button',
-                      label: 'Button',
-                    },
-                  ],
-                },
-                {
-                  value: 'form',
-                  label: 'Form',
-                  children: [
-                    {
-                      value: 'radio',
-                      label: 'Radio',
-                    },
-                    {
-                      value: 'checkbox',
-                      label: 'Checkbox',
-                    },
-                    {
-                      value: 'input',
-                      label: 'Input',
-                    },
-                    {
-                      value: 'input-number',
-                      label: 'InputNumber',
-                    },
-                    {
-                      value: 'select',
-                      label: 'Select',
-                    },
-                    {
-                      value: 'cascader',
-                      label: 'Cascader',
-                    },
-                    {
-                      value: 'switch',
-                      label: 'Switch',
-                    },
-                    {
-                      value: 'slider',
-                      label: 'Slider',
-                    },
-                    {
-                      value: 'time-picker',
-                      label: 'TimePicker',
-                    },
-                    {
-                      value: 'date-picker',
-                      label: 'DatePicker',
-                    },
-                    {
-                      value: 'datetime-picker',
-                      label: 'DateTimePicker',
-                    },
-                    {
-                      value: 'upload',
-                      label: 'Upload',
-                    },
-                    {
-                      value: 'rate',
-                      label: 'Rate',
-                    },
-                    {
-                      value: 'form',
-                      label: 'Form',
-                    },
-                  ],
-                },
-                {
-                  value: 'data',
-                  label: 'Data',
-                  children: [
-                    {
-                      value: 'table',
-                      label: 'Table',
-                    },
-                    {
-                      value: 'tag',
-                      label: 'Tag',
-                    },
-                    {
-                      value: 'progress',
-                      label: 'Progress',
-                    },
-                    {
-                      value: 'tree',
-                      label: 'Tree',
-                    },
-                    {
-                      value: 'pagination',
-                      label: 'Pagination',
-                    },
-                    {
-                      value: 'badge',
-                      label: 'Badge',
-                    },
-                  ],
-                },
-                {
-                  value: 'notice',
-                  label: 'Notice',
-                  children: [
-                    {
-                      value: 'alert',
-                      label: 'Alert',
-                    },
-                    {
-                      value: 'loading',
-                      label: 'Loading',
-                    },
-                    {
-                      value: 'message',
-                      label: 'Message',
-                    },
-                    {
-                      value: 'message-box',
-                      label: 'MessageBox',
-                    },
-                    {
-                      value: 'notification',
-                      label: 'Notification',
-                    },
-                  ],
-                },
-                {
-                  value: 'navigation',
-                  label: 'Navigation',
-                  children: [
-                    {
-                      value: 'menu',
-                      label: 'Menu',
-                    },
-                    {
-                      value: 'tabs',
-                      label: 'Tabs',
-                    },
-                    {
-                      value: 'breadcrumb',
-                      label: 'Breadcrumb',
-                    },
-                    {
-                      value: 'dropdown',
-                      label: 'Dropdown',
-                    },
-                    {
-                      value: 'steps',
-                      label: 'Steps',
-                    },
-                  ],
-                },
-                {
-                  value: 'others',
-                  label: 'Others',
-                  children: [
-                    {
-                      value: 'dialog',
-                      label: 'Dialog',
-                    },
-                    {
-                      value: 'tooltip',
-                      label: 'Tooltip',
-                    },
-                    {
-                      value: 'popover',
-                      label: 'Popover',
-                    },
-                    {
-                      value: 'card',
-                      label: 'Card',
-                    },
-                    {
-                      value: 'carousel',
-                      label: 'Carousel',
-                    },
-                    {
-                      value: 'collapse',
-                      label: 'Collapse',
-                    },
-                  ],
-                },
-              ],
-            },
-            {
-              value: 'resource',
-              label: 'Resource',
-              children: [
-                {
-                  value: 'axure',
-                  label: 'Axure Components',
-                },
-                {
-                  value: 'sketch',
-                  label: 'Sketch Templates',
-                },
-                {
-                  value: 'docs',
-                  label: 'Design Documentation',
-                },
-              ],
-            },
+        label: '性别',
+        name: 'sex',
+        type: 'dict-select',
+        dict: {
+          data: [
+            { label: '男', value: 1 },
+            { label: '女', value: 2 },
           ],
         },
-        fieldSlots: {
-          // default: ctx => {
-          //   console.log(ctx.item)
-          //   return <span>2</span>
-          // },
-          // prefix: () => <span>prefix</span>,
-          // suffix: () => <span>suffix</span>,
-          // prepend: () => <span>prepend</span>,
-          // append: () => <span>append</span>,
+      },
+
+      {
+        label: '状态',
+        name: 'status',
+        type: 'dict-select',
+        dict: {
+          useCollect(dictSet) {
+            return dictSet?.status ?? []
+          },
         },
-        transform: {
-          to(formValue: string[]) {
-            return formValue.join(',')
+      },
+
+      {
+        label: '商户',
+        name: 'merchant',
+        type: 'dict-select',
+        dict: {
+          fetchData: async () => {
+            const res = await fetchCashierUserOpen()
+            return res.data.userOpenList
           },
-          from(serverValue: string | undefined) {
-            return serverValue?.split(',') ?? []
-          },
+          labelField: 'company',
+          valueField: 'appId',
         },
       },
     ],
 
-    actions: {
-      // col: { span: 6 },
-      // show: true,
-      // list: {
-      //   set: {
-      //     show: true,
-      //     text: '从服务端获取数据',
-      //     props: {
-      //       onClick() {
-      //         // debugger
-      //         // scope.setFieldValue('name', 'aaa')
-      //         scope.setFieldValuesTransform({
-      //           cascader: 'guide,disciplines,feedback',
-      //           auto: 2,
-      //         })
-      //       },
-      //     },
-      //   },
-      // },
-    },
-    // toast: {
-    //   type: 'notification',
-    // },
-
-    async submitRequest(values) {
-      console.log('submit: ', values)
-      return true
+    submitRequest: handleSubmit,
+    fetchDictCollection: async () => {
+      await sleep(2000)
+      return {
+        status: [
+          { label: '开启', value: 1 },
+          { label: '关闭', value: 2 },
+        ],
+      }
     },
   }
 })
-
-console.log('proFormBinding: ', proSearchBinding)
-
-// console.log('searchBinding: ', searchBinding)
 </script>
+
+<template>
+  <div class="h-full flex flex-col">
+    <pro-search v-bind="proSearchBinding" />
+  </div>
+</template>

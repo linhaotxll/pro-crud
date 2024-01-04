@@ -456,8 +456,8 @@ const { proCrudBinding } = buildCrud<any>(scope => {
             { labelField: '启用', valueField: '1' },
             { labelField: '停用', valueField: '0' },
           ],
-          labelField: 'dictLabel',
-          valueField: 'dictValue',
+          labelField: 'labelField',
+          valueField: 'valueField',
         },
         form: {
           tooltip: '选择停用将不会出现在菜单栏，也不能被访问',
