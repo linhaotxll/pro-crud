@@ -6,10 +6,9 @@ import { buildFormColumn } from './buildFormColumn'
 import { DefaultProFormCol } from './constant'
 import { useValues } from './useValues'
 
+import { GlobalOption } from '../../constant'
 import { processDictionary, unRef } from '../common'
 import { showToast } from '../Toast'
-
-import { GlobalOption } from '~/constant'
 
 import type {
   BuildFormBinding,

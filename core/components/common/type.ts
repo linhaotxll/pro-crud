@@ -1,7 +1,7 @@
 import { merge } from 'lodash-es'
 import { inject, type WritableComputedRef } from 'vue'
 
-import { GlobalOption } from '~/constant'
+import { GlobalOption } from '../../constant'
 
 import type { InternalProFormColumnOptions } from '../ProForm'
 import type { BodyCellSlotParams } from '../ProTable'

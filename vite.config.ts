@@ -93,7 +93,7 @@ export default defineConfig({
       fileName: format => `pro-components.${format}.js`,
     },
     rollupOptions: {
-      external: ['vue', 'ant-design-vue'],
+      external: ['vue', 'ant-design-vue', '@ant-design/icons-vue'],
     },
   },
 })
