@@ -22,7 +22,9 @@
 
     "paths": {
       "~/*": ["./core/*"]
-    }
+    },
+
+    "jsxImportSource": "vue"
   },
   "include": [
     "src/**/*.ts",

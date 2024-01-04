@@ -1,4 +1,4 @@
-import type { Ref, ComputedRef } from 'vue'
+import type { Ref, ComputedRef, VNode } from 'vue'
 
 export type ToHandles<T> = {
   [P in keyof T as P extends string ? `on${Capitalize<P>}` : never]: (
@@ -30,6 +30,6 @@ export type UnionToTuple<T, U = T> = [T] extends [never]
 
 export type Arrayable<T> = T | T[]
 
-export type JSXElement = JSX.Element | number | string | undefined | null
+export type JSXElement = VNode | number | string | undefined | null
 
 export type ValueOf<T> = T[keyof T]

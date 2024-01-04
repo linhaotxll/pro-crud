@@ -5,6 +5,7 @@ import { GlobalOption } from '~/constant'
 
 import type { InternalProFormColumnOptions } from '../ProForm'
 import type { BodyCellSlotParams } from '../ProTable'
+import type { VNode } from 'vue'
 
 export type ValueType =
   | 'text'
@@ -48,13 +49,13 @@ export interface ValueTypeForm<T> {
   render?: (ctx: {
     vModel: WritableComputedRef<T>
     column: InternalProFormColumnOptions<any>
-  }) => JSX.Element
+  }) => VNode
 }
 
 export interface ValueTypeTable<T> {
   is?: any
   props?: any
-  render?: (ctx: BodyCellSlotParams<T>) => JSX.Element
+  render?: (ctx: BodyCellSlotParams<T>) => VNode
 }
 
 const DefaultValueType: Record<ValueType, ValueTypeValue> = {

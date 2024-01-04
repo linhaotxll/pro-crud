@@ -155,8 +155,9 @@ function createRequest<R>(
     (prev, curr) => {
       Object.keys(curr).forEach(key => {
         if (hookMap[key]) {
-          hookMap[key].push(curr[key])
+          hookMap[key].push((curr as any)[key])
         } else {
+          // @ts-ignore
           prev[key] = curr[key]
         }
       })
