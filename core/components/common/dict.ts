@@ -127,11 +127,12 @@ export function useDictionary<T = any>(
 
       const result = await _fetchData()
 
-      options.value = result.map((item, i) => ({
-        label: item[labelField],
-        value: item[valueField],
-        key: `${i}-${item[valueField]}`,
-      }))
+      options.value =
+        result?.map((item, i) => ({
+          label: item[labelField],
+          value: item[valueField],
+          key: `${i}-${item[valueField]}`,
+        })) ?? []
     } finally {
       cancelLoading()
     }
