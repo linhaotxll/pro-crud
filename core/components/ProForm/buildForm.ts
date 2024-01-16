@@ -1,6 +1,6 @@
 import cloneDeep from 'clone-deep'
 import { get, has, merge, set, unset } from 'lodash-es'
-import { computed, inject, ref, toRaw } from 'vue'
+import { computed, inject, ref, toRaw, toValue } from 'vue'
 
 import { buildFormColumn } from './buildFormColumn'
 import { DefaultProFormCol } from './constant'
@@ -135,18 +135,18 @@ export function buildForm<T extends object, C, R = T>(
 
   // 解析按钮组配置
   const resolvedActions = computed(() => {
-    const mergeButtons = merge(defaultActions, actions)
+    const { col, show, ...rest } = merge({}, defaultActions, actions)
 
     const formLabelSpan = resolvedFormProps.value.labelCol?.span ?? 0
-    const mergeCol: ColProps = merge(
-      { offset: formLabelSpan },
-      unRef(mergeButtons.col)
-    )
+    const mergeCol: ColProps = merge({ offset: formLabelSpan }, toValue(col))
 
-    const result: ProFormActionsOptions = merge(mergeButtons, {
-      show: unRef(mergeButtons.show),
-      col: mergeCol,
-    })
+    const result: ProFormActionsOptions = merge(
+      {
+        show: toValue(show),
+        col: mergeCol,
+      },
+      rest
+    )
 
     return result
   })

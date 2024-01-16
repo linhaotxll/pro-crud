@@ -34,6 +34,7 @@ export function showToast(
   if (toast !== false) {
     const content = typeof toast === 'string' ? toast : undefined
     const mergeToast = merge(
+      {},
       defaultToast,
       content ? { props: { content, message: content } } : undefined,
       DefaultSuccessToastOptions,

@@ -238,7 +238,7 @@ export const ValueTypeMap = {
       return _ValueTypeMap
     }
     const injectType = inject(GlobalOption)?.types
-    return (_ValueTypeMap = merge(DefaultValueType, injectType) as Record<
+    return (_ValueTypeMap = merge({}, DefaultValueType, injectType) as Record<
       ValueType | any,
       ValueTypeValue
     >)

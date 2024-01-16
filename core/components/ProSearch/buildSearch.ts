@@ -1,6 +1,6 @@
 import { SearchOutlined, SyncOutlined } from '@ant-design/icons-vue'
 import { merge } from 'lodash-es'
-import { computed, h } from 'vue'
+import { computed, h, toValue } from 'vue'
 
 import { DefaultSearchCol, DefaultSearchRow } from './constant'
 
@@ -36,17 +36,14 @@ export function buildSearch<T extends object, C, R = T>(
 
     const buttons: ProFormActionsOptions = {
       col: computed(() => {
-        const defaultCol: ColProps = merge(
-          { ...DefaultSearchCol },
-          unRef(props.col)
-        )
+        const defaultCol: ColProps = merge({}, DefaultSearchCol)
 
         const total =
           props.columns?.reduce<number>((prev, column) => {
             // 每个列所占的格子数量
-            const columnCol: ColProps | undefined = unRef(column.col)
+            const columnCol: ColProps | undefined = toValue(column.col)
 
-            const show = unRef(column.show ?? DefaultProProColumn.show)
+            const show = toValue(column.show ?? DefaultProProColumn.show)
 
             let columnTotal = 0
             if (show) {
@@ -69,7 +66,7 @@ export function buildSearch<T extends object, C, R = T>(
             return prev
           }, 0) ?? 0
 
-        const resolveButtons = merge(unRef(props.actions?.col), defaultCol)
+        const resolveButtons = merge({}, unRef(props.actions?.col), defaultCol)
         const span = +resolveButtons.span!
 
         let offset = 0
@@ -109,7 +106,7 @@ export function buildSearch<T extends object, C, R = T>(
     }
     const mergedButtons = merge(buttons, props.actions)
 
-    const result = merge(props, {
+    const result = merge({}, props, {
       actions: mergedButtons,
       col: merge({ ...DefaultSearchCol }, props.col),
       row: merge({ ...DefaultSearchRow }, props.row),

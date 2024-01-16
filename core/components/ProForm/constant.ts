@@ -3,9 +3,6 @@ import type { ColProps, FormItemInstance } from 'ant-design-vue'
 import type { NamePath } from 'ant-design-vue/es/form/interface'
 import type { InjectionKey, Ref } from 'vue'
 
-// 默认列配置
-export const DefaultCol: ColProps = { span: 24 }
-
 // 注入 FormItemRefs 的 key
 export const FormItemRefKey = Symbol() as InjectionKey<
   Map<NamePath, Ref<FormItemInstance | null>>
