@@ -25,6 +25,10 @@ export function useAction<T extends object>(
   getRowKey: ProvideEditTableOptions<T>['getRowKey'],
   onSubmit: BuildProTableOptionResult<T, any>['submitEditable']
 ) {
+  if (actionColumn?.show === false) {
+    return
+  }
+
   const mergedActionColumn = merge<
     ProTableActionColumnProps<T>,
     ProTableActionColumnProps<T> | undefined,

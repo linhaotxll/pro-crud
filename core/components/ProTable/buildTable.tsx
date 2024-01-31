@@ -267,11 +267,22 @@ export function buildTable<T extends object, C, P extends object = any>(
     return result
   })
 
+  // 配置操作列
+  const actionColumn = useAction(
+    scope,
+    action,
+    editable,
+    getRowKey,
+    submitEditable
+  )
+  // 展示操作列需要加入列配置里
+  if (actionColumn) {
+    originColumns.push(actionColumn)
+  }
+
   const { columns, tableSlots, onResizeColumn } = useColumns(
     scope,
-    originColumns.concat(
-      useAction(scope, action, editable, getRowKey, submitEditable)
-    ),
+    originColumns,
     originTableSlots,
     getRowKey,
     fetchDictCollection
