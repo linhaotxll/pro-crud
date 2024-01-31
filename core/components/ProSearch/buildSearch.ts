@@ -36,7 +36,10 @@ export function buildSearch<T extends object, C, R = T>(
 
     const buttons: ProFormActionsOptions = {
       col: computed(() => {
-        const defaultCol: ColProps = merge({}, DefaultSearchCol)
+        // 优先使用 search 设置的通用 col
+        const defaultCol: ColProps = props.col
+          ? toValue(props.col)
+          : merge({}, DefaultSearchCol)
 
         const total =
           props.columns?.reduce<number>((prev, column) => {
