@@ -49,7 +49,7 @@ export function useColumns<T extends object>(
       const result = resolveColumn(column, dict)
       // 如果需要伸缩，则对每个列配置进行响应式处理，确保在响应事件中修改列宽度能够改变页面
       return hasResizeColumn
-        ? (reactive(result.columnProps) as ColumnType<T>)
+        ? (reactive(result.columnProps) as unknown as ColumnType<T>)
         : result.columnProps
     })
 
