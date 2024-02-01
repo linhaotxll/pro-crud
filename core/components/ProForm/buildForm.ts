@@ -183,6 +183,13 @@ export function buildForm<T extends object, C, R = T>(
   async function _beforeSubmit(values: T) {
     const params = cloneDeep(toRaw(values))
 
+    // 先进行上传前的处理
+    const beforeSubmitParams =
+      typeof beforeSubmit === 'function'
+        ? await beforeSubmit(params)
+        : (params as unknown as any)
+
+    // 再监测每个字段是否需要上传，不需要会删除
     for (const column of resolvedColumns) {
       const { submitted, itemProps, transform } = column.value
       const name = unRef(itemProps!.name)
@@ -193,21 +200,23 @@ export function buildForm<T extends object, C, R = T>(
           submitted === false ||
           (typeof submitted === 'function' && submitted(scope) === false)
         ) {
-          unset(params, name)
+          unset(beforeSubmitParams, name)
           continue
         }
 
         // 表单数据转换为服务端数据
         if (typeof transform?.to === 'function') {
-          set(params, name, transform.to(get(params, name)))
+          set(
+            beforeSubmitParams,
+            name,
+            transform.to(get(beforeSubmitParams, name))
+          )
         }
       }
     }
 
-    // 调用用户自定义的处理参数函数
-    return (typeof beforeSubmit === 'function'
-      ? await beforeSubmit(params)
-      : params) as unknown as R
+    // 返回上传前处理好的参数
+    return beforeSubmitParams
   }
 
   /**

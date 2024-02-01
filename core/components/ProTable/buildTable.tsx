@@ -301,14 +301,18 @@ export function buildTable<T extends object, C, P extends object = any>(
   /**
    * 加载指定页数内容
    */
-  async function _fetchTableData(query: Partial<FetchTableListQuery<T, P>>) {
+  async function _fetchTableData(
+    query: Partial<FetchTableListQuery<T, P>>,
+    extend?: Partial<FetchTableListQuery<T, P>>
+  ) {
     if (originData) {
       return
     }
 
     const resolvedQuery: FetchTableListQuery<T, P> = merge<
       FetchTableListQuery<T, P>,
-      Partial<FetchTableListQuery<T, P>>
+      Partial<FetchTableListQuery<T, P>>,
+      Partial<FetchTableListQuery<T, P>> | undefined
     >(
       {
         page: { pageNumber: pageNumber.value, pageSize: pageSize.value },
@@ -316,7 +320,8 @@ export function buildTable<T extends object, C, P extends object = any>(
         sorter: [],
         params: resolvedParams,
       },
-      query
+      query,
+      extend
     )
 
     previousQuery = resolvedQuery
@@ -377,8 +382,8 @@ export function buildTable<T extends object, C, P extends object = any>(
   /**
    * 重新加载当前页数据
    */
-  function reload() {
-    return _fetchTableData(previousQuery)
+  function reload(data?: Partial<FetchTableListQuery<T, P>>) {
+    return _fetchTableData(previousQuery, data)
   }
 
   /**

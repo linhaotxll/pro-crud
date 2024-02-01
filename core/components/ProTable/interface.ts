@@ -403,7 +403,7 @@ export interface ProTableScope<T> {
   /**
    * 重新加载指定页数数据，默认加载当前页数
    */
-  reload(): Promise<void>
+  reload(data?: Partial<FetchTableListQuery<T, any>>): Promise<void>
 
   /**
    * 恢复默认页重新加载

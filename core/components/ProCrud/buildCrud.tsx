@@ -248,11 +248,7 @@ const buildSearchMiddlewre: Middleware<
       actions,
       toast: false,
       submitRequest(values: any) {
-        // 提交接口，先设置 search 的值，再刷新 Table
-        if (values) {
-          ctx.scope.search.setFieldValues(values)
-        }
-        return ctx.scope.table.reload()
+        return ctx.scope.table.reload(values)
       },
     })
   })
