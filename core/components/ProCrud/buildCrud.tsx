@@ -212,7 +212,10 @@ const buildSearchMiddlewre: Middleware<
           confirm: {
             props: {
               onClick() {
-                ctx.scope.table.reload()
+                // 先提交表单再刷新 Table
+                ctx.scope.search.submit().then(() => {
+                  ctx.scope.table.reload()
+                })
               },
             },
           },

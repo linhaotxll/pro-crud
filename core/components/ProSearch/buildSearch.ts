@@ -103,6 +103,9 @@ export function buildSearch<T extends object, C, R = T>(
           text: '搜索',
           props: {
             icon: h(SearchOutlined),
+            onClick() {
+              scope.submit()
+            },
           },
         },
       },
