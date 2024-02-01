@@ -212,10 +212,8 @@ const buildSearchMiddlewre: Middleware<
           confirm: {
             props: {
               onClick() {
-                // 先提交表单再刷新 Table
-                ctx.scope.search.submit().then(() => {
-                  ctx.scope.table.reload()
-                })
+                // 提交表单，crud search 的 confirm 成功后会自动刷新 Table
+                return ctx.scope.search.submit()
               },
             },
           },
@@ -245,7 +243,18 @@ const buildSearchMiddlewre: Middleware<
       })
     )
 
-    return merge({}, rest, { columns, actions })
+    return merge({}, rest, {
+      columns,
+      actions,
+      toast: false,
+      submitRequest(values: any) {
+        // 提交接口，先设置 search 的值，再刷新 Table
+        if (values) {
+          ctx.scope.search.setFieldValues(values)
+        }
+        return ctx.scope.table.reload()
+      },
+    })
   })
 
   ctx.binding.search = proSearchBinding
