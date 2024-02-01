@@ -37,7 +37,7 @@ export function useToolbar<T extends object>(
         props: {
           icon: h(ReloadOutlined),
           shape: 'circle',
-          onClick: scope.reload,
+          onClick: () => scope.reload(),
         },
       },
 
