@@ -42,8 +42,8 @@ import type {
 const props = defineProps<{
   column: InternalProFormColumnOptions<T>
   values: any
-  scope: ProFormScope<T>
-  formItemRefMap: BuildFormBinding<T>['formItemRef']
+  scope?: ProFormScope<T>
+  formItemRefMap?: BuildFormBinding<T>['formItemRef']
 }>()
 
 const formValues = toRaw(props).values

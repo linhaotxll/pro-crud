@@ -16,8 +16,6 @@ import { SmileOutlined } from '@ant-design/icons-vue'
 import { Tag } from 'ant-design-vue'
 import { ref } from 'vue'
 
-import { fetchCashierUserOpen } from '../service'
-
 import { buildTable } from '~/components/ProTable'
 
 const data = ref<any>([

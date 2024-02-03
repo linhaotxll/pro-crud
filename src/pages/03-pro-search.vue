@@ -1,8 +1,6 @@
 <script lang="ts" setup>
 import { onMounted } from 'vue'
 
-import { fetchCashierUserOpen } from '../service'
-
 import { buildSearch } from '~/index'
 
 defineOptions({ name: 'ProSearch03Demo' })
