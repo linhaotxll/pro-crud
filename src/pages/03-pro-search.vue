@@ -50,8 +50,8 @@ const { proSearchBinding } = buildSearch<any>(scope => {
         type: 'dict-select',
         dict: {
           fetchData: async () => {
-            const res = await fetchCashierUserOpen()
-            return res.data.userOpenList
+            await sleep(1000)
+            return [{ company: '新视能', appId: 1 }]
           },
           labelField: 'company',
           valueField: 'appId',

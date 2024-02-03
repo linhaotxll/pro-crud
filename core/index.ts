@@ -24,7 +24,7 @@ import {
 
 import { ProCrud } from './components/ProCrud'
 import { ProDictionary, ProSelect } from './components/ProDictionary'
-import { ProForm } from './components/ProForm'
+import { ProForm, ProFormList } from './components/ProForm'
 import { ProRender } from './components/ProRender'
 import { ProSearch } from './components/ProSearch'
 import { ProTable } from './components/ProTable'
@@ -42,6 +42,7 @@ export const ProComponents: Plugin<ProComponentsOptions> = {
     app.component(ProForm.name, ProForm)
     app.component(ProSelect.name, ProSelect)
     app.component(ProDictionary.name, ProDictionary)
+    app.component(ProFormList.name, ProFormList)
 
     app
       .use(Form)

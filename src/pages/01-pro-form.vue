@@ -78,6 +78,39 @@ const { proFormRef, proFormBinding } = buildForm<FormValues>(scope => {
 
     columns: [
       {
+        label: '列表',
+        name: 'list',
+        type: 'list',
+        children: [
+          {
+            label: '状态',
+            type: 'text',
+            name: 'status',
+            dict: {
+              data: [
+                { label: '男', value: 1 },
+                { label: '女', value: 2 },
+                { label: '自定义', value: 3 },
+              ],
+            },
+          },
+        ],
+        list: {
+          creatorButtonProps: {
+            creatorButtonText: '加一条数据',
+          },
+          max: 3,
+          min: 2,
+          // deleteButtonProps: false,
+        },
+        itemProps: {
+          rules: {
+            required: true,
+            message: '请填写列表',
+          },
+        },
+      },
+      {
         label: nameLabel,
         name: nameProp,
         type: nameType,
@@ -158,7 +191,7 @@ const { proFormRef, proFormBinding } = buildForm<FormValues>(scope => {
           useCollect(dictSet) {
             // debugger
             console.log(123, dictSet)
-            return dictSet.status
+            return dictSet?.status
           },
           // fetchData: fetchStatusData,
           labelField: 'statusName',

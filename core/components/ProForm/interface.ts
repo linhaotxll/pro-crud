@@ -3,6 +3,7 @@ import type {
   ColumnDictionaryOptions,
   DictionaryCollectionOptions,
   ExtractMaybeRef,
+  JSXElement,
   MaybeRef,
   useDictionary,
   ValueType,
@@ -17,6 +18,7 @@ import type {
   FormItemInstance,
   FormProps,
   RowProps,
+  ButtonProps,
 } from 'ant-design-vue'
 import type {
   NamePath,
@@ -330,6 +332,16 @@ export interface ProFormColumnOptions<T extends object>
   fill?: MaybeRef<boolean>
 
   /**
+   * 子控件
+   */
+  children?: ProFormColumnOptions<T>[]
+
+  /**
+   * 列配置
+   */
+  list?: ProFormListOptions
+
+  /**
    * 服务端数据转换
    */
   transform?: {
@@ -354,10 +366,64 @@ export interface ProFormColumnOptions<T extends object>
 }
 
 /**
+ * 列表配置
+ */
+export interface ProFormListOptions {
+  /**
+   * 新建一行的数据
+   */
+  creatorRecord?: () => Record<string, any>
+
+  /**
+   * 自定义新建按钮
+   */
+  renderCreateRecordButton?: (add: (record?: any) => void) => JSXElement
+
+  /**
+   * 新建按钮配置
+   */
+  creatorButtonProps?: ButtonProps & { creatorButtonText?: string }
+
+  /**
+   * 自定义删除按钮
+   */
+  renderDeleteRecordButton?: (remove: () => void) => JSXElement
+
+  /**
+   * 删除按钮配置
+   */
+  deleteButtonProps?: ButtonProps & { deleteButtonText?: string }
+
+  /**
+   * 自定义复制按钮
+   */
+  renderCopyRecordButton?: (copy: () => void) => JSXElement
+
+  /**
+   * 复制按钮配置
+   */
+  copyButtonProps?: ButtonProps & { copyButtonText?: string }
+
+  /**
+   * 最少条目
+   *
+   * @default Number.MIN_VALUE
+   */
+  min?: number
+
+  /**
+   * 最大条目
+   *
+   * @default Number.MAX_VALUE
+   */
+  max?: number
+}
+
+/**
  * @internal
  */
 export interface InternalProFormColumnOptions<T extends object>
-  extends Omit<ProFormColumnOptions<T>, 'dict'> {
+  extends Omit<ProFormColumnOptions<T>, 'dict' | 'children'> {
   /**
    * 循环时用来指定 key 值
    */
@@ -387,4 +453,9 @@ export interface InternalProFormColumnOptions<T extends object>
    * 解析好的字典配置
    */
   dict?: ReturnType<typeof useDictionary>
+
+  /**
+   * 解析好的子控件
+   */
+  children?: ComputedRef<InternalProFormColumnOptions<T>>[]
 }

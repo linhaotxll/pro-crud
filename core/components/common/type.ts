@@ -29,6 +29,7 @@ export type ValueType =
   | 'cascader'
   | 'dict'
   | 'dict-select'
+  | 'list'
 
 export interface ValueTypeValue<T = any, R = any> {
   form?: ValueTypeForm<T>
@@ -228,6 +229,10 @@ const DefaultValueType: Record<ValueType, ValueTypeValue> = {
   'dict-select': {
     table: { is: 'pro-dictionary' },
     form: { is: 'pro-select' },
+  },
+
+  list: {
+    form: { is: 'pro-form-list' },
   },
 }
 

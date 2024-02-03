@@ -101,8 +101,10 @@ export function buildForm<T extends object, C, R = T>(
 
   // 解析列配置
   const resolvedColumns = columns.map(c => {
-    const dict = resolveColumnDictionary(c)
-    return computed(() => buildFormColumn(col, resolvedColumnsMap, c, dict))
+    // const dict = resolveColumnDictionary(c)
+    return computed(() =>
+      buildFormColumn(col, resolvedColumnsMap, c, resolveColumnDictionary)
+    )
   })
 
   // 解析表单配置

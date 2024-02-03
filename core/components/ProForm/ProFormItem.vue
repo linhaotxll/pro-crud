@@ -26,7 +26,12 @@
       <pro-render :render="column.itemSlots.help" :ctx="ctx" />
     </template>
 
-    <dynamic-v-model :column="column" :values="values" />
+    <dynamic-v-model
+      :form-item-ref-map="formItemRefMap"
+      :column="column"
+      :values="values"
+      :scope="scope"
+    />
   </a-form-item>
 </template>
 

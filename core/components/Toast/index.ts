@@ -29,7 +29,8 @@ const { message, notification } = App.useApp() ?? {
 
 export function showToast(
   toast?: SuccessToastOptions,
-  defaultToast?: SuccessToastOptions
+  defaultToast?: SuccessToastOptions,
+  type: 'info' | 'success' | 'error' | 'warning' = 'success'
 ) {
   if (toast !== false) {
     const content = typeof toast === 'string' ? toast : undefined
@@ -38,13 +39,13 @@ export function showToast(
       defaultToast,
       content ? { props: { content, message: content } } : undefined,
       DefaultSuccessToastOptions,
-      toast
+      content ? undefined : toast
     )
     if (mergeToast.type === 'message') {
       // @ts-ignore
-      message.success(mergeToast.props.title)
+      message[type](mergeToast.props.message)
     } else if (mergeToast.type === 'notification') {
-      notification.success(mergeToast.props)
+      notification[type](mergeToast.props)
     }
   }
 }

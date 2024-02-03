@@ -2,8 +2,9 @@ import type {
   ValueType,
   ColumnType,
   DictionaryCollectionOptions,
-  useDictionary,
   ColumnDictionaryOptions,
+  processDictionary,
+  useDictionary,
 } from '../common'
 import type { ExtractMaybeRef, JSXElement, MaybeRef } from '../common/interface'
 import type { ActionOption, ActionsList } from '../ProButton'
@@ -210,6 +211,7 @@ export interface InternalProTableColumnProps<T> {
   name: DataIndex | undefined
   type: ValueType | any
   dict?: ReturnType<typeof useDictionary>
+  resolveDict?: ReturnType<typeof processDictionary>
   renderCell?: boolean
   editable?: ProTableColumnEditable<T>
   columnProps: ColumnType<T>

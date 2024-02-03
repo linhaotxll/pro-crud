@@ -1,4 +1,7 @@
-import type { ProFormColumnOptions } from './interface'
+import { CopyOutlined, DeleteOutlined } from '@ant-design/icons-vue'
+import { h } from 'vue'
+
+import type { ProFormColumnOptions, ProFormListOptions } from './interface'
 import type { ColProps, FormItemInstance } from 'ant-design-vue'
 import type { NamePath } from 'ant-design-vue/es/form/interface'
 import type { InjectionKey, Ref } from 'vue'
@@ -34,3 +37,20 @@ export const DefaultProProColumn: ProFormColumnOptions<any> = {
 }
 
 export const DefaultProFormCol: ColProps = { span: 24 }
+
+export const DefaultCreateRecordButtonProps: ProFormListOptions['creatorButtonProps'] =
+  {
+    type: 'dashed',
+    block: true,
+    creatorButtonText: '添加',
+  }
+
+export const DefaultDeleteRecordButtonProps: ProFormListOptions['deleteButtonProps'] =
+  {
+    icon: h(DeleteOutlined),
+  }
+
+export const DefaultCopyRecordButtonProps: ProFormListOptions['copyButtonProps'] =
+  {
+    icon: h(CopyOutlined),
+  }

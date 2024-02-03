@@ -17,7 +17,6 @@ import type {
   ProvideEditTableOptions,
   TableSlots,
 } from './interface'
-import type { useDictionary } from '../common'
 import type { ColumnType, FetchDictCollection, ValueType } from '../common'
 import type { ComputedRef, Ref } from 'vue'
 
@@ -44,9 +43,9 @@ export function useColumns<T extends object>(
   > = ref()
 
   const columns = tableColumns.reduce((prev, column) => {
-    const dict = resolveColumnDictionary(column)
+    // const dict = resolveColumnDictionary(column)
     const resolvedColumn = computed(() => {
-      const result = resolveColumn(column, dict)
+      const result = resolveColumn(column, resolveColumnDictionary)
       // 如果需要伸缩，则对每个列配置进行响应式处理，确保在响应事件中修改列宽度能够改变页面
       return hasResizeColumn
         ? (reactive(result.columnProps) as unknown as ColumnType<T>)
@@ -103,7 +102,7 @@ export function useColumns<T extends object>(
    */
   function resolveColumn(
     column: ProTableColumnProps<T>,
-    resolvedDictionary: ReturnType<typeof useDictionary> | undefined
+    resolveDict: ReturnType<typeof processDictionary> | undefined
   ) {
     const name = unRef(column.name)
     const show = unRef(column.show ?? DefaultTableColumnShow)
@@ -120,7 +119,8 @@ export function useColumns<T extends object>(
       show,
       name,
       type: resolvedType,
-      dict: resolvedDictionary,
+      resolveDict,
+      dict: resolveDict?.(column),
       editable: column.editable,
       renderCell: column.renderCell,
       columnProps: {
@@ -155,7 +155,7 @@ export function useColumns<T extends object>(
 
       // 解析子列配置，加入到当前列中
       for (const c of resolvedChildren) {
-        const resolvedChild = resolveColumn(c, undefined)
+        const resolvedChild = resolveColumn(c, resolveColumnDictionary)
         if (resolvedChild) {
           // @ts-ignore
           ;(result.columnProps.children ||= []).push(resolvedChild.columnProps)

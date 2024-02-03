@@ -82,17 +82,19 @@ export function injectValueTypeTableCell(
         if (Array.isArray(name)) resolvedName.push(...name)
         else if (name) resolvedName.push(name as string | number)
 
-        const { dict, type } = ctx.column.__column!
+        const { resolveDict, dict, type } = ctx.column.__column!
+        const column = {
+          name: resolvedName,
+          show: true,
+          type,
+        }
         const internalColumn = buildFormColumn(
           undefined,
           undefined,
-          {
-            name: resolvedName,
-            show: true,
-            type,
-          },
-          dict
+          column,
+          resolveDict
         )
+        internalColumn.dict = dict
 
         return (
           <ConfigProvider theme={EditableTableCellTheme}>

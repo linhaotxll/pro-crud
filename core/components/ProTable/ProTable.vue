@@ -69,8 +69,6 @@ const p = defineProps<ProTableProps<T>>()
 
 const resolvedColumns = computed(() => p.columns.map(c => c.value))
 
-console.log(p)
-
 const tableRef = inject(ProTableRefKey)
 </script>
 
@@ -114,7 +112,7 @@ const tableRef = inject(ProTableRefKey)
 }
 
 .pro-table.auto-fill
-  :deep(> .ant-spin-nested-loading > .ant-spin-container > .ant-table) {
+:deep(> .ant-spin-nested-loading > .ant-spin-container > .ant-table) {
   display: flex;
   overflow: auto;
   flex: 1;
@@ -122,7 +120,7 @@ const tableRef = inject(ProTableRefKey)
 }
 
 .pro-table.auto-fill
-  :deep(
+:deep(
     > .ant-spin-nested-loading
       > .ant-spin-container
       > .ant-table
@@ -136,7 +134,7 @@ const tableRef = inject(ProTableRefKey)
 }
 
 .pro-table.auto-fill
-  :deep(
+:deep(
     > .ant-spin-nested-loading
       > .ant-spin-container
       > .ant-table

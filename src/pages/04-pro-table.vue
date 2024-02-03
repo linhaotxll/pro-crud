@@ -145,8 +145,9 @@ const { proTableRef, proTableBinding } = buildTable<TableData>(() => ({
       type: 'dict-select',
       dict: {
         fetchData: async () => {
-          const res = await fetchCashierUserOpen()
-          return res.data.userOpenList
+          // const res = await fetchCashierUserOpen()
+          return []
+          // return res.data.userOpenList
         },
         labelField: 'company',
         valueField: 'appId',
