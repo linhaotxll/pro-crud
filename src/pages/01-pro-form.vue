@@ -87,7 +87,7 @@ const { proFormRef, proFormBinding } = buildForm<FormValues>(scope => {
             col: { span: 12 },
             type: 'dict-select',
             dict: {
-              fetchData() {
+              async fetchData() {
                 message.success('获取列表状态数据')
                 return [
                   { label: '男', value: 1 },
