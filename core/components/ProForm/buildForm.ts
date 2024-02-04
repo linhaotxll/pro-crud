@@ -16,6 +16,7 @@ import type {
   BuildFormResult,
   InternalProFormColumnOptions,
   ProFormActionsOptions,
+  ProFormColumnOptions,
   ProFormInstance,
   ProFormScope,
 } from './interface'
@@ -31,7 +32,7 @@ import type {
   NamePath,
   ValidateOptions,
 } from 'ant-design-vue/es/form/interface'
-import type { Ref } from 'vue'
+import type { ComputedRef, Ref } from 'vue'
 
 export function buildForm<T extends object, C = undefined, R = T>(
   options: (
@@ -99,11 +100,33 @@ export function buildForm<T extends object, C, R = T>(
   // 解析字典集合
   const resolveColumnDictionary = processDictionary(fetchDictCollection)
 
+  function extractColumnChildren(column: ProFormColumnOptions<T>) {
+    let children: ComputedRef<InternalProFormColumnOptions<T>>[] = []
+    if (column.children && column.children.length) {
+      children = column.children.map(child => {
+        const childDict = resolveColumnDictionary(child)
+
+        return computed(() =>
+          buildFormColumn(
+            child.col ?? col,
+            resolvedColumnsMap,
+            child,
+            childDict,
+            extractColumnChildren(child)
+          )
+        )
+      })
+    }
+    return children
+  }
+
   // 解析列配置
   const resolvedColumns = columns.map(c => {
-    // const dict = resolveColumnDictionary(c)
+    const dict = resolveColumnDictionary(c)
+    const children = extractColumnChildren(c)
+
     return computed(() =>
-      buildFormColumn(col, resolvedColumnsMap, c, resolveColumnDictionary)
+      buildFormColumn(col, resolvedColumnsMap, c, dict, children)
     )
   })
 

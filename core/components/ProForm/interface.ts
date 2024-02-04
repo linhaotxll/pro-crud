@@ -382,7 +382,7 @@ export interface ProFormListOptions {
   /**
    * 新建按钮配置
    */
-  creatorButtonProps?: ButtonProps & { creatorButtonText?: string }
+  creatorButtonProps?: (ButtonProps & { creatorButtonText?: string }) | false
 
   /**
    * 自定义删除按钮
@@ -392,7 +392,7 @@ export interface ProFormListOptions {
   /**
    * 删除按钮配置
    */
-  deleteButtonProps?: ButtonProps & { deleteButtonText?: string }
+  deleteButtonProps?: (ButtonProps & { deleteButtonText?: string }) | false
 
   /**
    * 自定义复制按钮
@@ -402,7 +402,7 @@ export interface ProFormListOptions {
   /**
    * 复制按钮配置
    */
-  copyButtonProps?: ButtonProps & { copyButtonText?: string }
+  copyButtonProps?: (ButtonProps & { copyButtonText?: string }) | false
 
   /**
    * 最少条目

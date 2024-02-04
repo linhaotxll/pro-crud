@@ -92,40 +92,43 @@ export default defineComponent({
       handleCreateNewLine(cloneDeep(props.value![index]))
     }
 
-    // 解析列配置
-    // const resolvedColumns = props.column.
-
     // 合并添加按钮配置
     const mergedCreateReocrdButtonProps = computed<
       Required<ProFormListOptions>['creatorButtonProps']
     >(() =>
-      merge(
-        {},
-        DefaultCreateRecordButtonProps,
-        toValue(props.column?.list?.creatorButtonProps)
-      )
+      toValue(props.column?.list?.creatorButtonProps) === false
+        ? false
+        : merge(
+            {},
+            DefaultCreateRecordButtonProps,
+            toValue(props.column?.list?.creatorButtonProps)
+          )
     )
 
     // 合并删除按钮配置
     const mergedDeleteRecordButtonProps = computed<
       Required<ProFormListOptions>['deleteButtonProps']
     >(() =>
-      merge(
-        {},
-        DefaultDeleteRecordButtonProps,
-        toValue(props.column?.list?.deleteButtonProps)
-      )
+      toValue(props.column?.list?.deleteButtonProps) === false
+        ? false
+        : merge(
+            {},
+            DefaultDeleteRecordButtonProps,
+            toValue(props.column?.list?.deleteButtonProps)
+          )
     )
 
     // 合并复制按钮配置
     const mergedCopyRecordButtonProps = computed<
       Required<ProFormListOptions>['copyButtonProps']
     >(() =>
-      merge(
-        {},
-        DefaultCopyRecordButtonProps,
-        toValue(props.column?.list?.copyButtonProps)
-      )
+      toValue(props.column?.list?.copyButtonProps) === false
+        ? false
+        : merge(
+            {},
+            DefaultCopyRecordButtonProps,
+            toValue(props.column?.list?.copyButtonProps)
+          )
     )
 
     return () => {
@@ -148,44 +151,51 @@ export default defineComponent({
             ))}
           </Row>
 
-          {props.column?.list?.renderCopyRecordButton?.(() =>
-            handleCopyLine(i)
-          ) ?? (
-            <Tooltip title="复制当前行">
-              <Button
-                {...mergedCopyButtonProps}
-                onClick={() => handleCopyLine(i)}
-              >
-                {mergedCopyButtonProps.copyButtonText}
-              </Button>
-            </Tooltip>
-          )}
+          {mergedCopyButtonProps === false
+            ? null
+            : props.column?.list?.renderCopyRecordButton?.(() =>
+                handleCopyLine(i)
+              ) ?? (
+                <Tooltip title="复制当前行">
+                  <Button
+                    {...mergedCopyButtonProps}
+                    onClick={() => handleCopyLine(i)}
+                  >
+                    {mergedCopyButtonProps.copyButtonText}
+                  </Button>
+                </Tooltip>
+              )}
 
-          {props.column?.list?.renderDeleteRecordButton?.(() =>
-            handleDeleteLine(i)
-          ) ?? (
-            <Tooltip title="删除当前行">
-              <Button
-                {...mergedDeleteButtonProps}
-                onClick={() => handleDeleteLine(i)}
-              >
-                {mergedDeleteButtonProps.deleteButtonText}
-              </Button>
-            </Tooltip>
-          )}
+          {mergedDeleteButtonProps === false
+            ? null
+            : props.column?.list?.renderDeleteRecordButton?.(() =>
+                handleDeleteLine(i)
+              ) ?? (
+                <Tooltip title="删除当前行">
+                  <Button
+                    {...mergedDeleteButtonProps}
+                    onClick={() => handleDeleteLine(i)}
+                  >
+                    {mergedDeleteButtonProps.deleteButtonText}
+                  </Button>
+                </Tooltip>
+              )}
         </div>
       ))
 
-      const $createButton = props.column?.list?.renderCreateRecordButton?.(() =>
-        handleCreateNewLine()
-      ) ?? (
-        <Button
-          {...mergedCreateButtonProps}
-          onClick={() => handleCreateNewLine()}
-        >
-          {mergedCreateButtonProps.creatorButtonText}
-        </Button>
-      )
+      const $createButton =
+        mergedCreateButtonProps === false
+          ? null
+          : props.column?.list?.renderCreateRecordButton?.(() =>
+              handleCreateNewLine()
+            ) ?? (
+              <Button
+                {...mergedCreateButtonProps}
+                onClick={() => handleCreateNewLine()}
+              >
+                {mergedCreateButtonProps.creatorButtonText}
+              </Button>
+            )
 
       return (
         <>

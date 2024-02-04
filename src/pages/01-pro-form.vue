@@ -19,12 +19,11 @@
 </template>
 
 <script lang="tsx" setup>
+import { message, type ColProps } from 'ant-design-vue'
 import { computed } from 'vue'
 import { ref } from 'vue'
 
 import { buildForm } from '~/components/ProForm'
-
-import type { ColProps } from 'ant-design-vue'
 
 const sleep = (time = 2000) => new Promise(r => setTimeout(r, time))
 
@@ -84,20 +83,46 @@ const { proFormRef, proFormBinding } = buildForm<FormValues>(scope => {
         children: [
           {
             label: '状态',
-            type: 'text',
             name: 'status',
+            col: { span: 12 },
+            type: 'dict-select',
             dict: {
-              data: [
-                { label: '男', value: 1 },
-                { label: '女', value: 2 },
-                { label: '自定义', value: 3 },
-              ],
+              fetchData() {
+                message.success('获取列表状态数据')
+                return [
+                  { label: '男', value: 1 },
+                  { label: '女', value: 2 },
+                  { label: '自定义', value: 3 },
+                ]
+              },
             },
+          },
+          {
+            label: '子控件',
+            name: 'a',
+            col: { span: 12 },
+            type: 'list',
+            list: {
+              creatorButtonProps: false,
+            },
+            children: [
+              {
+                label: '信息',
+                name: 'b',
+                // type: 'text'
+              },
+            ],
           },
         ],
         list: {
           creatorButtonProps: {
             creatorButtonText: '加一条数据',
+          },
+          creatorRecord() {
+            return {
+              status: 1,
+              a: [{ b: '222' }],
+            }
           },
           max: 3,
           min: 2,
@@ -421,6 +446,7 @@ const { proFormRef, proFormBinding } = buildForm<FormValues>(scope => {
     },
 
     async fetchDictCollection() {
+      message.success('获取字典集合数据')
       console.log('fetch dict collection')
       await sleep(5000)
       return {

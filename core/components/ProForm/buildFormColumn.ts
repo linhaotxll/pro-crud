@@ -1,5 +1,5 @@
 import { merge } from 'lodash-es'
-import { computed, toValue, type MaybeRef } from 'vue'
+import { toValue, type MaybeRef } from 'vue'
 
 import { DefaultProProColumn } from './constant'
 
@@ -9,8 +9,9 @@ import type {
   InternalProFormColumnOptions,
   ProFormColumnOptions,
 } from './interface'
-import type { ValueType, processDictionary } from '../common'
+import type { ValueType, useDictionary } from '../common'
 import type { ColProps, FormItemProps } from 'ant-design-vue'
+import type { ComputedRef } from 'vue'
 
 export function buildFormColumn<T extends object>(
   col: MaybeRef<ColProps> | undefined,
@@ -18,7 +19,8 @@ export function buildFormColumn<T extends object>(
     | Map<FormItemProps['name'], InternalProFormColumnOptions<T>>
     | undefined,
   column: ProFormColumnOptions<T>,
-  resolveDict?: ReturnType<typeof processDictionary>
+  resolvedDictionary: ReturnType<typeof useDictionary> | undefined,
+  children: ComputedRef<InternalProFormColumnOptions<T>>[] = []
 ) {
   // 合并默认 Column 配置
   const mergeColumn: ProFormColumnOptions<T> = merge(
@@ -29,10 +31,6 @@ export function buildFormColumn<T extends object>(
   // 解析 type 类型
   const resolvedType: ValueType = unRef(mergeColumn.type)
 
-  // const name = appendFormItemNames(
-  //   toValue(parentColumn?.itemProps?.name),
-  //   toValue(mergeColumn.name)
-  // )
   const name = toValue(mergeColumn.name)
 
   // @ts-ignore
@@ -50,10 +48,13 @@ export function buildFormColumn<T extends object>(
   type Keys = keyof typeof mergeColumn
   ;(Object.keys(mergeColumn) as Keys[]).forEach(key => {
     switch (key) {
-      // case 'dict':
-      //   resolvedColumn.dict = mergeColumn.dict
-      //   // resolvedColumn.dict = dict || createColumnDict?.(mergeColumn.dict)
-      //   break
+      case 'dict':
+        resolvedColumn.dict = resolvedDictionary
+        break
+
+      case 'children':
+        resolvedColumn.children = children
+        break
 
       case 'tooltip':
         resolvedColumn.tooltip =
@@ -74,30 +75,9 @@ export function buildFormColumn<T extends object>(
     }
   })
 
-  resolvedColumn.dict = resolveDict?.(column)
-
   if (resolvedColumnsMap) {
     resolvedColumnsMap.set(name, resolvedColumn)
   }
 
-  if (column.children && column.children.length) {
-    resolvedColumn.children = column.children.map(child =>
-      computed(() =>
-        buildFormColumn({}, resolvedColumnsMap, child, resolveDict)
-      )
-    )
-  }
-
   return resolvedColumn
 }
-
-// function appendFormItemNames(
-//   parentName?: FormItemProps['name'],
-//   name?: FormItemProps['name']
-// ) {
-//   return [...appendFormItemName(parentName), ...appendFormItemName(name)]
-// }
-
-// function appendFormItemName(name?: FormItemProps['name']) {
-//   return Array.isArray(name) ? [...name] : name ? [name] : []
-// }
