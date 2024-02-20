@@ -371,6 +371,8 @@ export interface ProFormColumnOptions<T extends object>
 export interface ProFormListOptions {
   /**
    * 新建一行的数据
+   *
+   * @default {}
    */
   creatorRecord?: () => Record<string, any>
 

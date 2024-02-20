@@ -390,10 +390,7 @@ const buildAddFormMiddleware: Middleware<
 
     const columns = ctx.columns.addForm.map<ProFormColumnOptions<any>>(
       column => ({
-        label: column.label,
-        name: column.name,
-        dict: column.dict,
-        type: column.type,
+        ...column,
         ...column.form,
         ...column.addForm,
       })
@@ -492,10 +489,7 @@ const buildEditFormMiddleware: Middleware<
 
     const columns = ctx.columns.editForm.map<ProFormColumnOptions<any>>(
       column => ({
-        label: column.label,
-        name: column.name,
-        dict: column.dict,
-        type: column.type,
+        ...column,
         ...column.form,
         ...column.editForm,
       })
@@ -593,10 +587,7 @@ const buildViewFormMiddleware: Middleware<
 
     const columns = ctx.columns.viewForm.map<ProFormColumnOptions<any>>(
       column => ({
-        label: column.label,
-        name: column.name,
-        dict: column.dict,
-        type: column.type,
+        ...column,
         ...column.form,
         ...column.viewForm,
       })

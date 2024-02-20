@@ -45,12 +45,8 @@ export default defineComponent({
      * 创建新行
      */
     function handleCreateNewLine(record?: any) {
-      if (!props.column?.list) {
-        return
-      }
-
       const current = props.value?.length ?? 0
-      const { max = Number.MAX_VALUE, creatorRecord } = props.column.list
+      const { max = Number.MAX_VALUE, creatorRecord } = props.column?.list ?? {}
 
       if (current >= max) {
         showToast(`最多添加${max}条数据`, undefined, 'warning')
@@ -135,6 +131,9 @@ export default defineComponent({
       const mergedDeleteButtonProps = mergedDeleteRecordButtonProps.value
       const mergedCreateButtonProps = mergedCreateReocrdButtonProps.value
       const mergedCopyButtonProps = mergedCopyRecordButtonProps.value
+
+      console.log('value: ', props.value)
+      console.log('children: ', props.column)
 
       const $child = props.value?.map((item, i) => (
         <div style={{ display: 'flex', gap: '8px' }}>
