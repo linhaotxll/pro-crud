@@ -86,6 +86,7 @@ export default defineConfig({
   },
 
   build: {
+    sourcemap: true,
     lib: {
       entry: resolve('core/index.ts'),
       name: 'ProComponents',
