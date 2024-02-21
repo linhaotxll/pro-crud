@@ -172,7 +172,9 @@ export function processDictionary(
     typeof fetchDictCollection === 'function' &&
     fetchDictCollection.name === 'processColumnWithDictionary'
   ) {
-    return fetchDictCollection
+    return fetchDictCollection as unknown as (
+      column: ColumnDictionaryOptions
+    ) => ReturnType<typeof useDictionary> | undefined
   }
 
   // 解析字典集合
