@@ -68,10 +68,17 @@ const { proFormRef, proFormBinding } = buildForm<FormValues>(scope => {
       nickname: 'nic',
       slider: 0,
       status: 1,
+      list: [{ status: 2, name: 'IconMan' }],
     },
     formProps: {
       labelCol: formLabelCol,
       wrapperCol: { span: 20 },
+      rules: {
+        list: {
+          required: true,
+          message: '请增加列表',
+        },
+      },
       // scrollToFirstError: true,
     },
 
@@ -88,6 +95,7 @@ const { proFormRef, proFormBinding } = buildForm<FormValues>(scope => {
             type: 'dict-select',
             dict: {
               async fetchData() {
+                console.log('fetch')
                 message.success('获取列表状态数据')
                 return [
                   { label: '男', value: 1 },
@@ -98,31 +106,35 @@ const { proFormRef, proFormBinding } = buildForm<FormValues>(scope => {
             },
           },
           {
-            label: '子控件',
-            name: 'a',
-            col: { span: 12 },
-            type: 'list',
-            list: {
-              creatorButtonProps: false,
-            },
-            children: [
-              {
-                label: '信息',
-                name: 'b',
-                // type: 'text'
+            label: '姓名',
+            name: 'name',
+            itemProps: {
+              rules: {
+                required: true,
+                message: '请填写姓名',
               },
-            ],
+            },
           },
+          // {
+          //   label: '子控件',
+          //   name: 'a',
+          //   col: { span: 12 },
+          //   type: 'list',
+          //   list: {
+          //     creatorButtonProps: false,
+          //   },
+          //   children: [
+          //     {
+          //       label: '信息',
+          //       name: 'b',
+          //       // type: 'text'
+          //     },
+          //   ],
+          // },
         ],
         list: {
           creatorButtonProps: {
             creatorButtonText: '加一条数据',
-          },
-          creatorRecord() {
-            return {
-              status: 1,
-              a: [{ b: '222' }],
-            }
           },
           max: 3,
           min: 2,
@@ -134,6 +146,11 @@ const { proFormRef, proFormBinding } = buildForm<FormValues>(scope => {
             message: '请填写列表',
           },
         },
+      },
+
+      {
+        label: '昵称',
+        name: 'name',
       },
       {
         label: nameLabel,

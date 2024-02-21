@@ -271,72 +271,57 @@ const { proCrudBinding } = buildCrud<any>(scope => {
   return {
     columns: [
       {
-        label: '名称',
+        label: '菜单名称',
         name: 'menuName',
-        form: { show: false },
+        // form: { show: false },
       },
-
+      {
+        label: '菜单状态',
+        name: 'status',
+        type: 'dict-select',
+        dict: {
+          useCollect(dictSet) {
+            return dictSet?.status
+          },
+        },
+        // form: { show: false },
+      },
       {
         label: '列表',
         name: 'list',
         type: 'list',
+        table: { show: false },
         search: { show: false },
-        children: [
-          {
-            label: '状态',
-            name: 'status',
-            col: { span: 12 },
-            type: 'dict-select',
-            dict: {
-              async fetchData() {
-                // message.success('获取列表状态数据')
-                return [
-                  { label: '男', value: 1 },
-                  { label: '女', value: 2 },
-                  { label: '自定义', value: 3 },
-                ]
+        form: {
+          children: [
+            {
+              label: '子菜单名称',
+              name: 'menuName',
+            },
+            {
+              label: '子菜单状态',
+              name: 'status',
+              type: 'dict-select',
+              dict: {
+                useCollect(dictSet) {
+                  return dictSet?.status
+                },
               },
             },
-          },
-          {
-            label: '子控件',
-            name: 'a',
-            col: { span: 12 },
-            // type: 'list',
-            // list: {
-            //   creatorButtonProps: false,
-            // },
-            // children: [
-            //   {
-            //     label: '信息',
-            //     name: 'b',
-            //     // type: 'text'
-            //   },
-            // ],
-          },
-        ],
-        list: {
-          creatorButtonProps: {
-            creatorButtonText: '加一条数据',
-          },
-          creatorRecord() {
-            return {
-              status: 1,
-              a: [{ b: '222' }],
-            }
-          },
-          max: 3,
-          min: 2,
-          // deleteButtonProps: false,
-        },
-        itemProps: {
-          rules: {
-            required: true,
-            message: '请填写列表',
+          ],
+          list: {
+            creatorButtonProps: {
+              creatorButtonText: '加一条数据',
+            },
+            creatorRecord() {
+              return {}
+            },
+            max: 3,
+            min: 2,
+            // deleteButtonProps: false,
           },
         },
       },
-
       {
         label: '类型',
         name: 'menuType',
@@ -350,53 +335,50 @@ const { proCrudBinding } = buildCrud<any>(scope => {
           columnProps: { width: '8%' },
         },
       },
-
-      // {
-      //   label: '上级菜单',
-      //   name: 'parentId',
-      //   type: 'dict-tree-select',
-      //   table: { show: false },
-      //   search: { show: false },
-      //   form: {
-      //     show: computed(() => {
-      //       // debugger
-      //       console.log('add: ', JSON.stringify(scope.addForm.getFormValues()))
-      //       const addMenuType = scope.addForm.getFieldValue('menuType')
-      //       if (
-      //         addMenuType === MenuTypeEnum.TYPE_DIR ||
-      //         addMenuType === MenuTypeEnum.TYPE_BUTTON
-      //       ) {
-      //         return true
-      //       }
-
-      //       console.log(
-      //         'edit: ',
-      //         JSON.stringify(scope.editForm.getFormValues())
-      //       )
-      //       const editMenuType = scope.editForm.getFieldValue('menuType')
-      //       if (
-      //         editMenuType === MenuTypeEnum.TYPE_DIR ||
-      //         editMenuType === MenuTypeEnum.TYPE_BUTTON
-      //       ) {
-      //         return true
-      //       }
-      //       return false
-      //     }),
-      //     // show: computed(() =>
-      //     //   should(scope, [MenuTypeEnum.TYPE_MENU, MenuTypeEnum.TYPE_BUTTON])
-      //     // ),
-      //     fieldProps: {
-      //       useData: () => useMenuTree({ immediate: true }),
-      //       treeDefaultExpandAll: true,
-      //       fieldNames: {
-      //         children: 'children',
-      //         label: 'label',
-      //         value: 'id',
-      //       },
-      //     },
-      //   },
-      // },
-
+      {
+        label: '上级菜单',
+        name: 'parentId',
+        type: 'dict-tree-select',
+        table: { show: false },
+        search: { show: false },
+        form: {
+          show: computed(() => {
+            // debugger
+            console.log('add: ', JSON.stringify(scope.addForm.getFormValues()))
+            const addMenuType = scope.addForm.getFieldValue('menuType')
+            if (
+              addMenuType === MenuTypeEnum.TYPE_DIR ||
+              addMenuType === MenuTypeEnum.TYPE_BUTTON
+            ) {
+              return true
+            }
+            console.log(
+              'edit: ',
+              JSON.stringify(scope.editForm.getFormValues())
+            )
+            const editMenuType = scope.editForm.getFieldValue('menuType')
+            if (
+              editMenuType === MenuTypeEnum.TYPE_DIR ||
+              editMenuType === MenuTypeEnum.TYPE_BUTTON
+            ) {
+              return true
+            }
+            return false
+          }),
+          // show: computed(() =>
+          //   should(scope, [MenuTypeEnum.TYPE_MENU, MenuTypeEnum.TYPE_BUTTON])
+          // ),
+          fieldProps: {
+            // useData: () => useMenuTree({ immediate: true }),
+            treeDefaultExpandAll: true,
+            fieldNames: {
+              children: 'children',
+              label: 'label',
+              value: 'id',
+            },
+          },
+        },
+      },
       {
         label: computed(
           () =>
@@ -407,7 +389,6 @@ const { proCrudBinding } = buildCrud<any>(scope => {
         table: { show: false },
         search: { show: false },
       },
-
       {
         label: '显示排序',
         name: 'orderNum',
@@ -422,7 +403,6 @@ const { proCrudBinding } = buildCrud<any>(scope => {
           columnProps: { width: '6%' },
         },
       },
-
       {
         label: '权限',
         name: 'perms',
@@ -431,7 +411,6 @@ const { proCrudBinding } = buildCrud<any>(scope => {
           columnProps: { width: '14%' },
         },
       },
-
       {
         label: '组件路径',
         name: 'component',
@@ -441,7 +420,6 @@ const { proCrudBinding } = buildCrud<any>(scope => {
           show: computed(() => should(scope, [MenuTypeEnum.TYPE_MENU])),
         },
       },
-
       {
         label: '路由地址',
         name: 'path',
@@ -455,7 +433,6 @@ const { proCrudBinding } = buildCrud<any>(scope => {
           ),
         },
       },
-
       {
         label: '外链打开方式',
         name: 'openType',
@@ -473,7 +450,6 @@ const { proCrudBinding } = buildCrud<any>(scope => {
           ],
         },
       },
-
       {
         label: '是否是后台页面',
         name: 'layout',
@@ -491,7 +467,6 @@ const { proCrudBinding } = buildCrud<any>(scope => {
           show: computed(() => should(scope, [MenuTypeEnum.TYPE_MENU])),
         },
       },
-
       // {
       //   label: '显示状态',
       //   name: 'visible',
@@ -507,7 +482,6 @@ const { proCrudBinding } = buildCrud<any>(scope => {
       //   },
       //   table: { show: false },
       // },
-
       {
         label: '状态',
         name: 'status',
@@ -530,7 +504,6 @@ const { proCrudBinding } = buildCrud<any>(scope => {
           columnProps: { width: '8%' },
         },
       },
-
       {
         label: '创建时间',
         name: 'createTime',
@@ -543,27 +516,32 @@ const { proCrudBinding } = buildCrud<any>(scope => {
     ],
 
     addForm: {
-      initialValues: {
-        menuType: MenuTypeEnum.TYPE_DIR,
-        status: '1',
-        orderNum: 1,
-      },
+      // initialValues: {
+      //   menuType: MenuTypeEnum.TYPE_DIR,
+      //   status: '1',
+      //   orderNum: 1,
+      // },
     },
 
     form: {
       col: { span: 24 },
       formProps: {
-        rules: {
-          menuType: { required: true, message: '请选择类型' },
-          menuName: { required: true, message: '请填写名称' },
-          orderNum: { required: true, message: '请填写排序值' },
-          perms: { required: true, message: '请填写权限' },
-          visible: { required: true, message: '请选择显示状态' },
-          status: { required: true, message: '请选择状态' },
-          layout: { required: true, message: '请选择是否是后台页面' },
-          path: { required: true, message: '请输入路由地址' },
-          component: { required: true, message: '请填写组件路径' },
-        },
+        // rules: {
+        //   menuName: { required: true, message: '请填写名称' },
+        //   list: {
+        //     required: true,
+        //     type: 'array',
+        //     // min: 1,
+        //     message: '请填写列表',
+        //     defaultField: {
+        //       type: 'object',
+        //       required: true,
+        //       fields: {
+        //         menuName: { required: true, message: '请填写子菜单名称' },
+        //       },
+        //     },
+        //   },
+        // },
         labelCol: { style: { width: '150px' } },
       },
     },
@@ -591,6 +569,14 @@ const { proCrudBinding } = buildCrud<any>(scope => {
         total: 1,
       }
     },
+
+    async fetchDictCollection() {
+      console.log('fetch...')
+      return {
+        status: [{ label: '一', value: 1 }],
+      }
+    },
+
     // addRequest: form => createMenu({ body: form }),
     // editRequest: form => updateMenu({ body: form }),
     // deleteRequest: ctx => deleteMenu({ params: `${ctx.record.menuId}` }),
