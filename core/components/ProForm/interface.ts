@@ -114,6 +114,16 @@ export interface ProFormScope<T extends object> {
    * 获取对应字段实例
    */
   getFieldInstance(name: NamePath): FormItemInstance | null
+
+  /**
+   * 设置对应字段实例
+   */
+  setFieldInstance(name: NamePath, value: Ref<FormItemInstance | null>): void
+
+  /**
+   * 获取所有字段实例
+   */
+  getFieldInstances(): Map<NamePath, Ref<FormItemInstance | null>>
 }
 
 /**
@@ -140,7 +150,6 @@ export interface BuildFormBinding<T extends object> {
   values: T
   scope: ProFormScope<T>
   formRef: Ref<FormInstance | null>
-  formItemRef: Map<NamePath, Ref<FormItemInstance | null>>
   row: ComputedRef<RowProps | undefined>
   resolvedColumnsMap: Map<
     FormItemProps['name'],

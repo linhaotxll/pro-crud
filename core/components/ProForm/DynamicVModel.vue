@@ -6,7 +6,6 @@
         v-model:[vModelName]="vModel"
         :column="column"
         :scope="scope"
-        :form-item-ref-map="formItemRefMap"
         v-bind="column.resolvedProps"
       >
         <template
@@ -33,17 +32,12 @@ import { computed, toRaw } from 'vue'
 
 import { ValueTypeMap, unRef } from '../common'
 
-import type {
-  InternalProFormColumnOptions,
-  ProFormScope,
-  BuildFormBinding,
-} from './interface'
+import type { InternalProFormColumnOptions, ProFormScope } from './interface'
 
 const props = defineProps<{
   column: InternalProFormColumnOptions<T>
   values: any
   scope?: ProFormScope<T>
-  formItemRefMap?: BuildFormBinding<T>['formItemRef']
 }>()
 
 const formValues = toRaw(props).values

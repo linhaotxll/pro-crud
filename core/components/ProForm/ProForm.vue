@@ -10,7 +10,6 @@
           <pro-form-item
             :column="column.value"
             :scope="scope"
-            :form-item-ref-map="formItemRef"
             :values="values"
           />
         </a-col>

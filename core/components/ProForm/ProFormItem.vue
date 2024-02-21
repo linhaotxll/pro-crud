@@ -26,28 +26,19 @@
       <pro-render :render="column.itemSlots.help" :ctx="ctx" />
     </template>
 
-    <dynamic-v-model
-      :form-item-ref-map="formItemRefMap"
-      :column="column"
-      :values="values"
-      :scope="scope"
-    />
+    <dynamic-v-model :column="column" :values="values" :scope="scope" />
   </a-form-item>
 </template>
 
 <script lang="ts" setup generic="T extends object">
 import { QuestionCircleOutlined } from '@ant-design/icons-vue'
-import { onUnmounted, toRaw, ref } from 'vue'
+import { onUnmounted, ref } from 'vue'
 
 import DynamicVModel from './DynamicVModel.vue'
 
 import { unRef } from '../common'
 
-import type {
-  BuildFormBinding,
-  InternalProFormColumnOptions,
-  ProFormScope,
-} from './interface'
+import type { InternalProFormColumnOptions, ProFormScope } from './interface'
 import type { CSSProperties } from 'vue'
 
 defineOptions({
@@ -57,7 +48,6 @@ defineOptions({
 const props = defineProps<{
   column: InternalProFormColumnOptions<T>
   scope: ProFormScope<T>
-  formItemRefMap: BuildFormBinding<T>['formItemRef']
   values: any
 }>()
 
@@ -75,7 +65,7 @@ onUnmounted(() => {
 function init() {
   const name = unRef(props.column.itemProps?.name)
   if (name) {
-    toRaw(props).formItemRefMap.set(name, formItemRef)
+    props.scope.setFieldInstance(name, formItemRef)
   }
 }
 

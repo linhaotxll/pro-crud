@@ -506,11 +506,6 @@ export interface ProCrudColumnOption<
    * 详情表单列配置
    */
   viewForm?: ProCrudFormOptions<T>
-
-  /**
-   * 子控件
-   */
-  children?: ProCrudColumnOption<T, S, A, E>[]
 }
 
 export type ProCrudFormOptions<T extends object> = Omit<

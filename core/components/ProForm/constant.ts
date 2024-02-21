@@ -2,14 +2,7 @@ import { CopyOutlined, DeleteOutlined } from '@ant-design/icons-vue'
 import { h } from 'vue'
 
 import type { ProFormColumnOptions, ProFormListOptions } from './interface'
-import type { ColProps, FormItemInstance } from 'ant-design-vue'
-import type { NamePath } from 'ant-design-vue/es/form/interface'
-import type { InjectionKey, Ref } from 'vue'
-
-// 注入 FormItemRefs 的 key
-export const FormItemRefKey = Symbol() as InjectionKey<
-  Map<NamePath, Ref<FormItemInstance | null>>
->
+import type { ColProps } from 'ant-design-vue'
 
 export const ProFormInstanceNames = [
   'submit',

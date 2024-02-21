@@ -15,9 +15,9 @@ import { showToast } from '../Toast'
 import type {
   InternalProFormColumnOptions,
   ProFormScope,
-  BuildFormBinding,
   ProFormListOptions,
 } from '../ProForm'
+import type { NamePath } from 'ant-design-vue/es/form/interface'
 import type { PropType } from 'vue'
 
 function getUuid() {
@@ -28,6 +28,12 @@ function getUuid() {
   })
 }
 
+function appendNamePath(parent?: NamePath, name?: NamePath) {
+  const parents = Array.isArray(parent) ? parent : parent ? [parent] : []
+  const names = Array.isArray(name) ? name : name ? [name] : []
+  return [...parents, ...names]
+}
+
 export default defineComponent({
   name: 'ProFormList',
 
@@ -35,7 +41,6 @@ export default defineComponent({
     value: { type: Array },
     column: Object as PropType<InternalProFormColumnOptions<any>>,
     scope: Object as PropType<ProFormScope<any>>,
-    formItemRefMap: Object as PropType<BuildFormBinding<any>['formItemRef']>,
   },
 
   emits: ['update:value'],
@@ -132,22 +137,26 @@ export default defineComponent({
       const mergedCreateButtonProps = mergedCreateReocrdButtonProps.value
       const mergedCopyButtonProps = mergedCopyRecordButtonProps.value
 
-      console.log('value: ', props.value)
-      console.log('children: ', props.column)
+      console.log('pro form props: ', props.column)
 
       const $child = props.value?.map((item, i) => (
         <div style={{ display: 'flex', gap: '8px' }}>
           <Row key={getUuid()} style={{ flex: 1 }} gutter={8}>
-            {props.column?.children?.map(child => (
-              <Col {...child.value.col} key={child.value.resolvedKey}>
-                <ProFormItem
-                  column={child.value}
-                  scope={props.scope!}
-                  values={item}
-                  formItemRefMap={props.formItemRefMap!}
-                />
-              </Col>
-            ))}
+            {props.column?.children?.map(child => {
+              child.value.name = appendNamePath(
+                toValue(props.column?.name),
+                toValue(child.value.name)
+              )
+              return (
+                <Col {...child.value.col} key={child.value.resolvedKey}>
+                  <ProFormItem
+                    column={child.value}
+                    scope={props.scope!}
+                    values={item}
+                  />
+                </Col>
+              )
+            })}
           </Row>
 
           {mergedCopyButtonProps === false

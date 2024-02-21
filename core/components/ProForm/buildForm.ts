@@ -11,7 +11,6 @@ import { processDictionary, unRef } from '../common'
 import { showToast } from '../Toast'
 
 import type {
-  BuildFormBinding,
   BuildFormOptionResult,
   BuildFormResult,
   InternalProFormColumnOptions,
@@ -64,6 +63,8 @@ export function buildForm<T extends object, C, R = T>(
     scrollToField,
     clearValidate,
     getFieldInstance,
+    setFieldInstance,
+    getFieldInstances,
   }
 
   const {
@@ -176,7 +177,7 @@ export function buildForm<T extends object, C, R = T>(
     return result
   })
 
-  const formItemRef: BuildFormBinding<T>['formItemRef'] = new Map()
+  const formItemRef = new Map<NamePath, Ref<FormItemInstance | null>>()
 
   /**
    * 提交表单
@@ -361,6 +362,23 @@ export function buildForm<T extends object, C, R = T>(
   }
 
   /**
+   * 获取所有字段实例集合
+   */
+  function getFieldInstances() {
+    return formItemRef
+  }
+
+  /**
+   * 设置对应字段实例
+   */
+  function setFieldInstance(
+    name: NamePath,
+    value: Ref<FormItemInstance | null>
+  ) {
+    formItemRef.set(name, value)
+  }
+
+  /**
    * 获取表单值
    */
   function getFormValues() {
@@ -379,7 +397,6 @@ export function buildForm<T extends object, C, R = T>(
       values,
       scope,
       formRef,
-      formItemRef,
       resolvedColumnsMap,
       row: computed(() => unRef(row)),
     },
