@@ -684,6 +684,7 @@ function normalizeColumns(
   }
 
   const resolveDictionary = processDictionary(fetchDictCollection)
+  resolveDictionary.resolved = true
 
   // 重写获取集合的方法，下透到 Form 和 Table 不会再次解析
   // @ts-ignore

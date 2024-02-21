@@ -50,6 +50,13 @@ export interface DictionaryOption {
 
 export type FetchDictCollection<T = any> = () => Promise<T>
 
+export interface ProcessColumnWithDictionary {
+  (column: ColumnDictionaryOptions):
+    | ReturnType<typeof useDictionary>
+    | undefined
+  resolved?: boolean
+}
+
 export interface DictionaryCollectionOptions {
   /**
    * 字典集
@@ -167,20 +174,20 @@ export function useDictionary<T = any>(
 
 export function processDictionary(
   fetchDictCollection: FetchDictCollection | undefined
-) {
+): ProcessColumnWithDictionary {
   if (
-    typeof fetchDictCollection === 'function' &&
-    fetchDictCollection.name === 'processColumnWithDictionary'
+    fetchDictCollection &&
+    (fetchDictCollection as unknown as ProcessColumnWithDictionary).resolved
   ) {
-    return fetchDictCollection as unknown as (
-      column: ColumnDictionaryOptions
-    ) => ReturnType<typeof useDictionary> | undefined
+    return fetchDictCollection as unknown as ProcessColumnWithDictionary
   }
 
   // 解析字典集合
   const { dataSource: collection } = useDictCollection(fetchDictCollection)
 
-  return function processColumnWithDictionary(column: ColumnDictionaryOptions) {
+  const processColumnWithDictionary: ProcessColumnWithDictionary = (
+    column: ColumnDictionaryOptions
+  ) => {
     if (isResolveDictionary(column.dict)) {
       return column.dict
     }
@@ -193,6 +200,8 @@ export function processDictionary(
 
     return resolvedDictionary
   }
+
+  return processColumnWithDictionary
 }
 
 function isResolveDictionary(
