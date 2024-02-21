@@ -269,6 +269,7 @@ const buildTableMiddleware: Middleware<
 
     const { show: _, toolbar, ...rest } = ctx.optionResult.table || {}
     return {
+      fetchDictCollection: ctx.optionResult.fetchDictCollection,
       toolbar: merge<ProTableToolbarOption, ProTableToolbarOption | undefined>(
         {
           actions: {
@@ -403,7 +404,10 @@ const buildAddFormMiddleware: Middleware<
       CrudFormOptionResult | undefined,
       BuildFormOptionResult<any>
     >(
-      { ...DefaultCrudForm },
+      {
+        ...DefaultCrudForm,
+        fetchDictCollection: ctx.optionResult.fetchDictCollection,
+      },
       {
         formProps: { disabled: false },
         actions: {
@@ -502,7 +506,10 @@ const buildEditFormMiddleware: Middleware<
       CrudFormOptionResult | undefined,
       BuildFormOptionResult<any>
     >(
-      { ...DefaultCrudForm },
+      {
+        ...DefaultCrudForm,
+        fetchDictCollection: ctx.optionResult.fetchDictCollection,
+      },
       {
         formProps: { disabled: false },
         actions: {
@@ -600,7 +607,10 @@ const buildViewFormMiddleware: Middleware<
       CrudFormOptionResult | undefined,
       BuildFormOptionResult<any>
     >(
-      { ...DefaultCrudForm },
+      {
+        ...DefaultCrudForm,
+        fetchDictCollection: ctx.optionResult.fetchDictCollection,
+      },
       {
         formProps: { disabled: true },
         actions: {
@@ -675,12 +685,13 @@ function normalizeColumns(
 
   const resolveDictionary = processDictionary(fetchDictCollection)
 
-  // 删除 crud 中的 fetchDictCollection，避免传递给内部的 ProForm、ProTable 进行二次解析
-  delete options.fetchDictCollection
+  // 重写获取集合的方法，下透到 Form 和 Table 不会再次解析
+  // @ts-ignore
+  options.fetchDictCollection = resolveDictionary
 
   const result =
     columns?.reduce((prev, curr) => {
-      // TODO: 将已经解析好的 dict 赋值给 column，下透到 ProForm、ProTable 组件不会再进行二次解析
+      // 将已经解析好的 dict 赋值给 column，下透到 ProForm、ProTable 组件不会再进行二次解析
       if (curr.dict) {
         // @ts-ignore
         curr.dict = resolveDictionary(curr)

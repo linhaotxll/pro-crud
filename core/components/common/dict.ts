@@ -168,10 +168,17 @@ export function useDictionary<T = any>(
 export function processDictionary(
   fetchDictCollection: FetchDictCollection | undefined
 ) {
+  if (
+    typeof fetchDictCollection === 'function' &&
+    fetchDictCollection.name === 'processColumnWithDictionary'
+  ) {
+    return fetchDictCollection
+  }
+
   // 解析字典集合
   const { dataSource: collection } = useDictCollection(fetchDictCollection)
 
-  return function (column: ColumnDictionaryOptions) {
+  return function processColumnWithDictionary(column: ColumnDictionaryOptions) {
     if (isResolveDictionary(column.dict)) {
       return column.dict
     }
