@@ -68,13 +68,9 @@ export default defineComponent({
      * 删除旧行
      */
     function handleDeleteLine(index: number) {
-      if (!props.column?.list) {
-        return
-      }
-
       if (props.value) {
         const current = props.value.length
-        const { min = Number.MIN_VALUE } = props.column.list
+        const { min = Number.MIN_VALUE } = props.column.list ?? {}
 
         if (current <= min) {
           showToast(`最少保持${min}条数据`, undefined, 'warning')
