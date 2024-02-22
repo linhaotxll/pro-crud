@@ -2,6 +2,7 @@ import { CopyOutlined, DeleteOutlined } from '@ant-design/icons-vue'
 import { h } from 'vue'
 
 import type { ProFormColumnOptions, ProFormListOptions } from './interface'
+import type { SuccessToastOptions } from '../Toast'
 import type { ColProps } from 'ant-design-vue'
 
 export const ProFormInstanceNames = [
@@ -47,3 +48,5 @@ export const DefaultCopyRecordButtonProps: ProFormListOptions['copyButtonProps']
   {
     icon: h(CopyOutlined),
   }
+
+export const successToast: SuccessToastOptions = '保存成功'

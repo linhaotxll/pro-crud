@@ -3,7 +3,7 @@ import { get, has, merge, set, unset } from 'lodash-es'
 import { computed, inject, ref, toRaw, toValue } from 'vue'
 
 import { buildFormColumn } from './buildFormColumn'
-import { DefaultProFormCol } from './constant'
+import { DefaultProFormCol, successToast } from './constant'
 import { useValues } from './useValues'
 
 import { GlobalOption } from '../../constant'
@@ -74,7 +74,7 @@ export function buildForm<T extends object, C, R = T>(
     labelCol,
     wrapperCol,
     actions,
-    toast,
+    toast = successToast,
     row,
     col = DefaultProFormCol,
     fetchDictCollection,
