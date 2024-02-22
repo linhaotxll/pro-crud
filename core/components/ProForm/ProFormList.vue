@@ -28,10 +28,10 @@ function getUuid() {
   })
 }
 
-function appendNamePath(parent?: NamePath, name?: NamePath) {
+function appendNamePath(index: number, parent?: NamePath, name?: NamePath) {
   const parents = Array.isArray(parent) ? parent : parent ? [parent] : []
   const names = Array.isArray(name) ? name : name ? [name] : []
-  return [...parents, ...names]
+  return [...parents, index, ...names]
 }
 
 export default defineComponent({
@@ -41,6 +41,7 @@ export default defineComponent({
     value: { type: Array },
     column: Object as PropType<InternalProFormColumnOptions<any>>,
     scope: Object as PropType<ProFormScope<any>>,
+    formValues: Object as PropType<any>,
   },
 
   emits: ['update:value'],
@@ -137,26 +138,23 @@ export default defineComponent({
       const mergedCreateButtonProps = mergedCreateReocrdButtonProps.value
       const mergedCopyButtonProps = mergedCopyRecordButtonProps.value
 
-      console.log('pro form props: ', props.column)
-
       const $child = props.value?.map((item, i) => (
         <div style={{ display: 'flex', gap: '8px' }}>
           <Row key={getUuid()} style={{ flex: 1 }} gutter={8}>
-            {props.column?.children?.map(child => {
-              child.value.name = appendNamePath(
-                toValue(props.column?.name),
-                toValue(child.value.name)
-              )
-              return (
-                <Col {...child.value.col} key={child.value.resolvedKey}>
-                  <ProFormItem
-                    column={child.value}
-                    scope={props.scope!}
-                    values={item}
-                  />
-                </Col>
-              )
-            })}
+            {props.column?.children?.map(child => (
+              <Col {...child.value.col} key={child.value.resolvedKey}>
+                <ProFormItem
+                  name={appendNamePath(
+                    i,
+                    toValue(props.column?.name),
+                    toValue(child.value.name)
+                  )}
+                  column={child.value}
+                  scope={props.scope!}
+                  values={item}
+                />
+              </Col>
+            ))}
           </Row>
 
           {mergedCopyButtonProps === false

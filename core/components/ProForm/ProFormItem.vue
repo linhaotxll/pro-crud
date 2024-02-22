@@ -1,5 +1,5 @@
 <template>
-  <a-form-item ref="formItemRef" v-bind="column.itemProps">
+  <a-form-item ref="formItemRef" v-bind="column.itemProps" :name="resolvedName">
     <template #label>
       <pro-render
         v-if="column.itemSlots?.label"
@@ -26,19 +26,25 @@
       <pro-render :render="column.itemSlots.help" :ctx="ctx" />
     </template>
 
-    <dynamic-v-model :column="column" :values="values" :scope="scope" />
+    <dynamic-v-model
+      :form-item-name="resolvedName"
+      :column="column"
+      :values="values"
+      :scope="scope"
+    />
   </a-form-item>
 </template>
 
 <script lang="ts" setup generic="T extends object">
 import { QuestionCircleOutlined } from '@ant-design/icons-vue'
-import { onUnmounted, ref } from 'vue'
+import { computed, onUnmounted, ref, toValue } from 'vue'
 
 import DynamicVModel from './DynamicVModel.vue'
 
 import { unRef } from '../common'
 
 import type { InternalProFormColumnOptions, ProFormScope } from './interface'
+import type { NamePath } from 'ant-design-vue/es/form/interface'
 import type { CSSProperties } from 'vue'
 
 defineOptions({
@@ -46,10 +52,13 @@ defineOptions({
 })
 
 const props = defineProps<{
+  name?: NamePath
   column: InternalProFormColumnOptions<T>
   scope: ProFormScope<T>
   values: any
 }>()
+
+const resolvedName = computed(() => props.name ?? toValue(props.column.name))
 
 const formItemRef = ref<any | null>(null)
 

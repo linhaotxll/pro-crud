@@ -6,6 +6,7 @@
         v-model:[vModelName]="vModel"
         :column="column"
         :scope="scope"
+        :form-values="values"
         v-bind="column.resolvedProps"
       >
         <template
@@ -27,20 +28,19 @@
 </template>
 
 <script lang="ts" setup generic="T extends object">
-import { get, set } from 'lodash-es'
-import { computed, toRaw } from 'vue'
+import { computed } from 'vue'
 
-import { ValueTypeMap, unRef } from '../common'
+import { ValueTypeMap } from '../common'
 
 import type { InternalProFormColumnOptions, ProFormScope } from './interface'
+import type { NamePath } from 'ant-design-vue/es/form/interface'
 
 const props = defineProps<{
+  formItemName?: NamePath
   column: InternalProFormColumnOptions<T>
   values: any
   scope?: ProFormScope<T>
 }>()
-
-const formValues = toRaw(props).values
 
 defineOptions({ name: 'DynamicVModel' })
 
@@ -54,13 +54,13 @@ function getVModel() {
 
 const vModel = computed({
   get() {
-    const name = unRef(props.column.itemProps!.name)
-    return name ? get(formValues, name) : undefined
+    return props.formItemName
+      ? props.scope?.getFieldValue(props.formItemName)
+      : undefined
   },
   set(newValue) {
-    const name = unRef(props.column.itemProps!.name)
-    if (name) {
-      set(formValues, name, newValue)
+    if (props.formItemName) {
+      props.scope?.setFieldValue(props.formItemName, newValue)
     }
   },
 })
