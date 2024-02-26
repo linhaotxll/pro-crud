@@ -266,7 +266,7 @@ export interface BuildCrudOptionReturn<
   > & {
     show?: MaybeRef<boolean>
     toolbar?: ProTableToolbarOption<ProCrudTableToolbarActions>
-    action: CrudActionOption<T>
+    action?: CrudActionOption<T>
   }
 
   /**
