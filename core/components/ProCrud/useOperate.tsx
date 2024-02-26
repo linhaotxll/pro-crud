@@ -85,7 +85,7 @@ export function useOperate<
       },
       columnProps: { width: 250 },
     },
-    ctx.optionResult.action
+    ctx.optionResult.table?.action ?? ctx.optionResult.action
   )
 
   return mergeOperate

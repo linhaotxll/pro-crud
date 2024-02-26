@@ -207,6 +207,8 @@ export interface BuildCrudOptionReturn<
 
   /**
    * 操作列配置
+   *
+   * @deprecated 使用 table.action 代替
    */
   action?: CrudActionOption<T>
 
@@ -264,6 +266,7 @@ export interface BuildCrudOptionReturn<
   > & {
     show?: MaybeRef<boolean>
     toolbar?: ProTableToolbarOption<ProCrudTableToolbarActions>
+    action: CrudActionOption<T>
   }
 
   /**
