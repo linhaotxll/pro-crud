@@ -1,6 +1,7 @@
 import type { ValueTypeValue } from './components/common'
 import type {
   BuildCrudBinding,
+  CrudActionOption,
   CrudDialogOption,
   ProCrudScope,
   TransformQueryParams,
@@ -84,5 +85,15 @@ export interface ProComponentsOptions {
       proCrudScope: ProCrudScope<any, any, any, any>
       proCrudBinding: BuildCrudBinding<any, any, any, any>
     }) => void
+  }
+
+  /**
+   * 全局 crud 配置
+   */
+  crud?: {
+    /**
+     * 按钮组配置
+     */
+    action?: CrudActionOption<any>
   }
 }

@@ -1,8 +1,11 @@
 import { merge } from 'lodash-es'
+import { inject } from 'vue'
 
 import { ConfirmDeleteContent, DeleteRecordToast } from './constant'
 
 import { showToast } from '../Toast'
+
+import { GlobalOption } from '~/constant'
 
 import type { BuildCrudContext, CrudActionOption } from './interface'
 import type { BodyCellSlotParams, ProTableActionColumnProps } from '../ProTable'
@@ -26,6 +29,7 @@ export function useOperate<
 
   const mergeOperate: ProTableActionColumnProps<T> = merge<
     ProTableActionColumnProps<T>,
+    CrudActionOption<T> | undefined,
     CrudActionOption<T> | undefined
   >(
     {
@@ -85,6 +89,7 @@ export function useOperate<
       },
       columnProps: { width: 250 },
     },
+    inject(GlobalOption)?.crud?.action,
     ctx.optionResult.table?.action ?? ctx.optionResult.action
   )
 
