@@ -1,6 +1,8 @@
 import { computed, isRef, ref, watch } from 'vue'
 
-import type { ComputedRef, Ref } from 'vue'
+import { resolveRef } from './utils'
+
+import type { ComputedRef, MaybeRefOrGetter, Ref } from 'vue'
 
 /**
  * 字典列配置
@@ -10,6 +12,10 @@ export interface ColumnDictionaryOptions {
    * 字典配置
    */
   dict?: DictionaryOption
+}
+
+interface ColumnDictionaryShow {
+  show?: MaybeRefOrGetter<boolean>
 }
 
 /**
@@ -51,7 +57,7 @@ export interface DictionaryOption {
 export type FetchDictCollection<T = any> = () => Promise<T>
 
 export interface ProcessColumnWithDictionary {
-  (column: ColumnDictionaryOptions):
+  (column: ColumnDictionaryOptions & ColumnDictionaryShow):
     | ReturnType<typeof useDictionary>
     | undefined
   resolved?: boolean
@@ -104,7 +110,10 @@ export function useDictCollection<T = any>(
 
 export function useDictionary<T = any>(
   collection: Ref<T[] | null>,
-  dictOption: DictionaryOption
+  {
+    dict: dictOption = {},
+    show,
+  }: ColumnDictionaryOptions & ColumnDictionaryShow
 ) {
   const {
     data,
@@ -145,17 +154,18 @@ export function useDictionary<T = any>(
     }
   }
 
-  if (typeof useCollect === 'function') {
-    watch(
-      collection,
-      () => {
+  watch(
+    [
+      resolveRef(show),
+      typeof useCollect === 'function' ? collection : undefined,
+    ].filter(Boolean),
+    ([_show]) => {
+      if (_show) {
         execute()
-      },
-      { immediate: true }
-    )
-  } else {
-    execute()
-  }
+      }
+    },
+    { immediate: true }
+  )
 
   const optionsNameMap = computed(() => {
     return options.value.reduce<Record<string, string>>((prev, curr) => {
@@ -185,17 +195,16 @@ export function processDictionary(
   // 解析字典集合
   const { dataSource: collection } = useDictCollection(fetchDictCollection)
 
-  const processColumnWithDictionary: ProcessColumnWithDictionary = (
-    column: ColumnDictionaryOptions
-  ) => {
+  const processColumnWithDictionary: ProcessColumnWithDictionary = column => {
     if (isResolveDictionary(column.dict)) {
       return column.dict
     }
     // 解析字典
     let resolvedDictionary: ReturnType<typeof useDictionary> | undefined =
       undefined
+
     if (column.dict) {
-      resolvedDictionary = useDictionary(collection, column.dict)
+      resolvedDictionary = useDictionary(collection, column)
     }
 
     return resolvedDictionary

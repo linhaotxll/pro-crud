@@ -1,6 +1,6 @@
 import cloneDeep from 'clone-deep'
 import { get, has, merge, set, unset } from 'lodash-es'
-import { computed, inject, ref, toRaw, toValue } from 'vue'
+import { computed, inject, ref, toRaw, toValue, reactive } from 'vue'
 
 import { buildFormColumn } from './buildFormColumn'
 import { DefaultProFormCol, successToast } from './constant'
@@ -67,6 +67,8 @@ export function buildForm<T extends object, C, R = T>(
     getFieldInstances,
   }
 
+  const values = reactive<T>({} as T) as T
+
   const {
     initialValues,
     columns = [],
@@ -84,7 +86,7 @@ export function buildForm<T extends object, C, R = T>(
     validateFail,
   } = options(scope, ctx)
 
-  const values = useValues(initialValues, columns)
+  useValues(values, initialValues, columns)
 
   // el-form ref
   const formRef = ref<FormInstance | null>(null)

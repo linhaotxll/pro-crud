@@ -1,15 +1,17 @@
-import { cloneDeep, get, set } from 'lodash-es'
-import { reactive } from 'vue'
+import { cloneDeep, get, merge, set } from 'lodash-es'
 
 import { unRef } from '../common'
 
 import type { ProFormColumnOptions } from './interface'
 
 export function useValues<T extends object>(
+  values: T,
   initialValues: Partial<T> | undefined,
   columns: ProFormColumnOptions<T>[]
 ) {
-  const values = reactive<T>((cloneDeep(initialValues) as T) ?? ({} as T)) as T
+  if (initialValues) {
+    merge(values, cloneDeep(initialValues))
+  }
 
   if (columns) {
     for (const column of columns) {

@@ -1,6 +1,6 @@
 import { PlusOutlined } from '@ant-design/icons-vue'
 import { merge } from 'lodash-es'
-import { computed, h, inject, provide, ref } from 'vue'
+import { computed, h, inject, provide, ref, toValue } from 'vue'
 
 import { compose } from './compose'
 import {
@@ -694,8 +694,19 @@ function normalizeColumns(
     columns?.reduce((prev, curr) => {
       // 将已经解析好的 dict 赋值给 column，下透到 ProForm、ProTable 组件不会再进行二次解析
       if (curr.dict) {
+        const visible = computed(() => {
+          const visibles = [
+            toValue(curr.search?.show),
+            toValue(curr.table?.show),
+            toValue(curr.addForm?.show),
+            toValue(curr.editForm?.show),
+            toValue(curr.viewForm?.show),
+          ].filter(item => item != null)
+
+          return !visibles.length ? true : visibles.includes(true)
+        })
         // @ts-ignore
-        curr.dict = resolveDictionary(curr)
+        curr.dict = resolveDictionary({ ...curr, show: visible })
       }
 
       if (!(curr.search?.show === false)) {
