@@ -138,13 +138,13 @@ export function useDictionary<T = any>(
   const startLoading = () => (loading.value = true)
   const cancelLoading = () => (loading.value = false)
 
-  async function execute(params?: Record<string, any>) {
+  async function execute(collect: T[] | null, params?: Record<string, any>) {
     const _fetchData: (...args: any) => Promise<any[]> = Array.isArray(data)
       ? () => Promise.resolve(data!)
       : typeof fetchData === 'function'
       ? fetchData
       : typeof useCollect === 'function'
-      ? () => useCollect(collection.value)
+      ? () => useCollect(collect)
       : () => Promise.resolve([])
 
     try {
@@ -163,9 +163,13 @@ export function useDictionary<T = any>(
     }
   }
 
-  function executeWithShow(show: boolean, params?: Record<string, any>) {
+  function executeWithShow(
+    show: boolean,
+    collection: T[] | null,
+    params?: Record<string, any>
+  ) {
     if (show) {
-      execute(params)
+      execute(collection, params)
     }
   }
 
@@ -178,7 +182,7 @@ export function useDictionary<T = any>(
         params[dep.toString()] = scope?.getFieldValue(dep)
       }
       if (!first) {
-        executeWithShow(true, params)
+        executeWithShow(true, collection.value, params)
       }
       first = false
     })
@@ -190,8 +194,11 @@ export function useDictionary<T = any>(
       resolveRef(show),
       typeof useCollect === 'function' ? collection : undefined,
     ].filter(Boolean),
-    ([_show]) => {
-      executeWithShow(_show as unknown as boolean)
+    ([_show, _collection]) => {
+      executeWithShow(
+        _show as unknown as boolean,
+        _collection as unknown as T[] | null
+      )
     },
     { immediate: true }
   )
