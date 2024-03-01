@@ -3,7 +3,11 @@ import { get, has, merge, set, unset } from 'lodash-es'
 import { computed, inject, ref, toRaw, toValue, reactive } from 'vue'
 
 import { buildFormColumn } from './buildFormColumn'
-import { DefaultProFormCol, successToast } from './constant'
+import {
+  DefaultProFormCol,
+  DefaultProProColumn,
+  successToast,
+} from './constant'
 import { useValues } from './useValues'
 
 import { GlobalOption } from '../../constant'
@@ -101,13 +105,15 @@ export function buildForm<T extends object, C, R = T>(
   >()
 
   // 解析字典集合
-  const resolveColumnDictionary = processDictionary(fetchDictCollection)
+  const resolveColumnDictionary = processDictionary(fetchDictCollection, scope)
 
   function extractColumnChildren(column: ProFormColumnOptions<T>) {
     let children: ComputedRef<InternalProFormColumnOptions<T>>[] = []
     if (column.children && column.children.length) {
       children = column.children.map(child => {
-        const childDict = resolveColumnDictionary(child)
+        const childDict = resolveColumnDictionary(
+          merge({}, child, DefaultProProColumn)
+        )
 
         return computed(() =>
           buildFormColumn(
@@ -125,7 +131,7 @@ export function buildForm<T extends object, C, R = T>(
 
   // 解析列配置
   const resolvedColumns = columns.map(c => {
-    const dict = resolveColumnDictionary(c)
+    const dict = resolveColumnDictionary(merge({}, c, DefaultProProColumn))
     const children = extractColumnChildren(c)
 
     return computed(() =>

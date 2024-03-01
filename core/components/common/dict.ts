@@ -1,7 +1,9 @@
-import { computed, isRef, ref, watch } from 'vue'
+import { computed, isRef, ref, watch, watchEffect } from 'vue'
 
 import { resolveRef } from './utils'
 
+import type { ProFormScope } from '../ProForm'
+import type { NamePath } from 'ant-design-vue/es/form/interface'
 import type { ComputedRef, MaybeRefOrGetter, Ref } from 'vue'
 
 /**
@@ -32,7 +34,7 @@ export interface DictionaryOption {
   /**
    * 动态获取
    */
-  fetchData?: () => Promise<any[]>
+  fetchData?: (...args: any[]) => Promise<any[]>
 
   /**
    * 名称字段
@@ -52,6 +54,11 @@ export interface DictionaryOption {
    * 从枚举集合中获取值
    */
   useCollect?: (dictSet: any) => any
+
+  /**
+   * 依赖项目，发生变化时会重新发起 fetchData 请求
+   */
+  dependencies?: NamePath[]
 }
 
 export type FetchDictCollection<T = any> = () => Promise<T>
@@ -113,7 +120,8 @@ export function useDictionary<T = any>(
   {
     dict: dictOption = {},
     show,
-  }: ColumnDictionaryOptions & ColumnDictionaryShow
+  }: ColumnDictionaryOptions & ColumnDictionaryShow,
+  scope?: ProFormScope<any>
 ) {
   const {
     data,
@@ -121,6 +129,7 @@ export function useDictionary<T = any>(
     useCollect,
     labelField = 'label',
     valueField = 'value',
+    dependencies,
   } = dictOption
 
   const options = ref([]) as Ref<DictionaryResolvedOption[]>
@@ -129,8 +138,8 @@ export function useDictionary<T = any>(
   const startLoading = () => (loading.value = true)
   const cancelLoading = () => (loading.value = false)
 
-  async function execute() {
-    const _fetchData: () => Promise<any[]> = Array.isArray(data)
+  async function execute(params?: Record<string, any>) {
+    const _fetchData: (...args: any) => Promise<any[]> = Array.isArray(data)
       ? () => Promise.resolve(data!)
       : typeof fetchData === 'function'
       ? fetchData
@@ -141,7 +150,7 @@ export function useDictionary<T = any>(
     try {
       startLoading()
 
-      const result = await _fetchData()
+      const result = await _fetchData(params)
 
       options.value =
         result?.map((item, i) => ({
@@ -154,15 +163,35 @@ export function useDictionary<T = any>(
     }
   }
 
+  function executeWithShow(show: boolean, params?: Record<string, any>) {
+    if (show) {
+      execute(params)
+    }
+  }
+
+  // 如果存在依赖，则需要监听依赖里的内容，并将结果传递给请求函数
+  let first = true
+  if (dependencies) {
+    watchEffect(() => {
+      const params: Record<string, any> = {}
+      for (const dep of dependencies) {
+        params[dep.toString()] = scope?.getFieldValue(dep)
+      }
+      if (!first) {
+        executeWithShow(true, params)
+      }
+      first = false
+    })
+  }
+
+  // 监听显示和集合，当显示出来才需要请求
   watch(
     [
       resolveRef(show),
       typeof useCollect === 'function' ? collection : undefined,
     ].filter(Boolean),
     ([_show]) => {
-      if (_show) {
-        execute()
-      }
+      executeWithShow(_show as unknown as boolean)
     },
     { immediate: true }
   )
@@ -183,7 +212,8 @@ export function useDictionary<T = any>(
 }
 
 export function processDictionary(
-  fetchDictCollection: FetchDictCollection | undefined
+  fetchDictCollection: FetchDictCollection | undefined,
+  scope?: ProFormScope<any>
 ): ProcessColumnWithDictionary {
   if (
     fetchDictCollection &&
@@ -199,12 +229,13 @@ export function processDictionary(
     if (isResolveDictionary(column.dict)) {
       return column.dict
     }
+
     // 解析字典
     let resolvedDictionary: ReturnType<typeof useDictionary> | undefined =
       undefined
 
     if (column.dict) {
-      resolvedDictionary = useDictionary(collection, column)
+      resolvedDictionary = useDictionary(collection, column, scope)
     }
 
     return resolvedDictionary
