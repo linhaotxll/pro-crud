@@ -235,10 +235,7 @@ const buildSearchMiddlewre: Middleware<
 
     const columns = ctx.columns.search.map<ProFormColumnOptions<any>>(
       column => ({
-        label: column.label,
-        name: column.name,
-        type: column.type,
-        dict: column.dict,
+        ...column,
         ...column.search,
       })
     )
@@ -703,7 +700,19 @@ function normalizeColumns(
             toValue(curr.viewForm?.show),
           ].filter(item => item != null)
 
-          return !visibles.length ? true : visibles.includes(true)
+          // 如果为空，则应该展示
+          // 如果全是 false 则不展示
+          // 否则都展示
+
+          if (!visibles.length) {
+            return true
+          }
+
+          if (visibles.every(item => item)) {
+            return false
+          }
+
+          return true
         })
         // @ts-ignore
         curr.dict = resolveDictionary({ ...curr, show: visible })
