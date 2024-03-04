@@ -1,4 +1,5 @@
-export { default as ProButtonGroup } from './ProButtonGroup.vue'
-export { default as ProButton } from './ProButton.vue'
+export { ProButton } from './ProButton'
+export { ProButtonGroup } from './ProButtonGroup'
+export { buildButtonGroup } from './buildButtonGroup'
 
 export * from './interface'

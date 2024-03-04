@@ -1,16 +1,18 @@
-import type { JSXElement, ValueOf } from '../common'
+import type { ExtractMaybeRef, MaybeRef, ValueOf } from '../common'
 import type {
   ButtonProps,
   ModalProps,
   PopconfirmProps,
   SpaceProps,
 } from 'ant-design-vue'
-import type { MaybeRef } from 'vue'
+import type { VNodeChild } from 'vue'
 
 /**
  * 按钮组配置
  */
-export interface ActionsOption<T = Record<string, ActionOption>> {
+export interface ActionGroupOption<
+  T extends Record<string, MaybeRef<ActionOption>>
+> {
   /**
    * 是否显示按钮组
    *
@@ -21,15 +23,18 @@ export interface ActionsOption<T = Record<string, ActionOption>> {
   /**
    * 按钮间距配置
    */
-  space?: MaybeRef<SpaceProps>
+  space?: ExtractMaybeRef<SpaceProps>
 
   /**
    * 按钮列表
    */
-  list?: ActionsList<T>
+  actions?: MaybeRef<ActionsList<T>>
 }
 
-export type ActionsList<T = Record<string, ActionOption>> = {
+/**
+ * 按扭列表配制
+ */
+export type ActionsList<T extends Record<string, MaybeRef<ActionOption>>> = {
   /**
    * 其余按钮
    */
@@ -52,12 +57,12 @@ export interface ActionOption {
   /**
    * 按钮文本
    */
-  text?: string
+  text?: MaybeRef<string>
 
   /**
    * 按钮 props
    */
-  props?: ButtonProps
+  props?: MaybeRef<ExtractMaybeRef<ButtonProps>>
 
   /**
    * 顺序
@@ -69,25 +74,82 @@ export interface ActionOption {
    *
    * @default false
    */
-  confirmType?: 'popconfirm' | 'modal' | false
+  confirmType?: MaybeRef<ProButtonConfirmType>
 
   /**
    * 确认弹窗 props
    */
-  confirmProps?: ActionConfirmProps | ActionModalProps
+  confirmProps?: MaybeRef<
+    ExtractMaybeRef<PopconfirmProps> | ExtractMaybeRef<ModalProps>
+  >
 
   /**
    * 自定义渲染内容
    */
-  render?: () => JSXElement
+  render?: MaybeRef<() => VNodeChild>
 }
 
 /**
- * Popconfirm props，onConfirm 事件多了一个参数：行数据
+ * 内部使用 ProButtonGroup 类型
  */
-export type ActionConfirmProps = PopconfirmProps
+export interface InternalProButtonGroupOptions {
+  /**
+   * 是否显示
+   */
+  show: boolean
+
+  /**
+   * Space 配制
+   */
+  space?: SpaceProps
+
+  /**
+   * 按扭列表
+   */
+  actions?: InternalProButtonOptions[]
+}
 
 /**
- * MessageBox props，callback 多了一个参数：行数据
+ * 内部使用按扭配制
  */
-export type ActionModalProps = ModalProps
+export interface InternalProButtonOptions {
+  /**
+   * 是否显示按扭
+   */
+  show: boolean
+
+  /**
+   * 按扭文本
+   */
+  text?: string
+
+  /**
+   * 按扭 Props
+   */
+  props?: ButtonProps
+
+  /**
+   * 按扭顺序
+   */
+  order?: number
+
+  /**
+   * 点击按钮确认弹窗类型，false 则不需要
+   */
+  confirmType?: ProButtonConfirmType
+
+  /**
+   * 确认弹窗 props
+   */
+  confirmProps?: PopconfirmProps | ModalProps
+
+  /**
+   * 自定义渲染函数
+   */
+  render?: () => VNodeChild
+}
+
+/**
+ * Pro Button 确认弹窗类型
+ */
+export type ProButtonConfirmType = 'popconfirm' | 'modal' | false
