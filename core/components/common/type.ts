@@ -38,13 +38,21 @@ export interface ValueTypeValue<T = any, R = any> {
 }
 
 export interface ValueTypeForm<T> {
+  /**
+   * 组件名
+   */
   is?: any
 
   /**
+   * v-model 名称
+   *
    * @default 'value'
    */
   vModelName?: string
 
+  /**
+   * 传递给组件的参数
+   */
   props?: any
 
   render?: (ctx: {

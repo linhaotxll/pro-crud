@@ -1,4 +1,5 @@
-import { isRef, ref } from 'vue'
+import { mergeWith } from 'lodash-es'
+import { isRef, ref, toValue } from 'vue'
 
 import type { MaybeRef } from './interface'
 import type { SuccessToastOptions } from '../Toast'
@@ -20,4 +21,12 @@ export function resolveRef<T>(value: MaybeRef<T>) {
 export function genToast(content: string): SuccessToastOptions {
   // @ts-ignore
   return { type: 'message', props: { title: content, message: content } }
+}
+
+export function getUuid() {
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
+    const r = (Math.random() * 16) | 0,
+      v = c == 'x' ? r : (r & 0x3) | 0x8
+    return v.toString(16)
+  })
 }

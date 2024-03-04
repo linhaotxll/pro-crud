@@ -1,4 +1,4 @@
-import type { Ref, ComputedRef, VNode } from 'vue'
+import { type ComputedRef, type VNode, type MaybeRefOrGetter } from 'vue'
 
 export type ToHandles<T> = {
   [P in keyof T as P extends string ? `on${Capitalize<P>}` : never]: (
@@ -6,11 +6,17 @@ export type ToHandles<T> = {
   ) => void
 }
 
-export type MaybeRef<T> = T | Ref<T> | ComputedRef<T>
+export type MaybeRef<T> = ComputedRef<T> | MaybeRefOrGetter<T>
 
-export type ExtractMaybeRef<T> = {
-  [P in keyof T]: MaybeRef<T[P]>
-}
+export type ExtractMaybeRef<T> = T extends object
+  ? MaybeRef<{
+      [K in keyof T]: ExtractMaybeRef<T[K]>
+    }>
+  : T extends boolean
+  ? MaybeRef<boolean>
+  : T extends undefined
+  ? never
+  : MaybeRef<T>
 
 type UnionToIntersection<T> = (
   T extends any ? (args: T) => any : never
