@@ -8,11 +8,14 @@ import type {
 import type { VNodeChild } from 'vue'
 
 /**
+ * 自定义按扭
+ */
+export type CustomActions = Record<string, MaybeRef<ActionOption>>
+
+/**
  * 按钮组配置
  */
-export interface ActionGroupOption<
-  T extends Record<string, MaybeRef<ActionOption>>
-> {
+export type ActionGroupOption<T extends CustomActions, R = any> = {
   /**
    * 是否显示按钮组
    *
@@ -29,12 +32,12 @@ export interface ActionGroupOption<
    * 按钮列表
    */
   actions?: MaybeRef<ActionsList<T>>
-}
+} & R
 
 /**
  * 按扭列表配制
  */
-export type ActionsList<T extends Record<string, MaybeRef<ActionOption>>> = {
+export type ActionsList<T extends CustomActions> = {
   /**
    * 其余按钮
    */

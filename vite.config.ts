@@ -1,3 +1,5 @@
+/// <reference types="vitest" />
+
 import { resolve } from 'path'
 
 import vue from '@vitejs/plugin-vue'
@@ -96,5 +98,9 @@ export default defineConfig({
     rollupOptions: {
       external: ['vue', 'ant-design-vue', '@ant-design/icons-vue'],
     },
+  },
+
+  test: {
+    environment: 'happy-dom',
   },
 })

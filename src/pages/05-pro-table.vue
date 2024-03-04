@@ -42,7 +42,7 @@ const { proTableRef, proTableBinding } = buildTable<User>(scope => ({
     title: () => 'title slot',
     footer: () => 'footer slot',
     // expandColumnTitle: () => <div>+</div>,
-    // expandedRowRender: ctx => <div>{ctx.record.address}</div>,
+    expandedRowRender: ctx => <div>{ctx.record.address}</div>,
   },
   params,
 

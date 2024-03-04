@@ -1,52 +1,55 @@
 import cloneDeep from 'clone-deep'
-import { get, has, set, unset } from 'lodash-es'
-import {
-  computed,
-  inject,
-  ref,
-  toRaw,
-  toValue,
-  reactive,
-  watchEffect,
-} from 'vue'
+import { get, has, merge, set, unset } from 'lodash-es'
+import { computed, inject, ref, toRaw, toValue, reactive } from 'vue'
 
 import { buildFormColumn } from './buildFormColumn'
-import { DefaultProFormCol, successToast } from './constant'
+import {
+  DefaultProFormCol,
+  DefaultProProColumn,
+  successToast,
+} from './constant'
 import { useValues } from './useValues'
 
 import { GlobalOption } from '../../constant'
-import { mergeWithTovalue, unRef } from '../common'
-import { buildButtonGroup } from '../ProButton'
+import { processDictionary, unRef } from '../common'
 import { showToast } from '../Toast'
 
 import type {
   BuildFormOptionResult,
   BuildFormResult,
   InternalProFormColumnOptions,
-  ProFormActionGroupExtends,
+  ProFormActionsOptions,
+  ProFormColumnOptions,
   ProFormInstance,
   ProFormScope,
 } from './interface'
 import type { Arrayable } from '../common'
-import type { CustomActions } from '../ProButton'
 import type {
+  FormItemProps,
+  FormInstance,
   FormItemInstance,
   FormProps,
   ColProps,
-  RowProps,
 } from 'ant-design-vue'
 import type {
   NamePath,
   ValidateOptions,
 } from 'ant-design-vue/es/form/interface'
-import type { Ref } from 'vue'
+import type { ComputedRef, Ref } from 'vue'
 
-export function buildForm<
-  T extends object,
-  C = any,
-  A extends CustomActions = any
->(
-  options: (scope: ProFormScope<T>, ctx?: C) => BuildFormOptionResult<T>,
+export function buildForm<T extends object, C = undefined, R = T>(
+  options: (
+    scope: ProFormScope<T>,
+    ctx?: C | undefined
+  ) => BuildFormOptionResult<T, R>
+): BuildFormResult<T>
+export function buildForm<T extends object, C, R = T>(
+  options: (scope: ProFormScope<T>, ctx: C) => BuildFormOptionResult<T, R>,
+  context: C
+): BuildFormResult<T>
+
+export function buildForm<T extends object, C, R = T>(
+  options: (scope: ProFormScope<T>, ctx?: C) => BuildFormOptionResult<T, R>,
   ctx?: C
 ): BuildFormResult<T> {
   const scope: ProFormScope<T> = {
@@ -72,11 +75,11 @@ export function buildForm<
 
   const {
     initialValues,
-    columns,
+    columns = [],
     formProps,
     labelCol,
     wrapperCol,
-    action,
+    actions,
     toast = successToast,
     row,
     col = DefaultProFormCol,
@@ -89,156 +92,100 @@ export function buildForm<
 
   useValues(values, initialValues, columns)
 
-  // 解析 Form Props
-  const resolvedFormProps = formProps
-    ? computed<FormProps>(() => mergeWithTovalue({}, toValue(formProps)))
-    : undefined
+  // el-form ref
+  const formRef = ref<FormInstance | null>(null)
 
-  // 解析通用 Row Props
-  const resolvedCommonRowProps = row
-    ? computed<RowProps>(() => mergeWithTovalue({}, toValue(row)))
-    : undefined
+  // 解析列配置
+  const resolvedLabelCol = computed(() => unRef(labelCol))
+  const resolvedWrapperCol = computed(() => unRef(wrapperCol))
 
-  // 解析通用 Col Props
-  const resolvedCommonColProps = col
-    ? computed<ColProps>(() => mergeWithTovalue({}, toValue(col)))
-    : undefined
+  const resolvedColumnsMap = new Map<
+    FormItemProps['name'],
+    InternalProFormColumnOptions<T>
+  >()
 
-  // 解析通用 Label Col Props
-  const resolvedCommonLabelColProps = labelCol
-    ? computed<ColProps>(() => mergeWithTovalue({}, toValue(labelCol)))
-    : undefined
+  // 解析字典集合
+  const resolveColumnDictionary = processDictionary(fetchDictCollection, scope)
 
-  // 解析通用 Wrapper Col Props
-  const resolvedCommonWrapperColProps = wrapperCol
-    ? computed<ColProps>(() => mergeWithTovalue({}, toValue(wrapperCol)))
-    : undefined
-
-  // 构建按扭组
-  const actionGroup = action
-    ? buildButtonGroup<A, ProFormActionGroupExtends>(action)
-    : undefined
-
-  // watchEffect(() => {
-  //   const actionValue = toValue(action)
-  //   const actionaGroupCol: ColProps | undefined = actionValue
-  //     ? mergeWithTovalue({}, actionValue.col)
-  //     : undefined
-  //   // action!.col
-  // })
-
-  const resolvedColumns = ref([]) as Ref<Ref<InternalProFormColumnOptions<T>>[]>
-  watchEffect(() => {
-    const columnsValue = toValue(columns)
-    if (!columnsValue) {
-      return
-    }
-    for (const column of columnsValue) {
-      resolvedColumns.value.push(
-        buildFormColumn(
-          resolvedCommonColProps,
-          resolvedCommonLabelColProps,
-          resolvedCommonWrapperColProps,
-          column
+  function extractColumnChildren(column: ProFormColumnOptions<T>) {
+    let children: ComputedRef<InternalProFormColumnOptions<T>>[] = []
+    if (column.children && column.children.length) {
+      children = column.children.map(child => {
+        const childDict = resolveColumnDictionary(
+          merge({}, child, DefaultProProColumn)
         )
-      )
+
+        return computed(() =>
+          buildFormColumn(
+            child.col ?? col,
+            resolvedColumnsMap,
+            child,
+            childDict,
+            extractColumnChildren(child)
+          )
+        )
+      })
     }
+    return children
+  }
+
+  // 解析列配置
+  const resolvedColumns = columns.map(c => {
+    const dict = resolveColumnDictionary(merge({}, c, DefaultProProColumn))
+    const children = extractColumnChildren(c)
+
+    return computed(() =>
+      buildFormColumn(col, resolvedColumnsMap, c, dict, children)
+    )
   })
 
-  // el-form ref
-  // const formRef = ref<FormInstance | null>(null)
+  // 解析表单配置
+  const resolvedFormProps = computed<FormProps>(() => {
+    const result: FormProps = {}
 
-  // // 解析列配置
-  // const resolvedLabelCol = computed(() => unRef(labelCol))
-  // const resolvedWrapperCol = computed(() => unRef(wrapperCol))
+    const originFormProps = unRef(formProps)
 
-  // const resolvedColumnsMap = new Map<
-  //   FormItemProps['name'],
-  //   InternalProFormColumnOptions<T>
-  // >()
+    if (originFormProps) {
+      Object.keys(originFormProps).forEach(key => {
+        // @ts-ignore
+        result[key] = unRef(originFormProps[key])
+      })
+    }
 
-  // // 解析字典集合
-  // const resolveColumnDictionary = processDictionary(fetchDictCollection, scope)
+    return result
+  })
 
-  // function extractColumnChildren(column: ProFormColumnOptions<T>) {
-  //   let children: ComputedRef<InternalProFormColumnOptions<T>>[] = []
-  //   if (column.children && column.children.length) {
-  //     children = column.children.map(child => {
-  //       const childDict = resolveColumnDictionary(
-  //         merge({}, child, DefaultProProColumn)
-  //       )
+  // 默认按钮
+  const defaultActions: ProFormActionsOptions = {
+    show: true,
+    list: {
+      confirm: {
+        show: true,
+        text: '提交',
+        props: { type: 'primary', onClick: scope.submit },
+      },
+    },
+  }
 
-  //       return computed(() =>
-  //         buildFormColumn(
-  //           child.col ?? col,
-  //           resolvedColumnsMap,
-  //           child,
-  //           childDict,
-  //           extractColumnChildren(child)
-  //         )
-  //       )
-  //     })
-  //   }
-  //   return children
-  // }
+  // 解析按钮组配置
+  const resolvedActions = computed(() => {
+    const { col, show, ...rest } = merge({}, defaultActions, actions)
 
-  // // 解析列配置
-  // const resolvedColumns = columns.map(c => {
-  //   const dict = resolveColumnDictionary(merge({}, c, DefaultProProColumn))
-  //   const children = extractColumnChildren(c)
+    const formLabelSpan = resolvedFormProps.value.labelCol?.span ?? 0
+    const mergeCol: ColProps = merge({ offset: formLabelSpan }, toValue(col))
 
-  //   return computed(() =>
-  //     buildFormColumn(col, resolvedColumnsMap, c, dict, children)
-  //   )
-  // })
+    const result: ProFormActionsOptions = merge(
+      {
+        show: toValue(show),
+        col: mergeCol,
+      },
+      rest
+    )
 
-  // // 解析表单配置
-  // const resolvedFormProps = computed<FormProps>(() => {
-  //   const result: FormProps = {}
+    return result
+  })
 
-  //   const originFormProps = unRef(formProps)
-
-  //   if (originFormProps) {
-  //     Object.keys(originFormProps).forEach(key => {
-  //       // @ts-ignore
-  //       result[key] = unRef(originFormProps[key])
-  //     })
-  //   }
-
-  //   return result
-  // })
-
-  // // 默认按钮
-  // const defaultActions: ProFormActionsOptions = {
-  //   show: true,
-  //   list: {
-  //     confirm: {
-  //       show: true,
-  //       text: '提交',
-  //       props: { type: 'primary', onClick: scope.submit },
-  //     },
-  //   },
-  // }
-
-  // // 解析按钮组配置
-  // const resolvedActions = computed(() => {
-  //   const { col, show, ...rest } = merge({}, defaultActions, actions)
-
-  //   const formLabelSpan = resolvedFormProps.value.labelCol?.span ?? 0
-  //   const mergeCol: ColProps = merge({ offset: formLabelSpan }, toValue(col))
-
-  //   const result: ProFormActionsOptions = merge(
-  //     {
-  //       show: toValue(show),
-  //       col: mergeCol,
-  //     },
-  //     rest
-  //   )
-
-  //   return result
-  // })
-
-  // const formItemRef = new Map<NamePath, Ref<FormItemInstance | null>>()
+  const formItemRef = new Map<NamePath, Ref<FormItemInstance | null>>()
 
   /**
    * 提交表单
@@ -450,16 +397,16 @@ export function buildForm<
   const formBinding: BuildFormResult<T> = {
     proFormRef,
     proFormBinding: {
-      row: resolvedCommonRowProps,
       columns: resolvedColumns,
+      labelCol: resolvedLabelCol,
+      wrapperCol: resolvedWrapperCol,
       formProps: resolvedFormProps,
-      actionGroup,
-      // actions: resolvedActions,
+      actions: resolvedActions,
       values,
-      // scope,
-      // formRef,
-      // resolvedColumnsMap,
-      // row: computed(() => unRef(row)),
+      scope,
+      formRef,
+      resolvedColumnsMap,
+      row: computed(() => unRef(row)),
     },
   }
 

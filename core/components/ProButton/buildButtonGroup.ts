@@ -6,17 +6,19 @@ import { mergeWithTovalue, type MaybeRef } from '../common'
 
 import type {
   ActionGroupOption,
-  ActionOption,
   ActionsList,
+  CustomActions,
   InternalProButtonGroupOptions,
   InternalProButtonOptions,
 } from './interface'
-import type { Ref } from 'vue'
+import type { Ref, UnwrapRef } from 'vue'
 
-export function buildButtonGroup<
-  T extends Record<string, MaybeRef<ActionOption>>
->(action: MaybeRef<ActionGroupOption<T>>) {
-  const internalProButtonGroup = ref({}) as Ref<InternalProButtonGroupOptions>
+export function buildButtonGroup<T extends CustomActions, R = object>(
+  action: MaybeRef<ActionGroupOption<T, R>>
+) {
+  const internalProButtonGroup = ref({}) as Ref<
+    InternalProButtonGroupOptions & UnwrapRef<R>
+  >
 
   watchEffect(() => {
     const actionValue = toValue(action)
@@ -26,7 +28,8 @@ export function buildButtonGroup<
     // 解析是否显示按扭组
     const resolvedShow = toValue(show!)
 
-    const result: InternalProButtonGroupOptions = {
+    // @ts-ignore
+    const result: InternalProButtonGroupOptions & UnwrapRef<R> = {
       show: resolvedShow,
     }
 
