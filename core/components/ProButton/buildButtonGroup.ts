@@ -14,14 +14,21 @@ import type {
 import type { Ref, UnwrapRef } from 'vue'
 
 export function buildButtonGroup<T extends CustomActions, R = object>(
-  action: MaybeRef<ActionGroupOption<T, R>>
+  action: MaybeRef<ActionGroupOption<T, R>>,
+  defaultAction?: MaybeRef<
+    ActionGroupOption<CustomActions, Record<string, any>>
+  >
 ) {
   const internalProButtonGroup = ref({}) as Ref<
     InternalProButtonGroupOptions & UnwrapRef<R>
   >
 
   watchEffect(() => {
-    const actionValue = toValue(action)
+    const actionValue: UnwrapRef<ActionGroupOption<T, R>> = mergeWithTovalue(
+      {},
+      toValue(defaultAction),
+      toValue(action)
+    )
 
     const { show = DefaultActionGroup.show, actions, ...rest } = actionValue
 
@@ -38,17 +45,15 @@ export function buildButtonGroup<T extends CustomActions, R = object>(
       return
     }
 
-    const actionsValue = toValue(actions)
-    const resolvedActions: ActionsList<any> | undefined = actionsValue
-      ? mergeWithTovalue({}, actionsValue)
-      : undefined
-    result.actions = resolvedActions
-      ? Object.keys(resolvedActions)
-          .map<InternalProButtonOptions>(name => {
-            return mergeWithTovalue({}, DefaultAction, resolvedActions[name])
-          })
-          .sort((a, b) => (a.order ?? 0) - (b.order ?? 0))
-      : undefined
+    const resolvedActions = toValue(actions) as ActionsList<any> | undefined
+
+    if (resolvedActions) {
+      result.actions = Object.keys(resolvedActions)
+        .map<InternalProButtonOptions>(name => {
+          return mergeWithTovalue({}, DefaultAction, resolvedActions[name])
+        })
+        .sort((a, b) => (a.order ?? 0) - (b.order ?? 0))
+    }
 
     mergeWithTovalue(result, rest)
     internalProButtonGroup.value = result

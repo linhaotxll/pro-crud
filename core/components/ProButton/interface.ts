@@ -1,4 +1,4 @@
-import type { ExtractMaybeRef, MaybeRef, ValueOf } from '../common'
+import type { ExtractMaybeRef, MaybeRef } from '../common'
 import type {
   ButtonProps,
   ModalProps,
@@ -41,7 +41,7 @@ export type ActionsList<T extends CustomActions> = {
   /**
    * 其余按钮
    */
-  [type: string]: ValueOf<T> | undefined
+  [type: string]: MaybeRef<ActionOption> | undefined
 } & {
   [P in keyof T]: T[P]
 }
@@ -53,7 +53,7 @@ export interface ActionOption {
   /**
    * 是否显示
    *
-   * @default trues
+   * @default true
    */
   show?: MaybeRef<boolean>
 

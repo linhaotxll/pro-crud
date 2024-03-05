@@ -9,6 +9,30 @@ import type { ProButtonConfirmType } from '..'
 import type { ModalProps, PopconfirmProps } from 'ant-design-vue'
 
 describe('Pro Button', () => {
+  test('pro button default value', () => {
+    const buttonGroup = buildButtonGroup(
+      {
+        actions: {
+          confirm: { text: '确认' },
+          add: { text: '添加' },
+        },
+      },
+      {
+        actions: {
+          cancel: { text: '取消' },
+          confirm: { show: false },
+        },
+      }
+    )
+
+    const wrapper = mount(ProButtonGroup, {
+      props: { action: buttonGroup },
+    })
+
+    expect(wrapper.findAllComponents(Button).length).toBe(2)
+    expect(wrapper.findComponent(Button).text()).toBe('取 消')
+  })
+
   test('pro button group show default true', () => {
     const buttonGroup1 = buildButtonGroup({})
 
@@ -194,9 +218,7 @@ describe('Pro Button', () => {
       setup() {
         const buttonGroup = buildButtonGroup({
           actions: {
-            // @ts-ignore
             confirm: { text: '确认', props: buttonProps },
-            // @ts-ignore
             cancel: { text: '取消', props: { type } },
           },
         })
