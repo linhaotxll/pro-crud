@@ -1,6 +1,7 @@
 import { CopyOutlined, DeleteOutlined } from '@ant-design/icons-vue'
 import { h } from 'vue'
 
+import type { ProFormActionGroup } from './interface'
 import type { ProFormColumnOptions, ProFormListOptions } from './interface'
 import type { SuccessToastOptions } from '../Toast'
 import type { ColProps } from 'ant-design-vue'
@@ -50,3 +51,19 @@ export const DefaultCopyRecordButtonProps: ProFormListOptions['copyButtonProps']
   }
 
 export const successToast: SuccessToastOptions = '保存成功'
+
+/**
+ * Pro Form 默认按钮组
+ */
+
+export const DefaultProFormActionGroup: ProFormActionGroup = {
+  col: { span: 24 },
+  show: true,
+  actions: {
+    confirm: {
+      show: true,
+      text: '提交',
+      props: { type: 'primary' },
+    },
+  },
+}

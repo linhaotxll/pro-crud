@@ -39,8 +39,9 @@ export function mergeWithTovalue(target: any, ...source: any[]) {
   const args = [
     target,
     ...source,
-    (_: any, srcValue: any) =>
-      isRef(srcValue) ? toValue(srcValue) : undefined,
+    (_: any, srcValue: any) => {
+      return isRef(srcValue) ? toValue(srcValue) ?? null : undefined
+    },
   ]
   // @ts-ignore
   return mergeWith(...args)

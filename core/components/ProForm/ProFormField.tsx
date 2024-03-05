@@ -23,7 +23,7 @@ export const ProFormField = defineComponent({
         return null
       }
 
-      console.log('render pro field: ', props)
+      console.log('render pro field: ')
       const { is, props: fieldProps, render } = props.field!
       const mergeProps = mergeWithTovalue(
         {},
@@ -40,8 +40,6 @@ export const ProFormField = defineComponent({
             {}
           )
         : undefined
-
-      console.log('12345678', slots)
 
       return h(resolveComponent(is), mergeProps, slots)
     }

@@ -22,7 +22,7 @@ export const ProFormItem = defineComponent({
         return null
       }
 
-      console.log('render pro form item', columnValue.itemProps)
+      console.log('render pro form item')
       if (!columnValue.show) {
         return null
       }

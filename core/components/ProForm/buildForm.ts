@@ -11,7 +11,11 @@ import {
 } from 'vue'
 
 import { buildFormColumn } from './buildFormColumn'
-import { DefaultProFormCol, successToast } from './constant'
+import {
+  DefaultProFormActionGroup,
+  DefaultProFormCol,
+  successToast,
+} from './constant'
 import { useValues } from './useValues'
 
 import { GlobalOption } from '../../constant'
@@ -24,6 +28,7 @@ import type {
   BuildFormResult,
   InternalProFormColumnOptions,
   ProFormActionGroupExtends,
+  ProFormActions,
   ProFormInstance,
   ProFormScope,
 } from './interface'
@@ -41,11 +46,7 @@ import type {
 } from 'ant-design-vue/es/form/interface'
 import type { Ref } from 'vue'
 
-export function buildForm<
-  T extends object,
-  C = any,
-  A extends CustomActions = any
->(
+export function buildForm<T extends object, C = any>(
   options: (scope: ProFormScope<T>, ctx?: C) => BuildFormOptionResult<T>,
   ctx?: C
 ): BuildFormResult<T> {
@@ -76,7 +77,7 @@ export function buildForm<
     formProps,
     labelCol,
     wrapperCol,
-    action,
+    action = {},
     toast = successToast,
     row,
     col = DefaultProFormCol,
@@ -115,9 +116,10 @@ export function buildForm<
     : undefined
 
   // 构建按扭组
-  const actionGroup = action
-    ? buildButtonGroup<A, ProFormActionGroupExtends>(action)
-    : undefined
+  const actionGroup = buildButtonGroup<
+    ProFormActions,
+    ProFormActionGroupExtends
+  >(action, DefaultProFormActionGroup)
 
   // watchEffect(() => {
   //   const actionValue = toValue(action)

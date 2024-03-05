@@ -1,7 +1,9 @@
-import { Form, Row } from 'ant-design-vue'
+import { Col, Form, Row } from 'ant-design-vue'
 import { defineComponent, toValue } from 'vue'
 
 import { ProFormItem } from './ProFormItem'
+
+import { ProButtonGroup } from '../ProButton'
 
 import type { BuildFormBinding } from './interface'
 import type { FormProps, RowProps } from 'ant-design-vue'
@@ -20,7 +22,15 @@ export const ProForm = defineComponent({
 
   setup(props) {
     return () => {
-      console.log('render pro form: ', props.formProps?.value)
+      console.log('render pro form: ')
+
+      // 按钮组
+      const actionGroupValue = toValue(props.actionGroup)
+      const $action = actionGroupValue?.show ? (
+        <Col {...actionGroupValue.col}>
+          <ProButtonGroup action={actionGroupValue} />
+        </Col>
+      ) : null
 
       return (
         <Form {...toValue(props.formProps)} model={props.values}>
@@ -29,6 +39,7 @@ export const ProForm = defineComponent({
               {toValue(props.columns)?.map(column => (
                 <ProFormItem column={column} />
               ))}
+              {$action}
             </Row>
           }
         </Form>

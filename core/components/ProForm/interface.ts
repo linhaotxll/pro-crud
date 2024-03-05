@@ -9,6 +9,7 @@ import type {
   ActionGroupOption,
   ActionOption,
   ActionsOption,
+  CustomActions,
   InternalProButtonGroupOptions,
 } from '../ProButton'
 import type {
@@ -171,10 +172,7 @@ export interface BuildFormBinding<T extends object> {
 /**
  * buildForm option 返回值
  */
-export interface BuildFormOptionResult<
-  T extends object = any,
-  R extends Record<string, MaybeRef<ActionOption>> = any
-> {
+export interface BuildFormOptionResult<T extends object = any> {
   /**
    * 表单额外的配置，不包含 model
    */
@@ -217,7 +215,7 @@ export interface BuildFormOptionResult<
   /**
    * 按钮组
    */
-  action?: MaybeRef<ActionGroupOption<R>>
+  action?: MaybeRef<ProFormActionGroup>
   // /**
   //  * 接口调用成功是否需要提示信息
   //  */
@@ -248,14 +246,22 @@ export interface ProFormActionGroupExtends {
 }
 
 /**
- * ProForm 操作
+ * Pro Form 按钮组
  */
-export interface ProFormActions {
+export type ProFormActionGroup = ActionGroupOption<
+  ProFormActions,
+  ProFormActionGroupExtends
+>
+
+/**
+ * ProForm 按钮列表
+ */
+export type ProFormActions = {
   /**
    * 确认按钮
    */
-  confirm?: ActionOption
-}
+  confirm?: MaybeRef<ActionOption>
+} & CustomActions
 
 /**
  * 表单实例方法

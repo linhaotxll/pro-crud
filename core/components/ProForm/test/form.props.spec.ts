@@ -1,10 +1,11 @@
 import { mount } from '@vue/test-utils'
-import antdv, { Col, FormItem, Row } from 'ant-design-vue'
+import antdv, { Button, Col, FormItem, Row } from 'ant-design-vue'
 import { Input } from 'ant-design-vue'
 import { describe, test, expect } from 'vitest'
 import { defineComponent, h, ref } from 'vue'
 
 import { ProForm, buildForm } from '../'
+import { ProButtonGroup } from '../../ProButton'
 
 import type { ColProps } from 'ant-design-vue'
 import type { Ref } from 'vue'
@@ -316,5 +317,77 @@ describe('Pro Form Props', () => {
 
     expect(cols[0].classes().includes('ant-col-6')).toBe(true)
     expect(cols[1].classes().includes('ant-col-18')).toBe(true)
+  })
+
+  test('form action has deafult confirm button', async () => {
+    const { proFormBinding } = buildForm(() => {
+      return {
+        columns: [{ label: '用户名', name: 'username' }],
+      }
+    })
+
+    const wrapper = mount(ProForm, { props: proFormBinding })
+
+    expect(wrapper.findComponent(Button).exists()).toBe(true)
+    expect(wrapper.findComponent(Button).text()).toBe('提 交')
+    expect(
+      wrapper.findComponent(Button).classes().includes('ant-btn-primary')
+    ).toBe(true)
+  })
+
+  test('form action show is ref', async () => {
+    const App = defineComponent({
+      name: 'App',
+      setup() {
+        let time = 0
+        const show = ref(false)
+        const actions = ref()
+
+        const { proFormBinding } = buildForm(() => {
+          return {
+            action: { show, actions },
+            columns: [{ label: '用户名', name: 'username' }],
+          }
+        })
+
+        return () => {
+          return h('div', [
+            h('button', {
+              class: 'demo-button',
+              onClick: () => {
+                ++time
+                if (time === 1) {
+                  show.value = !show.value
+                }
+                if (time === 2) {
+                  actions.value = {
+                    cancel: { text: '取消', order: 1 },
+                    reset: { text: '重置', order: 0 },
+                  }
+                }
+              },
+            }),
+            h(ProForm, proFormBinding),
+          ])
+        }
+      },
+    })
+
+    const wrapper = mount(App)
+
+    expect(wrapper.findComponent(ProButtonGroup).exists()).toBe(false)
+
+    const button = wrapper.find('.demo-button')
+    expect(button.exists()).toBe(true)
+
+    await button.trigger('click')
+
+    expect(wrapper.findComponent(ProButtonGroup).exists()).toBe(true)
+    expect(wrapper.findAllComponents(Button).length).toBe(0)
+
+    await button.trigger('click')
+    expect(wrapper.findAllComponents(Button).length).toBe(2)
+    expect(wrapper.findAllComponents(Button)[0].text()).toBe('重 置')
+    expect(wrapper.findAllComponents(Button)[1].text()).toBe('取 消')
   })
 })
