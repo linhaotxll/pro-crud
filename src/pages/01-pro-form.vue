@@ -12,22 +12,10 @@ import type { ProFormScope } from '~/index'
 
 let scope!: ProFormScope<any>
 const show = ref(false)
-const initialValues = { username: 'admin', password: 'admin123' }
 
 function handleClickSubmit() {
   scope.submit()
 }
-
-function handleClickSet() {
-  scope.setFieldValues({
-    gender: '1',
-  })
-}
-
-function handleClickShow() {
-  show.value = !show.value
-}
-
 const time = Date.now()
 
 const { proFormBinding } = buildForm(_scope => {
@@ -35,15 +23,47 @@ const { proFormBinding } = buildForm(_scope => {
   return {
     columns: [
       {
-        label: '用户名',
+        label: 'text',
         name: 'username',
-        transform: {
-          to(formValue) {
-            return formValue + time
-          },
-        },
       },
-      { label: '密码', name: 'password', submitted: false },
+      { label: 'auto-complete', name: 'password', type: 'auto-complete' },
+      { label: 'cascader', name: 'cascader', type: 'cascader' },
+      { label: 'date', name: 'date', type: 'date' },
+      { label: 'date-week', name: 'date-week', type: 'date-week' },
+      { label: 'date-month', name: 'date-month', type: 'date-month' },
+      { label: 'date-quarter', name: 'date-quarter', type: 'date-quarter' },
+      { label: 'date-year', name: 'date-year', type: 'date-year' },
+      { label: 'date-range', name: 'date-range', type: 'date-range' },
+      {
+        label: 'date-month-range',
+        name: 'date-month-range',
+        type: 'date-month-range',
+      },
+      {
+        label: 'date-time',
+        name: 'date-time',
+        type: 'date-time',
+      },
+      {
+        label: 'date-time-range',
+        name: 'date-time-range',
+        type: 'date-time-range',
+      },
+      {
+        label: 'time',
+        name: 'time',
+        type: 'time',
+      },
+      {
+        label: 'time-range',
+        name: 'time-range',
+        type: 'time-range',
+      },
+      {
+        label: 'dict-select',
+        name: 'dict-select',
+        type: 'dict-select',
+      },
     ],
     submitRequest() {
       return true

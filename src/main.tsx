@@ -1,4 +1,4 @@
-import { Input } from 'ant-design-vue'
+import antdv, { Input } from 'ant-design-vue'
 import { useScrollbar } from 'use-scrollbars'
 import { createApp, onMounted } from 'vue'
 
@@ -13,6 +13,8 @@ import { ProComponents } from '~/index'
 import 'use-scrollbars/dist/style.css'
 
 const app = createApp(App)
+
+app.use(antdv)
 
 app.component(BasicDialog.name, BasicDialog)
 app.component(BasicInfo.name, BasicInfo)

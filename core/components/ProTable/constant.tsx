@@ -2,7 +2,7 @@ import { ConfigProvider, FormItem, type SpaceProps } from 'ant-design-vue'
 import { h, inject, resolveComponent } from 'vue'
 
 import { ValueTypeMap, type ValueType, genToast } from '../common'
-import { DynamicVModel, buildFormColumn } from '../ProForm'
+import { buildFormColumn } from '../ProForm'
 
 import type {
   ProTableActionProps,
@@ -97,12 +97,7 @@ export function injectValueTypeTableCell(
 
         return (
           <ConfigProvider theme={EditableTableCellTheme}>
-            <FormItem name={resolvedName}>
-              <DynamicVModel
-                values={editableData.values}
-                column={internalColumn}
-              />
-            </FormItem>
+            <FormItem name={resolvedName}></FormItem>
           </ConfigProvider>
         )
       }

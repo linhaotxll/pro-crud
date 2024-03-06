@@ -5,7 +5,7 @@ import { computed, h, toValue } from 'vue'
 import { DefaultSearchCol, DefaultSearchRow } from './constant'
 
 import { unRef } from '../common'
-import { buildForm, DefaultProProColumn } from '../ProForm'
+import { buildForm } from '../ProForm'
 
 import type {
   BuildSearchOptionResult,
@@ -46,7 +46,7 @@ export function buildSearch<T extends object, C, R = T>(
             // 每个列所占的格子数量
             const columnCol: ColProps | undefined = toValue(column.col)
 
-            const show = toValue(column.show ?? DefaultProProColumn.show)
+            const show = toValue(column.show)
 
             let columnTotal = 0
             if (show) {

@@ -236,7 +236,7 @@ const DefaultValueType: Record<ValueType, ValueTypeValue> = {
 
   'dict-select': {
     table: { is: 'pro-dictionary' },
-    form: { is: 'pro-select' },
+    form: { is: 'a-select' },
   },
 
   list: {

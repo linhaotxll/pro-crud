@@ -34,14 +34,14 @@ export default defineComponent({
 
     // 当 options 变化时，主动追踪 value 的依赖，更新 el-select 中回显的值
     watch(
-      () => props.column!.dict,
+      () => props.column?.dict,
       () => {
         triggerRef(value)
       }
     )
 
     return () => {
-      const { options, loading } = props.column!.dict!
+      const { options, loading } = props.column?.dict ?? {}
       return (
         <Select
           {...attrs}
