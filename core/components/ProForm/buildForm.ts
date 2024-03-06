@@ -131,6 +131,7 @@ export function buildForm<T extends object, C = any>(
 
   const resolvedColumns = ref([]) as Ref<Ref<InternalProFormColumnOptions<T>>[]>
   watchEffect(() => {
+    resolvedColumns.value = []
     const columnsValue = toValue(columns)
     if (!columnsValue) {
       return

@@ -4,7 +4,7 @@ import { Input } from 'ant-design-vue'
 import { describe, test, expect } from 'vitest'
 import { defineComponent, h, ref } from 'vue'
 
-import { ProForm, buildForm } from '../'
+import { ProForm, ProFormItem, buildForm } from '../'
 import { ProButtonGroup } from '../../ProButton'
 
 import type { ColProps } from 'ant-design-vue'
@@ -389,5 +389,66 @@ describe('Pro Form Props', () => {
     expect(wrapper.findAllComponents(Button).length).toBe(2)
     expect(wrapper.findAllComponents(Button)[0].text()).toBe('重 置')
     expect(wrapper.findAllComponents(Button)[1].text()).toBe('取 消')
+  })
+
+  test('from column is ref', async () => {
+    const App = defineComponent({
+      name: 'App',
+      setup() {
+        let time = 0
+        const columns = ref([{ label: '用户名', name: 'username' }])
+
+        const { proFormBinding } = buildForm(() => {
+          return {
+            columns,
+          }
+        })
+
+        return () => {
+          return h('div', [
+            h('button', {
+              class: 'demo-button',
+              onClick: () => {
+                ++time
+                if (time === 1) {
+                  columns.value = [
+                    ...columns.value,
+                    { label: '密码', name: 'password' },
+                  ]
+                }
+                if (time === 2) {
+                  columns.value = [
+                    ...columns.value,
+                    { label: '性别', name: 'gender' },
+                  ]
+                }
+              },
+            }),
+            h(ProForm, proFormBinding),
+          ])
+        }
+      },
+    })
+
+    const wrapper = mount(App)
+
+    expect(wrapper.findAllComponents(ProFormItem).length).toBe(1)
+    expect(wrapper.findAll('label')[0].text()).toBe('用户名')
+
+    const button = wrapper.find('.demo-button')
+    expect(button.exists()).toBe(true)
+
+    await button.trigger('click')
+
+    expect(wrapper.findAllComponents(ProFormItem).length).toBe(2)
+    expect(wrapper.findAll('label')[0].text()).toBe('用户名')
+    expect(wrapper.findAll('label')[1].text()).toBe('密码')
+
+    await button.trigger('click')
+
+    expect(wrapper.findAllComponents(ProFormItem).length).toBe(3)
+    expect(wrapper.findAll('label')[0].text()).toBe('用户名')
+    expect(wrapper.findAll('label')[1].text()).toBe('密码')
+    expect(wrapper.findAll('label')[2].text()).toBe('性别')
   })
 })
