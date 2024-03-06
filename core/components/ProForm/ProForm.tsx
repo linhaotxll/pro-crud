@@ -5,9 +5,9 @@ import { ProFormItem } from './ProFormItem'
 
 import { ProButtonGroup } from '../ProButton'
 
-import type { BuildFormBinding } from './interface'
-import type { FormProps, RowProps } from 'ant-design-vue'
-import type { ComputedRef, PropType } from 'vue'
+import type { BuildFormBinding, ProFormScope } from './interface'
+import type { FormInstance, FormProps, RowProps } from 'ant-design-vue'
+import type { ComputedRef, PropType, Ref } from 'vue'
 
 export const ProForm = defineComponent({
   name: 'ProForm',
@@ -18,6 +18,8 @@ export const ProForm = defineComponent({
     values: Object,
     columns: Object as PropType<BuildFormBinding<any>['columns']>,
     actionGroup: Object as PropType<BuildFormBinding<any>['actionGroup']>,
+    formRef: Object as PropType<Ref<FormInstance | null>>,
+    scope: Object as PropType<ProFormScope<any>>,
   },
 
   setup(props) {
@@ -33,11 +35,15 @@ export const ProForm = defineComponent({
       ) : null
 
       return (
-        <Form {...toValue(props.formProps)} model={props.values}>
+        <Form
+          {...toValue(props.formProps)}
+          model={props.values}
+          ref={props.formRef}
+        >
           {
             <Row {...toValue(props.row)}>
               {toValue(props.columns)?.map(column => (
-                <ProFormItem column={column} />
+                <ProFormItem column={column} scope={props.scope} />
               ))}
               {$action}
             </Row>

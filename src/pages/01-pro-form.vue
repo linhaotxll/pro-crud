@@ -1,39 +1,67 @@
 <template>
-  <ProButtonGroup :action="buttonGroup" />
+  <button @click="handleClickSubmit">submit</button>
+  <ProForm v-bind="proFormBinding" />
 </template>
 
 <script lang="tsx" setup>
-import { ref, watchEffect } from 'vue'
+import { ref } from 'vue'
 
-import { buildButtonGroup, ProButtonGroup } from '~/components/ProButton'
+import { ProForm, buildForm } from '~/index'
 
-import type { PopconfirmProps } from 'ant-design-vue'
-import type { ProButtonConfirmType } from '~/components/ProButton'
+import type { ProFormScope } from '~/index'
 
-const confirmType = ref<ProButtonConfirmType>('popconfirm')
-const confirmProps = ref<PopconfirmProps>({
-  cancelText: '取消',
-  onConfirm() {
-    console.log('confirm')
-  },
-  onVisibleChange() {
-    console.log('onVisibleChange')
-  },
-})
+let scope!: ProFormScope<any>
+const show = ref(false)
+const initialValues = { username: 'admin', password: 'admin123' }
 
-function buttonOnClick() {
-  console.log('click')
+function handleClickSubmit() {
+  scope.submit()
 }
 
-const buttonGroup = buildButtonGroup({
-  actions: {
-    confirm: {
-      show: true,
-      text: '确认',
-      confirmType,
-      confirmProps,
-      props: { onClick: buttonOnClick },
+function handleClickSet() {
+  scope.setFieldValues({
+    gender: '1',
+  })
+}
+
+function handleClickShow() {
+  show.value = !show.value
+}
+
+const time = Date.now()
+
+const { proFormBinding } = buildForm(_scope => {
+  scope = _scope
+  return {
+    columns: [
+      {
+        label: '用户名',
+        name: 'username',
+        transform: {
+          to(formValue) {
+            return formValue + time
+          },
+        },
+      },
+      { label: '密码', name: 'password', submitted: false },
+    ],
+    submitRequest() {
+      return true
     },
-  },
+    successRequest() {
+      console.log('successRequest')
+    },
+    validateFail() {
+      console.log('validateFail')
+    },
+    beforeSubmit() {
+      console.log('beforeSubmit')
+    },
+    formProps: {
+      rules: {
+        username: { required: true, message: '请填写用户名', min: 2 },
+      },
+    },
+  }
 })
 </script>

@@ -5,7 +5,7 @@ import { ProFormField } from './ProFormField'
 
 import { ValueTypeMap } from '../common'
 
-import type { InternalProFormColumnOptions } from './interface'
+import type { InternalProFormColumnOptions, ProFormScope } from './interface'
 import type { PropType, Ref } from 'vue'
 
 export const ProFormItem = defineComponent({
@@ -13,6 +13,7 @@ export const ProFormItem = defineComponent({
 
   props: {
     column: Object as PropType<Ref<InternalProFormColumnOptions<any>>>,
+    scope: Object as PropType<ProFormScope<any>>,
   },
 
   setup(props) {
@@ -40,7 +41,13 @@ export const ProFormItem = defineComponent({
           return prev
         },
         {
-          default: () => <ProFormField field={field} column={props.column} />,
+          default: () => (
+            <ProFormField
+              field={field}
+              scope={props.scope}
+              column={props.column}
+            />
+          ),
         }
       )
 

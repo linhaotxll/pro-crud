@@ -13,7 +13,8 @@ export function buildFormColumn<T extends object>(
   commonCol: ComputedRef<ColProps> | undefined,
   commonLabelCol: ComputedRef<ColProps> | undefined,
   commonWrapperCol: ComputedRef<ColProps> | undefined,
-  column: ProFormColumnOptions<T>
+  column: ProFormColumnOptions<T>,
+  onChange?: (internalColumn: InternalProFormColumnOptions<T>) => void
 ) {
   const internalProFormColumnOptions = ref({}) as Ref<
     InternalProFormColumnOptions<T>
@@ -39,6 +40,7 @@ export function buildFormColumn<T extends object>(
     // 只会解析显示的列
     if (!resolvedShow) {
       internalProFormColumnOptions.value = result
+      onChange?.(result)
       return
     }
 
@@ -107,6 +109,7 @@ export function buildFormColumn<T extends object>(
     )
 
     internalProFormColumnOptions.value = result
+    onChange?.(result)
   })
 
   return internalProFormColumnOptions

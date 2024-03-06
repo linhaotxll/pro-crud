@@ -1,8 +1,8 @@
-import { defineComponent, h, resolveComponent, toValue } from 'vue'
+import { computed, defineComponent, h, resolveComponent, toValue } from 'vue'
 
 import { mergeWithTovalue, type ValueTypeForm } from '../common'
 
-import type { InternalProFormColumnOptions } from './interface'
+import type { InternalProFormColumnOptions, ProFormScope } from './interface'
 import type { PropType, Ref } from 'vue'
 
 export const ProFormField = defineComponent({
@@ -10,6 +10,7 @@ export const ProFormField = defineComponent({
 
   props: {
     column: Object as PropType<Ref<InternalProFormColumnOptions<any>>>,
+    scope: Object as PropType<ProFormScope<any>>,
     field: {
       type: Object as PropType<ValueTypeForm<any>>,
       required: true,
@@ -17,6 +18,19 @@ export const ProFormField = defineComponent({
   },
 
   setup(props) {
+    const vModelValue = computed({
+      set(newValue: any) {
+        const name = props.column?.value.name
+        if (name) {
+          props.scope?.setFieldValue(name, newValue)
+        }
+      },
+      get() {
+        const name = props.column?.value.name
+        return name ? props.scope?.getFieldValue(name) : undefined
+      },
+    })
+
     return () => {
       const columnValue = props.column?.value
       if (!columnValue) {
@@ -24,12 +38,26 @@ export const ProFormField = defineComponent({
       }
 
       console.log('render pro field: ')
-      const { is, props: fieldProps, render } = props.field!
+      const {
+        is,
+        props: fieldProps,
+        render,
+        vModelName = 'value',
+      } = props.field!
+
       const mergeProps = mergeWithTovalue(
-        {},
+        {
+          [vModelName]: vModelValue.value,
+          [`onUpdate:${vModelName}`]: (newValue: any) =>
+            (vModelValue.value = newValue),
+        },
         toValue(fieldProps),
         toValue(props.column)?.fieldProps
       )
+
+      if (typeof render === 'function') {
+        return render({ vModel: vModelValue, column: columnValue })
+      }
 
       const slots = columnValue.fieldSlots
         ? Object.entries(columnValue.fieldSlots).reduce<Record<string, any>>(

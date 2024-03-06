@@ -8,7 +8,6 @@ import type {
 import type {
   ActionGroupOption,
   ActionOption,
-  ActionsOption,
   CustomActions,
   InternalProButtonGroupOptions,
 } from '../ProButton'
@@ -19,6 +18,7 @@ import type {
   FormProps,
   RowProps,
   ButtonProps,
+  FormInstance,
 } from 'ant-design-vue'
 import type {
   NamePath,
@@ -59,12 +59,12 @@ export interface ProFormScope<T extends object> {
    */
   reset(prop?: Arrayable<NamePath>): void
 
-  /**
-   * 重置表单
-   *
-   * @alias reset
-   */
-  resetFields(name?: NamePath): void
+  // /**
+  //  * 重置表单
+  //  *
+  //  * @alias reset
+  //  */
+  // resetFields(name?: NamePath): void
 
   /**
    * 设置表单字段
@@ -76,10 +76,10 @@ export interface ProFormScope<T extends object> {
    */
   setFieldValues(values: Record<string, any>): void
 
-  /**
-   * 设置多个表单字段，会进行服务端与表单之间的数据转换
-   */
-  setFieldValuesTransform(values: Record<string, any>): void
+  // /**
+  //  * 设置多个表单字段，会进行服务端与表单之间的数据转换
+  //  */
+  // setFieldValuesTransform(values: Record<string, any>): void
 
   /**
    * 获取对应字段名的值
@@ -99,13 +99,13 @@ export interface ProFormScope<T extends object> {
     options?: ValidateOptions
   ): Promise<T | undefined>
 
-  /**
-   * 触发表单验证
-   */
-  validateFields(
-    name?: Arrayable<NamePath> | undefined,
-    options?: ValidateOptions
-  ): Promise<T | undefined>
+  // /**
+  //  * 触发表单验证
+  //  */
+  // validateFields(
+  //   name?: Arrayable<NamePath> | undefined,
+  //   options?: ValidateOptions
+  // ): Promise<T | undefined>
 
   /**
    * 滚动到指定的字段
@@ -117,20 +117,20 @@ export interface ProFormScope<T extends object> {
    */
   clearValidate(nameList?: Arrayable<NamePath>): void
 
-  /**
-   * 获取对应字段实例
-   */
-  getFieldInstance(name: NamePath): FormItemInstance | null
+  // /**
+  //  * 获取对应字段实例
+  //  */
+  // getFieldInstance(name: NamePath): FormItemInstance | null
 
-  /**
-   * 设置对应字段实例
-   */
-  setFieldInstance(name: NamePath, value: Ref<FormItemInstance | null>): void
+  // /**
+  //  * 设置对应字段实例
+  //  */
+  // setFieldInstance(name: NamePath, value: Ref<FormItemInstance | null>): void
 
-  /**
-   * 获取所有字段实例
-   */
-  getFieldInstances(): Map<NamePath, Ref<FormItemInstance | null>>
+  // /**
+  //  * 获取所有字段实例
+  //  */
+  // getFieldInstances(): Map<NamePath, Ref<FormItemInstance | null>>
 }
 
 /**
@@ -160,8 +160,8 @@ export interface BuildFormBinding<T extends object> {
   actionGroup:
     | Ref<InternalProButtonGroupOptions & UnwrapRef<ProFormActionGroupExtends>>
     | undefined
-  // scope: ProFormScope<T>
-  // formRef: Ref<FormInstance | null>
+  scope: ProFormScope<T>
+  formRef: Ref<FormInstance | null>
   // row: ComputedRef<RowProps | undefined>
   // resolvedColumnsMap: Map<
   //   FormItemProps['name'],
@@ -172,7 +172,10 @@ export interface BuildFormBinding<T extends object> {
 /**
  * buildForm option 返回值
  */
-export interface BuildFormOptionResult<T extends object = any> {
+export interface BuildFormOptionResult<
+  T extends Record<string, any> = any,
+  R extends Record<string, any> = T
+> {
   /**
    * 表单额外的配置，不包含 model
    */
@@ -220,22 +223,22 @@ export interface BuildFormOptionResult<T extends object = any> {
   //  * 接口调用成功是否需要提示信息
   //  */
   // toast?: SuccessToastOptions
-  // /**
-  //  * 表单提交前触发，可用来转换提交数据
-  //  */
-  // beforeSubmit?: (values: T) => R | Promise<R>
-  // /**
-  //  * 提交表单调用的接口配置
-  //  */
-  // submitRequest?: (values: R) => Promise<boolean>
-  // /**
-  //  * 接口调用成功时（submitRequest 返回 true）调用
-  //  */
-  // successRequest?: () => void
-  // /**
-  //  * 表单验证失败
-  //  */
-  // validateFail?(error: any): void
+  /**
+   * 表单提交前触发，可用来转换提交数据
+   */
+  beforeSubmit?: (values: T) => R | Promise<R>
+  /**
+   * 提交表单调用的接口配置
+   */
+  submitRequest?: (values: R) => Promise<boolean> | boolean
+  /**
+   * 接口调用成功时（submitRequest 返回 true）调用
+   */
+  successRequest?: () => void
+  /**
+   * 表单验证失败
+   */
+  validateFail?(error: any): void
 }
 
 /**
@@ -333,12 +336,12 @@ export interface ProFormColumnOptions<T extends object> {
   //  */
   // tooltip?: string | Tooltip
 
-  // /**
-  //  * 是否将字段提交
-  //  *
-  //  * @default true
-  //  */
-  // submitted?: boolean | ((scope: ProFormScope<T>) => boolean)
+  /**
+   * 是否将字段提交
+   *
+   * @default true
+   */
+  submitted?: boolean | ((scope: ProFormScope<T>) => boolean)
 
   // /**
   //  * 表单是否填充满父元素
@@ -357,28 +360,28 @@ export interface ProFormColumnOptions<T extends object> {
   //  */
   // list?: ProFormListOptions
 
-  // /**
-  //  * 服务端数据转换
-  //  */
-  // transform?: {
-  //   /**
-  //    * 从服务端接收到的数据转换为表单数据
-  //    *
-  //    * @param serverValue 服务端传递的值
-  //    *
-  //    * @returns 表单所需要的值
-  //    */
-  //   from?(serverValue: any): any
+  /**
+   * 服务端数据转换
+   */
+  transform?: {
+    /**
+     * 从服务端接收到的数据转换为表单数据
+     *
+     * @param serverValue 服务端传递的值
+     *
+     * @returns 表单所需要的值
+     */
+    from?(serverValue: any): any
 
-  //   /**
-  //    * 表单数据转换为服务端所需要的数据
-  //    *
-  //    * @param formValue 表单字段的值
-  //    *
-  //    * @returns 服务端所需要的值
-  //    */
-  //   to?(formValue: any): any
-  // }
+    /**
+     * 表单数据转换为服务端所需要的数据
+     *
+     * @param formValue 表单字段的值
+     *
+     * @returns 服务端所需要的值
+     */
+    to?(formValue: any): any
+  }
 }
 
 /**
@@ -485,6 +488,16 @@ export interface InternalProFormColumnOptions<T extends object> {
    * 表单类型
    */
   type?: ValueType
+
+  /**
+   * 是否将字段提交
+   */
+  submitted?: ProFormColumnOptions<T>['submitted']
+
+  /**
+   * 服务端数据转换
+   */
+  transform?: ProFormColumnOptions<T>['transform']
 
   // /**
   //  * 解析好的字典配置

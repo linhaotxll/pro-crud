@@ -1,5 +1,5 @@
 import cloneDeep from 'clone-deep'
-import { get, has, set, unset } from 'lodash-es'
+import { get, set, unset, has } from 'lodash-es'
 import {
   computed,
   inject,
@@ -11,17 +11,12 @@ import {
 } from 'vue'
 
 import { buildFormColumn } from './buildFormColumn'
-import {
-  DefaultProFormActionGroup,
-  DefaultProFormCol,
-  successToast,
-} from './constant'
+import { DefaultProFormActionGroup, DefaultProFormCol } from './constant'
 import { useValues } from './useValues'
 
 import { GlobalOption } from '../../constant'
-import { mergeWithTovalue, unRef } from '../common'
+import { mergeWithTovalue } from '../common'
 import { buildButtonGroup } from '../ProButton'
-import { showToast } from '../Toast'
 
 import type {
   BuildFormOptionResult,
@@ -32,13 +27,11 @@ import type {
   ProFormInstance,
   ProFormScope,
 } from './interface'
-import type { Arrayable } from '../common'
-import type { CustomActions } from '../ProButton'
 import type {
-  FormItemInstance,
   FormProps,
   ColProps,
   RowProps,
+  FormInstance,
 } from 'ant-design-vue'
 import type {
   NamePath,
@@ -46,7 +39,7 @@ import type {
 } from 'ant-design-vue/es/form/interface'
 import type { Ref } from 'vue'
 
-export function buildForm<T extends object, C = any>(
+export function buildForm<T extends Record<string, any>, C = any>(
   options: (scope: ProFormScope<T>, ctx?: C) => BuildFormOptionResult<T>,
   ctx?: C
 ): BuildFormResult<T> {
@@ -54,19 +47,13 @@ export function buildForm<T extends object, C = any>(
     getFormValues,
     submit,
     reset,
-    resetFields,
     setFieldValue,
     setFieldValues,
-    setFieldValuesTransform,
     getFieldValue,
     removeFields,
     validate,
-    validateFields,
     scrollToField,
     clearValidate,
-    getFieldInstance,
-    setFieldInstance,
-    getFieldInstances,
   }
 
   const values = reactive<T>({} as T) as T
@@ -78,17 +65,18 @@ export function buildForm<T extends object, C = any>(
     labelCol,
     wrapperCol,
     action = {},
-    toast = successToast,
+    // toast = successToast,
     row,
     col = DefaultProFormCol,
-    fetchDictCollection,
+    // fetchDictCollection,
     beforeSubmit,
     submitRequest,
     successRequest,
     validateFail,
   } = options(scope, ctx)
 
-  useValues(values, initialValues, columns)
+  // 修改 values
+  useValues(values, scope, initialValues, columns)
 
   // 解析 Form Props
   const resolvedFormProps = formProps
@@ -121,15 +109,12 @@ export function buildForm<T extends object, C = any>(
     ProFormActionGroupExtends
   >(action, DefaultProFormActionGroup)
 
-  // watchEffect(() => {
-  //   const actionValue = toValue(action)
-  //   const actionaGroupCol: ColProps | undefined = actionValue
-  //     ? mergeWithTovalue({}, actionValue.col)
-  //     : undefined
-  //   // action!.col
-  // })
-
+  // 构建列
   const resolvedColumns = ref([]) as Ref<Ref<InternalProFormColumnOptions<T>>[]>
+  const resolvedColumnsMap = new Map<
+    NamePath,
+    InternalProFormColumnOptions<T>
+  >()
   watchEffect(() => {
     resolvedColumns.value = []
     const columnsValue = toValue(columns)
@@ -137,111 +122,23 @@ export function buildForm<T extends object, C = any>(
       return
     }
     for (const column of columnsValue) {
-      resolvedColumns.value.push(
-        buildFormColumn(
-          resolvedCommonColProps,
-          resolvedCommonLabelColProps,
-          resolvedCommonWrapperColProps,
-          column
-        )
+      const resolvedColumn = buildFormColumn(
+        resolvedCommonColProps,
+        resolvedCommonLabelColProps,
+        resolvedCommonWrapperColProps,
+        column,
+        internalColumn => {
+          if (internalColumn.name) {
+            resolvedColumnsMap.set(internalColumn.name, internalColumn)
+          }
+        }
       )
+      resolvedColumns.value.push(resolvedColumn)
     }
   })
 
-  // el-form ref
-  // const formRef = ref<FormInstance | null>(null)
-
-  // // 解析列配置
-  // const resolvedLabelCol = computed(() => unRef(labelCol))
-  // const resolvedWrapperCol = computed(() => unRef(wrapperCol))
-
-  // const resolvedColumnsMap = new Map<
-  //   FormItemProps['name'],
-  //   InternalProFormColumnOptions<T>
-  // >()
-
-  // // 解析字典集合
-  // const resolveColumnDictionary = processDictionary(fetchDictCollection, scope)
-
-  // function extractColumnChildren(column: ProFormColumnOptions<T>) {
-  //   let children: ComputedRef<InternalProFormColumnOptions<T>>[] = []
-  //   if (column.children && column.children.length) {
-  //     children = column.children.map(child => {
-  //       const childDict = resolveColumnDictionary(
-  //         merge({}, child, DefaultProProColumn)
-  //       )
-
-  //       return computed(() =>
-  //         buildFormColumn(
-  //           child.col ?? col,
-  //           resolvedColumnsMap,
-  //           child,
-  //           childDict,
-  //           extractColumnChildren(child)
-  //         )
-  //       )
-  //     })
-  //   }
-  //   return children
-  // }
-
-  // // 解析列配置
-  // const resolvedColumns = columns.map(c => {
-  //   const dict = resolveColumnDictionary(merge({}, c, DefaultProProColumn))
-  //   const children = extractColumnChildren(c)
-
-  //   return computed(() =>
-  //     buildFormColumn(col, resolvedColumnsMap, c, dict, children)
-  //   )
-  // })
-
-  // // 解析表单配置
-  // const resolvedFormProps = computed<FormProps>(() => {
-  //   const result: FormProps = {}
-
-  //   const originFormProps = unRef(formProps)
-
-  //   if (originFormProps) {
-  //     Object.keys(originFormProps).forEach(key => {
-  //       // @ts-ignore
-  //       result[key] = unRef(originFormProps[key])
-  //     })
-  //   }
-
-  //   return result
-  // })
-
-  // // 默认按钮
-  // const defaultActions: ProFormActionsOptions = {
-  //   show: true,
-  //   list: {
-  //     confirm: {
-  //       show: true,
-  //       text: '提交',
-  //       props: { type: 'primary', onClick: scope.submit },
-  //     },
-  //   },
-  // }
-
-  // // 解析按钮组配置
-  // const resolvedActions = computed(() => {
-  //   const { col, show, ...rest } = merge({}, defaultActions, actions)
-
-  //   const formLabelSpan = resolvedFormProps.value.labelCol?.span ?? 0
-  //   const mergeCol: ColProps = merge({ offset: formLabelSpan }, toValue(col))
-
-  //   const result: ProFormActionsOptions = merge(
-  //     {
-  //       show: toValue(show),
-  //       col: mergeCol,
-  //     },
-  //     rest
-  //   )
-
-  //   return result
-  // })
-
-  // const formItemRef = new Map<NamePath, Ref<FormItemInstance | null>>()
+  // Form Ref
+  const formRef = ref<FormInstance | null>(null)
 
   /**
    * 提交表单
@@ -260,10 +157,11 @@ export function buildForm<T extends object, C = any>(
     // 调用接口
     const result = (await submitRequest?.(params)) ?? false
 
-    // 提示
+    // 成功回调
     if (result) {
       successRequest?.()
-      showToast(toast)
+      // TODO:
+      // showToast(toast)
     }
   }
 
@@ -280,9 +178,9 @@ export function buildForm<T extends object, C = any>(
         : (params as unknown as any)
 
     // 再监测每个字段是否需要上传，不需要会删除
-    for (const column of resolvedColumns) {
+    for (const column of toValue(resolvedColumns)) {
       const { submitted, itemProps, transform } = column.value
-      const name = unRef(itemProps!.name)
+      const name = itemProps?.name
 
       if (name) {
         // 检测字段是否需要提交上传
@@ -320,28 +218,19 @@ export function buildForm<T extends object, C = any>(
       if (!has(initialValues, key)) {
         removeFields(key)
       } else {
-        setFieldValue(key, (initialValues as any)?.[key], true)
+        setFieldValue(key, (initialValues as any)?.[key])
       }
     })
   }
 
   /**
-   * 重置表单
+   * 设置一个表单值
    */
-  function resetFields(name?: NamePath) {
-    return reset(name)
-  }
-
-  /**
-   * 设置表单
-   */
-  function setFieldValue(key: NamePath, value: any, transformed = false) {
-    if (transformed) {
-      const column = resolvedColumnsMap.get(key)
-      if (column) {
-        if (typeof column.transform?.from === 'function') {
-          value = column.transform.from(value)
-        }
+  function setFieldValue(key: NamePath, value: any) {
+    const column = resolvedColumnsMap.get(key)
+    if (column) {
+      if (typeof column.transform?.from === 'function') {
+        value = column.transform.from(value)
       }
     }
     set(values, key, value)
@@ -350,17 +239,10 @@ export function buildForm<T extends object, C = any>(
   /**
    * 设置表单多个值
    */
-  function setFieldValues(values: Record<string, any>, transformed = false) {
+  function setFieldValues(values: Record<string, any>) {
     Object.keys(values).forEach(key => {
-      setFieldValue(key, values[key], transformed)
+      setFieldValue(key, values[key])
     })
-  }
-
-  /**
-   * 设置表单多个值，会进行服务端与表单之间的数据转换
-   */
-  function setFieldValuesTransform(values: Record<string, any>) {
-    return setFieldValues(values, true)
   }
 
   /**
@@ -381,27 +263,16 @@ export function buildForm<T extends object, C = any>(
    * 对整个表单的内容进行验证
    */
   async function validate(
-    name?: Arrayable<NamePath> | undefined,
+    name?: NamePath[] | string,
     options?: ValidateOptions
   ) {
     let validated: T | undefined
     try {
-      // @ts-ignore
-      validated = await formRef.value!.validate(name, options)
+      validated = (await formRef.value?.validate(name, options)) as T
     } catch (e: any) {
       validateFail?.(e)
     }
     return validated
-  }
-
-  /**
-   * 验证具体的某个字段
-   */
-  async function validateFields(
-    name?: Arrayable<NamePath> | undefined,
-    options?: ValidateOptions
-  ) {
-    return validate(name, options)
   }
 
   /**
@@ -419,30 +290,6 @@ export function buildForm<T extends object, C = any>(
   }
 
   /**
-   * 获取对应字段实例
-   */
-  function getFieldInstance(name: NamePath): FormItemInstance | null {
-    return formItemRef.get(name)?.value ?? null
-  }
-
-  /**
-   * 获取所有字段实例集合
-   */
-  function getFieldInstances() {
-    return formItemRef
-  }
-
-  /**
-   * 设置对应字段实例
-   */
-  function setFieldInstance(
-    name: NamePath,
-    value: Ref<FormItemInstance | null>
-  ) {
-    formItemRef.set(name, value)
-  }
-
-  /**
    * 获取表单值
    */
   function getFormValues() {
@@ -457,12 +304,9 @@ export function buildForm<T extends object, C = any>(
       columns: resolvedColumns,
       formProps: resolvedFormProps,
       actionGroup,
-      // actions: resolvedActions,
       values,
-      // scope,
-      // formRef,
-      // resolvedColumnsMap,
-      // row: computed(() => unRef(row)),
+      scope,
+      formRef,
     },
   }
 
