@@ -18,9 +18,7 @@ export function useValues<T extends object>(
   // 列的数量发生变化需要重置表单数据
   if (initialValues) {
     watch(columnCount, () => {
-      // if (initialValues) {
       scope.reset()
-      // }
     })
   }
 }

@@ -3,27 +3,12 @@ import { h } from 'vue'
 
 import type { ProFormActionGroup } from './interface'
 import type { ProFormColumnOptions, ProFormListOptions } from './interface'
-import type { SuccessToastOptions } from '../Toast'
 import type { ColProps } from 'ant-design-vue'
 
-export const ProFormInstanceNames = [
-  'submit',
-  'reset',
-  'resetFields',
-  'setFieldValue',
-  'setFieldValues',
-  'setFieldValuesTransform',
-  'getFieldValue',
-  'removeFields',
-  'validate',
-  'validateField',
-  'scrollToField',
-  'clearValidate',
-  'getFieldInstance',
-  'getFormValues',
-] as const
-
-export const DefaultProProColumn: ProFormColumnOptions<any> = {
+/**
+ * ProForm Column 默认配置
+ */
+export const DefaultProFormColumn: ProFormColumnOptions<any> = {
   show: true,
   preserve: true,
   type: 'text',
@@ -31,6 +16,9 @@ export const DefaultProProColumn: ProFormColumnOptions<any> = {
   fill: true,
 }
 
+/**
+ * Pro Form 通用 Col 配置
+ */
 export const DefaultProFormCol: ColProps = { span: 24 }
 
 export const DefaultCreateRecordButtonProps: ProFormListOptions['creatorButtonProps'] =
@@ -50,12 +38,9 @@ export const DefaultCopyRecordButtonProps: ProFormListOptions['copyButtonProps']
     icon: h(CopyOutlined),
   }
 
-export const successToast: SuccessToastOptions = '保存成功'
-
 /**
  * Pro Form 默认按钮组
  */
-
 export const DefaultProFormActionGroup: ProFormActionGroup = {
   col: { span: 24 },
   show: true,

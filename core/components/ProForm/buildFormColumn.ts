@@ -1,4 +1,7 @@
+import { merge } from 'lodash-es'
 import { toValue, ref, watchEffect } from 'vue'
+
+import { DefaultProFormColumn } from './constant'
 
 import { ValueTypeMap, getUuid, mergeWithTovalue } from '../common'
 
@@ -21,19 +24,13 @@ export function buildFormColumn<T extends object>(
   >
 
   watchEffect(() => {
-    const {
-      show = true,
-      name,
-      label,
-      type = 'text',
-      itemProps,
-      fieldProps,
-      col,
-      ...rest
-    } = column
+    column = merge({}, DefaultProFormColumn, column)
+
+    const { show, name, label, type, itemProps, fieldProps, col, ...rest } =
+      column
 
     // 解析显示状态
-    const resolvedShow = toValue(show)
+    const resolvedShow = toValue(show!)
 
     const result: InternalProFormColumnOptions<T> = { show: resolvedShow }
 
@@ -49,7 +46,7 @@ export function buildFormColumn<T extends object>(
     // 解析 label
     const resolvedLabel = toValue(label)
     // 解析 type
-    const resolvedType = toValue(type)
+    const resolvedType = toValue(type!)
 
     // TODO: 这里嵌套深一点使用 ref
     // 解析 Label Col

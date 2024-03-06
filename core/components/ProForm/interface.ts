@@ -297,12 +297,12 @@ export interface ProFormColumnOptions<T extends object> {
    */
   col?: MaybeRef<ExtractMaybeRef<ColProps>>
 
-  // /**
-  //  * 表单被删除时是否保留字段值
-  //  *
-  //  * @default true
-  //  */
-  // preserve?: boolean
+  /**
+   * 表单被删除时是否保留字段值
+   *
+   * @default true
+   */
+  preserve?: boolean
 
   /**
    * 表单类型
@@ -338,17 +338,15 @@ export interface ProFormColumnOptions<T extends object> {
 
   /**
    * 是否将字段提交
-   *
-   * @default true
    */
   submitted?: boolean | ((scope: ProFormScope<T>) => boolean)
 
-  // /**
-  //  * 表单是否填充满父元素
-  //  *
-  //  * @default true
-  //  */
-  // fill?: MaybeRef<boolean>
+  /**
+   * 表单是否填充满父元素
+   *
+   * @default true
+   */
+  fill?: MaybeRef<boolean>
 
   // /**
   //  * 子控件
