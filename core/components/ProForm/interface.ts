@@ -497,6 +497,11 @@ export interface InternalProFormColumnOptions<T extends object> {
    */
   transform?: ProFormColumnOptions<T>['transform']
 
+  /**
+   * 是否填满父元素
+   */
+  fill?: boolean
+
   // /**
   //  * 解析好的字典配置
   //  */

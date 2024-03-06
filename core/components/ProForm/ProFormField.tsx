@@ -3,7 +3,7 @@ import { computed, defineComponent, h, resolveComponent, toValue } from 'vue'
 import { mergeWithTovalue, type ValueTypeForm } from '../common'
 
 import type { InternalProFormColumnOptions, ProFormScope } from './interface'
-import type { PropType, Ref } from 'vue'
+import type { CSSProperties, PropType, Ref } from 'vue'
 
 export const ProFormField = defineComponent({
   name: 'ProFormField',
@@ -45,11 +45,16 @@ export const ProFormField = defineComponent({
         vModelName = 'value',
       } = props.field!
 
+      const style: CSSProperties | undefined = columnValue.fill
+        ? { width: '100%' }
+        : undefined
+
       const mergeProps = mergeWithTovalue(
         {
           [vModelName]: vModelValue.value,
           [`onUpdate:${vModelName}`]: (newValue: any) =>
             (vModelValue.value = newValue),
+          style,
         },
         toValue(fieldProps),
         toValue(props.column)?.fieldProps

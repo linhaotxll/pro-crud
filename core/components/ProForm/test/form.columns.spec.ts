@@ -609,4 +609,56 @@ describe('Pro Form Columns', () => {
 
     expect(nextSlotsSlots.prefix.mock.calls[0].length).toBe(1)
   })
+
+  test('column.fill is ref', async () => {
+    const App = defineComponent({
+      name: 'App',
+      setup() {
+        const fill = ref(false)
+
+        const { proFormBinding } = buildForm(() => {
+          return {
+            columns: [
+              {
+                label: '用户名',
+                name: 'username',
+                fill,
+              },
+            ],
+          }
+        })
+
+        return () => {
+          return h('div', [
+            h('button', {
+              class: 'demo-button',
+              onClick: () => {
+                fill.value = !fill.value
+              },
+            }),
+            h(ProForm, proFormBinding),
+          ])
+        }
+      },
+    })
+
+    const wrapper = mount(App, {
+      global: {
+        plugins: [antdv],
+      },
+    })
+
+    expect(wrapper.findAll('input').length).toBe(1)
+    expect(wrapper.findAll('input')[0].attributes('style')).toBe(undefined)
+
+    const button = wrapper.find('.demo-button')
+    expect(button.exists()).toBe(true)
+
+    await button.trigger('click')
+
+    expect(wrapper.findAll('input')[0].attributes('style')).toBe('width: 100%;')
+
+    await button.trigger('click')
+    expect(wrapper.findAll('input')[0].attributes('style')).toBe(undefined)
+  })
 })
