@@ -1,12 +1,15 @@
 import { merge } from 'lodash-es'
 import { inject, type WritableComputedRef } from 'vue'
 
-import { GlobalOption } from '../../constant'
+import { GlobalOption } from '../../interface'
 
 import type { InternalProFormColumnOptions } from '../ProForm'
 import type { BodyCellSlotParams } from '../ProTable'
 import type { VNode } from 'vue'
 
+/**
+ * 字段类型
+ */
 export type ValueType =
   | 'text'
   | 'password'
@@ -31,13 +34,25 @@ export type ValueType =
   | 'dict-select'
   | 'list'
 
+/**
+ * 自定义字段配置
+ */
 export interface ValueTypeValue<T = any, R = any> {
+  /**
+   * 自定义表单字段配置
+   */
   form?: ValueTypeForm<T>
 
+  /**
+   * 自定义表格字段配置
+   */
   table?: ValueTypeTable<R>
 }
 
-export interface ValueTypeForm<T> {
+/**
+ * 自定义表单配置
+ */
+export interface ValueTypeForm<T = any> {
   /**
    * 组件名
    */
@@ -55,10 +70,18 @@ export interface ValueTypeForm<T> {
    */
   props?: any
 
-  render?: (ctx: {
-    vModel: WritableComputedRef<T>
-    column: InternalProFormColumnOptions<any>
-  }) => VNode
+  /**
+   * 自定义渲染函数
+   */
+  render?: (ctx: ValueTypeFormRender<T>) => VNode
+}
+
+/**
+ * 自定义表单渲染函数参数
+ */
+export type ValueTypeFormRender<T = any> = {
+  vModel: WritableComputedRef<T>
+  column: InternalProFormColumnOptions<any>
 }
 
 export interface ValueTypeTable<T> {

@@ -1,5 +1,5 @@
 import { Col, FormItem } from 'ant-design-vue'
-import { defineComponent } from 'vue'
+import { defineComponent, toValue } from 'vue'
 
 import { ProFormField } from './ProFormField'
 
@@ -12,23 +12,23 @@ export const ProFormItem = defineComponent({
   name: 'ProFormItem',
 
   props: {
-    column: Object as PropType<Ref<InternalProFormColumnOptions<any>>>,
+    column: {
+      type: Object as PropType<Ref<InternalProFormColumnOptions<any>>>,
+      required: true,
+    },
     scope: Object as PropType<ProFormScope<any>>,
   },
 
   setup(props) {
     return () => {
-      const columnValue = props.column?.value
-      if (!columnValue) {
-        return null
-      }
+      const columnValue = toValue(props.column)
 
       console.log('render pro form item')
       if (!columnValue.show) {
         return null
       }
 
-      const field = ValueTypeMap.value[columnValue.type!].form
+      const field = ValueTypeMap.value[columnValue.type!]?.form
       if (!field) {
         return null
       }

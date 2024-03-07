@@ -9,7 +9,10 @@ export const ProFormField = defineComponent({
   name: 'ProFormField',
 
   props: {
-    column: Object as PropType<Ref<InternalProFormColumnOptions<any>>>,
+    column: {
+      type: Object as PropType<Ref<InternalProFormColumnOptions<any>>>,
+      required: true,
+    },
     scope: Object as PropType<ProFormScope<any>>,
     field: {
       type: Object as PropType<ValueTypeForm<any>>,
@@ -32,10 +35,7 @@ export const ProFormField = defineComponent({
     })
 
     return () => {
-      const columnValue = props.column?.value
-      if (!columnValue) {
-        return null
-      }
+      const columnValue = toValue(props.column)
 
       console.log('render pro field: ')
       const {
