@@ -5,7 +5,7 @@ import { ConfirmDeleteContent, DeleteRecordToast } from './constant'
 
 import { showToast } from '../Toast'
 
-import { GlobalOption } from '~/constant'
+import { GlobalOption } from '~/interface'
 
 import type { BuildCrudContext, CrudActionOption } from './interface'
 import type { BodyCellSlotParams, ProTableActionColumnProps } from '../ProTable'

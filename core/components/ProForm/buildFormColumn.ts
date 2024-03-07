@@ -3,7 +3,7 @@ import { toValue, ref, watchEffect } from 'vue'
 
 import { DefaultProFormColumn } from './constant'
 
-import { ValueTypeMap, getUuid, mergeWithTovalue } from '../common'
+import { getUuid, mergeWithTovalue, ensureValueType } from '../common'
 
 import type {
   InternalProFormColumnOptions,
@@ -79,7 +79,7 @@ export function buildFormColumn<T extends object>(
     const mergedFieldProps = fieldProps
       ? mergeWithTovalue(
           {},
-          ValueTypeMap.value[resolvedType].form?.props,
+          ensureValueType()[resolvedType].form?.props,
           toValue(fieldProps)
         )
       : undefined

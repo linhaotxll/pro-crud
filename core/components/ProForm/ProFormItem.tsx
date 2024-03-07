@@ -3,7 +3,7 @@ import { defineComponent, toValue } from 'vue'
 
 import { ProFormField } from './ProFormField'
 
-import { ValueTypeMap } from '../common'
+import { ensureValueType } from '../common'
 
 import type { InternalProFormColumnOptions, ProFormScope } from './interface'
 import type { PropType, Ref } from 'vue'
@@ -28,7 +28,7 @@ export const ProFormItem = defineComponent({
         return null
       }
 
-      const field = ValueTypeMap.value[columnValue.type!]?.form
+      const field = ensureValueType()[columnValue.type!]?.form
       if (!field) {
         return null
       }

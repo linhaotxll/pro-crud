@@ -14,7 +14,7 @@ import { buildFormColumn } from './buildFormColumn'
 import { DefaultProFormActionGroup, DefaultProFormCol } from './constant'
 import { useValues } from './useValues'
 
-import { GlobalOption } from '../../constant'
+import { GlobalOption } from '../../interface'
 import { mergeWithTovalue } from '../common'
 import { buildButtonGroup } from '../ProButton'
 

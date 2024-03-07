@@ -22,7 +22,7 @@ import { useToolbar } from './useToolbar'
 
 import { resolveRef, unRef } from '../common'
 
-import { GlobalOption } from '~/constant'
+import { GlobalOption } from '~/interface'
 
 import type {
   BuildProTableOptionResult,

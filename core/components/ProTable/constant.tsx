@@ -1,8 +1,10 @@
 import { ConfigProvider, FormItem, type SpaceProps } from 'ant-design-vue'
 import { h, inject, resolveComponent } from 'vue'
 
-import { ValueTypeMap, type ValueType, genToast } from '../common'
+import { type ValueType, genToast } from '../common'
 import { buildFormColumn } from '../ProForm'
+
+import { GlobalOption } from '~/constant'
 
 import type {
   ProTableActionProps,
@@ -103,7 +105,7 @@ export function injectValueTypeTableCell(
       }
     }
 
-    const defaultTableType = ValueTypeMap.value[valueType]?.table
+    const defaultTableType = inject(GlobalOption)?.types[valueType]?.table
     if (defaultTableType) {
       const { is: Comp, props, render } = defaultTableType
       if (Comp) {

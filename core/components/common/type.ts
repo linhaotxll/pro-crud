@@ -1,7 +1,7 @@
 import { merge } from 'lodash-es'
 import { inject, type WritableComputedRef } from 'vue'
 
-import { GlobalOption } from '../../interface'
+import { GlobalOption } from '~/constant'
 
 import type { InternalProFormColumnOptions } from '../ProForm'
 import type { BodyCellSlotParams } from '../ProTable'
@@ -90,7 +90,7 @@ export interface ValueTypeTable<T> {
   render?: (ctx: BodyCellSlotParams<T>) => VNode
 }
 
-const DefaultValueType: Record<ValueType, ValueTypeValue> = {
+export const DefaultValueType: Record<ValueType, ValueTypeValue> = {
   text: {
     form: { is: 'a-input' },
   },
@@ -267,16 +267,6 @@ const DefaultValueType: Record<ValueType, ValueTypeValue> = {
   },
 }
 
-let _ValueTypeMap: Record<ValueType | any, ValueTypeValue> | undefined
-export const ValueTypeMap = {
-  get value() {
-    if (_ValueTypeMap) {
-      return _ValueTypeMap
-    }
-    const injectType = inject(GlobalOption)?.types
-    return (_ValueTypeMap = merge({}, DefaultValueType, injectType) as Record<
-      ValueType | any,
-      ValueTypeValue
-    >)
-  },
+export function ensureValueType() {
+  return inject(GlobalOption)?.types ?? merge({}, DefaultValueType)
 }

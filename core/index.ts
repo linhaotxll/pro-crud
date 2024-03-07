@@ -21,7 +21,9 @@ import {
   Modal,
   ConfigProvider,
 } from 'ant-design-vue'
+import { merge } from 'lodash-es'
 
+import { DefaultValueType } from './components/common'
 import { ProCrud } from './components/ProCrud'
 import { ProDictionary, ProSelect } from './components/ProDictionary'
 import { ProForm, ProFormList } from './components/ProForm'
@@ -30,7 +32,10 @@ import { ProSearch } from './components/ProSearch'
 import { ProTable } from './components/ProTable'
 import { GlobalOption } from './constant'
 
-import type { ProComponentsOptions } from './constant'
+import type {
+  ProComponentsOptions,
+  ResolvedProComponentsOptions,
+} from './interface'
 import type { Plugin } from 'vue'
 
 export const ProComponents: Plugin<ProComponentsOptions> = {
@@ -66,11 +71,14 @@ export const ProComponents: Plugin<ProComponentsOptions> = {
       .use(Spin)
       .use(Modal)
       .use(ConfigProvider)
-    // app.use(ElSpace, ElIcon, ElDropdown, ElDropdownMenu, ElDropdownItem, ElTree)
 
-    // app.directive('v-loading', vLoading)
+    const resolvedProComponentOptions: ResolvedProComponentsOptions = merge(
+      {},
+      { types: DefaultValueType },
+      options.types
+    )
 
-    app.provide(GlobalOption, options)
+    app.provide(GlobalOption, resolvedProComponentOptions)
   },
 }
 
