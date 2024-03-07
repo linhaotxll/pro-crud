@@ -1,4 +1,12 @@
-import { computed, defineComponent, h, resolveComponent, toValue } from 'vue'
+import {
+  computed,
+  defineComponent,
+  h,
+  onBeforeMount,
+  onBeforeUnmount,
+  resolveComponent,
+  toValue,
+} from 'vue'
 
 import { mergeWithTovalue, type ValueTypeForm } from '../common'
 
@@ -33,6 +41,20 @@ export const ProFormField = defineComponent({
         return name ? props.scope?.getFieldValue(name) : undefined
       },
     })
+
+    // 不需要保留字段时,卸载前将字段删除,重新添加时将字段设置
+    if (!toValue(props.column).preserve) {
+      onBeforeUnmount(() => {
+        props.scope?.removeFields(toValue(props.column).name)
+      })
+      onBeforeMount(() => {
+        props.scope?.reset([toValue(props.column).name])
+        // props.scope?.setFieldValue(
+        //   toValue(props.column).name,
+        //   props.scope.getFormValues()[toValue(props.column).name]
+        // )
+      })
+    }
 
     return () => {
       const columnValue = toValue(props.column)

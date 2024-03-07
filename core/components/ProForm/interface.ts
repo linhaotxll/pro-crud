@@ -57,7 +57,7 @@ export interface ProFormScope<T extends object> {
   /**
    * 重置表单
    */
-  reset(prop?: Arrayable<NamePath>): void
+  reset(prop?: NamePath[]): void
 
   // /**
   //  * 重置表单
@@ -283,7 +283,7 @@ export interface ProFormColumnOptions<T extends object> {
   /**
    * FormItem prop，也是表单的字段名，可使用数组嵌套
    */
-  name?: MaybeRef<NamePath>
+  name: MaybeRef<NamePath>
 
   /**
    * 是否显示整个 FormItem
@@ -455,7 +455,7 @@ export interface InternalProFormColumnOptions<T extends object> {
   /**
    * 表单域字段
    */
-  name?: NamePath | undefined
+  name: NamePath
 
   /**
    * Form Item Props
@@ -501,6 +501,11 @@ export interface InternalProFormColumnOptions<T extends object> {
    * 是否填满父元素
    */
   fill?: boolean
+
+  /**
+   * 表单被删除时是否保留字段值
+   */
+  preserve?: boolean
 
   // /**
   //  * 解析好的字典配置

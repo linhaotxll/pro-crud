@@ -31,8 +31,13 @@ export function buildFormColumn<T extends object>(
 
     // 解析显示状态
     const resolvedShow = toValue(show!)
+    // 解析 name
+    const resolvedName = toValue(name)
 
-    const result: InternalProFormColumnOptions<T> = { show: resolvedShow }
+    const result: InternalProFormColumnOptions<T> = {
+      show: resolvedShow,
+      name: resolvedName,
+    }
 
     // 只会解析显示的列
     if (!resolvedShow) {
@@ -41,8 +46,6 @@ export function buildFormColumn<T extends object>(
       return
     }
 
-    // 解析 name
-    const resolvedName = toValue(name)
     // 解析 label
     const resolvedLabel = toValue(label)
     // 解析 type

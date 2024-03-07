@@ -5,7 +5,7 @@ import { defineComponent, h, ref } from 'vue'
 
 import { ProForm, ProFormItem, buildForm } from '..'
 
-import type { InternalProFormColumnOptions } from '..'
+import type { InternalProFormColumnOptions, ProFormScope } from '..'
 import type { ColProps } from 'ant-design-vue'
 import type { Ref } from 'vue'
 
@@ -660,5 +660,59 @@ describe('Pro Form Columns', () => {
 
     await button.trigger('click')
     expect(wrapper.findAll('input')[0].attributes('style')).toBe(undefined)
+  })
+
+  test('column.preserve is ref', async () => {
+    let scope!: ProFormScope<any>
+    const App = defineComponent({
+      name: 'App',
+      setup() {
+        const preserve = false
+        const show = ref(true)
+
+        const { proFormBinding } = buildForm(_scope => {
+          scope = _scope
+          return {
+            initialValues: { username: 'admin' },
+            columns: [{ show, label: '用户名', name: 'username', preserve }],
+          }
+        })
+        return () => {
+          return [
+            h(ProForm, proFormBinding),
+            h('button', {
+              class: 'show-button',
+              onClick() {
+                show.value = !show.value
+              },
+            }),
+          ]
+        }
+      },
+    })
+
+    const wrapper = mount(App, {
+      global: {
+        plugins: [antdv],
+      },
+    })
+
+    expect(wrapper.findAll('input').length).toBe(1)
+    expect(wrapper.findAll('input')[0].element.value).toBe('admin')
+    expect(scope.getFieldValue('username')).toBe('admin')
+
+    const showButton = wrapper.find('.show-button')
+    expect(showButton.exists()).toBe(true)
+
+    await showButton.trigger('click')
+
+    expect(wrapper.findAll('input').length).toBe(0)
+    expect(scope.getFieldValue('username')).toBe(undefined)
+
+    await showButton.trigger('click')
+
+    expect(wrapper.findAll('input').length).toBe(1)
+    expect(wrapper.findAll('input')[0].element.value).toBe('admin')
+    expect(scope.getFieldValue('username')).toBe('admin')
   })
 })

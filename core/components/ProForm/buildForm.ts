@@ -14,9 +14,10 @@ import { buildFormColumn } from './buildFormColumn'
 import { DefaultProFormActionGroup, DefaultProFormCol } from './constant'
 import { useValues } from './useValues'
 
-import { GlobalOption } from '../../interface'
 import { mergeWithTovalue } from '../common'
 import { buildButtonGroup } from '../ProButton'
+
+import { GlobalOption } from '~/constant'
 
 import type {
   BuildFormOptionResult,
@@ -210,17 +211,25 @@ export function buildForm<T extends Record<string, any>, C = any>(
   /**
    * 重置表单
    */
-  function reset(name?: NamePath) {
-    formRef.value?.resetFields(name)
+  function reset(name?: NamePath[]) {
+    formRef.value?.resetFields(name as any)
 
     // 删除多余属性，重置已有属性，确保必须是 initialValue
-    Object.keys(values).forEach(key => {
-      if (!has(initialValues, key)) {
-        removeFields(key)
-      } else {
-        setFieldValue(key, (initialValues as any)?.[key])
+    function _reset(fileds: NamePath[]) {
+      for (const field of fileds) {
+        if (!has(initialValues, field)) {
+          removeFields(field)
+        } else {
+          setFieldValue(field, get(initialValues, field))
+        }
       }
-    })
+    }
+
+    if (!name) {
+      _reset(Object.keys(values))
+    } else {
+      _reset(name)
+    }
   }
 
   /**
@@ -285,8 +294,8 @@ export function buildForm<T extends Record<string, any>, C = any>(
   /**
    * 清理某个字段的表单验证信息
    */
-  function clearValidate(name?: NamePath) {
-    return formRef.value!.clearValidate(name)
+  function clearValidate(name?: NamePath[]) {
+    return formRef.value!.clearValidate(name as any)
   }
 
   /**
