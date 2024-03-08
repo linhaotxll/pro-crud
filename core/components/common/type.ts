@@ -5,7 +5,7 @@ import { GlobalOption } from '~/constant'
 
 import type { InternalProFormColumnOptions } from '../ProForm'
 import type { BodyCellSlotParams } from '../ProTable'
-import type { VNode } from 'vue'
+import type { VNode, VNodeChild } from 'vue'
 
 /**
  * 字段类型
@@ -73,7 +73,7 @@ export interface ValueTypeForm<T = any> {
   /**
    * 自定义渲染函数
    */
-  render?: (ctx: ValueTypeFormRender<T>) => VNode
+  render?: (ctx: ValueTypeFormRender<T>) => VNodeChild
 }
 
 /**

@@ -75,7 +75,7 @@ export const ProComponents: Plugin<ProComponentsOptions> = {
     const resolvedProComponentOptions: ResolvedProComponentsOptions = merge(
       {},
       { types: DefaultValueType },
-      options.types
+      options
     )
 
     app.provide(GlobalOption, resolvedProComponentOptions)

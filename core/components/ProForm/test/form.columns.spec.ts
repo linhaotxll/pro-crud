@@ -4,6 +4,7 @@ import { describe, test, expect, vi } from 'vitest'
 import { defineComponent, h, ref } from 'vue'
 
 import { ProForm, ProFormItem, buildForm } from '..'
+import { ProComponents } from '../../../'
 
 import type { InternalProFormColumnOptions, ProFormScope } from '..'
 import type { ColProps } from 'ant-design-vue'
@@ -714,5 +715,51 @@ describe('Pro Form Columns', () => {
     expect(wrapper.findAll('input').length).toBe(1)
     expect(wrapper.findAll('input')[0].element.value).toBe('admin')
     expect(scope.getFieldValue('username')).toBe('admin')
+  })
+
+  test('column custom field', async () => {
+    const render = vi.fn(() =>
+      h('div', {
+        class: 'custom-form-field',
+      })
+    )
+
+    const App = defineComponent({
+      name: 'App',
+      setup() {
+        const { proFormBinding } = buildForm(() => {
+          return {
+            columns: [
+              {
+                label: '自定义表单',
+                name: 'custom',
+                type: 'custom-field' as any,
+              },
+            ],
+          }
+        })
+
+        return () => {
+          return [h(ProForm, proFormBinding)]
+        }
+      },
+    })
+
+    const wrapper = mount(App, {
+      global: {
+        plugins: [
+          antdv,
+          [
+            ProComponents,
+            {
+              types: { 'custom-field': { form: { render } } },
+            },
+          ],
+        ],
+      },
+    })
+
+    expect(render).toBeCalledTimes(1)
+    expect(wrapper.find('.custom-form-field').exists()).toBe(true)
   })
 })
