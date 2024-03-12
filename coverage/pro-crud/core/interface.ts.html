@@ -3,15 +3,15 @@
 <html lang="en">
 
 <head>
-    <title>Code coverage report for pro-crud/core/components/ProTable/useToolbar.tsx</title>
+    <title>Code coverage report for pro-crud/core/interface.ts</title>
     <meta charset="utf-8" />
-    <link rel="stylesheet" href="../../../../prettify.css" />
-    <link rel="stylesheet" href="../../../../base.css" />
-    <link rel="shortcut icon" type="image/x-icon" href="../../../../favicon.png" />
+    <link rel="stylesheet" href="../../prettify.css" />
+    <link rel="stylesheet" href="../../base.css" />
+    <link rel="shortcut icon" type="image/x-icon" href="../../favicon.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <style type='text/css'>
         .coverage-summary .sorter {
-            background-image: url(../../../../sort-arrow-sprite.png);
+            background-image: url(../../sort-arrow-sprite.png);
         }
     </style>
 </head>
@@ -19,20 +19,20 @@
 <body>
 <div class='wrapper'>
     <div class='pad1'>
-        <h1><a href="../../../../index.html">All files</a> / <a href="index.html">pro-crud/core/components/ProTable</a> useToolbar.tsx</h1>
+        <h1><a href="../../index.html">All files</a> / <a href="index.html">pro-crud/core</a> interface.ts</h1>
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">21.49% </span>
+                <span class="strong">0% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>23/107</span>
+                <span class='fraction'>0/102</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">100% </span>
+                <span class="strong">0% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>0/0</span>
+                <span class='fraction'>0/1</span>
             </div>
         
             
@@ -44,9 +44,9 @@
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">21.49% </span>
+                <span class="strong">0% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>23/107</span>
+                <span class='fraction'>0/102</span>
             </div>
         
             
@@ -165,34 +165,7 @@
 <a name='L100'></a><a href='#L100'>100</a>
 <a name='L101'></a><a href='#L101'>101</a>
 <a name='L102'></a><a href='#L102'>102</a>
-<a name='L103'></a><a href='#L103'>103</a>
-<a name='L104'></a><a href='#L104'>104</a>
-<a name='L105'></a><a href='#L105'>105</a>
-<a name='L106'></a><a href='#L106'>106</a>
-<a name='L107'></a><a href='#L107'>107</a>
-<a name='L108'></a><a href='#L108'>108</a></td><td class="line-coverage quiet"><span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
+<a name='L103'></a><a href='#L103'>103</a></td><td class="line-coverage quiet"><span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
@@ -277,112 +250,124 @@
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">import { ColumnHeightOutlined, ReloadOutlined } from '@ant-design/icons-vue'
-import { Button } from 'ant-design-vue'
-import { merge } from 'lodash-es'
-import { computed, h, ref } from 'vue'
-&nbsp;
-import {
-  DefaultTableSize,
-  DefaultToolbarSpace,
-  DefaultToolbarTooltip,
-  ToolbarDensityEnum,
-} from './constant'
-&nbsp;
-import { unRef } from '../common'
-import { DropdownSelect } from '../DropdownSelect'
-&nbsp;
-import type {
-  BuildProTableOptionResult,
-  InternalProTableToolbarOption,
-  ProTableScope,
-  ProTableToolbarOption,
-} from './interface'
-&nbsp;
-export <span class="fstat-no" title="function not covered" >function useToolbar&lt;T extends object&gt;(</span>
-<span class="cstat-no" title="statement not covered" >  tableProps: BuildProTableOptionResult&lt;T, any&gt;['tableProps'],</span>
-<span class="cstat-no" title="statement not covered" >  originToolbar: BuildProTableOptionResult&lt;T, any&gt;['toolbar'],</span>
-<span class="cstat-no" title="statement not covered" >  scope: ProTableScope&lt;T&gt;</span>
-<span class="cstat-no" title="statement not covered" >) {</span>
-<span class="cstat-no" title="statement not covered" >  // 表格大小</span>
-<span class="cstat-no" title="statement not covered" >  const tableSize = ref(unRef(unRef(tableProps)?.size) ?? DefaultTableSize)</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js"><span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" ><span class="branch-0 cbranch-no" title="branch not covered" >import type { ValueTypeValue } from './components/common'</span></span></span>
+<span class="cstat-no" title="statement not covered" >import type {</span>
+<span class="cstat-no" title="statement not covered" >  BuildCrudBinding,</span>
+<span class="cstat-no" title="statement not covered" >  CrudActionOption,</span>
+<span class="cstat-no" title="statement not covered" >  CrudDialogOption,</span>
+<span class="cstat-no" title="statement not covered" >  ProCrudScope,</span>
+<span class="cstat-no" title="statement not covered" >  TransformQueryParams,</span>
+<span class="cstat-no" title="statement not covered" >  TransformResponseParams,</span>
+<span class="cstat-no" title="statement not covered" >} from './components/ProCrud'</span>
+<span class="cstat-no" title="statement not covered" >import type {</span>
+<span class="cstat-no" title="statement not covered" >  BuildFormBinding,</span>
+<span class="cstat-no" title="statement not covered" >  ProFormInstance,</span>
+<span class="cstat-no" title="statement not covered" >  ProFormScope,</span>
+<span class="cstat-no" title="statement not covered" >} from './components/ProForm'</span>
+<span class="cstat-no" title="statement not covered" >import type {</span>
+<span class="cstat-no" title="statement not covered" >  BuildProTableBinding,</span>
+<span class="cstat-no" title="statement not covered" >  FetchTableDataResult,</span>
+<span class="cstat-no" title="statement not covered" >  ProTableInstance,</span>
+<span class="cstat-no" title="statement not covered" >  ProTableScope,</span>
+<span class="cstat-no" title="statement not covered" >} from './components/ProTable'</span>
+<span class="cstat-no" title="statement not covered" >import type { PaginationProps } from 'ant-design-vue'</span>
+<span class="cstat-no" title="statement not covered" >import type { Ref } from 'vue'</span>
 <span class="cstat-no" title="statement not covered" ></span>
-<span class="cstat-no" title="statement not covered" >  // 默认 toolbar</span>
-<span class="cstat-no" title="statement not covered" >  const defaultToolbar: ProTableToolbarOption = {</span>
-<span class="cstat-no" title="statement not covered" >    show: true,</span>
-<span class="cstat-no" title="statement not covered" >    actions: {</span>
-<span class="cstat-no" title="statement not covered" >      reload: {</span>
-<span class="cstat-no" title="statement not covered" >        tooltip: { title: '刷新' },</span>
-<span class="cstat-no" title="statement not covered" >        props: {</span>
-<span class="cstat-no" title="statement not covered" >          icon: h(ReloadOutlined),</span>
-<span class="cstat-no" title="statement not covered" >          shape: 'circle',</span>
-<span class="cstat-no" title="statement not covered" >          onClick: () =&gt; scope.reload(),</span>
-<span class="cstat-no" title="statement not covered" >        },</span>
-<span class="cstat-no" title="statement not covered" >      },</span>
+<span class="cstat-no" title="statement not covered" >export interface ProComponentsOptions {</span>
+<span class="cstat-no" title="statement not covered" >  /**</span>
+<span class="cstat-no" title="statement not covered" >   * 全局转换请求前的参数</span>
+<span class="cstat-no" title="statement not covered" >   *</span>
+<span class="cstat-no" title="statement not covered" >   * @param {TransformQueryParams} ctx 查询参数，包含分页，搜索条件</span>
+<span class="cstat-no" title="statement not covered" >   * @returns 转换后的参数，直接传递给 fetchPaginationData 请求</span>
+<span class="cstat-no" title="statement not covered" >   */</span>
+<span class="cstat-no" title="statement not covered" >  transformQuery?(ctx: TransformQueryParams&lt;any, any&gt;): any</span>
 <span class="cstat-no" title="statement not covered" ></span>
-<span class="cstat-no" title="statement not covered" >      density: {</span>
-<span class="cstat-no" title="statement not covered" >        tooltip: { title: '密度' },</span>
-<span class="cstat-no" title="statement not covered" >        render: props =&gt; (</span>
-<span class="cstat-no" title="statement not covered" >          &lt;DropdownSelect</span>
-<span class="cstat-no" title="statement not covered" >            trigger="click"</span>
-<span class="cstat-no" title="statement not covered" >            v-model={tableSize.value}</span>
-<span class="cstat-no" title="statement not covered" >            options={[</span>
-<span class="cstat-no" title="statement not covered" >              { label: '默认', value: ToolbarDensityEnum.Large },</span>
-<span class="cstat-no" title="statement not covered" >              { label: '中等', value: ToolbarDensityEnum.Default },</span>
-<span class="cstat-no" title="statement not covered" >              { label: '紧凑', value: ToolbarDensityEnum.Small },</span>
-<span class="cstat-no" title="statement not covered" >            ]}</span>
-<span class="cstat-no" title="statement not covered" >          &gt;</span>
-<span class="cstat-no" title="statement not covered" >            {{</span>
-<span class="cstat-no" title="statement not covered" >              default: () =&gt; (</span>
-<span class="cstat-no" title="statement not covered" >                &lt;Button</span>
-<span class="cstat-no" title="statement not covered" >                  type="primary"</span>
-<span class="cstat-no" title="statement not covered" >                  shape="circle"</span>
-<span class="cstat-no" title="statement not covered" >                  icon={h(ColumnHeightOutlined)}</span>
-<span class="cstat-no" title="statement not covered" >                  {...props}</span>
-<span class="cstat-no" title="statement not covered" >                /&gt;</span>
-<span class="cstat-no" title="statement not covered" >              ),</span>
-<span class="cstat-no" title="statement not covered" >            }}</span>
-<span class="cstat-no" title="statement not covered" >          &lt;/DropdownSelect&gt;</span>
-<span class="cstat-no" title="statement not covered" >        ),</span>
-<span class="cstat-no" title="statement not covered" >      },</span>
+<span class="cstat-no" title="statement not covered" >  /**</span>
+<span class="cstat-no" title="statement not covered" >   * 转换请求后的响应数据</span>
+<span class="cstat-no" title="statement not covered" >   *</span>
+<span class="cstat-no" title="statement not covered" >   * @param {TransformResponseParams} ctx 响应参数，包含响应数据、查询数据</span>
+<span class="cstat-no" title="statement not covered" >   */</span>
+<span class="cstat-no" title="statement not covered" >  transformResponse?(</span>
+<span class="cstat-no" title="statement not covered" >    ctx: TransformResponseParams&lt;any, any&gt;</span>
+<span class="cstat-no" title="statement not covered" >  ): FetchTableDataResult&lt;any&gt;</span>
 <span class="cstat-no" title="statement not covered" ></span>
-<span class="cstat-no" title="statement not covered" >      // export: {</span>
-<span class="cstat-no" title="statement not covered" >      //   tooltip: { content: '导出' },</span>
-<span class="cstat-no" title="statement not covered" >      //   props: {</span>
-<span class="cstat-no" title="statement not covered" >      //     icon: 'UploadFilled',</span>
-<span class="cstat-no" title="statement not covered" >      //     onClick: () =&gt; {</span>
-<span class="cstat-no" title="statement not covered" >      //       scope.reload()</span>
-<span class="cstat-no" title="statement not covered" >      //     },</span>
-<span class="cstat-no" title="statement not covered" >      //   },</span>
-<span class="cstat-no" title="statement not covered" >      // },</span>
-<span class="cstat-no" title="statement not covered" >    },</span>
+<span class="cstat-no" title="statement not covered" >  /**</span>
+<span class="cstat-no" title="statement not covered" >   * 全局 crud 添加、编辑、查看弹窗公共配置</span>
+<span class="cstat-no" title="statement not covered" >   */</span>
+<span class="cstat-no" title="statement not covered" >  dialog?: CrudDialogOption</span>
+<span class="cstat-no" title="statement not covered" ></span>
+<span class="cstat-no" title="statement not covered" >  /**</span>
+<span class="cstat-no" title="statement not covered" >   * 全局分页配置</span>
+<span class="cstat-no" title="statement not covered" >   */</span>
+<span class="cstat-no" title="statement not covered" >  pagination?: PaginationProps</span>
+<span class="cstat-no" title="statement not covered" ></span>
+<span class="cstat-no" title="statement not covered" >  /**</span>
+<span class="cstat-no" title="statement not covered" >   * 注入扩展类型</span>
+<span class="cstat-no" title="statement not covered" >   */</span>
+<span class="cstat-no" title="statement not covered" >  types?: Record&lt;string, ValueTypeValue&gt;</span>
+<span class="cstat-no" title="statement not covered" ></span>
+<span class="cstat-no" title="statement not covered" >  /**</span>
+<span class="cstat-no" title="statement not covered" >   * 全局执行 build hooks</span>
+<span class="cstat-no" title="statement not covered" >   */</span>
+<span class="cstat-no" title="statement not covered" >  hooks?: {</span>
+<span class="cstat-no" title="statement not covered" >    /**</span>
+<span class="cstat-no" title="statement not covered" >     * 执行 buildTable 时执行</span>
+<span class="cstat-no" title="statement not covered" >     */</span>
+<span class="cstat-no" title="statement not covered" >    table?: (ctx: {</span>
+<span class="cstat-no" title="statement not covered" >      proTableScope: ProTableScope&lt;any&gt;</span>
+<span class="cstat-no" title="statement not covered" >      proTableBinding: BuildProTableBinding&lt;any&gt;</span>
+<span class="cstat-no" title="statement not covered" >      proTableRef: Ref&lt;ProTableInstance&lt;any&gt; | null&gt;</span>
+<span class="cstat-no" title="statement not covered" >    }) =&gt; void</span>
+<span class="cstat-no" title="statement not covered" ></span>
+<span class="cstat-no" title="statement not covered" >    /**</span>
+<span class="cstat-no" title="statement not covered" >     * 执行 buildForm 时执行</span>
+<span class="cstat-no" title="statement not covered" >     */</span>
+<span class="cstat-no" title="statement not covered" >    form?: (ctx: {</span>
+<span class="cstat-no" title="statement not covered" >      proFormScope: ProFormScope&lt;any&gt;</span>
+<span class="cstat-no" title="statement not covered" >      proFormBinding: BuildFormBinding&lt;any&gt;</span>
+<span class="cstat-no" title="statement not covered" >      proFormRef: Ref&lt;ProFormInstance&lt;any&gt; | null&gt;</span>
+<span class="cstat-no" title="statement not covered" >    }) =&gt; void</span>
+<span class="cstat-no" title="statement not covered" ></span>
+<span class="cstat-no" title="statement not covered" >    /**</span>
+<span class="cstat-no" title="statement not covered" >     * 执行 buildCrud 时执行</span>
+<span class="cstat-no" title="statement not covered" >     */</span>
+<span class="cstat-no" title="statement not covered" >    crud?: (ctx: {</span>
+<span class="cstat-no" title="statement not covered" >      proCrudScope: ProCrudScope&lt;any, any, any, any&gt;</span>
+<span class="cstat-no" title="statement not covered" >      proCrudBinding: BuildCrudBinding&lt;any, any, any, any&gt;</span>
+<span class="cstat-no" title="statement not covered" >    }) =&gt; void</span>
 <span class="cstat-no" title="statement not covered" >  }</span>
 <span class="cstat-no" title="statement not covered" ></span>
-<span class="cstat-no" title="statement not covered" >  // 解析 toolbar</span>
-<span class="cstat-no" title="statement not covered" >  const resolvedToolbar = computed&lt;InternalProTableToolbarOption&gt;(() =&gt; {</span>
-<span class="cstat-no" title="statement not covered" >    const toolbar = merge({}, defaultToolbar, unRef(originToolbar))</span>
-<span class="cstat-no" title="statement not covered" >    const toolbarShow = unRef(toolbar.show!)</span>
-<span class="cstat-no" title="statement not covered" >    const space = unRef(toolbar.space)</span>
+<span class="cstat-no" title="statement not covered" >  /**</span>
+<span class="cstat-no" title="statement not covered" >   * 全局 crud 配置</span>
+<span class="cstat-no" title="statement not covered" >   */</span>
+<span class="cstat-no" title="statement not covered" >  crud?: {</span>
+<span class="cstat-no" title="statement not covered" >    /**</span>
+<span class="cstat-no" title="statement not covered" >     * 按钮组配置</span>
+<span class="cstat-no" title="statement not covered" >     */</span>
+<span class="cstat-no" title="statement not covered" >    action?: CrudActionOption&lt;any&gt;</span>
+<span class="cstat-no" title="statement not covered" >  }</span>
+<span class="cstat-no" title="statement not covered" >}</span>
 <span class="cstat-no" title="statement not covered" ></span>
-<span class="cstat-no" title="statement not covered" >    const actions = Object.keys(toolbar.actions ?? {})</span>
-<span class="cstat-no" title="statement not covered" >      .map(key =&gt; {</span>
-<span class="cstat-no" title="statement not covered" >        const result = merge({}, DefaultToolbarTooltip, toolbar.actions![key]!)</span>
-<span class="cstat-no" title="statement not covered" ></span>
-<span class="cstat-no" title="statement not covered" >        result.show = unRef(result.show)</span>
-<span class="cstat-no" title="statement not covered" >        result.tooltip!.show = unRef(result.tooltip!.show)</span>
-<span class="cstat-no" title="statement not covered" ></span>
-<span class="cstat-no" title="statement not covered" >        return result</span>
-<span class="cstat-no" title="statement not covered" >      })</span>
-<span class="cstat-no" title="statement not covered" >      .sort((a, b) =&gt; (unRef(a.order) ?? 1) - (unRef(b.order) ?? 1))</span>
-<span class="cstat-no" title="statement not covered" ></span>
-<span class="cstat-no" title="statement not covered" >    return {</span>
-<span class="cstat-no" title="statement not covered" >      show: toolbarShow,</span>
-<span class="cstat-no" title="statement not covered" >      actions,</span>
-<span class="cstat-no" title="statement not covered" >      space: merge({}, DefaultToolbarSpace, space),</span>
-<span class="cstat-no" title="statement not covered" >    }</span>
-<span class="cstat-no" title="statement not covered" >  })</span>
-<span class="cstat-no" title="statement not covered" ></span>
-<span class="cstat-no" title="statement not covered" >  return { toolbar: resolvedToolbar, tableSize }</span>
+<span class="cstat-no" title="statement not covered" >export interface ResolvedProComponentsOptions</span>
+<span class="cstat-no" title="statement not covered" >  extends Omit&lt;ProComponentsOptions, 'types'&gt; {</span>
+<span class="cstat-no" title="statement not covered" >  types: Record&lt;string, ValueTypeValue&gt;</span>
 <span class="cstat-no" title="statement not covered" >}</span>
 &nbsp;</pre></td></tr></table></pre>
 
@@ -393,14 +378,14 @@ export <span class="fstat-no" title="function not covered" >function useToolbar&
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
                 at 2024-03-12T09:14:18.291Z
             </div>
-        <script src="../../../../prettify.js"></script>
+        <script src="../../prettify.js"></script>
         <script>
             window.onload = function () {
                 prettyPrint();
             };
         </script>
-        <script src="../../../../sorter.js"></script>
-        <script src="../../../../block-navigation.js"></script>
+        <script src="../../sorter.js"></script>
+        <script src="../../block-navigation.js"></script>
     </body>
 </html>
     

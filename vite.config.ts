@@ -13,6 +13,7 @@ import { defineConfig } from 'vite'
 import dts from 'vite-plugin-dts'
 import { viteMockServe } from 'vite-plugin-mock'
 import Pages from 'vite-plugin-pages'
+import VueDevTools from 'vite-plugin-vue-devtools'
 import svgLoader from 'vite-svg-loader'
 
 // import { ProComponentsResolver } from './lib/resolveComponents'
@@ -20,6 +21,8 @@ import svgLoader from 'vite-svg-loader'
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [
+    VueDevTools(),
+
     vue({
       script: {
         defineModel: true,
