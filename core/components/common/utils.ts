@@ -1,5 +1,4 @@
-import { mergeWith } from 'lodash-es'
-import { isRef, ref, toValue } from 'vue'
+import { isRef, ref } from 'vue'
 
 import type { MaybeRef } from './interface'
 import type { SuccessToastOptions } from '../Toast'
@@ -29,4 +28,16 @@ export function getUuid() {
       v = c == 'x' ? r : (r & 0x3) | 0x8
     return v.toString(16)
   })
+}
+
+export function findAndReplace(arr: any, item: any, value: any) {
+  if (Array.isArray(arr)) {
+    const index = arr.indexOf(item)
+    if (index > -1) {
+      arr = arr.slice()
+      arr.splice(index, 1, value)
+    }
+  }
+
+  return arr
 }

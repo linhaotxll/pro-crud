@@ -11,6 +11,8 @@ import {
 import { mergeWithTovalue, type ValueTypeForm } from '../common'
 
 import type { InternalProFormColumnOptions, ProFormScope } from './interface'
+import type { ValueTypeFormProps } from '../common'
+import type { NamePath } from 'ant-design-vue/es/form/interface'
 import type { CSSProperties, PropType, Ref } from 'vue'
 
 export const ProFormField = defineComponent({
@@ -26,18 +28,20 @@ export const ProFormField = defineComponent({
       type: Object as PropType<ValueTypeForm<any>>,
       required: true,
     },
+    // index: Number as PropType<number | undefined>,
+    name: [String, Array] as PropType<NamePath>,
   },
 
   setup(props) {
     const vModelValue = computed({
       set(newValue: any) {
-        const name = props.column?.value.name
+        const name = props.name
         if (name) {
           props.scope?.setFieldValue(name, newValue)
         }
       },
       get() {
-        const name = props.column?.value.name
+        const name = props.name
         return name ? props.scope?.getFieldValue(name) : undefined
       },
     })
@@ -49,10 +53,6 @@ export const ProFormField = defineComponent({
       })
       onBeforeMount(() => {
         props.scope?.reset([toValue(props.column).name])
-        // props.scope?.setFieldValue(
-        //   toValue(props.column).name,
-        //   props.scope.getFormValues()[toValue(props.column).name]
-        // )
       })
     }
 
@@ -71,19 +71,26 @@ export const ProFormField = defineComponent({
         ? { width: '100%' }
         : undefined
 
-      const mergeProps = mergeWithTovalue(
+      const mergeProps: ValueTypeFormProps = mergeWithTovalue(
         {
           [vModelName]: vModelValue.value,
           [`onUpdate:${vModelName}`]: (newValue: any) =>
             (vModelValue.value = newValue),
           style,
+          column: columnValue,
+          scope: props.scope,
         },
         toValue(fieldProps),
         toValue(props.column)?.fieldProps
       )
 
       if (typeof render === 'function') {
-        return render({ vModel: vModelValue, column: columnValue })
+        return render({
+          vModel: vModelValue,
+          column: columnValue,
+          style,
+          scope: props.scope,
+        })
       }
 
       const slots = columnValue.fieldSlots

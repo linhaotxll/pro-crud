@@ -1,7 +1,8 @@
 import { merge } from 'lodash-es'
 import { toValue, ref, watchEffect } from 'vue'
 
-import { DefaultProFormColumn } from './constant'
+import { buildFormListColumns } from './buildFormListColumn'
+import { DefaultProFormColumn, ProFormListPlaceholder } from './constant'
 
 import { getUuid, mergeWithTovalue, ensureValueType } from '../common'
 
@@ -10,6 +11,7 @@ import type {
   ProFormColumnOptions,
 } from './interface'
 import type { ColProps, FormItemProps } from 'ant-design-vue'
+import type { NamePath } from 'ant-design-vue/es/form/interface'
 import type { ComputedRef, Ref } from 'vue'
 
 export function buildFormColumn<T extends object>(
@@ -17,6 +19,7 @@ export function buildFormColumn<T extends object>(
   commonLabelCol: ComputedRef<ColProps> | undefined,
   commonWrapperCol: ComputedRef<ColProps> | undefined,
   column: ProFormColumnOptions<T>,
+  parent?: InternalProFormColumnOptions<T>,
   onChange?: (internalColumn: InternalProFormColumnOptions<T>) => void
 ) {
   const internalProFormColumnOptions = ref({}) as Ref<
@@ -26,13 +29,23 @@ export function buildFormColumn<T extends object>(
   watchEffect(() => {
     column = merge({}, DefaultProFormColumn, column)
 
-    const { show, name, label, type, itemProps, fieldProps, col, ...rest } =
-      column
+    const {
+      show,
+      name,
+      label,
+      type,
+      itemProps,
+      fieldProps,
+      col,
+      list,
+      ...rest
+    } = column
 
     // 解析显示状态
     const resolvedShow = toValue(show!)
     // 解析 name
-    const resolvedName = toValue(name)
+    // const resolvedName = toValue(name)
+    const resolvedName = appendListName(toValue(name), parent?.name)
 
     const result: InternalProFormColumnOptions<T> = {
       show: resolvedShow,
@@ -93,24 +106,48 @@ export function buildFormColumn<T extends object>(
         ? mergeWithTovalue({}, toValue(commonCol), toValue(col))
         : undefined
 
-    mergeWithTovalue(
-      result,
-      {
-        key: Array.isArray(resolvedName)
-          ? resolvedName.join('.')
-          : resolvedName || getUuid(),
-        itemProps: mergedFormItemPtops,
-        fieldProps: mergedFieldProps,
-        name: resolvedName,
-        col: resolvedColProps,
-        type: resolvedType,
-      },
-      rest
-    )
+    // 解析子列配置
+    const resolvedList =
+      list && resolvedType === 'list'
+        ? buildFormListColumns(
+            commonCol,
+            commonLabelCol,
+            commonWrapperCol,
+            list,
+            result
+          )
+        : undefined
+
+    const source: Partial<InternalProFormColumnOptions<any>> = {
+      key: Array.isArray(resolvedName)
+        ? resolvedName.join('.')
+        : resolvedName || getUuid(),
+      itemProps: mergedFormItemPtops,
+      fieldProps: mergedFieldProps,
+      name: resolvedName,
+      col: resolvedColProps,
+      type: resolvedType,
+      list: resolvedList,
+    }
+
+    mergeWithTovalue(result, source, rest)
 
     internalProFormColumnOptions.value = result
     onChange?.(result)
   })
 
   return internalProFormColumnOptions
+}
+
+function appendListName(columnName: NamePath, parentName?: NamePath) {
+  if (!parentName) {
+    return columnName
+  }
+  const names = Array.isArray(parentName) ? [...parentName] : [parentName]
+  if (Array.isArray(columnName)) {
+    names.push(ProFormListPlaceholder, ...columnName)
+  } else if (columnName) {
+    names.push(ProFormListPlaceholder, columnName)
+  }
+  return names
 }

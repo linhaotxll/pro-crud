@@ -1,11 +1,13 @@
 import { Col, FormItem } from 'ant-design-vue'
 import { defineComponent, toValue } from 'vue'
 
+import { ProFormListPlaceholder } from './constant'
 import { ProFormField } from './ProFormField'
 
-import { ensureValueType } from '../common'
+import { ensureValueType, findAndReplace } from '../common'
 
 import type { InternalProFormColumnOptions, ProFormScope } from './interface'
+import type { FormItemProps } from 'ant-design-vue'
 import type { PropType, Ref } from 'vue'
 
 export const ProFormItem = defineComponent({
@@ -17,16 +19,22 @@ export const ProFormItem = defineComponent({
       required: true,
     },
     scope: Object as PropType<ProFormScope<any>>,
+    index: Number as PropType<number>,
   },
 
   setup(props) {
     return () => {
       const columnValue = toValue(props.column)
 
-      console.log('render pro form item')
       if (!columnValue.show) {
         return null
       }
+
+      const resolvedNamePath = Array.isArray(columnValue.name)
+        ? findAndReplace(columnValue.name, ProFormListPlaceholder, props.index)
+        : columnValue.name
+
+      // console.log('render pro form item', columnValue.itemProps)
 
       const field = ensureValueType()[columnValue.type!]?.form
       if (!field) {
@@ -46,14 +54,22 @@ export const ProFormItem = defineComponent({
               field={field}
               scope={props.scope}
               column={props.column}
+              name={resolvedNamePath}
             />
           ),
         }
       )
 
+      const formItemProps: FormItemProps = {
+        ...columnValue.itemProps,
+        name: resolvedNamePath,
+      }
+
+      console.log('render pro form item: ', formItemProps)
+
       return (
         <Col {...columnValue.col}>
-          <FormItem {...columnValue.itemProps}>{slots}</FormItem>
+          <FormItem {...formItemProps}>{slots}</FormItem>
         </Col>
       )
     }

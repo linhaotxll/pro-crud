@@ -391,12 +391,14 @@ describe('Pro Form Props', () => {
     expect(wrapper.findAllComponents(Button)[1].text()).toBe('取 消')
   })
 
+  // test('form column is empty',)
+
   test('from column is ref', async () => {
     const App = defineComponent({
       name: 'App',
       setup() {
         let time = 0
-        const columns = ref([{ label: '用户名', name: 'username' }])
+        const columns = ref<any>([{ label: '用户名', name: 'username' }])
 
         const { proFormBinding } = buildForm(() => {
           return {
@@ -421,6 +423,9 @@ describe('Pro Form Props', () => {
                     ...columns.value,
                     { label: '性别', name: 'gender' },
                   ]
+                }
+                if (time === 3) {
+                  columns.value = undefined
                 }
               },
             }),
@@ -450,5 +455,8 @@ describe('Pro Form Props', () => {
     expect(wrapper.findAll('label')[0].text()).toBe('用户名')
     expect(wrapper.findAll('label')[1].text()).toBe('密码')
     expect(wrapper.findAll('label')[2].text()).toBe('性别')
+
+    await button.trigger('click')
+    expect(wrapper.findAllComponents(ProFormItem).length).toBe(0)
   })
 })

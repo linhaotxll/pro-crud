@@ -44,6 +44,7 @@ export function buildForm<T extends Record<string, any>, C = any>(
   options: (scope: ProFormScope<T>, ctx?: C) => BuildFormOptionResult<T>,
   ctx?: C
 ): BuildFormResult<T> {
+  console.log('build form')
   const scope: ProFormScope<T> = {
     getFormValues,
     submit,
@@ -128,6 +129,7 @@ export function buildForm<T extends Record<string, any>, C = any>(
         resolvedCommonLabelColProps,
         resolvedCommonWrapperColProps,
         column,
+        undefined,
         internalColumn => {
           if (internalColumn.name) {
             resolvedColumnsMap.set(internalColumn.name, internalColumn)

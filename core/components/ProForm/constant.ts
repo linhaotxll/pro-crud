@@ -1,15 +1,18 @@
 import { CopyOutlined, DeleteOutlined } from '@ant-design/icons-vue'
 import { h } from 'vue'
 
+import { getUuid } from '../common'
+
 import type { ProFormActionGroup } from './interface'
 import type { ProFormColumnOptions, ProFormListOptions } from './interface'
-import type { ColProps } from 'ant-design-vue'
+import type { ColProps, SpaceProps } from 'ant-design-vue'
 
 /**
  * ProForm Column 默认配置
  */
 export const DefaultProFormColumn: ProFormColumnOptions<any> = {
   show: true,
+  name: '',
   preserve: true,
   type: 'text',
   submitted: true,
@@ -21,6 +24,9 @@ export const DefaultProFormColumn: ProFormColumnOptions<any> = {
  */
 export const DefaultProFormCol: ColProps = { span: 24 }
 
+/**
+ * 默认添加按钮
+ */
 export const DefaultCreateRecordButtonProps: ProFormListOptions['creatorButtonProps'] =
   {
     type: 'dashed',
@@ -51,4 +57,16 @@ export const DefaultProFormActionGroup: ProFormActionGroup = {
       props: { type: 'primary' },
     },
   },
+}
+
+export const ProFormListPlaceholder = getUuid() + '__placeholder__'
+
+/**
+ * 每行 Space Props
+ */
+export const DefaultFormListSpaceProps: SpaceProps = {
+  // TODO: 查找 style 对应的类型声明
+  // @ts-ignore
+  style: { width: '100%' },
+  align: 'start',
 }

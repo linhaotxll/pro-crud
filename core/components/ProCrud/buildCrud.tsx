@@ -33,7 +33,7 @@ import { buildSearch } from '../ProSearch'
 import { buildTable } from '../ProTable'
 import { showToast } from '../Toast'
 
-import { GlobalOption } from '~/interface'
+import { GlobalOption } from '~/constant'
 
 import type { Middleware } from './compose'
 import type {

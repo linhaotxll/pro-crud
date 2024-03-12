@@ -3,9 +3,9 @@ import { inject, type WritableComputedRef } from 'vue'
 
 import { GlobalOption } from '~/constant'
 
-import type { InternalProFormColumnOptions } from '../ProForm'
+import type { InternalProFormColumnOptions, ProFormScope } from '../ProForm'
 import type { BodyCellSlotParams } from '../ProTable'
-import type { VNode, VNodeChild } from 'vue'
+import type { CSSProperties, VNode, VNodeChild } from 'vue'
 
 /**
  * 字段类型
@@ -82,6 +82,19 @@ export interface ValueTypeForm<T = any> {
 export type ValueTypeFormRender<T = any> = {
   vModel: WritableComputedRef<T>
   column: InternalProFormColumnOptions<any>
+  style: CSSProperties | undefined
+  scope: ProFormScope<any> | undefined
+}
+
+/**
+ * 自定义表单组件 Props
+ */
+export interface ValueTypeFormProps {
+  column: InternalProFormColumnOptions<any>
+  style: CSSProperties | undefined
+  scope: ProFormScope<any> | undefined
+  // v-model:value
+  [name: string]: any
 }
 
 export interface ValueTypeTable<T> {

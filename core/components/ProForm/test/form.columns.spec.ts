@@ -3,7 +3,7 @@ import antdv, { Col, FormItem, Input } from 'ant-design-vue'
 import { describe, test, expect, vi } from 'vitest'
 import { defineComponent, h, ref } from 'vue'
 
-import { ProForm, ProFormItem, buildForm } from '..'
+import { ProForm, ProFormField, ProFormItem, buildForm } from '..'
 import { ProComponents } from '../../../'
 
 import type { InternalProFormColumnOptions, ProFormScope } from '..'
@@ -761,5 +761,32 @@ describe('Pro Form Columns', () => {
 
     expect(render).toBeCalledTimes(1)
     expect(wrapper.find('.custom-form-field').exists()).toBe(true)
+  })
+
+  test('invalid type', () => {
+    const App = defineComponent({
+      name: 'App',
+      setup() {
+        // @ts-ignore
+        const { proFormBinding } = buildForm(() => {
+          return {
+            columns: [{ label: '用户名', type: 'aaa' }],
+          }
+        })
+
+        return () => {
+          return [h(ProForm, proFormBinding)]
+        }
+      },
+    })
+
+    const wrapper = mount(App, {
+      global: {
+        plugins: [antdv, ProComponents],
+      },
+    })
+
+    expect(wrapper.findComponent(ProForm).exists()).toBe(true)
+    expect(wrapper.findComponent(ProFormField).exists()).toBe(false)
   })
 })

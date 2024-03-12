@@ -19,6 +19,7 @@ import type {
   RowProps,
   ButtonProps,
   FormInstance,
+  SpaceProps,
 } from 'ant-design-vue'
 import type {
   NamePath,
@@ -353,10 +354,10 @@ export interface ProFormColumnOptions<T extends object> {
   //  */
   // children?: ProFormColumnOptions<T>[]
 
-  // /**
-  //  * 列配置
-  //  */
-  // list?: ProFormListOptions
+  /**
+   * 列配置
+   */
+  list?: MaybeRef<ProFormListOptions>
 
   /**
    * 服务端数据转换
@@ -385,7 +386,17 @@ export interface ProFormColumnOptions<T extends object> {
 /**
  * 列表配置
  */
-export interface ProFormListOptions {
+export interface ProFormListOptions<C extends object = any> {
+  /**
+   * 子控件
+   */
+  children?: MaybeRef<ProFormColumnOptions<C>[]>
+
+  /**
+   * 每行 Space Props
+   */
+  space?: MaybeRef<SpaceProps>
+
   /**
    * 新建一行的数据
    *
@@ -396,22 +407,26 @@ export interface ProFormListOptions {
   /**
    * 自定义新建按钮
    */
-  renderCreateRecordButton?: (add: (record?: any) => void) => JSXElement
+  renderCreateRecordButton?: (add: (record?: any) => void) => VNodeChild
 
   /**
    * 新建按钮配置
    */
-  creatorButtonProps?: (ButtonProps & { creatorButtonText?: string }) | false
+  creatorButtonProps?: MaybeRef<
+    (ButtonProps & { creatorButtonText?: string }) | false
+  >
 
   /**
    * 自定义删除按钮
    */
-  renderDeleteRecordButton?: (remove: () => void) => JSXElement
+  renderDeleteRecordButton?: (remove: () => void) => VNodeChild
 
   /**
    * 删除按钮配置
    */
-  deleteButtonProps?: (ButtonProps & { deleteButtonText?: string }) | false
+  deleteButtonProps?: MaybeRef<
+    (ButtonProps & { deleteButtonText?: string }) | false
+  >
 
   /**
    * 自定义复制按钮
@@ -421,7 +436,9 @@ export interface ProFormListOptions {
   /**
    * 复制按钮配置
    */
-  copyButtonProps?: (ButtonProps & { copyButtonText?: string }) | false
+  copyButtonProps?: MaybeRef<
+    (ButtonProps & { copyButtonText?: string }) | false
+  >
 
   /**
    * 最少条目
@@ -506,6 +523,73 @@ export interface InternalProFormColumnOptions<T extends object> {
    * 表单被删除时是否保留字段值
    */
   preserve?: boolean
+
+  /**
+   * 列配置
+   */
+  list?: Ref<
+    | {
+        /**
+         * 子控件
+         */
+        children?: Ref<InternalProFormColumnOptions<T>>[] | undefined
+
+        /**
+         * 每行 Space Props
+         */
+        space?: SpaceProps
+
+        /**
+         * 新建一行的数据
+         */
+        creatorRecord?: ProFormListOptions['creatorRecord']
+
+        /**
+         * 自定义新建按钮
+         */
+        renderCreateRecordButton?: ProFormListOptions['renderCreateRecordButton']
+
+        /**
+         * 新建按钮配置
+         */
+        creatorButtonProps?:
+          | (ButtonProps & { creatorButtonText?: string })
+          | false
+
+        /**
+         * 自定义删除按钮
+         */
+        renderDeleteRecordButton?: ProFormListOptions['renderDeleteRecordButton']
+
+        /**
+         * 删除按钮配置
+         */
+        deleteButtonProps?:
+          | (ButtonProps & { deleteButtonText?: string })
+          | false
+
+        /**
+         * 自定义复制按钮
+         */
+        renderCopyRecordButton?: ProFormListOptions['renderCopyRecordButton']
+
+        /**
+         * 复制按钮配置
+         */
+        copyButtonProps?: (ButtonProps & { copyButtonText?: string }) | false
+
+        /**
+         * 最少条目
+         */
+        min?: number
+
+        /**
+         * 最大条目
+         */
+        max?: number
+      }
+    | undefined
+  >
 
   // /**
   //  * 解析好的字典配置
