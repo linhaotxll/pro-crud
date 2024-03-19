@@ -117,6 +117,11 @@ export function useAction<T extends object>(
                 }
               }
             }
+
+            // 将作用域加入到 action 中，可在 render 中获取
+            if (resolvedActions[key]) {
+              resolvedActions[key]!.ctx = ctx
+            }
           })
         }
 

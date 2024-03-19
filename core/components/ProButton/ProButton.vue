@@ -34,7 +34,7 @@ export default defineComponent({
       const { onClick: originClick, ...rest } = config.props ?? {}
 
       const $inner = config.render ? (
-        <ProRender render={config.render} />
+        <ProRender render={config.render} ctx={config.ctx} />
       ) : (
         <>
           {/* @ts-ignore */}

@@ -80,6 +80,11 @@ export interface ActionOption {
    * 自定义渲染内容
    */
   render?: () => JSXElement
+
+  /**
+   * 自定义渲染作用域
+   */
+  ctx?: any
 }
 
 /**
