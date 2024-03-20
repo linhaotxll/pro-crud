@@ -79,7 +79,7 @@ export interface ActionOption {
   /**
    * 自定义渲染内容
    */
-  render?: () => JSXElement
+  render?: (...args: any[]) => JSXElement
 
   /**
    * 自定义渲染作用域
