@@ -1,5 +1,5 @@
 <template>
-  <div :style="resolvedSpace">
+  <div :style="resolvedStyle">
     <template v-for="btn in resolvedButtons">
       <pro-button v-if="btn.show" :key="btn.key" :config="btn" />
     </template>
@@ -47,9 +47,8 @@ const resolvedButtons = computed(() => {
   return result
 })
 
-const resolvedSpace = computed<CSSProperties>(() => ({
+const resolvedStyle = computed<CSSProperties>(() => ({
   display: 'flex',
-  justifyContent: 'center',
   gap: `${toValue(p.space ?? 0)}px`,
 }))
 </script>
