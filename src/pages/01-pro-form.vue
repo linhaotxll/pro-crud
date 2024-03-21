@@ -57,6 +57,7 @@ const buttonConfirmShow = ref(true)
 const nameProp = ['info', 'name']
 const personProp = ['person', 'info']
 
+// @ts-ignore
 const { proFormRef, proFormBinding } = buildForm<FormValues>(scope => {
   return {
     // row,
