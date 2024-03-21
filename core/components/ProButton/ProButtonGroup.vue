@@ -1,14 +1,14 @@
 <template>
-  <a-space v-bind="resolvedSpace">
+  <div :style="resolvedSpace">
     <template v-for="btn in resolvedButtons">
       <pro-button v-if="btn.show" :key="btn.key" :config="btn" />
     </template>
-  </a-space>
+  </div>
 </template>
 
 <script lang="ts" setup generic="T = Record<string, ActionOption>">
 import { merge } from 'lodash-es'
-import { computed } from 'vue'
+import { computed, toValue } from 'vue'
 
 import { DefaultAction } from './constant'
 import ProButton from './ProButton.vue'
@@ -16,16 +16,17 @@ import ProButton from './ProButton.vue'
 import { unRef } from '../common'
 
 import type { ActionOption, ActionsList } from './interface'
-import type { ExtractMaybeRef } from '../common'
-import type { SpaceProps } from 'ant-design-vue'
-import type { MaybeRef } from 'vue'
+import type { CSSProperties, MaybeRef } from 'vue'
 
 defineOptions({ name: 'ProButtonGroup' })
 
-const p = defineProps<{
-  actions?: ActionsList<T> | undefined
-  space?: MaybeRef<ExtractMaybeRef<SpaceProps>>
-}>()
+const p = withDefaults(
+  defineProps<{
+    actions?: ActionsList<T> | undefined
+    space?: MaybeRef<number>
+  }>(),
+  { space: 8 }
+)
 
 const resolvedButtons = computed(() => {
   const actions = p.actions
@@ -46,16 +47,11 @@ const resolvedButtons = computed(() => {
   return result
 })
 
-const resolvedSpace = computed<SpaceProps | null>(() => {
-  const space = unRef(p.space)
-  const result = space
-    ? Object.keys(space).reduce((prev, key) => {
-        // @ts-ignore
-        prev[key] = unRef(space[key])
-        return prev
-      }, {})
-    : null
-
-  return result
-})
+const resolvedSpace = computed<CSSProperties>(() => ({
+  display: 'flex',
+  justifyContent: 'center',
+  gap: `${toValue(p.space ?? 0)}px`,
+}))
 </script>
+
+<style scoped></style>

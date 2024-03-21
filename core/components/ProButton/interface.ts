@@ -1,10 +1,5 @@
 import type { JSXElement, ValueOf } from '../common'
-import type {
-  ButtonProps,
-  ModalProps,
-  PopconfirmProps,
-  SpaceProps,
-} from 'ant-design-vue'
+import type { ButtonProps, ModalProps, PopconfirmProps } from 'ant-design-vue'
 import type { MaybeRef } from 'vue'
 
 /**
@@ -21,7 +16,7 @@ export interface ActionsOption<T = Record<string, ActionOption>> {
   /**
    * 按钮间距配置
    */
-  space?: MaybeRef<SpaceProps>
+  space?: MaybeRef<number>
 
   /**
    * 按钮列表
