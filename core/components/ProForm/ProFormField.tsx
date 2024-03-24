@@ -25,7 +25,7 @@ export const ProFormField = defineComponent({
     },
     scope: Object as PropType<ProFormScope<any>>,
     field: {
-      type: Object as PropType<ValueTypeForm<any>>,
+      type: Object as PropType<ValueTypeForm>,
       required: true,
     },
     // index: Number as PropType<number | undefined>,
@@ -36,6 +36,7 @@ export const ProFormField = defineComponent({
     const vModelValue = computed({
       set(newValue: any) {
         const name = props.name
+        console.log('setter')
         if (name) {
           props.scope?.setFieldValue(name, newValue)
         }
@@ -71,28 +72,6 @@ export const ProFormField = defineComponent({
         ? { width: '100%' }
         : undefined
 
-      const mergeProps: ValueTypeFormProps = mergeWithTovalue(
-        {
-          [vModelName]: vModelValue.value,
-          [`onUpdate:${vModelName}`]: (newValue: any) =>
-            (vModelValue.value = newValue),
-          style,
-          column: columnValue,
-          scope: props.scope,
-        },
-        toValue(fieldProps),
-        toValue(props.column)?.fieldProps
-      )
-
-      if (typeof render === 'function') {
-        return render({
-          vModel: vModelValue,
-          column: columnValue,
-          style,
-          scope: props.scope,
-        })
-      }
-
       const slots = columnValue.fieldSlots
         ? Object.entries(columnValue.fieldSlots).reduce<Record<string, any>>(
             (prev, [slotName, slotFn]) => {
@@ -102,6 +81,26 @@ export const ProFormField = defineComponent({
             {}
           )
         : undefined
+
+      const mergeProps: ValueTypeFormProps = mergeWithTovalue(
+        {
+          [vModelName]: vModelValue.value,
+          [`onUpdate:${vModelName}`]: (newValue: any) => {
+            console.log('onUpdate:value')
+            return (vModelValue.value = newValue)
+          },
+          style,
+          column: columnValue,
+          scope: props.scope,
+          slots,
+        },
+        toValue(fieldProps),
+        toValue(props.column)?.fieldProps
+      )
+
+      if (typeof render === 'function') {
+        return render(mergeProps)
+      }
 
       return h(resolveComponent(is), mergeProps, slots)
     }

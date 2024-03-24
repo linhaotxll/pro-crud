@@ -5,11 +5,13 @@ import { buildFormListColumns } from './buildFormListColumn'
 import { DefaultProFormColumn, ProFormListPlaceholder } from './constant'
 
 import { getUuid, mergeWithTovalue, ensureValueType } from '../common'
+import { buildDictionary } from '../ProDictionary'
 
 import type {
   InternalProFormColumnOptions,
   ProFormColumnOptions,
 } from './interface'
+import type { DictionaryCollection } from '../ProDictionary'
 import type { ColProps, FormItemProps } from 'ant-design-vue'
 import type { NamePath } from 'ant-design-vue/es/form/interface'
 import type { ComputedRef, Ref } from 'vue'
@@ -20,6 +22,7 @@ export function buildFormColumn<T extends object>(
   commonWrapperCol: ComputedRef<ColProps> | undefined,
   column: ProFormColumnOptions<T>,
   parent?: InternalProFormColumnOptions<T>,
+  fetchDictionaryCollection?: DictionaryCollection['fetchDictionaryCollection'],
   onChange?: (internalColumn: InternalProFormColumnOptions<T>) => void
 ) {
   const internalProFormColumnOptions = ref({}) as Ref<
@@ -27,6 +30,7 @@ export function buildFormColumn<T extends object>(
   >
 
   watchEffect(() => {
+    console.log('buildFormColumn')
     column = merge({}, DefaultProFormColumn, column)
 
     const {
@@ -38,6 +42,7 @@ export function buildFormColumn<T extends object>(
       fieldProps,
       col,
       list,
+      dict,
       ...rest
     } = column
 
@@ -118,6 +123,13 @@ export function buildFormColumn<T extends object>(
           )
         : undefined
 
+    // 解析字典配置
+    const resolvedDictionary = buildDictionary(
+      dict,
+      resolvedType,
+      fetchDictionaryCollection
+    )
+
     const source: Partial<InternalProFormColumnOptions<any>> = {
       key: Array.isArray(resolvedName)
         ? resolvedName.join('.')
@@ -131,6 +143,8 @@ export function buildFormColumn<T extends object>(
     }
 
     mergeWithTovalue(result, source, rest)
+
+    result.dictionary = resolvedDictionary
 
     internalProFormColumnOptions.value = result
     onChange?.(result)

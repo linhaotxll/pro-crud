@@ -12,6 +12,11 @@ import type {
   InternalProButtonGroupOptions,
 } from '../ProButton'
 import type {
+  buildDictionary,
+  DictionaryCollection,
+  DictionaryColumn,
+} from '../ProDictionary'
+import type {
   ColProps,
   FormItemProps,
   TooltipProps,
@@ -175,8 +180,9 @@ export interface BuildFormBinding<T extends object> {
  */
 export interface BuildFormOptionResult<
   T extends Record<string, any> = any,
-  R extends Record<string, any> = T
-> {
+  R extends Record<string, any> = T,
+  Collection = any
+> extends DictionaryCollection<Collection> {
   /**
    * 表单额外的配置，不包含 model
    */
@@ -275,7 +281,11 @@ export type ProFormInstance<T extends object> = ProFormScope<T>
 /**
  * 表单列配置
  */
-export interface ProFormColumnOptions<T extends object> {
+export interface ProFormColumnOptions<
+  T extends object,
+  Dictionary = any,
+  Collect = any
+> extends DictionaryColumn<Dictionary, Collect> {
   /**
    * FormItem label
    */
@@ -523,6 +533,11 @@ export interface InternalProFormColumnOptions<T extends object> {
    * 表单被删除时是否保留字段值
    */
   preserve?: boolean
+
+  /**
+   * 字典配置
+   */
+  dictionary?: ReturnType<typeof buildDictionary>
 
   /**
    * 列配置

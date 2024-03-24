@@ -70,7 +70,7 @@ export function buildForm<T extends Record<string, any>, C = any>(
     // toast = successToast,
     row,
     col = DefaultProFormCol,
-    // fetchDictCollection,
+    fetchDictionaryCollection,
     beforeSubmit,
     submitRequest,
     successRequest,
@@ -117,6 +117,7 @@ export function buildForm<T extends Record<string, any>, C = any>(
     NamePath,
     InternalProFormColumnOptions<T>
   >()
+
   watchEffect(() => {
     resolvedColumns.value = []
     const columnsValue = toValue(columns)
@@ -130,6 +131,7 @@ export function buildForm<T extends Record<string, any>, C = any>(
         resolvedCommonWrapperColProps,
         column,
         undefined,
+        fetchDictionaryCollection,
         internalColumn => {
           if (internalColumn.name) {
             resolvedColumnsMap.set(internalColumn.name, internalColumn)

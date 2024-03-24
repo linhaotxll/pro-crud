@@ -1,11 +1,13 @@
 import { merge } from 'lodash-es'
-import { inject, type WritableComputedRef } from 'vue'
+import { h, inject } from 'vue'
+
+import { ProDictionary } from '../ProDictionary'
 
 import { GlobalOption } from '~/constant'
 
 import type { InternalProFormColumnOptions, ProFormScope } from '../ProForm'
 import type { BodyCellSlotParams } from '../ProTable'
-import type { CSSProperties, VNode, VNodeChild } from 'vue'
+import type { CSSProperties, Slots, VNode, VNodeChild } from 'vue'
 
 /**
  * 字段类型
@@ -30,18 +32,20 @@ export type ValueType =
   | 'time-range'
   | 'auto-complete'
   | 'cascader'
-  | 'dict'
-  | 'dict-select'
+  // | 'dict'
+  | 'select'
+  | 'radio-group'
+  | 'checkbox-group'
   | 'list'
 
 /**
  * 自定义字段配置
  */
-export interface ValueTypeValue<T = any, R = any> {
+export interface ValueTypeValue<R = any> {
   /**
    * 自定义表单字段配置
    */
-  form?: ValueTypeForm<T>
+  form?: ValueTypeForm
 
   /**
    * 自定义表格字段配置
@@ -52,7 +56,7 @@ export interface ValueTypeValue<T = any, R = any> {
 /**
  * 自定义表单配置
  */
-export interface ValueTypeForm<T = any> {
+export interface ValueTypeForm {
   /**
    * 组件名
    */
@@ -73,17 +77,7 @@ export interface ValueTypeForm<T = any> {
   /**
    * 自定义渲染函数
    */
-  render?: (ctx: ValueTypeFormRender<T>) => VNodeChild
-}
-
-/**
- * 自定义表单渲染函数参数
- */
-export type ValueTypeFormRender<T = any> = {
-  vModel: WritableComputedRef<T>
-  column: InternalProFormColumnOptions<any>
-  style: CSSProperties | undefined
-  scope: ProFormScope<any> | undefined
+  render?: (ctx: ValueTypeFormProps) => VNodeChild
 }
 
 /**
@@ -93,6 +87,7 @@ export interface ValueTypeFormProps {
   column: InternalProFormColumnOptions<any>
   style: CSSProperties | undefined
   scope: ProFormScope<any> | undefined
+  slots: Slots | undefined
   // v-model:value
   [name: string]: any
 }
@@ -264,15 +259,25 @@ export const DefaultValueType: Record<ValueType, ValueTypeValue> = {
     form: { is: 'a-cascader' },
   },
 
-  dict: {
-    table: {
-      is: 'pro-dictionary',
-    },
+  // dict: {
+  //   table: {
+  //     // is: 'pro-dictionary',
+  //   },
+  // },
+
+  select: {
+    // table: { is: 'pro-dictionary' },
+    form: { render: ctx => h(ProDictionary, { ctx, is: 'select' }) },
   },
 
-  'dict-select': {
-    table: { is: 'pro-dictionary' },
-    form: { is: 'a-select' },
+  'radio-group': {
+    // table: { is: 'pro-dictionary' },
+    form: { render: ctx => h(ProDictionary, { ctx, is: 'radio-group' }) },
+  },
+
+  'checkbox-group': {
+    // table: { is: 'pro-dictionary' },
+    form: { render: ctx => h(ProDictionary, { ctx, is: 'checkbox-group' }) },
   },
 
   list: {
