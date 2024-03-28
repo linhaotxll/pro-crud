@@ -11,14 +11,18 @@ import {
 } from 'vue'
 
 import { buildFormColumn } from './buildFormColumn'
-import { DefaultProFormActionGroup, DefaultProFormCol } from './constant'
+import {
+  DefaultProFormActionGroup,
+  DefaultProFormCol,
+  DefaultProFormToast,
+} from './constant'
 import { useValues } from './useValues'
 
+import { GlobalOption } from '../../constant'
+import { isFunction } from '../../utils'
 import { mergeWithTovalue } from '../common'
 import { buildButtonGroup } from '../ProButton'
-
-import { GlobalOption } from '~/constant'
-import { isFunction } from '~/utils'
+import { toast as showToast } from '../Toast'
 
 import type {
   BuildFormOptionResult,
@@ -68,7 +72,7 @@ export function buildForm<T extends Record<string, any>, C = any>(
     labelCol,
     wrapperCol,
     action = {},
-    // toast = successToast,
+    toast = DefaultProFormToast,
     row,
     col = DefaultProFormCol,
     fetchDictionaryCollection,
@@ -110,7 +114,7 @@ export function buildForm<T extends Record<string, any>, C = any>(
   const actionGroup = buildButtonGroup<
     ProFormActions,
     ProFormActionGroupExtends
-  >(action, DefaultProFormActionGroup)
+  >(action, DefaultProFormActionGroup(scope.submit))
 
   // 构建列
   const resolvedColumns = ref([]) as Ref<Ref<InternalProFormColumnOptions<T>>[]>
@@ -172,8 +176,7 @@ export function buildForm<T extends Record<string, any>, C = any>(
     // 成功回调
     if (result) {
       successRequest?.()
-      // TODO:
-      // showToast(toast)
+      showToast(toast)
     }
   }
 

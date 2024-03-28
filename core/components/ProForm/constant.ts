@@ -5,6 +5,7 @@ import { getUuid } from '../common'
 
 import type { ProFormActionGroup } from './interface'
 import type { ProFormColumnOptions, ProFormListOptions } from './interface'
+import type { SuccessToastOptions } from '../Toast'
 import type { ColProps, SpaceProps } from 'ant-design-vue'
 
 /**
@@ -47,17 +48,19 @@ export const DefaultCopyRecordButtonProps: ProFormListOptions['copyButtonProps']
 /**
  * Pro Form 默认按钮组
  */
-export const DefaultProFormActionGroup: ProFormActionGroup = {
+export const DefaultProFormActionGroup = (
+  onClick: any
+): ProFormActionGroup => ({
   col: { span: 24 },
   show: true,
   actions: {
     confirm: {
       show: true,
       text: '提交',
-      props: { type: 'primary' },
+      props: { type: 'primary', onClick },
     },
   },
-}
+})
 
 export const ProFormListPlaceholder = getUuid() + '__placeholder__'
 
@@ -70,3 +73,6 @@ export const DefaultFormListSpaceProps: SpaceProps = {
   style: { width: '100%' },
   align: 'start',
 }
+
+// Pro Form Toast
+export const DefaultProFormToast: SuccessToastOptions = '保存成功'

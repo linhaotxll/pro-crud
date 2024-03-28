@@ -1,8 +1,8 @@
-import { mount } from '@vue/test-utils'
+import { flushPromises, mount } from '@vue/test-utils'
 import antdv, { Button, Col, FormItem, Row } from 'ant-design-vue'
 import { Input } from 'ant-design-vue'
-import { describe, test, expect } from 'vitest'
-import { defineComponent, h, ref } from 'vue'
+import { describe, test, expect, beforeEach } from 'vitest'
+import { defineComponent, h, nextTick, ref } from 'vue'
 
 import { ProForm, ProFormItem, buildForm } from '../'
 import { ProButtonGroup } from '../../ProButton'
@@ -11,6 +11,10 @@ import type { ColProps } from 'ant-design-vue'
 import type { Ref } from 'vue'
 
 describe('Pro Form Props', () => {
+  beforeEach(() => {
+    document.body.innerHTML = ''
+  })
+
   test('form props is ref', async () => {
     const App = defineComponent({
       name: 'App',
@@ -391,8 +395,6 @@ describe('Pro Form Props', () => {
     expect(wrapper.findAllComponents(Button)[1].text()).toBe('取 消')
   })
 
-  // test('form column is empty',)
-
   test('from column is ref', async () => {
     const App = defineComponent({
       name: 'App',
@@ -458,5 +460,54 @@ describe('Pro Form Props', () => {
 
     await button.trigger('click')
     expect(wrapper.findAllComponents(ProFormItem).length).toBe(0)
+  })
+
+  test('toast default', async () => {
+    const App = defineComponent({
+      name: 'App',
+      setup() {
+        const { proFormBinding } = buildForm(() => {
+          return {
+            submitRequest() {
+              return true
+            },
+            // toast: 'ok',
+            toast: {
+              type: 'message',
+              props: {
+                type: 'error',
+                content: 'error',
+              },
+            },
+          }
+        })
+
+        return () => {
+          return [h(ProForm, proFormBinding)]
+        }
+      },
+    })
+
+    const wrapper = mount(App, {
+      global: {
+        plugins: [antdv],
+      },
+      attachTo: 'body',
+    })
+
+    expect(wrapper.findComponent(ProForm).exists()).toBe(true)
+    expect(wrapper.findAllComponents(Button).length).toBe(1)
+
+    await wrapper.findAllComponents(Button)[0].vm.$emit('click')
+    await nextTick()
+    await flushPromises()
+
+    expect(document.querySelectorAll('.ant-message-error').length).toBe(1)
+
+    expect(
+      document
+        .querySelectorAll('.ant-message-error')[0]
+        .querySelectorAll('span')[1].innerHTML
+    ).toBe('error')
   })
 })
