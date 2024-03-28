@@ -1,5 +1,4 @@
 import type { MaybeRef } from '../common'
-import type { WatchSource } from 'vue'
 
 /**
  * 字典选项

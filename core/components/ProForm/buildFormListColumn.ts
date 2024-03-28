@@ -13,6 +13,7 @@ import { mergeWithTovalue } from '../common'
 import type {
   InternalProFormColumnOptions,
   ProFormColumnOptions,
+  ProFormScope,
 } from './interface'
 import type { ColProps } from 'ant-design-vue'
 import type { ComputedRef, Ref } from 'vue'
@@ -21,6 +22,7 @@ export function buildFormListColumns(
   commonCol: ComputedRef<ColProps> | undefined,
   commonLabelCol: ComputedRef<ColProps> | undefined,
   commonWrapperCol: ComputedRef<ColProps> | undefined,
+  scope: ProFormScope<any>,
   list: ProFormColumnOptions<any>['list'],
   parent: InternalProFormColumnOptions<any>
 ) {
@@ -57,6 +59,7 @@ export function buildFormListColumns(
           commonCol,
           commonLabelCol,
           commonWrapperCol,
+          scope,
           childrenValue[i],
           parent
         )

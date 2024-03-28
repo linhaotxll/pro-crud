@@ -1,4 +1,4 @@
-import { merge } from 'lodash-es'
+import { merge, set } from 'lodash-es'
 import { toValue, ref, watchEffect } from 'vue'
 
 import { buildFormListColumns } from './buildFormListColumn'
@@ -10,6 +10,7 @@ import { buildDictionary } from '../ProDictionary'
 import type {
   InternalProFormColumnOptions,
   ProFormColumnOptions,
+  ProFormScope,
 } from './interface'
 import type { DictionaryCollection } from '../ProDictionary'
 import type { ColProps, FormItemProps } from 'ant-design-vue'
@@ -20,6 +21,7 @@ export function buildFormColumn<T extends object>(
   commonCol: ComputedRef<ColProps> | undefined,
   commonLabelCol: ComputedRef<ColProps> | undefined,
   commonWrapperCol: ComputedRef<ColProps> | undefined,
+  scope: ProFormScope<T>,
   column: ProFormColumnOptions<T>,
   parent?: InternalProFormColumnOptions<T>,
   fetchDictionaryCollection?: DictionaryCollection['fetchDictionaryCollection'],
@@ -118,6 +120,7 @@ export function buildFormColumn<T extends object>(
             commonCol,
             commonLabelCol,
             commonWrapperCol,
+            scope,
             list,
             result
           )
@@ -127,7 +130,16 @@ export function buildFormColumn<T extends object>(
     const resolvedDictionary = buildDictionary(
       dict,
       resolvedType,
-      fetchDictionaryCollection
+      fetchDictionaryCollection,
+      dict => {
+        if (dict.dependences) {
+          // TODO: scope
+          return dict.dependences.reduce((prev, dept) => {
+            set(prev, dept, scope.getFieldValue(dept))
+            return prev
+          }, {})
+        }
+      }
     )
 
     const source: Partial<InternalProFormColumnOptions<any>> = {

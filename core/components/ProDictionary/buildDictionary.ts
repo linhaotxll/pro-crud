@@ -1,9 +1,8 @@
-import { once } from 'lodash-es'
 import { computed, ref, toValue, watchEffect } from 'vue'
 
 import { ensureDictionary } from './ensureDictionary'
 
-import { isPromise } from '../../utils'
+import { isArray, isFunction, isPromise } from '../../utils'
 
 import type {
   DictionaryCollection,
@@ -16,7 +15,8 @@ import type { Ref } from 'vue'
 export function buildDictionary<Dictionary = any, Collection = any>(
   dictionatyOptions: DictionaryColumn['dict'],
   type: ValueType,
-  optionFetchCollection: DictionaryCollection<Collection>['fetchDictionaryCollection']
+  optionFetchCollection: DictionaryCollection<Collection>['fetchDictionaryCollection'],
+  fetchDataEffect?: (dict: DictionaryOptions<Dictionary, Collection>) => any
 ) {
   console.log('buildCDictionary')
   if (!ensureDictionary(type, dictionatyOptions)) {
@@ -24,28 +24,57 @@ export function buildDictionary<Dictionary = any, Collection = any>(
   }
 
   const isCollection = typeof optionFetchCollection === 'function'
-  const fetchCollectionOnce = isCollection ? once(optionFetchCollection!) : null
   const fetchLoading = ref(false)
   const collectionLoading = isCollection ? ref(false) : null
-  const collection = isCollection ? (ref([]) as Ref<Collection>) : null
+  const collection = isCollection ? (ref() as Ref<Collection>) : null
   const dictionary = ref([]) as Ref<{ label: string; value: any }[]>
 
   if (isCollection) {
     fetchCollection()
   }
 
+  function fetchWithLoding<T extends Dictionary[] | Collection>(
+    loading: Ref<boolean>,
+    request: () => Promise<T> | T,
+    assign: (res: T) => void
+  ) {
+    // 是否是 Promise
+    let isPromiseFetch = false
+
+    try {
+      // 开启 loading
+      loading.value = true
+      // 调用请求
+      const result = request()
+
+      if ((isPromiseFetch = isPromise(result))) {
+        result
+          .then(res => {
+            // 赋值
+            assign(res)
+          })
+          .finally(() => {
+            loading.value = false
+          })
+      } else {
+        // 赋值
+        assign(result)
+      }
+    } finally {
+      // 非 Promise 关闭 loading
+      if (!isPromiseFetch) {
+        loading.value = false
+      }
+    }
+  }
+
   /**
    * 获取集合数据
    */
-  async function fetchCollection() {
-    collectionLoading!.value = true
-
-    try {
-      const res = await fetchCollectionOnce!()
-      collection!.value = res
-    } finally {
-      collectionLoading!.value = false
-    }
+  function fetchCollection() {
+    fetchWithLoding(collectionLoading!, optionFetchCollection!, res => {
+      collection!.value = res as Collection
+    })
   }
 
   /**
@@ -60,50 +89,32 @@ export function buildDictionary<Dictionary = any, Collection = any>(
     labelFieldValue: string,
     valueFieldValue: string,
     collection: Collection | null,
+    deptParams: any,
     fetchDictionary: DictionaryOptions['fetchDictionary'],
     fetchDictionaryInCollection: DictionaryOptions['fetchDictionaryInCollection']
   ) {
-    setLoading(true)
+    fetchWithLoding<Dictionary[]>(
+      fetchLoading,
+      () => {
+        const res = isArray(dataValue)
+          ? dataValue
+          : isFunction(fetchDictionary)
+          ? fetchDictionary(deptParams)
+          : isFunction(fetchDictionaryInCollection) && collection
+          ? fetchDictionaryInCollection(collection)
+          : []
+        return res
+      },
+      setDictionary
+    )
 
-    function setDictionary(res: Dictionary[]) {
-      dictionary.value = res.map(item => ({
-        label: item[labelFieldValue],
-        value: item[valueFieldValue],
-      }))
-    }
-
-    function setLoading(visible: boolean) {
-      fetchLoading.value = visible
-    }
-
-    let resIsPromise
-
-    try {
-      const res = Array.isArray(dataValue)
-        ? dataValue
-        : typeof fetchDictionary === 'function'
-        ? fetchDictionary()
-        : typeof fetchDictionaryInCollection === 'function' && collection
-        ? fetchDictionaryInCollection(collection)
-        : []
-
-      resIsPromise = isPromise(res)
-
-      if (resIsPromise) {
-        ;(res as Promise<any>)
-          .then(dict => {
-            console.log(22222222)
-            setDictionary(dict)
-          })
-          .finally(() => {
-            setLoading(false)
-          })
-      } else {
-        console.log(11111111)
-        setDictionary(res as Dictionary[])
+    function setDictionary(res: Dictionary[] | undefined) {
+      if (isArray(res)) {
+        dictionary.value = res.map((item: any) => ({
+          label: item[labelFieldValue],
+          value: item[valueFieldValue],
+        }))
       }
-    } finally {
-      setLoading(false)
     }
   }
 
@@ -113,7 +124,6 @@ export function buildDictionary<Dictionary = any, Collection = any>(
       data,
       labelField = 'label',
       valueField = 'value',
-      dependences,
       fetchDictionary,
       fetchDictionaryInCollection,
     } = dictValue
@@ -125,15 +135,14 @@ export function buildDictionary<Dictionary = any, Collection = any>(
       toValue(collection),
     ]
 
-    if (dependences) {
-      dependences.forEach(item => {})
-    }
+    const deptParams = fetchDataEffect?.(dictValue)
 
     fetchData(
       dataValue,
       labelFieldValue,
       valueFieldValue,
       collectionValue,
+      deptParams,
       fetchDictionary,
       fetchDictionaryInCollection
     )
@@ -141,6 +150,6 @@ export function buildDictionary<Dictionary = any, Collection = any>(
 
   return {
     dictionary,
-    loading: computed(() => fetchLoading.value && !!collectionLoading?.value),
+    loading: computed(() => fetchLoading.value || !!collectionLoading?.value),
   }
 }

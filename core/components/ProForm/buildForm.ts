@@ -1,5 +1,5 @@
 import cloneDeep from 'clone-deep'
-import { get, set, unset, has } from 'lodash-es'
+import { get, set, unset, has, once } from 'lodash-es'
 import {
   computed,
   inject,
@@ -18,6 +18,7 @@ import { mergeWithTovalue } from '../common'
 import { buildButtonGroup } from '../ProButton'
 
 import { GlobalOption } from '~/constant'
+import { isFunction } from '~/utils'
 
 import type {
   BuildFormOptionResult,
@@ -118,6 +119,11 @@ export function buildForm<T extends Record<string, any>, C = any>(
     InternalProFormColumnOptions<T>
   >()
 
+  // 只调用一次的获取集合函数
+  const fetchDictionaryCollectionOnce = isFunction(fetchDictionaryCollection)
+    ? once(fetchDictionaryCollection)
+    : undefined
+
   watchEffect(() => {
     resolvedColumns.value = []
     const columnsValue = toValue(columns)
@@ -129,9 +135,10 @@ export function buildForm<T extends Record<string, any>, C = any>(
         resolvedCommonColProps,
         resolvedCommonLabelColProps,
         resolvedCommonWrapperColProps,
+        scope,
         column,
         undefined,
-        fetchDictionaryCollection,
+        fetchDictionaryCollectionOnce,
         internalColumn => {
           if (internalColumn.name) {
             resolvedColumnsMap.set(internalColumn.name, internalColumn)
