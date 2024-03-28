@@ -25,28 +25,28 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>285/285</span>
+                <span class='fraction'>290/290</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>3/3</span>
+                <span class='fraction'>6/6</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Functions</span>
-                <span class='fraction'>1/1</span>
+                <span class='fraction'>4/4</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>285/285</span>
+                <span class='fraction'>290/290</span>
             </div>
         
             
@@ -348,7 +348,12 @@
 <a name='L283'></a><a href='#L283'>283</a>
 <a name='L284'></a><a href='#L284'>284</a>
 <a name='L285'></a><a href='#L285'>285</a>
-<a name='L286'></a><a href='#L286'>286</a></td><td class="line-coverage quiet"><span class="cline-any cline-yes">1x</span>
+<a name='L286'></a><a href='#L286'>286</a>
+<a name='L287'></a><a href='#L287'>287</a>
+<a name='L288'></a><a href='#L288'>288</a>
+<a name='L289'></a><a href='#L289'>289</a>
+<a name='L290'></a><a href='#L290'>290</a>
+<a name='L291'></a><a href='#L291'>291</a></td><td class="line-coverage quiet"><span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
@@ -631,16 +636,23 @@
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">111x</span>
-<span class="cline-any cline-yes">111x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">132x</span>
+<span class="cline-any cline-yes">132x</span>
 <span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">import { merge } from 'lodash-es'
-import { inject, type WritableComputedRef } from 'vue'
+import { h, inject } from 'vue'
+&nbsp;
+import { ProDictionary } from '../ProDictionary'
 &nbsp;
 import { GlobalOption } from '~/constant'
 &nbsp;
 import type { InternalProFormColumnOptions, ProFormScope } from '../ProForm'
 import type { BodyCellSlotParams } from '../ProTable'
-import type { CSSProperties, VNode, VNodeChild } from 'vue'
+import type { CSSProperties, Slots, VNode, VNodeChild } from 'vue'
 &nbsp;
 /**
  * 字段类型
@@ -665,18 +677,20 @@ export type ValueType =
   | 'time-range'
   | 'auto-complete'
   | 'cascader'
-  | 'dict'
-  | 'dict-select'
+  // | 'dict'
+  | 'select'
+  | 'radio-group'
+  | 'checkbox-group'
   | 'list'
 &nbsp;
 /**
  * 自定义字段配置
  */
-export interface ValueTypeValue&lt;T = any, R = any&gt; {
+export interface ValueTypeValue&lt;R = any&gt; {
   /**
    * 自定义表单字段配置
    */
-  form?: ValueTypeForm&lt;T&gt;
+  form?: ValueTypeForm
 &nbsp;
   /**
    * 自定义表格字段配置
@@ -687,7 +701,7 @@ export interface ValueTypeValue&lt;T = any, R = any&gt; {
 /**
  * 自定义表单配置
  */
-export interface ValueTypeForm&lt;T = any&gt; {
+export interface ValueTypeForm {
   /**
    * 组件名
    */
@@ -708,17 +722,7 @@ export interface ValueTypeForm&lt;T = any&gt; {
   /**
    * 自定义渲染函数
    */
-  render?: (ctx: ValueTypeFormRender&lt;T&gt;) =&gt; VNodeChild
-}
-&nbsp;
-/**
- * 自定义表单渲染函数参数
- */
-export type ValueTypeFormRender&lt;T = any&gt; = {
-  vModel: WritableComputedRef&lt;T&gt;
-  column: InternalProFormColumnOptions&lt;any&gt;
-  style: CSSProperties | undefined
-  scope: ProFormScope&lt;any&gt; | undefined
+  render?: (ctx: ValueTypeFormProps) =&gt; VNodeChild
 }
 &nbsp;
 /**
@@ -728,6 +732,7 @@ export interface ValueTypeFormProps {
   column: InternalProFormColumnOptions&lt;any&gt;
   style: CSSProperties | undefined
   scope: ProFormScope&lt;any&gt; | undefined
+  slots: Slots | undefined
   // v-model:value
   [name: string]: any
 }
@@ -899,15 +904,25 @@ export const DefaultValueType: Record&lt;ValueType, ValueTypeValue&gt; = {
     form: { is: 'a-cascader' },
   },
 &nbsp;
-  dict: {
-    table: {
-      is: 'pro-dictionary',
-    },
+  // dict: {
+  //   table: {
+  //     // is: 'pro-dictionary',
+  //   },
+  // },
+&nbsp;
+  select: {
+    // table: { is: 'pro-dictionary' },
+    form: { render: ctx =&gt; h(ProDictionary, { ctx, is: 'select' }) },
   },
 &nbsp;
-  'dict-select': {
-    table: { is: 'pro-dictionary' },
-    form: { is: 'a-select' },
+  'radio-group': {
+    // table: { is: 'pro-dictionary' },
+    form: { render: ctx =&gt; h(ProDictionary, { ctx, is: 'radio-group' }) },
+  },
+&nbsp;
+  'checkbox-group': {
+    // table: { is: 'pro-dictionary' },
+    form: { render: ctx =&gt; h(ProDictionary, { ctx, is: 'checkbox-group' }) },
   },
 &nbsp;
   list: {
@@ -925,7 +940,7 @@ export function ensureValueType() {
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2024-03-12T09:14:18.291Z
+                at 2024-03-28T07:59:51.541Z
             </div>
         <script src="../../../../prettify.js"></script>
         <script>
