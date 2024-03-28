@@ -1,5 +1,7 @@
 <template>
-  <a-tag v-if="content">{{ content }}</a-tag>
+  <template v-if="contents">
+    <a-tag v-for="tag in contents" :key="tag">{{ tag }}</a-tag>
+  </template>
 </template>
 
 <script lang="ts" setup generic="T">
@@ -13,7 +15,12 @@ const p = defineProps<{
   ctx: BodyCellSlotParams<T>
 }>()
 
-const content = computed(
-  () => p.ctx.column.__column!.dict?.optionsNameMap.value[p.ctx.text]
-)
+const contents = computed(() => {
+  const map = p.ctx.column.__column!.dict?.optionsNameMap.value
+  return map && p.ctx.text
+    ? Array.isArray(p.ctx.text)
+      ? p.ctx.text.map(t => map[t])
+      : [map[p.ctx.text]]
+    : undefined
+})
 </script>
