@@ -22,7 +22,9 @@ export const ProForm = defineComponent({
     scope: Object as PropType<ProFormScope<any>>,
   },
 
-  setup(props) {
+  setup(props, { expose }) {
+    expose(props.scope)
+
     return () => {
       console.log('render pro form: ')
 

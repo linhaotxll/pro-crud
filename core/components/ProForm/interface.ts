@@ -66,13 +66,6 @@ export interface ProFormScope<T extends object> {
    */
   reset(prop?: NamePath[]): void
 
-  // /**
-  //  * 重置表单
-  //  *
-  //  * @alias reset
-  //  */
-  // resetFields(name?: NamePath): void
-
   /**
    * 设置表单字段
    */
@@ -82,11 +75,6 @@ export interface ProFormScope<T extends object> {
    * 设置多个表单字段
    */
   setFieldValues(values: Record<string, any>): void
-
-  // /**
-  //  * 设置多个表单字段，会进行服务端与表单之间的数据转换
-  //  */
-  // setFieldValuesTransform(values: Record<string, any>): void
 
   /**
    * 获取对应字段名的值
@@ -106,14 +94,6 @@ export interface ProFormScope<T extends object> {
     options?: ValidateOptions
   ): Promise<T | undefined>
 
-  // /**
-  //  * 触发表单验证
-  //  */
-  // validateFields(
-  //   name?: Arrayable<NamePath> | undefined,
-  //   options?: ValidateOptions
-  // ): Promise<T | undefined>
-
   /**
    * 滚动到指定的字段
    */
@@ -123,21 +103,6 @@ export interface ProFormScope<T extends object> {
    * 清理某个字段的表单验证信息
    */
   clearValidate(nameList?: Arrayable<NamePath>): void
-
-  // /**
-  //  * 获取对应字段实例
-  //  */
-  // getFieldInstance(name: NamePath): FormItemInstance | null
-
-  // /**
-  //  * 设置对应字段实例
-  //  */
-  // setFieldInstance(name: NamePath, value: Ref<FormItemInstance | null>): void
-
-  // /**
-  //  * 获取所有字段实例
-  //  */
-  // getFieldInstances(): Map<NamePath, Ref<FormItemInstance | null>>
 }
 
 /**
@@ -151,29 +116,19 @@ export type ProFormProps<T extends object> = BuildFormBinding<T>
  * buildForm 返回值
  */
 export interface BuildFormResult<T extends object> {
-  proFormRef: Ref<ProFormInstance<T> | null>
   proFormBinding: BuildFormBinding<T>
 }
 
 export interface BuildFormBinding<T extends object> {
   row: ComputedRef<RowProps> | undefined
   columns: Ref<Ref<InternalProFormColumnOptions<T>>[]>
-  // columns: ComputedRef<InternalProFormColumnOptions<T>>[]
-  // labelCol: ComputedRef<ColProps | undefined>
-  // wrapperCol: ComputedRef<ColProps | undefined>
   formProps: ComputedRef<FormProps> | undefined
-  // actions: ComputedRef<ProFormActionsOptions>
   values: T
   actionGroup:
     | Ref<InternalProButtonGroupOptions & UnwrapRef<ProFormActionGroupExtends>>
     | undefined
   scope: ProFormScope<T>
   formRef: Ref<FormInstance | null>
-  // row: ComputedRef<RowProps | undefined>
-  // resolvedColumnsMap: Map<
-  //   FormItemProps['name'],
-  //   InternalProFormColumnOptions<T>
-  // >
 }
 
 /**
@@ -279,7 +234,7 @@ export type ProFormActions = {
 /**
  * 表单实例方法
  */
-export type ProFormInstance<T extends object> = ProFormScope<T>
+export type ProFormInstance<T extends object = any> = ProFormScope<T>
 
 /**
  * 表单列配置

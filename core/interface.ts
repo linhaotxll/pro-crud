@@ -7,11 +7,7 @@ import type {
   TransformQueryParams,
   TransformResponseParams,
 } from './components/ProCrud'
-import type {
-  BuildFormBinding,
-  ProFormInstance,
-  ProFormScope,
-} from './components/ProForm'
+import type { BuildFormBinding, ProFormScope } from './components/ProForm'
 import type {
   BuildProTableBinding,
   FetchTableDataResult,
@@ -73,7 +69,6 @@ export interface ProComponentsOptions {
     form?: (ctx: {
       proFormScope: ProFormScope<any>
       proFormBinding: BuildFormBinding<any>
-      proFormRef: Ref<ProFormInstance<any> | null>
     }) => void
 
     /**

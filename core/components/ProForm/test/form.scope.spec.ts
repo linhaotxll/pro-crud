@@ -1,11 +1,11 @@
 import { mount, flushPromises } from '@vue/test-utils'
 import antdv, { Input, Select } from 'ant-design-vue'
 import { describe, test, expect, vi } from 'vitest'
-import { defineComponent, h, ref } from 'vue'
+import { defineComponent, h, ref, toValue } from 'vue'
 
 import { ProForm, buildForm } from '..'
 
-import type { ProFormScope } from '..'
+import type { ProFormInstance, ProFormScope } from '..'
 
 describe('Pro Form Scope', () => {
   test('getFormValues', async () => {
@@ -283,5 +283,49 @@ describe('Pro Form Scope', () => {
 
     await setButton.trigger('click')
     expect(wrapper.findComponent(Select).props().value).toStrictEqual([2, 3])
+  })
+
+  test('pro form ref', () => {
+    const proFormRef = ref<ProFormInstance | null>(null)
+
+    const App = defineComponent({
+      name: 'App',
+      setup() {
+        const { proFormBinding } = buildForm(() => {
+          return {
+            columns: [
+              {
+                label: '用户名',
+                name: 'name',
+              },
+            ],
+          }
+        })
+
+        return () => {
+          return [h(ProForm, { ...proFormBinding, ref: proFormRef })]
+        }
+      },
+    })
+
+    const wrapper = mount(App, {
+      global: {
+        plugins: [antdv],
+      },
+    })
+
+    expect(wrapper.findComponent(ProForm).exists()).toBe(true)
+    expect(toValue(proFormRef)).not.toBe(null)
+    expect(Object.keys(toValue(proFormRef)!).length).toBe(10)
+    expect(toValue(proFormRef)).toHaveProperty('getFormValues')
+    expect(toValue(proFormRef)).toHaveProperty('submit')
+    expect(toValue(proFormRef)).toHaveProperty('reset')
+    expect(toValue(proFormRef)).toHaveProperty('setFieldValue')
+    expect(toValue(proFormRef)).toHaveProperty('setFieldValues')
+    expect(toValue(proFormRef)).toHaveProperty('getFieldValue')
+    expect(toValue(proFormRef)).toHaveProperty('removeFields')
+    expect(toValue(proFormRef)).toHaveProperty('validate')
+    expect(toValue(proFormRef)).toHaveProperty('scrollToField')
+    expect(toValue(proFormRef)).toHaveProperty('clearValidate')
   })
 })

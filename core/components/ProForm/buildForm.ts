@@ -30,7 +30,6 @@ import type {
   InternalProFormColumnOptions,
   ProFormActionGroupExtends,
   ProFormActions,
-  ProFormInstance,
   ProFormScope,
 } from './interface'
 import type {
@@ -319,9 +318,7 @@ export function buildForm<T extends Record<string, any>, C = any>(
     return values
   }
 
-  const proFormRef = ref(null) as Ref<ProFormInstance<T> | null>
   const formBinding: BuildFormResult<T> = {
-    proFormRef,
     proFormBinding: {
       row: resolvedCommonRowProps,
       columns: resolvedColumns,
@@ -336,7 +333,6 @@ export function buildForm<T extends Record<string, any>, C = any>(
   inject(GlobalOption)?.hooks?.form?.({
     proFormScope: scope,
     proFormBinding: formBinding.proFormBinding,
-    proFormRef,
   })
 
   return formBinding
