@@ -83,7 +83,7 @@ export function buildForm<T extends Record<string, any>, C = any>(
   } = options(scope, ctx)
 
   // 修改 values
-  useValues(values, scope, initialValues, columns)
+  useValues(values, initialValues)
 
   // 解析 Form Props
   const resolvedFormProps = formProps

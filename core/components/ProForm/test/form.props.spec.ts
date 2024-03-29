@@ -1,7 +1,7 @@
 import { flushPromises, mount } from '@vue/test-utils'
 import antdv, { Button, Col, FormItem, Row } from 'ant-design-vue'
 import { Input } from 'ant-design-vue'
-import { describe, test, expect, beforeEach } from 'vitest'
+import { describe, test, expect, beforeEach, vi } from 'vitest'
 import { defineComponent, h, nextTick, ref } from 'vue'
 
 import { ProForm, ProFormItem, buildForm } from '../'
@@ -509,5 +509,70 @@ describe('Pro Form Props', () => {
         .querySelectorAll('.ant-message-error')[0]
         .querySelectorAll('span')[1].innerHTML
     ).toBe('error')
+  })
+
+  test('column col is not default value', async () => {
+    const App = defineComponent({
+      name: 'App',
+      setup() {
+        const { proFormBinding } = buildForm(() => {
+          return {
+            columns: [{ label: '姓名', name: 'name' }],
+            col: null,
+          }
+        })
+
+        return () => {
+          return [h(ProForm, proFormBinding)]
+        }
+      },
+    })
+
+    const wrapper = mount(App, {
+      global: {
+        plugins: [antdv],
+      },
+    })
+
+    expect(wrapper.findComponent(ProForm).exists()).toBe(true)
+    expect(wrapper.findAllComponents(ProFormItem).length).toBe(1)
+    expect(
+      wrapper.findComponent(ProFormItem).findAllComponents(Col)[0].props().span
+    ).toBe(undefined)
+  })
+
+  test('submitRequest default return false', async () => {
+    const successRequest = vi.fn()
+
+    const App = defineComponent({
+      name: 'App',
+      setup() {
+        const { proFormBinding } = buildForm(() => {
+          return {
+            columns: [{ label: '姓名', name: 'name' }],
+            successRequest,
+          }
+        })
+
+        return () => {
+          return [h(ProForm, proFormBinding)]
+        }
+      },
+    })
+
+    const wrapper = mount(App, {
+      global: {
+        plugins: [antdv],
+      },
+    })
+
+    expect(wrapper.findAllComponents(ProForm).length).toBe(1)
+    expect(successRequest).toHaveBeenCalledTimes(0)
+    expect(wrapper.findAllComponents(Button).length).toBe(1)
+
+    await wrapper.findComponent(Button).vm.$emit('click')
+    await nextTick()
+
+    expect(successRequest).toHaveBeenCalledTimes(0)
   })
 })

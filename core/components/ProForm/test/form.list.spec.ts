@@ -528,4 +528,164 @@ describe('Pro Form Scope', () => {
       wrapper.findComponent(ProFormList).findAllComponents(Button).length
     ).toBe(3)
   })
+
+  test('add with creatorRecord', async () => {
+    const timestamp = `${Date.now()}`
+    const App = defineComponent({
+      name: 'App',
+      setup() {
+        const children = ref<any>([{ label: '用户名', name: 'username' }])
+        const { proFormBinding } = buildForm(() => {
+          return {
+            columns: [
+              {
+                label: '列表',
+                name: 'list',
+                type: 'list',
+                list: {
+                  children,
+                  max: 3,
+                  min: 2,
+                  creatorRecord() {
+                    return { username: timestamp }
+                  },
+                },
+              },
+            ],
+          }
+        })
+
+        return () => {
+          return [h(ProForm, proFormBinding)]
+        }
+      },
+    })
+
+    const wrapper = mount(App, {
+      global: {
+        plugins: [antdv, ProComponents],
+      },
+    })
+
+    expect(wrapper.findComponent(ProFormList).exists()).toBe(true)
+
+    // 新增按钮
+    const createButton = wrapper
+      .findComponent(ProFormList)
+      .findComponent(Button)
+
+    expect(createButton.exists()).toBe(true)
+
+    // 新增一行
+    await createButton.vm.$emit('click')
+
+    expect(
+      wrapper.findComponent(ProFormList).findAllComponents(ProFormItem).length
+    ).toBe(1)
+
+    expect(
+      wrapper.findAllComponents(ProFormItem)[0].find('input').element.value
+    ).toBe(timestamp)
+
+    // 新增第二行
+    await createButton.vm.$emit('click')
+
+    expect(
+      wrapper.findComponent(ProFormList).findAllComponents(ProFormItem).length
+    ).toBe(2)
+
+    expect(
+      wrapper.findAllComponents(ProFormItem)[0].find('input').element.value
+    ).toBe(timestamp)
+    expect(
+      wrapper.findAllComponents(ProFormItem)[1].find('input').element.value
+    ).toBe(timestamp)
+  })
+
+  test('children has name path', async () => {
+    const App = defineComponent({
+      name: 'App',
+      setup() {
+        const list = ref<any>({
+          children: [{ label: '用户名', name: ['username'] }],
+        })
+        const { proFormBinding } = buildForm(() => {
+          return {
+            columns: [{ label: '信息', name: ['info'], type: 'list', list }],
+          }
+        })
+
+        return () => {
+          return [
+            h(ProForm, proFormBinding),
+            h('button', {
+              class: 'clear-button',
+              onClick() {
+                list.value = null
+              },
+            }),
+            h('button', {
+              class: 'set-button',
+              onClick() {
+                list.value = {
+                  children: [
+                    { label: '昵称', name: 'nickname' },
+                    { label: '密码', name: 'pwd' },
+                  ],
+                }
+              },
+            }),
+          ]
+        }
+      },
+    })
+
+    const wrapper = mount(App, {
+      global: {
+        plugins: [antdv, ProComponents],
+      },
+    })
+
+    expect(wrapper.findComponent(ProFormList).exists()).toBe(true)
+
+    const clearButton = wrapper.find('.clear-button')
+    expect(clearButton.exists()).toBe(true)
+
+    await clearButton.trigger('click')
+
+    expect(wrapper.findComponent(ProFormList).exists()).toBe(true)
+    expect(wrapper.findComponent(ProFormList).findAll('div').length).toBe(0)
+
+    const setButton = wrapper.find('.set-button')
+    expect(setButton.exists()).toBe(true)
+
+    await setButton.trigger('click')
+
+    expect(
+      wrapper.findComponent(ProFormList).findAllComponents(Button).length
+    ).toBe(1)
+
+    await wrapper
+      .findComponent(ProFormList)
+      .findComponent(Button)
+      .vm.$emit('click')
+
+    expect(
+      wrapper.findComponent(ProFormList).findAllComponents(ProFormItem).length
+    ).toBe(2)
+    expect(
+      wrapper
+        .findComponent(ProFormList)
+        .findAllComponents(ProFormItem)[0]
+        .find('label')
+        ?.text()
+    ).toBe('昵称')
+    expect(
+      wrapper
+        .findComponent(ProFormList)
+        .findAllComponents(ProFormItem)[1]
+        .find('label')
+        ?.text()
+    ).toBe('密码')
+  })
 })

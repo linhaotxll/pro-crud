@@ -197,22 +197,22 @@ export interface BuildFormOptionResult<
   /**
    * 通用 row 配置
    */
-  row?: MaybeRef<ExtractMaybeRef<RowProps>>
+  row?: MaybeRef<ExtractMaybeRef<RowProps>> | undefined | null
 
   /**
    * 通用 col 配置
    */
-  col?: MaybeRef<ExtractMaybeRef<ColProps>>
+  col?: MaybeRef<ExtractMaybeRef<ColProps>> | undefined | null
 
   /**
    * 通用 Label Col 配置
    */
-  labelCol?: MaybeRef<ExtractMaybeRef<ColProps>>
+  labelCol?: MaybeRef<ExtractMaybeRef<ColProps>> | undefined | null
 
   /**
    * 通用 Wrapper Col 配置
    */
-  wrapperCol?: MaybeRef<ExtractMaybeRef<ColProps>>
+  wrapperCol?: MaybeRef<ExtractMaybeRef<ColProps>> | undefined | null
 
   // /**
   //  * 表单被删除时是否保留字段值

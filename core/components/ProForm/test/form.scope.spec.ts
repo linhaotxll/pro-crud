@@ -1,5 +1,5 @@
 import { mount, flushPromises } from '@vue/test-utils'
-import antdv, { Input } from 'ant-design-vue'
+import antdv, { Input, Select } from 'ant-design-vue'
 import { describe, test, expect, vi } from 'vitest'
 import { defineComponent, h, ref } from 'vue'
 
@@ -133,7 +133,11 @@ describe('Pro Form Scope', () => {
     }))
     let scope!: ProFormScope<any>
     const newUsername = 'admin'
-    const resultParasm = { time, username: `${newUsername}${time}` }
+    const resultParasm = {
+      time,
+      username: `${newUsername}${time}`,
+      gender: 'male',
+    }
 
     const App = defineComponent({
       name: 'App',
@@ -152,6 +156,7 @@ describe('Pro Form Scope', () => {
                 },
               },
               { label: '密码', name: 'password', submitted: false },
+              { label: '性别', name: 'gender', submitted: () => true },
             ],
             submitRequest,
             successRequest,
@@ -179,6 +184,7 @@ describe('Pro Form Scope', () => {
               onClick() {
                 scope.setFieldValue('username', newUsername)
                 scope.setFieldValue('password', 'admin123')
+                scope.setFieldValue('gender', 'male')
               },
             }),
           ]
@@ -215,5 +221,67 @@ describe('Pro Form Scope', () => {
     expect(successRequest).toBeCalledTimes(1)
     expect(validateFail).toBeCalledTimes(1)
     expect(beforeSubmit).toBeCalledTimes(1)
+  })
+
+  test('setFieldValue with transform', async () => {
+    let scope!: ProFormScope<any>
+
+    const App = defineComponent({
+      name: 'App',
+      setup() {
+        const { proFormBinding } = buildForm(_scope => {
+          scope = _scope
+          return {
+            initialValues: { status: [2] },
+            columns: [
+              {
+                label: '用户名',
+                name: 'status',
+                type: 'select',
+                dict: {
+                  data: [
+                    { label: '状态一', value: 1 },
+                    { label: '状态二', value: 2 },
+                    { label: '状态三', value: 3 },
+                  ],
+                },
+                fieldProps: { mode: 'multiple' },
+                transform: {
+                  from(serverValue) {
+                    return serverValue?.split(',').map(Number)
+                  },
+                },
+              },
+            ],
+          }
+        })
+
+        return () => {
+          return [
+            h(ProForm, proFormBinding),
+            h('button', {
+              class: 'set-button',
+              onClick() {
+                scope.setFieldValue('status', '2,3')
+              },
+            }),
+          ]
+        }
+      },
+    })
+
+    const wrapper = mount(App, {
+      global: { plugins: [antdv] },
+    })
+
+    expect(wrapper.findAllComponents(ProForm).length).toBe(1)
+    expect(wrapper.findAllComponents(Select).length).toBe(1)
+    expect(wrapper.findComponent(Select).props().value).toStrictEqual([2])
+
+    const setButton = wrapper.find('.set-button')
+    expect(setButton.exists()).toBe(true)
+
+    await setButton.trigger('click')
+    expect(wrapper.findComponent(Select).props().value).toStrictEqual([2, 3])
   })
 })
