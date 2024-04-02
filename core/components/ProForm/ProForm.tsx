@@ -36,20 +36,24 @@ export const ProForm = defineComponent({
         </Col>
       ) : null
 
+      const $content = (
+        <>
+          {toValue(props.columns)?.map(column => (
+            <ProFormItem column={column} scope={props.scope} />
+          ))}
+          {$action}
+        </>
+      )
+
+      const formProps = toValue(props.formProps)
+
       return (
-        <Form
-          {...toValue(props.formProps)}
-          model={props.values}
-          ref={props.formRef}
-        >
-          {
-            <Row {...toValue(props.row)}>
-              {toValue(props.columns)?.map(column => (
-                <ProFormItem column={column} scope={props.scope} />
-              ))}
-              {$action}
-            </Row>
-          }
+        <Form {...formProps} model={props.values} ref={props.formRef}>
+          {formProps?.layout === 'inline' ? (
+            $content
+          ) : (
+            <Row {...toValue(props.row)}>{$content}</Row>
+          )}
         </Form>
       )
     }

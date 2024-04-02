@@ -210,6 +210,11 @@ export type ProFormActions = {
    * 确认按钮
    */
   confirm?: MaybeRef<ActionOption>
+
+  /**
+   * 重置按钮
+   */
+  reset?: MaybeRef<ActionOption>
 } & CustomActions
 
 /**

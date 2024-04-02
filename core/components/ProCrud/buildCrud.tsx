@@ -29,7 +29,6 @@ import { useOperate } from './useOperate'
 
 import { processDictionary, unRef } from '../common'
 import { buildForm, type ProFormColumnOptions } from '../ProForm'
-import { buildSearch } from '../ProSearch'
 import { buildTable } from '../ProTable'
 import { showToast } from '../Toast'
 

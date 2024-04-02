@@ -12,9 +12,11 @@ import {
 
 import { buildFormColumn } from './buildFormColumn'
 import {
-  DefaultProFormActionGroup,
+  buildDefaultProSearchActionGroup,
+  buildDefaultProFormActionGroup,
   DefaultProFormCol,
   DefaultProFormToast,
+  DefaultProSearchCol,
 } from './constant'
 import { useValues } from './useValues'
 
@@ -35,8 +37,8 @@ import type {
 import type {
   FormProps,
   ColProps,
-  RowProps,
   FormInstance,
+  RowProps,
 } from 'ant-design-vue'
 import type {
   NamePath,
@@ -73,7 +75,7 @@ export function buildForm<T extends Record<string, any>, C = any>(
     action = {},
     toast = DefaultProFormToast,
     row,
-    col = DefaultProFormCol,
+    col,
     fetchDictionaryCollection,
     beforeSubmit,
     submitRequest,
@@ -95,9 +97,15 @@ export function buildForm<T extends Record<string, any>, C = any>(
     : undefined
 
   // 解析通用 Col Props
-  const resolvedCommonColProps = col
-    ? computed<ColProps>(() => mergeWithTovalue({}, toValue(col)))
-    : undefined
+  // 行内模式使用 ProSearch，否则使用正常模式，其中不适用默认值需要指定 null
+  const resolvedCommonColProps = computed<ColProps>(() => {
+    if (toValue(resolvedFormProps)?.layout === 'inline') {
+      return mergeWithTovalue({}, DefaultProSearchCol, toValue(col))
+    }
+    return col === null
+      ? undefined
+      : mergeWithTovalue({}, DefaultProFormCol, toValue(col))
+  })
 
   // 解析通用 Label Col Props
   const resolvedCommonLabelColProps = labelCol
@@ -108,12 +116,6 @@ export function buildForm<T extends Record<string, any>, C = any>(
   const resolvedCommonWrapperColProps = wrapperCol
     ? computed<ColProps>(() => mergeWithTovalue({}, toValue(wrapperCol)))
     : undefined
-
-  // 构建按扭组
-  const actionGroup = buildButtonGroup<
-    ProFormActions,
-    ProFormActionGroupExtends
-  >(action, DefaultProFormActionGroup(scope.submit))
 
   // 构建列
   const resolvedColumns = ref([]) as Ref<Ref<InternalProFormColumnOptions<T>>[]>
@@ -151,6 +153,29 @@ export function buildForm<T extends Record<string, any>, C = any>(
       resolvedColumns.value.push(resolvedColumn)
     }
   })
+
+  // 构建按扭组
+  const actionGroup = buildButtonGroup<
+    ProFormActions,
+    ProFormActionGroupExtends
+  >(
+    computed(() => {
+      const args: any[] = []
+      if (toValue(resolvedFormProps)?.layout === 'inline') {
+        args.push(
+          buildDefaultProSearchActionGroup(
+            scope,
+            toValue(resolvedCommonColProps),
+            toValue(resolvedColumns),
+            toValue(action)
+          )
+        )
+      } else {
+        args.push(buildDefaultProFormActionGroup(scope), toValue(action))
+      }
+      return mergeWithTovalue({}, ...args)
+    })
+  )
 
   // Form Ref
   const formRef = ref<FormInstance | null>(null)

@@ -28,7 +28,6 @@ import { ProCrud } from './components/ProCrud'
 import { ProDictionary, ProSelect } from './components/ProDictionary'
 import { ProForm, ProFormList } from './components/ProForm'
 import { ProRender } from './components/ProRender'
-import { ProSearch } from './components/ProSearch'
 import { ProTable } from './components/ProTable'
 import { GlobalOption } from './constant'
 
@@ -43,7 +42,6 @@ export const ProComponents: Plugin<ProComponentsOptions> = {
     app.component(ProCrud.name, ProCrud)
     app.component(ProTable.name, ProTable)
     app.component(ProRender.name, ProRender)
-    app.component(ProSearch.name, ProSearch)
     app.component(ProForm.name, ProForm)
     app.component(ProSelect.name, ProSelect)
     app.component(ProDictionary.name, ProDictionary)
@@ -83,6 +81,5 @@ export const ProComponents: Plugin<ProComponentsOptions> = {
 }
 
 export * from './components/ProForm'
-export * from './components/ProSearch'
 export * from './components/ProCrud'
 export * from './components/ProTable'

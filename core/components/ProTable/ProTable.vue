@@ -61,11 +61,9 @@ import { computed, inject } from 'vue'
 
 import { ProTableRefKey } from './constant'
 
-import type { ProTableProps } from './interface'
-
 defineOptions({ name: 'ProTable' })
 
-const p = defineProps<ProTableProps<T>>()
+const p = defineProps<{}>()
 
 const resolvedColumns = computed(() => p.columns.map(c => c.value))
 

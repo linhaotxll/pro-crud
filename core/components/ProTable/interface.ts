@@ -49,8 +49,6 @@ import type {
   ExpandedRowRender,
 } from 'ant-design-vue/es/vc-table/interface'
 import type { VNodeChild } from 'vue'
-import type { VNodeChild } from 'vue'
-import type { VNodeChild } from 'vue'
 
 // /**
 //  * ProTable 接受的 props
