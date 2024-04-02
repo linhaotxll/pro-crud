@@ -20,7 +20,6 @@ import type { SuccessToastOptions } from '../Toast'
 import type {
   ColProps,
   FormItemProps,
-  TooltipProps,
   FormProps,
   RowProps,
   ButtonProps,
@@ -31,21 +30,7 @@ import type {
   NamePath,
   ValidateOptions,
 } from 'ant-design-vue/es/form/interface'
-import type {
-  CSSProperties,
-  ComputedRef,
-  Ref,
-  UnwrapRef,
-  VNode,
-  VNodeChild,
-} from 'vue'
-
-export type Tooltip = TooltipProps & {
-  slots?: {
-    default?: (style: CSSProperties) => VNode
-    title?: () => VNode
-  }
-}
+import type { ComputedRef, Ref, UnwrapRef, VNodeChild } from 'vue'
 
 /**
  * ProForm 作用域
@@ -169,10 +154,6 @@ export interface BuildFormOptionResult<
    */
   wrapperCol?: MaybeRef<ExtractMaybeRef<ColProps>> | undefined | null
 
-  // /**
-  //  * 表单被删除时是否保留字段值
-  //  */
-  // preserve?: boolean
   /**
    * 列配置
    */
@@ -192,14 +173,17 @@ export interface BuildFormOptionResult<
    * 表单提交前触发，可用来转换提交数据
    */
   beforeSubmit?: (values: T) => R | Promise<R>
+
   /**
    * 提交表单调用的接口配置
    */
   submitRequest?: (values: R) => Promise<boolean> | boolean
+
   /**
    * 接口调用成功时（submitRequest 返回 true）调用
    */
   successRequest?: () => void
+
   /**
    * 表单验证失败
    */
@@ -300,11 +284,6 @@ export interface ProFormColumnOptions<
    */
   itemSlots?: MaybeRef<ProFormItemSlots<T>>
 
-  // /**
-  //  * 提示信息
-  //  */
-  // tooltip?: string | Tooltip
-
   /**
    * 是否将字段提交
    */
@@ -316,11 +295,6 @@ export interface ProFormColumnOptions<
    * @default true
    */
   fill?: MaybeRef<boolean>
-
-  // /**
-  //  * 子控件
-  //  */
-  // children?: ProFormColumnOptions<T>[]
 
   /**
    * 列配置
