@@ -70,12 +70,12 @@ export interface ProcessColumnWithDictionary {
   resolved?: boolean
 }
 
-export interface DictionaryCollectionOptions {
-  /**
-   * 字典集
-   */
-  fetchDictCollection?: FetchDictCollection
-}
+// export interface DictionaryCollectionOptions {
+//   /**
+//    * 字典集
+//    */
+//   fetchDictCollection?: FetchDictCollection
+// }
 
 export interface DictionaryResolvedOption {
   label: string

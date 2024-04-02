@@ -35,7 +35,7 @@ import type { ComputedRef, Ref, UnwrapRef, VNodeChild } from 'vue'
 /**
  * ProForm 作用域
  */
-export interface ProFormScope<T extends object> {
+export interface ProFormScope<T = any> {
   /**
    * 获取表单值
    */
@@ -119,11 +119,8 @@ export interface BuildFormBinding<T extends object> {
 /**
  * buildForm option 返回值
  */
-export interface BuildFormOptionResult<
-  T extends Record<string, any> = any,
-  R extends Record<string, any> = T,
-  Collection = any
-> extends DictionaryCollection<Collection> {
+export interface BuildFormOptionResult<T = any, R = T, Collection = any>
+  extends DictionaryCollection<Collection> {
   /**
    * 表单额外的配置，不包含 model
    */
@@ -223,11 +220,8 @@ export type ProFormInstance<T extends object = any> = ProFormScope<T>
 /**
  * 表单列配置
  */
-export interface ProFormColumnOptions<
-  T extends object,
-  Dictionary = any,
-  Collect = any
-> extends DictionaryColumn<Dictionary, Collect> {
+export interface ProFormColumnOptions<T, Dictionary = any, Collect = any>
+  extends DictionaryColumn<Dictionary, Collect> {
   /**
    * FormItem label
    */
@@ -400,7 +394,7 @@ export interface ProFormListOptions<C extends object = any> {
 /**
  * @internal
  */
-export interface InternalProFormColumnOptions<T extends object> {
+export interface InternalProFormColumnOptions<T> {
   /**
    * 显示状态,其余属性只会在显示下才会存在
    */
@@ -552,7 +546,7 @@ export interface InternalProFormColumnOptions<T extends object> {
 /**
  * Pro Form Item 插槽
  */
-interface ProFormItemSlots<T extends object> {
+interface ProFormItemSlots<T> {
   extra?: (column: InternalProFormColumnOptions<T>) => VNodeChild
   help?: (column: InternalProFormColumnOptions<T>) => VNodeChild
   label?: (column: InternalProFormColumnOptions<T>) => VNodeChild

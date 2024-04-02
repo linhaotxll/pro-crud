@@ -39,3 +39,5 @@ export type Arrayable<T> = T | T[]
 export type JSXElement = VNode | number | string | undefined | null
 
 export type ValueOf<T> = T[keyof T]
+
+export type NamePath = string | number | (string | number)[]
