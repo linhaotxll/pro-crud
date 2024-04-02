@@ -267,7 +267,11 @@ const buildTableMiddleware: Middleware<
     const { show: _, toolbar, ...rest } = ctx.optionResult.table || {}
     return {
       fetchDictCollection: ctx.optionResult.fetchDictCollection,
-      toolbar: merge<ProTableToolbarOption, ProTableToolbarOption | undefined>(
+      toolbar: merge<
+        ProTableToolbarOption,
+        ProTableToolbarOption | undefined,
+        ProTableToolbarOption | undefined
+      >(
         {
           actions: {
             add: {
@@ -280,7 +284,8 @@ const buildTableMiddleware: Middleware<
             },
           },
         },
-        toolbar
+        toolbar,
+        inject(GlobalOption)?.crud?.toolbar
       ),
       ...rest,
       action: actionColumn,

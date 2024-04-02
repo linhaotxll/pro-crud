@@ -17,6 +17,7 @@ import type {
   FetchTableDataResult,
   ProTableInstance,
   ProTableScope,
+  ProTableToolbarOption,
 } from './components/ProTable'
 import type { PaginationProps } from 'ant-design-vue'
 import type { InjectionKey, Ref } from 'vue'
@@ -95,5 +96,10 @@ export interface ProComponentsOptions {
      * 按钮组配置
      */
     action?: CrudActionOption<any>
+
+    /**
+     * toolbar 配置
+     */
+    toolbar?: ProTableToolbarOption
   }
 }

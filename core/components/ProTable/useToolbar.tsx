@@ -60,7 +60,9 @@ export function useToolbar<T extends object>(
                   shape="circle"
                   icon={h(ColumnHeightOutlined)}
                   {...props}
-                />
+                >
+                  {props.buttonText}
+                </Button>
               ),
             }}
           </DropdownSelect>

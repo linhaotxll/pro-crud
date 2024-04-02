@@ -28,7 +28,7 @@ import type {
   DataIndex,
   ExpandedRowRender,
 } from 'ant-design-vue/es/vc-table/interface'
-import type { CSSProperties, ComputedRef, Ref, VNode } from 'vue'
+import type { CSSProperties, ComputedRef, Ref, VNode, VNodeChild } from 'vue'
 
 /**
  * ProTable 接受的 props
@@ -558,7 +558,7 @@ export interface ToolbarOption {
   /**
    * button 配置
    */
-  props?: ButtonProps
+  props?: ButtonProps & { buttonText?: VNodeChild }
 
   /**
    * 提示 配置
@@ -568,7 +568,7 @@ export interface ToolbarOption {
   /**
    * 自定义渲染操作
    */
-  render?: (buttonProps: ButtonProps) => VNode
+  render?: (buttonProps: ButtonProps & { buttonText?: VNodeChild }) => VNode
 }
 
 /**

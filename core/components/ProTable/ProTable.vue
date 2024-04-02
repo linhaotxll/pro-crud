@@ -18,7 +18,9 @@
                   :render="item.render"
                   :ctx="item.props"
                 />
-                <a-button v-else v-bind="item.props"></a-button>
+                <a-button v-else v-bind="item.props">
+                  {{ item.props?.buttonText }}
+                </a-button>
               </a-tooltip>
 
               <template v-else>
@@ -27,7 +29,9 @@
                   :render="item.render"
                   :ctx="item.props"
                 />
-                <a-button v-else v-bind="item.props"></a-button>
+                <a-button v-else v-bind="item.props">
+                  {{ item.props?.buttonText }}
+                </a-button>
               </template>
             </div>
           </template>
@@ -112,7 +116,7 @@ const tableRef = inject(ProTableRefKey)
 }
 
 .pro-table.auto-fill
-:deep(> .ant-spin-nested-loading > .ant-spin-container > .ant-table) {
+  :deep(> .ant-spin-nested-loading > .ant-spin-container > .ant-table) {
   display: flex;
   overflow: auto;
   flex: 1;
@@ -120,7 +124,7 @@ const tableRef = inject(ProTableRefKey)
 }
 
 .pro-table.auto-fill
-:deep(
+  :deep(
     > .ant-spin-nested-loading
       > .ant-spin-container
       > .ant-table
@@ -134,7 +138,7 @@ const tableRef = inject(ProTableRefKey)
 }
 
 .pro-table.auto-fill
-:deep(
+  :deep(
     > .ant-spin-nested-loading
       > .ant-spin-container
       > .ant-table
