@@ -91,15 +91,20 @@ export function buildForm<T extends Record<string, any>, C = any>(
     ? computed<FormProps>(() => mergeWithTovalue({}, toValue(formProps)))
     : undefined
 
+  // 是否是行内模式
+  const isInlineLayout = computed(
+    () => resolvedFormProps?.value.layout === 'inline'
+  )
+
   // 解析通用 Row Props
   const resolvedCommonRowProps = row
     ? computed<RowProps>(() => mergeWithTovalue({}, toValue(row)))
     : undefined
 
   // 解析通用 Col Props
-  // 行内模式使用 ProSearch，否则使用正常模式，其中不适用默认值需要指定 null
+  // 行内模式使用 ProSearch，否则使用正常模式，其中不使用默认值需要指定 null
   const resolvedCommonColProps = computed<ColProps>(() => {
-    if (toValue(resolvedFormProps)?.layout === 'inline') {
+    if (toValue(isInlineLayout)) {
       return mergeWithTovalue({}, DefaultProSearchCol, toValue(col))
     }
     return col === null
@@ -140,6 +145,7 @@ export function buildForm<T extends Record<string, any>, C = any>(
         resolvedCommonColProps,
         resolvedCommonLabelColProps,
         resolvedCommonWrapperColProps,
+        isInlineLayout,
         scope,
         column,
         undefined,
@@ -161,7 +167,7 @@ export function buildForm<T extends Record<string, any>, C = any>(
   >(
     computed(() => {
       const args: any[] = []
-      if (toValue(resolvedFormProps)?.layout === 'inline') {
+      if (toValue(isInlineLayout)) {
         args.push(
           buildDefaultProSearchActionGroup(
             scope,
@@ -352,6 +358,7 @@ export function buildForm<T extends Record<string, any>, C = any>(
       values,
       scope,
       formRef,
+      isInlineLayout,
     },
   }
 

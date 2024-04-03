@@ -87,7 +87,6 @@ export const buildDefaultProSearchActionGroup = <Data = any>(
   columns: Ref<InternalProFormColumnOptions<Data>>[],
   { col, ...rest }: ProFormActionGroup
 ): ProFormActionGroup => {
-  // const defaultSpan = commonCol?.span ?? toValue(col)?.span ?? DefaultProSearchCol.span!
   const resolvedCol: ColProps = mergeWithTovalue(
     {
       span: DefaultProSearchCol.span!,
@@ -100,24 +99,15 @@ export const buildDefaultProSearchActionGroup = <Data = any>(
   const total =
     columns.reduce<number>((prev, column) => {
       const columnValue = toValue(column)
-      // 每个列所占的格子数量
-      const columnCol: ColProps | undefined = columnValue.col
+      // 每个列所占的格子数量，已经合并了公共和单独配置的数量
+      // Pro Search 默认会设置公共 col
+      const columnCol: ColProps = columnValue.col!
 
       const show = columnValue.show
 
       let columnTotal = 0
       if (show) {
-        if (columnCol) {
-          columnTotal += +(columnCol.span ?? 0) + +(columnCol.offset ?? 0)
-        } else {
-          columnTotal += +(commonCol?.span ?? 0) + +(commonCol?.offset ?? 0)
-        }
-      }
-
-      const result = prev + columnTotal
-
-      if (result > 24) {
-        prev = 0
+        columnTotal += +(columnCol.span ?? 0) + +(columnCol.offset ?? 0)
       }
 
       prev += columnTotal
@@ -149,6 +139,7 @@ export const buildDefaultProSearchActionGroup = <Data = any>(
             type: 'default',
             async onClick() {
               scope.reset()
+              await scope.submit()
             },
           },
         },
@@ -190,3 +181,10 @@ export const DefaultFormListSpaceProps: SpaceProps = {
 
 // Pro Form Toast
 export const DefaultProFormToast: SuccessToastOptions = '保存成功'
+
+// Pro Search Wrapper Col Props
+export const DefaultProSearchWrapperColProps: ColProps & {
+  style: CSSProperties
+} = {
+  style: { flexBasis: '0%' },
+}

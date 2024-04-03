@@ -22,6 +22,7 @@ export function buildFormListColumns(
   commonCol: ComputedRef<ColProps> | undefined,
   commonLabelCol: ComputedRef<ColProps> | undefined,
   commonWrapperCol: ComputedRef<ColProps> | undefined,
+  isInlineLayout: ComputedRef<boolean>,
   scope: ProFormScope<any>,
   list: ProFormColumnOptions<any>['list'],
   parent: InternalProFormColumnOptions<any>
@@ -59,6 +60,7 @@ export function buildFormListColumns(
           commonCol,
           commonLabelCol,
           commonWrapperCol,
+          isInlineLayout,
           scope,
           childrenValue[i],
           parent

@@ -1,6 +1,6 @@
-import { mount } from '@vue/test-utils'
+import { flushPromises, mount } from '@vue/test-utils'
 import antdv, { Button, Col, Row } from 'ant-design-vue'
-import { describe, test, expect } from 'vitest'
+import { describe, test, expect, vi } from 'vitest'
 import { defineComponent, h, ref } from 'vue'
 
 import { ProForm, buildForm } from '..'
@@ -184,5 +184,346 @@ describe('Pro Search Types', () => {
           .includes(`ant-col-offset-${initialActionColOffset - i}`)
       ).toBe(true)
     }
+  })
+
+  test('pro search column dynamic show', async () => {
+    const initialNameColSpan = 2
+    const initialActionColSpan = 3
+    const initialCommonColSpan = 6
+    // const initialActionColOffset =
+    //   24 - initialNameColSpan - initialActionColSpan - initialCommonColSpan
+    const App = defineComponent({
+      name: 'App',
+      setup() {
+        const nameCol = ref({ span: initialNameColSpan })
+        const actionCol = ref({ span: initialActionColSpan })
+        const ageShow = ref(true)
+
+        const { proFormBinding } = buildForm(() => {
+          return {
+            col: { span: initialCommonColSpan },
+            formProps: { layout: 'inline' },
+            columns: [
+              {
+                label: '姓名',
+                name: 'name',
+                col: nameCol,
+              },
+              {
+                label: '年龄',
+                name: 'age',
+                show: ageShow,
+                // col: nameCol,
+              },
+            ],
+            action: {
+              col: actionCol,
+            },
+          }
+        })
+        return () => {
+          return [
+            h(ProForm, proFormBinding),
+            h('button', {
+              class: 'set-col-btn',
+              onClick() {
+                nameCol.value.span++
+              },
+            }),
+            h('button', {
+              class: 'set-show-btn',
+              onClick() {
+                ageShow.value = !ageShow.value
+              },
+            }),
+          ]
+        }
+      },
+    })
+
+    const wrapper = mount(App, {
+      global: {
+        plugins: [antdv],
+      },
+      attachTo: 'body',
+    })
+
+    expect(wrapper.findAllComponents(Col).length).toBe(7)
+    expect(wrapper.findComponent(ProButtonGroup).exists()).toBe(true)
+
+    // action col
+    expect(
+      wrapper.findAllComponents(Col)[6].classes().includes('ant-col-3')
+    ).toBe(true)
+    expect(
+      wrapper.findAllComponents(Col)[6].classes().includes('ant-col-offset-13')
+    ).toBe(true)
+
+    // name col
+    expect(
+      wrapper
+        .findAllComponents(Col)[0]
+        .classes()
+        .includes(`ant-col-${initialNameColSpan}`)
+    ).toBe(true)
+
+    // age col
+    expect(
+      wrapper
+        .findAllComponents(Col)[3]
+        .classes()
+        .includes(`ant-col-${initialCommonColSpan}`)
+    ).toBe(true)
+
+    // 修改三次 name col
+    const setColButton = wrapper.find('.set-col-btn')
+    expect(setColButton.exists()).toBe(true)
+    let i = 1
+    for (; i <= 3; ++i) {
+      await setColButton.trigger('click')
+      expect(
+        wrapper
+          .findAllComponents(Col)[0]
+          .classes()
+          .includes(`ant-col-${initialNameColSpan + i}`)
+      ).toBe(true)
+      expect(
+        wrapper
+          .findAllComponents(Col)[6]
+          .classes()
+          .includes(
+            `ant-col-offset-${
+              24 -
+              initialNameColSpan -
+              initialActionColSpan -
+              initialCommonColSpan -
+              i
+            }`
+          )
+      ).toBe(true)
+    }
+
+    i--
+    expect(i).toBe(3)
+
+    // 隐藏 age col
+    const setShowButton = wrapper.find('.set-show-btn')
+    expect(setShowButton.exists()).toBe(true)
+    await setShowButton.trigger('click')
+
+    // age col 消失
+    expect(wrapper.findAllComponents(Col).length).toBe(4)
+
+    // name col 不变
+    expect(
+      wrapper
+        .findAllComponents(Col)[0]
+        .classes()
+        .includes(`ant-col-${initialNameColSpan + i}`)
+    ).toBe(true)
+
+    // action col
+    expect(
+      wrapper
+        .findAllComponents(Col)[3]
+        .classes()
+        .includes(`ant-col-${initialActionColSpan}`)
+    ).toBe(true)
+    expect(
+      wrapper
+        .findAllComponents(Col)[3]
+        .classes()
+        .includes(
+          `ant-col-offset-${
+            24 - (initialNameColSpan + i) - initialActionColSpan
+          }`
+        )
+    ).toBe(true)
+
+    // 显示 age col
+    await setShowButton.trigger('click')
+
+    expect(wrapper.findAllComponents(Col).length).toBe(7)
+
+    // name col 不变
+    expect(
+      wrapper
+        .findAllComponents(Col)[0]
+        .classes()
+        .includes(`ant-col-${initialNameColSpan + i}`)
+    ).toBe(true)
+
+    // age col
+    expect(
+      wrapper
+        .findAllComponents(Col)[3]
+        .classes()
+        .includes(`ant-col-${initialCommonColSpan}`)
+    ).toBe(true)
+
+    // action col
+    expect(
+      wrapper
+        .findAllComponents(Col)[6]
+        .classes()
+        .includes(`ant-col-${initialActionColSpan}`)
+    ).toBe(true)
+    expect(
+      wrapper
+        .findAllComponents(Col)[6]
+        .classes()
+        .includes(
+          `ant-col-offset-${
+            24 -
+            (initialNameColSpan + i) -
+            initialCommonColSpan -
+            initialActionColSpan
+          }`
+        )
+    ).toBe(true)
+  })
+
+  test('pro search column dynamic offset', async () => {
+    const App = defineComponent({
+      name: 'App',
+      setup() {
+        const nameColOffset = ref(2)
+        const { proFormBinding } = buildForm(() => {
+          return {
+            formProps: { layout: 'inline' },
+            columns: [
+              {
+                label: '姓名',
+                name: 'name',
+                col: { span: 11, offset: nameColOffset },
+              },
+              {
+                label: '年龄',
+                name: 'age',
+                col: { span: 5 },
+              },
+            ],
+          }
+        })
+        return () => {
+          return [
+            h(ProForm, proFormBinding),
+            h('button', {
+              class: 'set-offset-btn',
+              onClick() {
+                nameColOffset.value++
+              },
+            }),
+          ]
+        }
+      },
+    })
+
+    const wrapper = mount(App, {
+      global: {
+        plugins: [antdv],
+      },
+      attachTo: 'body',
+    })
+
+    expect(wrapper.findComponent(ProButtonGroup).exists()).toBe(true)
+    expect(wrapper.findAllComponents(Col).length).toBe(7)
+
+    // name col
+    expect(
+      wrapper.findAllComponents(Col)[0].classes().includes('ant-col-11')
+    ).toBe(true)
+    expect(
+      wrapper.findAllComponents(Col)[0].classes().includes('ant-col-offset-2')
+    ).toBe(true)
+    // age col
+    expect(
+      wrapper.findAllComponents(Col)[3].classes().includes('ant-col-5')
+    ).toBe(true)
+    // action col
+    expect(
+      wrapper.findAllComponents(Col)[6].classes().includes('ant-col-4')
+    ).toBe(true)
+    expect(
+      wrapper.findAllComponents(Col)[6].classes().includes('ant-col-offset-2')
+    ).toBe(true)
+
+    const setOffsetSpan = wrapper.find('.set-offset-btn')
+    expect(setOffsetSpan.exists()).toBe(true)
+
+    await setOffsetSpan.trigger('click')
+    expect(
+      wrapper.findAllComponents(Col)[0].classes().includes('ant-col-offset-3')
+    ).toBe(true)
+    expect(
+      wrapper.findAllComponents(Col)[6].classes().includes('ant-col-offset-1')
+    ).toBe(true)
+
+    await setOffsetSpan.trigger('click')
+    expect(
+      wrapper.findAllComponents(Col)[0].classes().includes('ant-col-offset-4')
+    ).toBe(true)
+    expect(
+      wrapper
+        .findAllComponents(Col)[6]
+        .classes()
+        .join('')
+        .includes('ant-col-offset')
+    ).toBe(false)
+
+    await setOffsetSpan.trigger('click')
+    expect(
+      wrapper.findAllComponents(Col)[0].classes().includes('ant-col-offset-5')
+    ).toBe(true)
+    expect(
+      wrapper.findAllComponents(Col)[6].classes().includes('ant-col-offset-20')
+    ).toBe(true)
+  })
+
+  test('pro search column dynamic offset', async () => {
+    const submitRequest = vi.fn(() => true)
+    const App = defineComponent({
+      name: 'App',
+      setup() {
+        const { proFormBinding } = buildForm(() => {
+          return {
+            submitRequest,
+            formProps: { layout: 'inline' },
+            columns: [
+              {
+                label: '姓名',
+                name: 'name',
+              },
+              {
+                label: '年龄',
+                name: 'age',
+              },
+            ],
+          }
+        })
+        return () => {
+          return [h(ProForm, proFormBinding)]
+        }
+      },
+    })
+
+    const wrapper = mount(App, {
+      global: {
+        plugins: [antdv],
+      },
+      attachTo: 'body',
+    })
+
+    expect(submitRequest).toHaveBeenCalledTimes(0)
+    expect(wrapper.findComponent(ProButtonGroup).exists()).toBe(true)
+    expect(wrapper.findAllComponents(Button).length).toBe(2)
+
+    await wrapper.findAllComponents(Button)[0].vm.$emit('click')
+    await flushPromises()
+    expect(submitRequest).toHaveBeenCalledTimes(1)
+
+    await wrapper.findAllComponents(Button)[1].vm.$emit('click')
+    await flushPromises()
+    expect(submitRequest).toHaveBeenCalledTimes(2)
   })
 })

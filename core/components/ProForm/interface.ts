@@ -114,6 +114,7 @@ export interface BuildFormBinding<T extends object> {
     | undefined
   scope: ProFormScope<T>
   formRef: Ref<FormInstance | null>
+  isInlineLayout: ComputedRef<boolean>
 }
 
 /**

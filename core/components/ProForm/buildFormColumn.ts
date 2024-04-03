@@ -2,7 +2,11 @@ import { merge, set } from 'lodash-es'
 import { toValue, ref, watchEffect } from 'vue'
 
 import { buildFormListColumns } from './buildFormListColumn'
-import { DefaultProFormColumn, ProFormListPlaceholder } from './constant'
+import {
+  DefaultProFormColumn,
+  DefaultProSearchWrapperColProps,
+  ProFormListPlaceholder,
+} from './constant'
 
 import { getUuid, mergeWithTovalue, ensureValueType } from '../common'
 import { buildDictionary } from '../ProDictionary'
@@ -21,6 +25,7 @@ export function buildFormColumn<T extends object>(
   commonCol: ComputedRef<ColProps> | undefined,
   commonLabelCol: ComputedRef<ColProps> | undefined,
   commonWrapperCol: ComputedRef<ColProps> | undefined,
+  isInlineLayout: ComputedRef<boolean>,
   scope: ProFormScope<T>,
   column: ProFormColumnOptions<T>,
   parent?: InternalProFormColumnOptions<T>,
@@ -83,7 +88,8 @@ export function buildFormColumn<T extends object>(
     const resolvedWrapperCol: ColProps = mergeWithTovalue(
       {},
       toValue(commonWrapperCol),
-      toValue(itemProps)?.wrapperCol
+      toValue(itemProps)?.wrapperCol,
+      toValue(isInlineLayout) ? DefaultProSearchWrapperColProps : undefined
     )
 
     // 合并 Form Item Props
@@ -120,6 +126,7 @@ export function buildFormColumn<T extends object>(
             commonCol,
             commonLabelCol,
             commonWrapperCol,
+            isInlineLayout,
             scope,
             list,
             result
