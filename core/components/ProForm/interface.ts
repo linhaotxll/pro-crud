@@ -1,8 +1,8 @@
 import type {
   Arrayable,
-  ExtractMaybeRef,
+  DataObject,
+  DeepMaybeRefOrGetter,
   JSXElement,
-  MaybeRef,
   ValueType,
 } from '../common'
 import type {
@@ -17,6 +17,7 @@ import type {
   DictionaryColumn,
 } from '../ProDictionary'
 import type { SuccessToastOptions } from '../Toast'
+import type { MaybeRefOrGetter } from '@vueuse/core'
 import type {
   ColProps,
   FormItemProps,
@@ -35,7 +36,7 @@ import type { ComputedRef, Ref, UnwrapRef, VNodeChild } from 'vue'
 /**
  * ProForm 作用域
  */
-export interface ProFormScope<T = any> {
+export interface ProFormScope<T extends DataObject = DataObject> {
   /**
    * 获取表单值
    */
@@ -100,11 +101,11 @@ export type ProFormProps<T extends object> = BuildFormBinding<T>
 /**
  * buildForm 返回值
  */
-export interface BuildFormResult<T extends object> {
+export interface BuildFormResult<T extends DataObject = DataObject> {
   proFormBinding: BuildFormBinding<T>
 }
 
-export interface BuildFormBinding<T extends object> {
+export interface BuildFormBinding<T extends DataObject = DataObject> {
   row: ComputedRef<RowProps> | undefined
   columns: Ref<Ref<InternalProFormColumnOptions<T>>[]>
   formProps: ComputedRef<FormProps> | undefined
@@ -120,12 +121,15 @@ export interface BuildFormBinding<T extends object> {
 /**
  * buildForm option 返回值
  */
-export interface BuildFormOptionResult<T = any, R = T, Collection = any>
-  extends DictionaryCollection<Collection> {
+export interface BuildFormOptionResult<
+  T extends DataObject = DataObject,
+  R = T,
+  Collection = any
+> extends DictionaryCollection<Collection> {
   /**
    * 表单额外的配置，不包含 model
    */
-  formProps?: MaybeRef<ExtractMaybeRef<Omit<FormProps, 'model'>>>
+  formProps?: MaybeRefOrGetter<DeepMaybeRefOrGetter<Omit<FormProps, 'model'>>>
 
   /**
    * 表单初始值
@@ -135,32 +139,35 @@ export interface BuildFormOptionResult<T = any, R = T, Collection = any>
   /**
    * 通用 row 配置
    */
-  row?: MaybeRef<ExtractMaybeRef<RowProps>> | undefined | null
+  row?: MaybeRefOrGetter<DeepMaybeRefOrGetter<RowProps>> | undefined | null
 
   /**
    * 通用 col 配置
    */
-  col?: MaybeRef<ExtractMaybeRef<ColProps>> | undefined | null
+  col?: MaybeRefOrGetter<DeepMaybeRefOrGetter<ColProps>> | undefined | null
 
   /**
    * 通用 Label Col 配置
    */
-  labelCol?: MaybeRef<ExtractMaybeRef<ColProps>> | undefined | null
+  labelCol?: MaybeRefOrGetter<DeepMaybeRefOrGetter<ColProps>> | undefined | null
 
   /**
    * 通用 Wrapper Col 配置
    */
-  wrapperCol?: MaybeRef<ExtractMaybeRef<ColProps>> | undefined | null
+  wrapperCol?:
+    | MaybeRefOrGetter<DeepMaybeRefOrGetter<ColProps>>
+    | undefined
+    | null
 
   /**
    * 列配置
    */
-  columns?: MaybeRef<ProFormColumnOptions<T>[]>
+  columns?: MaybeRefOrGetter<ProFormColumnOptions<T>[]>
 
   /**
    * 按钮组
    */
-  action?: MaybeRef<ProFormActionGroup>
+  action?: MaybeRefOrGetter<ProFormActionGroup>
 
   /**
    * 接口调用成功是否需要提示信息
@@ -192,7 +199,7 @@ export interface BuildFormOptionResult<T = any, R = T, Collection = any>
  * Pro Form 按扭组额外配制
  */
 export interface ProFormActionGroupExtends {
-  col?: MaybeRef<ColProps>
+  col?: MaybeRefOrGetter<ColProps>
 }
 
 /**
@@ -210,12 +217,12 @@ export type ProFormActions = {
   /**
    * 确认按钮
    */
-  confirm?: MaybeRef<ActionOption>
+  confirm?: MaybeRefOrGetter<ActionOption>
 
   /**
    * 重置按钮
    */
-  reset?: MaybeRef<ActionOption>
+  reset?: MaybeRefOrGetter<ActionOption>
 } & CustomActions
 
 /**
@@ -226,29 +233,32 @@ export type ProFormInstance<T extends object = any> = ProFormScope<T>
 /**
  * 表单列配置
  */
-export interface ProFormColumnOptions<T, Dictionary = any, Collect = any>
-  extends DictionaryColumn<Dictionary, Collect> {
+export interface ProFormColumnOptions<
+  T extends DataObject = DataObject,
+  Dictionary = any,
+  Collect = any
+> extends DictionaryColumn<Dictionary, Collect> {
   /**
    * FormItem label
    */
-  label?: MaybeRef<string>
+  label?: MaybeRefOrGetter<string>
 
   /**
    * FormItem prop，也是表单的字段名，可使用数组嵌套
    */
-  name: MaybeRef<NamePath>
+  name: MaybeRefOrGetter<NamePath>
 
   /**
    * 是否显示整个 FormItem
    *
    * @default true
    */
-  show?: MaybeRef<boolean>
+  show?: MaybeRefOrGetter<boolean>
 
   /**
    * 每个 FormItem 所在列配置
    */
-  col?: MaybeRef<ExtractMaybeRef<ColProps>>
+  col?: MaybeRefOrGetter<DeepMaybeRefOrGetter<ColProps>>
 
   /**
    * 表单被删除时是否保留字段值
@@ -262,27 +272,27 @@ export interface ProFormColumnOptions<T, Dictionary = any, Collect = any>
    *
    * @default 'text'
    */
-  type?: MaybeRef<ValueType>
+  type?: MaybeRefOrGetter<ValueType>
 
   /**
    * 表单额外的 props
    */
-  fieldProps?: MaybeRef<ExtractMaybeRef<Record<string, any>>>
+  fieldProps?: MaybeRefOrGetter<DeepMaybeRefOrGetter<Record<string, any>>>
 
   /**
    * 表单插槽
    */
-  fieldSlots?: MaybeRef<Record<string, any>>
+  fieldSlots?: MaybeRefOrGetter<Record<string, any>>
 
   /**
    * Form Item 额外的 props
    */
-  itemProps?: MaybeRef<ExtractMaybeRef<FormItemProps>>
+  itemProps?: MaybeRefOrGetter<DeepMaybeRefOrGetter<FormItemProps>>
 
   /**
    * FormItem 插槽
    */
-  itemSlots?: MaybeRef<ProFormItemSlots<T>>
+  itemSlots?: MaybeRefOrGetter<ProFormItemSlots<T>>
 
   /**
    * 是否将字段提交
@@ -294,12 +304,12 @@ export interface ProFormColumnOptions<T, Dictionary = any, Collect = any>
    *
    * @default true
    */
-  fill?: MaybeRef<boolean>
+  fill?: MaybeRefOrGetter<boolean>
 
   /**
    * 列配置
    */
-  list?: MaybeRef<ProFormListOptions>
+  list?: MaybeRefOrGetter<ProFormListOptions>
 
   /**
    * 服务端数据转换
@@ -332,12 +342,12 @@ export interface ProFormListOptions<C extends object = any> {
   /**
    * 子控件
    */
-  children?: MaybeRef<ProFormColumnOptions<C>[]>
+  children?: MaybeRefOrGetter<ProFormColumnOptions<C>[]>
 
   /**
    * 每行 Space Props
    */
-  space?: MaybeRef<SpaceProps>
+  space?: MaybeRefOrGetter<SpaceProps>
 
   /**
    * 新建一行的数据
@@ -354,7 +364,7 @@ export interface ProFormListOptions<C extends object = any> {
   /**
    * 新建按钮配置
    */
-  creatorButtonProps?: MaybeRef<
+  creatorButtonProps?: MaybeRefOrGetter<
     (ButtonProps & { creatorButtonText?: string }) | false
   >
 
@@ -366,7 +376,7 @@ export interface ProFormListOptions<C extends object = any> {
   /**
    * 删除按钮配置
    */
-  deleteButtonProps?: MaybeRef<
+  deleteButtonProps?: MaybeRefOrGetter<
     (ButtonProps & { deleteButtonText?: string }) | false
   >
 
@@ -378,7 +388,7 @@ export interface ProFormListOptions<C extends object = any> {
   /**
    * 复制按钮配置
    */
-  copyButtonProps?: MaybeRef<
+  copyButtonProps?: MaybeRefOrGetter<
     (ButtonProps & { copyButtonText?: string }) | false
   >
 
@@ -400,7 +410,9 @@ export interface ProFormListOptions<C extends object = any> {
 /**
  * @internal
  */
-export interface InternalProFormColumnOptions<T> {
+export interface InternalProFormColumnOptions<
+  T extends DataObject = DataObject
+> {
   /**
    * 显示状态,其余属性只会在显示下才会存在
    */
@@ -434,7 +446,7 @@ export interface InternalProFormColumnOptions<T> {
   /**
    * 表单项 Slots
    */
-  fieldSlots?: MaybeRef<Record<string, (...args: any) => VNodeChild>>
+  fieldSlots?: MaybeRefOrGetter<Record<string, (...args: any) => VNodeChild>>
 
   /**
    * 列配制
@@ -552,7 +564,7 @@ export interface InternalProFormColumnOptions<T> {
 /**
  * Pro Form Item 插槽
  */
-interface ProFormItemSlots<T> {
+interface ProFormItemSlots<T extends DataObject = DataObject> {
   extra?: (column: InternalProFormColumnOptions<T>) => VNodeChild
   help?: (column: InternalProFormColumnOptions<T>) => VNodeChild
   label?: (column: InternalProFormColumnOptions<T>) => VNodeChild

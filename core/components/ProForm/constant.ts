@@ -10,6 +10,7 @@ import type {
   ProFormScope,
 } from './interface'
 import type { ProFormColumnOptions, ProFormListOptions } from './interface'
+import type { DataObject } from '../common'
 import type { SuccessToastOptions } from '../Toast'
 import type { ColProps, RowProps, SpaceProps } from 'ant-design-vue'
 import type { CSSProperties, Ref } from 'vue'
@@ -59,7 +60,9 @@ export const DefaultCopyRecordButtonProps: ProFormListOptions['copyButtonProps']
 /**
  * Pro Form 默认按钮组
  */
-export const buildDefaultProFormActionGroup = <Data = any>(
+export const buildDefaultProFormActionGroup = <
+  Data extends DataObject = DataObject
+>(
   scope: ProFormScope<Data>
 ): ProFormActionGroup => ({
   col: { span: 24 },
@@ -81,8 +84,10 @@ export const buildDefaultProFormActionGroup = <Data = any>(
 /**
  * Pro Search 默认按钮组
  */
-export const buildDefaultProSearchActionGroup = <Data = any>(
-  scope: ProFormScope<Data>,
+export const buildDefaultProSearchActionGroup = <
+  Data extends DataObject = DataObject
+>(
+  scope: ProFormScope<DataObject>,
   commonCol: ColProps | undefined,
   columns: Ref<InternalProFormColumnOptions<Data>>[],
   { col, ...rest }: ProFormActionGroup

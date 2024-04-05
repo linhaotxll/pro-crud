@@ -1,7 +1,7 @@
 import { cloneDeep, merge } from 'lodash-es'
 import { toRaw } from 'vue'
 
-export function useValues<T extends object>(
+export function useValues<T = any>(
   values: T,
   initialValues: Partial<T> | undefined
 ) {

@@ -16,13 +16,14 @@ import type {
   ProFormColumnOptions,
   ProFormScope,
 } from './interface'
+import type { DataObject } from '../common'
 import type { DictionaryCollection } from '../ProDictionary'
 import type { ColProps, FormItemProps } from 'ant-design-vue'
 import type { NamePath } from 'ant-design-vue/es/form/interface'
 import type { ComputedRef, Ref } from 'vue'
 
-export function buildFormColumn<T extends object>(
-  commonCol: ComputedRef<ColProps> | undefined,
+export function buildFormColumn<T extends DataObject = DataObject>(
+  commonCol: ComputedRef<ColProps | undefined>,
   commonLabelCol: ComputedRef<ColProps> | undefined,
   commonWrapperCol: ComputedRef<ColProps> | undefined,
   isInlineLayout: ComputedRef<boolean>,

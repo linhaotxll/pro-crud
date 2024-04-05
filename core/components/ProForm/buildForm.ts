@@ -1,14 +1,7 @@
+import { toValue } from '@vueuse/core'
 import cloneDeep from 'clone-deep'
 import { get, set, unset, has, once } from 'lodash-es'
-import {
-  computed,
-  inject,
-  ref,
-  toRaw,
-  toValue,
-  reactive,
-  watchEffect,
-} from 'vue'
+import { computed, inject, ref, toRaw, reactive, watchEffect } from 'vue'
 
 import { buildFormColumn } from './buildFormColumn'
 import {
@@ -34,6 +27,7 @@ import type {
   ProFormActions,
   ProFormScope,
 } from './interface'
+import type { DataObject } from '../common'
 import type {
   FormProps,
   ColProps,
@@ -46,9 +40,11 @@ import type {
 } from 'ant-design-vue/es/form/interface'
 import type { Ref } from 'vue'
 
-export function buildForm<T extends Record<string, any>, C = any>(
-  options: (scope: ProFormScope<T>, ctx?: C) => BuildFormOptionResult<T>,
-  ctx?: C
+export function buildForm<
+  T extends DataObject = DataObject,
+  S extends DataObject = T
+>(
+  options: (scope: ProFormScope<T>) => BuildFormOptionResult<T, S>
 ): BuildFormResult<T> {
   console.log('build form')
   const scope: ProFormScope<T> = {
@@ -64,7 +60,7 @@ export function buildForm<T extends Record<string, any>, C = any>(
     clearValidate,
   }
 
-  const values = reactive<T>({} as T) as T
+  const values = reactive({}) as T
 
   const {
     initialValues,
@@ -81,7 +77,7 @@ export function buildForm<T extends Record<string, any>, C = any>(
     submitRequest,
     successRequest,
     validateFail,
-  } = options(scope, ctx)
+  } = options(scope)
 
   // 修改 values
   useValues(values, initialValues)
@@ -103,7 +99,7 @@ export function buildForm<T extends Record<string, any>, C = any>(
 
   // 解析通用 Col Props
   // 行内模式使用 ProSearch，否则使用正常模式，其中不使用默认值需要指定 null
-  const resolvedCommonColProps = computed<ColProps>(() => {
+  const resolvedCommonColProps = computed<ColProps | undefined>(() => {
     if (toValue(isInlineLayout)) {
       return mergeWithTovalue({}, DefaultProSearchCol, toValue(col))
     }

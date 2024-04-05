@@ -19,7 +19,7 @@ import type { ColProps } from 'ant-design-vue'
 import type { ComputedRef, Ref } from 'vue'
 
 export function buildFormListColumns(
-  commonCol: ComputedRef<ColProps> | undefined,
+  commonCol: ComputedRef<ColProps | undefined>,
   commonLabelCol: ComputedRef<ColProps> | undefined,
   commonWrapperCol: ComputedRef<ColProps> | undefined,
   isInlineLayout: ComputedRef<boolean>,
