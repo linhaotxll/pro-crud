@@ -3,7 +3,7 @@ import antdv, { Button, Col, Row } from 'ant-design-vue'
 import { describe, test, expect, vi } from 'vitest'
 import { defineComponent, h, ref } from 'vue'
 
-import { ProForm, buildForm } from '..'
+import { ProForm, buildSearch } from '..'
 import { ProButtonGroup } from '../../ProButton'
 
 describe('Pro Search Types', () => {
@@ -11,9 +11,8 @@ describe('Pro Search Types', () => {
     const App = defineComponent({
       name: 'App',
       setup() {
-        const { proFormBinding } = buildForm(() => {
+        const { proFormBinding } = buildSearch(() => {
           return {
-            formProps: { layout: 'inline' },
             columns: [
               {
                 label: '姓名',
@@ -65,9 +64,8 @@ describe('Pro Search Types', () => {
         const nameCol = ref({ span: initialNameColSpan })
         const actionCol = ref({ span: initialActionColSpan })
 
-        const { proFormBinding } = buildForm(() => {
+        const { proFormBinding } = buildSearch(() => {
           return {
-            formProps: { layout: 'inline' },
             columns: [
               {
                 label: '姓名',
@@ -199,10 +197,9 @@ describe('Pro Search Types', () => {
         const actionCol = ref({ span: initialActionColSpan })
         const ageShow = ref(true)
 
-        const { proFormBinding } = buildForm(() => {
+        const { proFormBinding } = buildSearch(() => {
           return {
             col: { span: initialCommonColSpan },
-            formProps: { layout: 'inline' },
             columns: [
               {
                 label: '姓名',
@@ -388,9 +385,8 @@ describe('Pro Search Types', () => {
       name: 'App',
       setup() {
         const nameColOffset = ref(2)
-        const { proFormBinding } = buildForm(() => {
+        const { proFormBinding } = buildSearch(() => {
           return {
-            formProps: { layout: 'inline' },
             columns: [
               {
                 label: '姓名',
@@ -485,10 +481,9 @@ describe('Pro Search Types', () => {
     const App = defineComponent({
       name: 'App',
       setup() {
-        const { proFormBinding } = buildForm(() => {
+        const { proFormBinding } = buildSearch(() => {
           return {
             submitRequest,
-            formProps: { layout: 'inline' },
             columns: [
               {
                 label: '姓名',
