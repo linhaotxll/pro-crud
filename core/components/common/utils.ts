@@ -1,5 +1,7 @@
 import { isRef, ref } from 'vue'
 
+import { isPromise } from '~/utils'
+
 import type { MaybeRef } from './interface'
 import type { SuccessToastOptions } from '../Toast'
 import type { Ref } from 'vue'
@@ -40,4 +42,48 @@ export function findAndReplace(arr: any, item: any, value: any) {
   }
 
   return arr
+}
+
+export function fetchWithLoding<T = any>(
+  loading: Ref<boolean>,
+  request: () => Promise<T> | T,
+  assign: (res: T) => void,
+  onError?: (error: any) => void,
+  onComplete?: () => void
+) {
+  // 是否是 Promise
+  let isPromiseFetch = false
+
+  try {
+    // 开启 loading
+    loading.value = true
+    // 调用请求
+    const result = request()
+
+    if ((isPromiseFetch = isPromise(result))) {
+      result
+        .then(res => {
+          // 赋值
+          assign(res)
+        })
+        .catch(err => {
+          onError?.(err)
+        })
+        .finally(() => {
+          loading.value = false
+          onComplete?.()
+        })
+    } else {
+      // 赋值
+      assign(result)
+    }
+  } catch (e) {
+    onError?.(e)
+  } finally {
+    // 非 Promise 关闭 loading
+    if (!isPromiseFetch) {
+      loading.value = false
+      onComplete?.()
+    }
+  }
 }

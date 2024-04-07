@@ -1,130 +1,158 @@
-import { ConfigProvider, FormItem, type SpaceProps } from 'ant-design-vue'
-import { h, inject, resolveComponent } from 'vue'
+// import { ConfigProvider, FormItem, type SpaceProps } from 'ant-design-vue'
+// import { h, inject, resolveComponent } from 'vue'
 
-import { type ValueType, genToast } from '../common'
-import { buildFormColumn } from '../ProForm'
+import { ReloadOutlined } from '@ant-design/icons-vue'
+import { h } from 'vue'
 
-import { GlobalOption } from '~/constant'
+import type { ProTableScope, ProTableToolbarActionGroup } from './interface'
 
-import type {
-  ProTableActionProps,
-  ProTableColumnSlots,
-  ProvideEditTableOptions,
-  ToolbarOption,
-} from './interface'
-import type { Key } from 'ant-design-vue/es/_util/type'
-import type { ThemeConfig } from 'ant-design-vue/es/config-provider/context'
-import type { InjectionKey } from 'vue'
+// import { type ValueType, genToast } from '../common'
+// import { buildFormColumn } from '../ProForm'
 
-export const DefaultPageNumber = 1
-export const DefaultPageSize = 10
+// import { GlobalOption } from '~/constant'
 
-// 默认 toolbar 按钮配置
-export const DefaultToolbarTooltip: ToolbarOption = {
-  show: true,
-  order: 1,
-  tooltip: { placement: 'top', show: true },
-  props: {
-    type: 'primary',
-    shape: 'circle',
-  },
-}
+// import type {
+//   ProTableActionProps,
+//   ProTableColumnSlots,
+//   ProTableToolbarActionGroup,
+//   ProvideEditTableOptions,
+//   ToolbarOption,
+// } from './interface'
+// import type { Key } from 'ant-design-vue/es/_util/type'
+// import type { ThemeConfig } from 'ant-design-vue/es/config-provider/context'
+// import type { InjectionKey } from 'vue'
 
-// toolbar 默认间距配置
-export const DefaultToolbarSpace: SpaceProps = { size: 16 }
+// export const DefaultPageNumber = 1
+// export const DefaultPageSize = 10
 
-// toolbar 密度枚举
-export const enum ToolbarDensityEnum {
-  Large = 'large',
-  Default = 'middle',
-  Small = 'small',
-}
+// // 默认 toolbar 按钮配置
+// export const DefaultToolbarTooltip: ToolbarOption = {
+//   show: true,
+//   order: 1,
+//   tooltip: { placement: 'top', show: true },
+//   props: {
+//     type: 'primary',
+//     shape: 'circle',
+//   },
+// }
 
-// 表格默认大小
-export const DefaultTableSize = 'large'
+// // toolbar 默认间距配置
+// export const DefaultToolbarSpace: SpaceProps = { size: 16 }
 
-// 默认显示表格列
-export const DefaultTableColumnShow = true
+// // toolbar 密度枚举
+// export const enum ToolbarDensityEnum {
+//   Large = 'large',
+//   Default = 'middle',
+//   Small = 'small',
+// }
 
-export const DefaultColumnType: ValueType = 'text'
+// // 表格默认大小
+// export const DefaultTableSize = 'large'
 
-export const EditableTableData = Symbol() as InjectionKey<
-  ProvideEditTableOptions<any> | undefined
->
+// // 默认显示表格列
+// export const DefaultTableColumnShow = true
 
-const EditableTableCellTheme: ThemeConfig = {
-  token: { marginLG: 0, marginXS: 0, marginXXS: 0 },
-}
+// export const DefaultColumnType: ValueType = 'text'
 
-export function injectValueTypeTableCell(
-  valueType: ValueType
-): ProTableColumnSlots<any>['bodyCell'] {
-  return ctx => {
-    const editableData = inject(EditableTableData)
+// export const EditableTableData = Symbol() as InjectionKey<
+//   ProvideEditTableOptions<any> | undefined
+// >
 
-    if (editableData) {
-      const { name, editable } = ctx.column.__column!
-      let rowKey: Key
+// const EditableTableCellTheme: ThemeConfig = {
+//   token: { marginLG: 0, marginXS: 0, marginXXS: 0 },
+// }
 
-      const isEditable =
-        editable === false
-          ? false
-          : typeof editable === 'function'
-          ? editable(ctx)
-          : true
+// export function injectValueTypeTableCell(
+//   valueType: ValueType
+// ): ProTableColumnSlots<any>['bodyCell'] {
+//   return ctx => {
+//     const editableData = inject(EditableTableData)
 
-      if (
-        isEditable &&
-        name &&
-        editableData.editRowKeys.value.includes(
-          (rowKey = editableData.getRowKey(ctx.record))
-        )
-      ) {
-        const resolvedName = [rowKey]
-        if (Array.isArray(name)) resolvedName.push(...name)
-        else if (name) resolvedName.push(name as string | number)
+//     if (editableData) {
+//       const { name, editable } = ctx.column.__column!
+//       let rowKey: Key
 
-        const { dict, type } = ctx.column.__column!
-        const column = {
-          name: resolvedName,
-          show: true,
-          type,
-        }
-        const internalColumn = buildFormColumn(
-          undefined,
-          undefined,
-          column,
-          dict
-        )
+//       const isEditable =
+//         editable === false
+//           ? false
+//           : typeof editable === 'function'
+//           ? editable(ctx)
+//           : true
 
-        return (
-          <ConfigProvider theme={EditableTableCellTheme}>
-            <FormItem name={resolvedName}></FormItem>
-          </ConfigProvider>
-        )
-      }
-    }
+//       if (
+//         isEditable &&
+//         name &&
+//         editableData.editRowKeys.value.includes(
+//           (rowKey = editableData.getRowKey(ctx.record))
+//         )
+//       ) {
+//         const resolvedName = [rowKey]
+//         if (Array.isArray(name)) resolvedName.push(...name)
+//         else if (name) resolvedName.push(name as string | number)
 
-    const defaultTableType = inject(GlobalOption)?.types[valueType]?.table
-    if (defaultTableType) {
-      const { is: Comp, props, render } = defaultTableType
-      if (Comp) {
-        return h(resolveComponent(Comp), { ...props, ctx })
-      } else if (render) {
-        return render(ctx)
-      }
-    }
+//         const { dict, type } = ctx.column.__column!
+//         const column = {
+//           name: resolvedName,
+//           show: true,
+//           type,
+//         }
+//         const internalColumn = buildFormColumn(
+//           undefined,
+//           undefined,
+//           column,
+//           dict
+//         )
 
-    return null
+//         return (
+//           <ConfigProvider theme={EditableTableCellTheme}>
+//             <FormItem name={resolvedName}></FormItem>
+//           </ConfigProvider>
+//         )
+//       }
+//     }
+
+//     const defaultTableType = inject(GlobalOption)?.types[valueType]?.table
+//     if (defaultTableType) {
+//       const { is: Comp, props, render } = defaultTableType
+//       if (Comp) {
+//         return h(resolveComponent(Comp), { ...props, ctx })
+//       } else if (render) {
+//         return render(ctx)
+//       }
+//     }
+
+//     return null
+//   }
+// }
+
+// export const DefaultActionColumn: ProTableActionProps<any> = {
+//   show: true,
+//   order: 1,
+//   confirmType: false,
+// }
+
+// export const EditSuccessToast = genToast('编辑成功')
+
+// export const ProTableRefKey = Symbol() as InjectionKey<any>
+
+// 获取默认 toolbar
+export const buildDefaultToolbar = (
+  scope: ProTableScope
+): ProTableToolbarActionGroup => {
+  return {
+    show: true,
+    actions: {
+      reload: {
+        show: true,
+        props: {
+          icon: h(ReloadOutlined),
+          type: 'primary',
+          shape: 'circle',
+          onClick() {
+            return scope.reload()
+          },
+        },
+      },
+    },
   }
 }
-
-export const DefaultActionColumn: ProTableActionProps<any> = {
-  show: true,
-  order: 1,
-  confirmType: false,
-}
-
-export const EditSuccessToast = genToast('编辑成功')
-
-export const ProTableRefKey = Symbol() as InjectionKey<any>

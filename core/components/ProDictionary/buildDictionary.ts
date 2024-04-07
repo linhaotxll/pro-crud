@@ -2,14 +2,14 @@ import { computed, ref, toValue, watchEffect } from 'vue'
 
 import { ensureDictionary } from './ensureDictionary'
 
-import { isArray, isFunction, isPromise } from '../../utils'
+import { isArray, isFunction } from '../../utils'
+import { fetchWithLoding, type ValueType } from '../common'
 
 import type {
   DictionaryCollection,
   DictionaryColumn,
   DictionaryOptions,
 } from './interface'
-import type { ValueType } from '../common'
 import type { Ref } from 'vue'
 
 export function buildDictionary<Dictionary = any, Collection = any>(
@@ -31,41 +31,6 @@ export function buildDictionary<Dictionary = any, Collection = any>(
 
   if (isCollection) {
     fetchCollection()
-  }
-
-  function fetchWithLoding<T extends Dictionary[] | Collection>(
-    loading: Ref<boolean>,
-    request: () => Promise<T> | T,
-    assign: (res: T) => void
-  ) {
-    // 是否是 Promise
-    let isPromiseFetch = false
-
-    try {
-      // 开启 loading
-      loading.value = true
-      // 调用请求
-      const result = request()
-
-      if ((isPromiseFetch = isPromise(result))) {
-        result
-          .then(res => {
-            // 赋值
-            assign(res)
-          })
-          .finally(() => {
-            loading.value = false
-          })
-      } else {
-        // 赋值
-        assign(result)
-      }
-    } finally {
-      // 非 Promise 关闭 loading
-      if (!isPromiseFetch) {
-        loading.value = false
-      }
-    }
   }
 
   /**

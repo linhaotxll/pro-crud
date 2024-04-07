@@ -1,17 +1,18 @@
+import { toValue } from '@vueuse/core'
 import { Space } from 'ant-design-vue'
-import { defineComponent, toValue } from 'vue'
+import { defineComponent } from 'vue'
 
 import { ProButton } from './ProButton'
 
 import type { InternalProButtonGroupOptions } from './interface'
-import type { MaybeRef } from '../common'
+import type { MaybeRefOrGetter } from '@vueuse/core'
 import type { PropType } from 'vue'
 
 export const ProButtonGroup = defineComponent({
   name: 'ProButtonGroup',
 
   props: {
-    action: Object as PropType<MaybeRef<InternalProButtonGroupOptions>>,
+    action: Object as PropType<MaybeRefOrGetter<InternalProButtonGroupOptions>>,
   },
 
   setup(props) {

@@ -13,3 +13,6 @@ export const isFunction = (value: unknown): value is Function =>
 
 export const isString = (value: unknown): value is string =>
   typeof value === 'string'
+
+export const isPlainObject = (value: unknown): value is Record<string, any> =>
+  toRawType(value) === 'Object'

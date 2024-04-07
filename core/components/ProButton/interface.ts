@@ -1,4 +1,5 @@
-import type { ExtractMaybeRef, MaybeRef } from '../common'
+import type { DeepMaybeRefOrGetter } from '../common'
+import type { MaybeRefOrGetter } from '@vueuse/core'
 import type {
   ButtonProps,
   ModalProps,
@@ -10,7 +11,7 @@ import type { VNodeChild } from 'vue'
 /**
  * 自定义按扭
  */
-export type CustomActions = Record<string, MaybeRef<ActionOption>>
+export type CustomActions = Record<string, MaybeRefOrGetter<ActionOption>>
 
 /**
  * 按钮组配置
@@ -21,17 +22,17 @@ export type ActionGroupOption<T extends CustomActions, R = any> = {
    *
    * @default true
    */
-  show?: MaybeRef<boolean>
+  show?: MaybeRefOrGetter<boolean>
 
   /**
    * 按钮间距配置
    */
-  space?: ExtractMaybeRef<SpaceProps>
+  space?: DeepMaybeRefOrGetter<SpaceProps>
 
   /**
    * 按钮列表
    */
-  actions?: MaybeRef<ActionsList<T>>
+  actions?: MaybeRefOrGetter<ActionsList<T>>
 } & R
 
 /**
@@ -41,7 +42,7 @@ export type ActionsList<T extends CustomActions> = {
   /**
    * 其余按钮
    */
-  [type: string]: MaybeRef<ActionOption> | undefined
+  [type: string]: MaybeRefOrGetter<ActionOption> | undefined
 } & {
   [P in keyof T]: T[P]
 }
@@ -55,41 +56,41 @@ export interface ActionOption {
    *
    * @default true
    */
-  show?: MaybeRef<boolean>
+  show?: MaybeRefOrGetter<boolean>
 
   /**
    * 按钮文本
    */
-  text?: MaybeRef<string>
+  text?: MaybeRefOrGetter<string>
 
   /**
    * 按钮 props
    */
-  props?: MaybeRef<ExtractMaybeRef<ButtonProps>>
+  props?: MaybeRefOrGetter<DeepMaybeRefOrGetter<ButtonProps>>
 
   /**
    * 顺序
    */
-  order?: MaybeRef<number>
+  order?: MaybeRefOrGetter<number>
 
   /**
    * 点击按钮确认弹窗类型，false 则不需要
    *
    * @default false
    */
-  confirmType?: MaybeRef<ProButtonConfirmType>
+  confirmType?: MaybeRefOrGetter<ProButtonConfirmType>
 
   /**
    * 确认弹窗 props
    */
-  confirmProps?: MaybeRef<
-    ExtractMaybeRef<PopconfirmProps> | ExtractMaybeRef<ModalProps>
+  confirmProps?: MaybeRefOrGetter<
+    DeepMaybeRefOrGetter<PopconfirmProps> | DeepMaybeRefOrGetter<ModalProps>
   >
 
   /**
    * 自定义渲染内容
    */
-  render?: MaybeRef<() => VNodeChild>
+  render?: MaybeRefOrGetter<() => VNodeChild>
 }
 
 /**

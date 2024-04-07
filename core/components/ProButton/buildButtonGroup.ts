@@ -1,8 +1,9 @@
-import { ref, toValue, watchEffect } from 'vue'
+import { toValue } from '@vueuse/core'
+import { ref, watchEffect } from 'vue'
 
 import { DefaultAction, DefaultActionGroup } from './constant'
 
-import { mergeWithTovalue, type MaybeRef } from '../common'
+import { mergeWithTovalue } from '../common'
 
 import type {
   ActionGroupOption,
@@ -11,11 +12,12 @@ import type {
   InternalProButtonGroupOptions,
   InternalProButtonOptions,
 } from './interface'
+import type { MaybeRefOrGetter } from '@vueuse/core'
 import type { Ref, UnwrapRef } from 'vue'
 
 export function buildButtonGroup<T extends CustomActions, R = object>(
-  action: MaybeRef<ActionGroupOption<T, R>>,
-  defaultAction?: MaybeRef<
+  action?: MaybeRefOrGetter<ActionGroupOption<T, R>>,
+  defaultAction?: MaybeRefOrGetter<
     ActionGroupOption<CustomActions, Record<string, any>>
   >
 ) {
