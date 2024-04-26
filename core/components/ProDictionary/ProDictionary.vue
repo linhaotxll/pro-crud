@@ -17,7 +17,7 @@ const p = defineProps<{
 
 const contents = computed(() => {
   const map = p.ctx.column.__column!.dict?.optionsNameMap.value
-  return map && p.ctx.text
+  return map && p.ctx.text != null
     ? Array.isArray(p.ctx.text)
       ? p.ctx.text.map(t => map[t])
       : [map[p.ctx.text]]
