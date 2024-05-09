@@ -1,6 +1,6 @@
 import { PlusOutlined } from '@ant-design/icons-vue'
 import { merge } from 'lodash-es'
-import { computed, h, inject, provide, ref, toValue } from 'vue'
+import { computed, h, provide, ref, toValue } from 'vue'
 
 import { compose } from './compose'
 import {
@@ -33,7 +33,7 @@ import { buildSearch } from '../ProSearch'
 import { buildTable } from '../ProTable'
 import { showToast } from '../Toast'
 
-import { GlobalOption } from '~/constant'
+import { ensureGlobalOptions } from '~/constant'
 
 import type { Middleware } from './compose'
 import type {
@@ -49,7 +49,6 @@ import type {
   ProTableColumnProps,
   ProTableToolbarOption,
 } from '../ProTable'
-import type { ProComponentsOptions } from '~/constant'
 
 export function buildCrud<
   T extends object = any,
@@ -107,7 +106,6 @@ export function buildCrud<
     options,
   } as BuildCrudContext<T, R, S, S1, A, E>
 
-  // debugger
   compose<BuildCrudContext<T, R, S, S1, A, E>>([
     buildSearchMiddlewre,
     buildTableMiddleware,
@@ -118,13 +116,7 @@ export function buildCrud<
   ])(context)
 
   const {
-    show: {
-      search: searchShow,
-      table: tableShow,
-      addForm: addFormShow,
-      editForm: editFormShow,
-      viewForm: viewFormShow,
-    },
+    show: { search: searchShow, table: tableShow },
     binding: {
       search: searchBinding,
       table: tableBinding,
@@ -139,10 +131,6 @@ export function buildCrud<
     },
     optionResult: { deleteToast, addToast, editToast },
   } = context
-
-  const modalShow = computed(() => {
-    return addFormShow.value || editFormShow.value || viewFormShow.value
-  })
 
   const modalProps = computed<CrudDialogOption | undefined>(() => {
     const modalType = context.modalType.value
@@ -172,7 +160,6 @@ export function buildCrud<
     tableShow,
     tableBinding,
     modalType: context.modalType,
-    modalShow,
     modalProps,
     modalFormProps,
     deleteToast,
@@ -180,7 +167,7 @@ export function buildCrud<
     editToast,
   }
 
-  inject(GlobalOption)?.hooks?.crud?.({
+  ensureGlobalOptions().hooks?.crud?.({
     proCrudScope: context.scope,
     proCrudBinding,
   })
@@ -285,7 +272,7 @@ const buildTableMiddleware: Middleware<
           },
         },
         toolbar,
-        inject(GlobalOption)?.crud?.toolbar
+        ensureGlobalOptions().crud?.toolbar
       ),
       ...rest,
       action: actionColumn,
@@ -301,16 +288,11 @@ const buildTableMiddleware: Middleware<
     }
   })
 
-  let globalOption: ProComponentsOptions | undefined
   const transformQuery =
-    ctx.optionResult.transformQuery ?? ensureGlobalOption()?.transformQuery
+    ctx.optionResult.transformQuery ?? ensureGlobalOptions().transformQuery
   const transformResponse =
     ctx.optionResult.transformResponse ??
-    ensureGlobalOption()?.transformResponse
-
-  function ensureGlobalOption() {
-    return globalOption ? globalOption : (globalOption = inject(GlobalOption))
-  }
+    ensureGlobalOptions().transformResponse
 
   /**
    * 获取数据
@@ -372,16 +354,24 @@ const buildAddFormMiddleware: Middleware<
     next()
 
     ctx.dialog.addForm = computed<CrudDialogOption>(() => {
+      // debugger
       const mergedProps = merge<
-        CrudDialogOption,
+        // CrudDialogOption,
         CrudDialogOption,
         CrudDialogOption | undefined,
         CrudDialogOption | undefined,
         CrudDialogOption | undefined
       >(
-        { ...DefaultDialogOption },
-        { props: { title: '新增', onCancel: hideDialog } },
-        inject(GlobalOption)?.dialog,
+        // { ...DefaultDialogOption },
+        {
+          props: {
+            title: '新增',
+            onCancel: hideDialog,
+            ...DefaultDialogOption.props,
+          },
+          is: DefaultDialogOption.is,
+        },
+        ensureGlobalOptions().dialog,
         ctx.optionResult.dialog,
         ctx.optionResult.addFormDialog
       )
@@ -413,7 +403,7 @@ const buildAddFormMiddleware: Middleware<
       {
         formProps: { disabled: false },
         actions: {
-          show: false,
+          show: true,
           list: {
             cancel: {
               text: '取消',
@@ -483,7 +473,7 @@ const buildEditFormMiddleware: Middleware<
       >(
         { ...DefaultDialogOption },
         { props: { title: '编辑', onCancel: hideDialog } },
-        inject(GlobalOption)?.dialog,
+        ensureGlobalOptions().dialog,
         ctx.optionResult.dialog,
         ctx.optionResult.editFormDialog
       )
@@ -515,7 +505,7 @@ const buildEditFormMiddleware: Middleware<
       {
         formProps: { disabled: false },
         actions: {
-          show: false,
+          show: true,
           list: {
             cancel: {
               text: '取消',
@@ -584,7 +574,7 @@ const buildViewFormMiddleware: Middleware<
       >(
         { ...DefaultDialogOption },
         { props: { title: '查看', onCancel: hideDialog } },
-        inject(GlobalOption)?.dialog,
+        ensureGlobalOptions().dialog,
         ctx.optionResult.dialog,
         ctx.optionResult.viewFormDialog
       )
@@ -617,14 +607,6 @@ const buildViewFormMiddleware: Middleware<
         formProps: { disabled: true },
         actions: {
           show: false,
-          list: {
-            cancel: {
-              text: '关闭',
-              show: true,
-              props: { onClick: hideDialog },
-            },
-            confirm: { show: false },
-          },
         },
       },
       ctx.optionResult.form,

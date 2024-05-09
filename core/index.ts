@@ -28,9 +28,8 @@ import { ProForm, ProFormList } from './components/ProForm'
 import { ProRender } from './components/ProRender'
 import { ProSearch } from './components/ProSearch'
 import { ProTable } from './components/ProTable'
-import { GlobalOption } from './constant'
+import { setGlobalOptions, type ProComponentsOptions } from './constant'
 
-import type { ProComponentsOptions } from './constant'
 import type { Plugin } from 'vue'
 
 export const ProComponents: Plugin<ProComponentsOptions> = {
@@ -66,11 +65,8 @@ export const ProComponents: Plugin<ProComponentsOptions> = {
       .use(Spin)
       .use(Modal)
       .use(ConfigProvider)
-    // app.use(ElSpace, ElIcon, ElDropdown, ElDropdownMenu, ElDropdownItem, ElTree)
 
-    // app.directive('v-loading', vLoading)
-
-    app.provide(GlobalOption, options)
+    setGlobalOptions(options)
   },
 }
 

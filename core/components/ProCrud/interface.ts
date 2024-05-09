@@ -141,11 +141,6 @@ export interface BuildCrudBinding<
   modalType: Ref<ModalType | undefined>
 
   /**
-   * 是否显示表单弹窗
-   */
-  modalShow?: ComputedRef<boolean>
-
-  /**
    * 弹窗配置
    */
   modalProps: ComputedRef<CrudDialogOption | undefined>

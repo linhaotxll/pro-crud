@@ -14,7 +14,6 @@
     />
 
     <pro-dialog
-      v-if="modalShow?.value"
       :key="modalType.value"
       :dialog-props="modalProps?.value"
       :form-props="modalFormProps.value"

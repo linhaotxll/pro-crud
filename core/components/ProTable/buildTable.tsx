@@ -1,14 +1,5 @@
 import { merge } from 'lodash-es'
-import {
-  computed,
-  inject,
-  isRef,
-  nextTick,
-  provide,
-  reactive,
-  ref,
-  watch,
-} from 'vue'
+import { computed, isRef, nextTick, provide, reactive, ref, watch } from 'vue'
 
 import {
   DefaultPageNumber,
@@ -22,7 +13,7 @@ import { useToolbar } from './useToolbar'
 
 import { resolveRef, unRef } from '../common'
 
-import { GlobalOption } from '~/constant'
+import { ensureGlobalOptions } from '~/constant'
 
 import type {
   BuildProTableOptionResult,
@@ -246,7 +237,7 @@ export function buildTable<T extends object, C, P extends object = any>(
     } else {
       result.pagination = merge(
         {},
-        inject(GlobalOption)?.pagination,
+        ensureGlobalOptions().pagination,
         pagination,
         {
           pageSize: pageSize.value,
@@ -457,7 +448,7 @@ export function buildTable<T extends object, C, P extends object = any>(
     },
   }
 
-  inject(GlobalOption)?.hooks?.table?.({
+  ensureGlobalOptions().hooks?.table?.({
     proTableScope: scope,
     proTableBinding: buildProTableResult.proTableBinding,
     proTableRef: proTableRef,

@@ -20,9 +20,7 @@ import type {
   ProTableToolbarOption,
 } from './components/ProTable'
 import type { PaginationProps } from 'ant-design-vue'
-import type { InjectionKey, Ref } from 'vue'
-
-export const GlobalOption = Symbol() as InjectionKey<ProComponentsOptions>
+import type { Ref } from 'vue'
 
 export interface ProComponentsOptions {
   /**
@@ -102,4 +100,14 @@ export interface ProComponentsOptions {
      */
     toolbar?: ProTableToolbarOption
   }
+}
+
+let globalOptions: ProComponentsOptions
+
+export function ensureGlobalOptions() {
+  return globalOptions || {}
+}
+
+export function setGlobalOptions(options: ProComponentsOptions) {
+  globalOptions = options
 }

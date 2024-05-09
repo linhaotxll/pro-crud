@@ -1,7 +1,7 @@
 import { merge } from 'lodash-es'
-import { inject, type WritableComputedRef } from 'vue'
+import { type WritableComputedRef } from 'vue'
 
-import { GlobalOption } from '../../constant'
+import { ensureGlobalOptions } from '~/constant'
 
 import type { InternalProFormColumnOptions } from '../ProForm'
 import type { BodyCellSlotParams } from '../ProTable'
@@ -242,7 +242,8 @@ export const ValueTypeMap = {
     if (_ValueTypeMap) {
       return _ValueTypeMap
     }
-    const injectType = inject(GlobalOption)?.types
+
+    const injectType = ensureGlobalOptions().types
     return (_ValueTypeMap = merge({}, DefaultValueType, injectType) as Record<
       ValueType | any,
       ValueTypeValue

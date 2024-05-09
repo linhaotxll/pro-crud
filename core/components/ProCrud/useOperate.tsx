@@ -1,11 +1,10 @@
 import { merge } from 'lodash-es'
-import { inject } from 'vue'
 
 import { ConfirmDeleteContent, DeleteRecordToast } from './constant'
 
 import { showToast } from '../Toast'
 
-import { GlobalOption } from '~/constant'
+import { ensureGlobalOptions } from '~/constant'
 
 import type { BuildCrudContext, CrudActionOption } from './interface'
 import type { BodyCellSlotParams, ProTableActionColumnProps } from '../ProTable'
@@ -89,7 +88,7 @@ export function useOperate<
       },
       columnProps: { width: 250 },
     },
-    inject(GlobalOption)?.crud?.action,
+    ensureGlobalOptions().crud?.action,
     ctx.optionResult.table?.action ?? ctx.optionResult.action
   )
 
