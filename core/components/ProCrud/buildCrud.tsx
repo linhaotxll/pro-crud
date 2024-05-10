@@ -354,26 +354,24 @@ const buildAddFormMiddleware: Middleware<
     next()
 
     ctx.dialog.addForm = computed<CrudDialogOption>(() => {
-      // debugger
       const mergedProps = merge<
-        // CrudDialogOption,
         CrudDialogOption,
         CrudDialogOption | undefined,
         CrudDialogOption | undefined,
-        CrudDialogOption | undefined
+        CrudDialogOption | undefined,
+        CrudDialogOption
       >(
-        // { ...DefaultDialogOption },
         {
           props: {
             title: '新增',
-            onCancel: hideDialog,
             ...DefaultDialogOption.props,
           },
           is: DefaultDialogOption.is,
         },
         ensureGlobalOptions().dialog,
         ctx.optionResult.dialog,
-        ctx.optionResult.addFormDialog
+        ctx.optionResult.addFormDialog,
+        { props: { onCancel: hideDialog } }
       )
 
       mergedProps.props = merged(mergedProps.props)
@@ -466,16 +464,22 @@ const buildEditFormMiddleware: Middleware<
     ctx.dialog.editForm = computed<CrudDialogOption>(() => {
       const mergedProps = merge<
         CrudDialogOption,
-        CrudDialogOption,
         CrudDialogOption | undefined,
         CrudDialogOption | undefined,
-        CrudDialogOption | undefined
+        CrudDialogOption | undefined,
+        CrudDialogOption
       >(
-        { ...DefaultDialogOption },
-        { props: { title: '编辑', onCancel: hideDialog } },
+        {
+          props: {
+            title: '编辑',
+            ...DefaultDialogOption.props,
+          },
+          is: DefaultDialogOption.is,
+        },
         ensureGlobalOptions().dialog,
         ctx.optionResult.dialog,
-        ctx.optionResult.editFormDialog
+        ctx.optionResult.editFormDialog,
+        { props: { onCancel: hideDialog } }
       )
 
       mergedProps.props = merged(mergedProps.props)
@@ -567,16 +571,22 @@ const buildViewFormMiddleware: Middleware<
     ctx.dialog.viewForm = computed<CrudDialogOption>(() => {
       const mergedProps = merge<
         CrudDialogOption,
-        CrudDialogOption,
         CrudDialogOption | undefined,
         CrudDialogOption | undefined,
-        CrudDialogOption | undefined
+        CrudDialogOption | undefined,
+        CrudDialogOption
       >(
-        { ...DefaultDialogOption },
-        { props: { title: '查看', onCancel: hideDialog } },
+        {
+          props: {
+            title: '查看',
+            ...DefaultDialogOption.props,
+          },
+          is: DefaultDialogOption.is,
+        },
         ensureGlobalOptions().dialog,
         ctx.optionResult.dialog,
-        ctx.optionResult.viewFormDialog
+        ctx.optionResult.viewFormDialog,
+        { props: { onCancel: hideDialog } }
       )
 
       mergedProps.props = merged(mergedProps.props)
