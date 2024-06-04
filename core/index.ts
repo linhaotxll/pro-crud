@@ -39,13 +39,13 @@ import type { Plugin } from 'vue'
 
 export const ProComponents: Plugin<ProComponentsOptions> = {
   install(app, options) {
-    app.component(ProCrud.name, ProCrud)
-    app.component(ProTable.name, ProTable)
-    app.component(ProRender.name, ProRender)
-    app.component(ProForm.name, ProForm)
-    app.component(ProSelect.name, ProSelect)
-    app.component(ProDictionary.name, ProDictionary)
-    app.component(ProFormList.name, ProFormList)
+    // app.component(ProCrud.name, ProCrud)
+    app.component(ProTable.name!, ProTable)
+    // app.component(ProRender.name, ProRender)
+    app.component(ProForm.name!, ProForm)
+    // app.component(ProSelect.name, ProSelect)
+    // app.component(ProDictionary.name, ProDictionary)
+    app.component(ProFormList.name!, ProFormList)
 
     app
       .use(Form)

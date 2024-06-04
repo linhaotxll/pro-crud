@@ -1,81 +1,91 @@
-import { ref, toValue, watchEffect } from 'vue'
+import { toValue, watchEffect } from 'vue'
 
 import { mergeWithTovalue } from '../common'
+import { mergeWithUnref } from '../common/merge'
 import { buildDictionary } from '../ProDictionary'
 
-import type {
-  InternalProTableColumnProps,
-  ProTableColumnProps,
-} from './interface'
+import type { ProTableColumnProps } from './interface'
+import type { InternalProTableColumnProps } from './internal'
+import type { DataObject } from '../common'
 import type { DictionaryCollection } from '../ProDictionary'
-import type { Ref } from 'vue'
 
 export function buildTableColumn<
-  Data = any,
+  Data extends DataObject = any,
   Dictionary = any,
   Collection = any
 >(
   column: ProTableColumnProps<Data, Dictionary, Collection>,
   fetchDictionaryCollection?: DictionaryCollection['fetchDictionaryCollection']
-) {
-  const result = ref({}) as Ref<InternalProTableColumnProps<Data>>
+): InternalProTableColumnProps | undefined {
+  let result: InternalProTableColumnProps | undefined = undefined
+  // const result = ref({}) as Ref<InternalProTableColumnProps<Data>>
 
-  watchEffect(() => {
-    const {
-      show = true,
-      type = 'text',
-      label,
-      name,
-      columnProps,
-      dict,
-      ...rest
-    } = column
-    // 解析是否显示
-    const resolvedShow = toValue(show)
+  // watchEffect(() => {
+  const {
+    show = true,
+    type = 'text',
+    label,
+    name,
+    columnProps,
+    dict,
+    search,
+    // renderCell,
+    ...rest
+  } = column
+  // 解析是否显示
+  const resolvedShow = toValue(show)
 
-    if (!resolvedShow) {
-      result.value = {
-        show: resolvedShow,
-      }
+  if (!resolvedShow) {
+    // result.value = { show: resolvedShow }
+    // result.show = resolvedShow
+    return
+  }
 
-      return
-    }
+  // 解析路径
+  const resolvedName = toValue(name)
+  // 解析类型
+  const resolvedType = toValue(type)
+  // 解析名称
+  const resolvedLabel = toValue(label)
 
-    // 解析路径
-    const resolvedName = toValue(name)
-    // 解析类型
-    const resolvedType = toValue(type)
-    // 解析名称
-    const resolvedLabel = toValue(label)
+  // 解析字典配置
+  const resolvedDictionary = buildDictionary(
+    dict,
+    resolvedType,
+    fetchDictionaryCollection
+    // dict => {
+    //   if (dict.dependences) {
+    //     // TODO: scope
+    //     return dict.dependences.reduce((prev, dept) => {
+    //       set(prev, dept, scope.getFieldValue(dept))
+    //       return prev
+    //     }, {})
+    //   }
+    // }
+  )
 
-    const resolvedColumnProps = mergeWithTovalue(
-      { dataIndex: resolvedName, title: resolvedLabel },
-      toValue(columnProps)
-    )
-
-    // 解析字典配置
-    const resolvedDictionary = buildDictionary(
-      dict,
-      resolvedType,
-      fetchDictionaryCollection
-      // dict => {
-      //   if (dict.dependences) {
-      //     // TODO: scope
-      //     return dict.dependences.reduce((prev, dept) => {
-      //       set(prev, dept, scope.getFieldValue(dept))
-      //       return prev
-      //     }, {})
-      //   }
-      // }
-    )
-
-    result.value = {
-      show: resolvedShow,
+  const _column = mergeWithUnref(
+    {
+      name: resolvedName,
       type: resolvedType,
-      columnProps: resolvedColumnProps,
+      show: resolvedShow,
       dictionary: resolvedDictionary,
-    }
-  })
+    },
+    rest
+    // {
+    //   renderCell: column.renderCell,
+    // }
+  )
+
+  result = mergeWithTovalue(
+    {
+      dataIndex: resolvedName,
+      title: resolvedLabel,
+      _column,
+    },
+    toValue(columnProps)
+  )
+  // })
 
   return result
 }

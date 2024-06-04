@@ -30,6 +30,8 @@
 // } from 'ant-design-vue/es/vc-table/interface'
 // import type { CSSProperties, ComputedRef, Ref, VNode } from 'vue'
 
+import type { TableSlotFn, TableSlotValueKey } from './constant'
+import type { InternalProTableColumnProps } from './internal'
 import type {
   DataObject,
   DeepMaybeRefOrGetter,
@@ -44,24 +46,22 @@ import type {
   CustomActions,
   InternalProButtonGroupOptions,
 } from '../ProButton'
-import type {
-  buildDictionary,
-  DictionaryCollection,
-  DictionaryColumn,
-} from '../ProDictionary'
+import type { DictionaryCollection, DictionaryColumn } from '../ProDictionary'
 import type {
   BuildFormBinding,
   BuildFormOptionResult,
+  ProFormColumnOptions,
   ProFormScope,
 } from '../ProForm'
 import type { MaybeRefOrGetter } from '@vueuse/core'
 import type { TableProps } from 'ant-design-vue'
 import type { ColumnType } from 'ant-design-vue/es/table'
 import type {
+  CustomizeScrollBody,
   ExpandedRowRender,
   RenderExpandIconProps,
 } from 'ant-design-vue/es/vc-table/interface'
-import type { ComputedRef, Ref, VNodeChild } from 'vue'
+import type { ComputedRef, MaybeRef, Ref, VNodeChild } from 'vue'
 
 /**
  * 获取 Pro Table 数据函数
@@ -82,44 +82,18 @@ export type FetchProTablePageListResult<Data = any> = {
 }
 
 export type FetchProTablePageListQuery<Params = any> = {
-  page: { pageSize: number; pageNum: number } | undefined
+  page: { pageSize: number; pageNum: number }
   params?: Params
 }
-
-// /**
-//  * headerCell 插槽参数
-//  */
-// export type HeaderCellSlotParams<T> = { column: ColumnType<T>; title: string }
-
-// /**
-//  * bodyCell 插槽参数
-//  */
-// export type BodyCellSlotParams<T> = {
-//   text: any
-//   index: number
-//   column: ColumnType<T>
-//   record: T
-//   editable: boolean
-// }
-
-// /**
-//  * ProTable 组件实例方法
-//  */
-// export type ProTableInstance<T> = ProTableScope<T>
 
 /**
  * Pro Table 列配置
  */
 export interface ProTableColumnProps<
-  Data = any,
+  Data extends DataObject = any,
   Dictionary = any,
   Collection = any
 > extends DictionaryColumn<Dictionary, Collection> {
-  // /**
-  //  * 分组列配置
-  //  */
-  // children?: ProTableColumnProps<T> | ProTableColumnProps<T>[]
-
   /**
    * 是否显示列
    */
@@ -150,14 +124,19 @@ export interface ProTableColumnProps<
   >
 
   /**
+   * 搜索栏配置
+   */
+  search?: MaybeRefOrGetter<ProFormColumnOptions<Data, Dictionary, Collection>>
+
+  /**
    * 自定义渲染表头
    */
-  renderHeader?(): VNodeChild
+  renderHeader?: MaybeRef<(ctx: RenderHeaderCellTextParams<Data>) => VNodeChild>
 
   /**
    * 自定义渲染单元格
    */
-  renderCell?(): VNodeChild
+  renderCell?: MaybeRef<(ctx: RenderBodyCellTextParams<Data>) => VNodeChild>
 
   /**
    * 自定义渲染筛选菜单
@@ -202,90 +181,6 @@ export type ProTableToolbarActions = {
    */
   reload?: MaybeRefOrGetter<ActionOption>
 } & CustomActions
-
-// /**
-//  * 操作列配置
-//  */
-// export type ProTableActionColumnProps<T> = Omit<
-//   ProTableColumnProps<T>,
-//   'type' | 'dict' | 'editable'
-// > & {
-//   /**
-//    * 操作按钮组
-//    */
-//   actions?: ActionsList<ProTableActions<T>>
-// }
-
-// export type ProTableActions<T> = Record<string, ProTableActionProps<T>>
-
-// /**
-//  * 操作列按钮配置
-//  */
-// export interface ProTableActionProps<T>
-//   extends Omit<ActionOption, 'props' | 'confirmProps'> {
-//   /**
-//    * 按钮 props
-//    */
-//   props?: Omit<ButtonProps, 'onClick'> & {
-//     onClick?: (e: MouseEvent, ctx: BodyCellSlotParams<T>) => void
-//   }
-
-//   /**
-//    * 确认弹窗 props
-//    */
-//   confirmProps?: ProTableActionConfirmProps<T> | ProTableActionModalProps<T>
-// }
-
-// /**
-//  * Popconfirm props，onConfirm 事件多了一个参数：行数据
-//  */
-// export type ProTableActionConfirmProps<T> = Omit<
-//   PopconfirmProps,
-//   'onConfirm'
-// > & {
-//   onConfirm?(e: MouseEvent, ctx: BodyCellSlotParams<T>): void
-// }
-
-// /**
-//  * MessageBox props，callback 多了一个参数：行数据
-//  */
-// export type ProTableActionModalProps<T> = Omit<ModalProps, 'onOk'> & {
-//   onOk?(ctx: BodyCellSlotParams<T>): void
-// }
-
-// export type ProTableColumnEditable<T> =
-//   | false
-//   | ((ctx: BodyCellSlotParams<T>) => boolean)
-
-// /**
-//  * 列插槽
-//  */
-// export type ProTableColumnSlots<T> = {
-//   headerCell?(ctx: HeaderCellSlotParams<T>): JSXElement
-//   bodyCell?(ctx: BodyCellSlotParams<T>): JSXElement
-// }
-
-// /**
-//  * @internal
-//  */
-// export interface InternalProTableColumnProps<T> {
-//   show: boolean
-//   name: DataIndex | undefined
-//   type: ValueType | any
-//   dict?: ReturnType<typeof useDictionary>
-//   renderCell?: boolean
-//   editable?: ProTableColumnEditable<T>
-//   columnProps: ColumnType<T>
-//   columnSlots?: ProTableColumnSlots<T> | undefined
-// }
-
-// /**
-//  * buildTable 返回值
-//  */
-// export type BuildProTableResult<T extends object> = {
-//   proTableRef: Ref<ProTableInstance<T> | null>
-//   proTableBinding: BuildProTableBinding<T>
-// }
 
 /**
  * buildTable option 返回值
@@ -360,14 +255,12 @@ export type BuildProTableOptionResult<
 
   /**
    * 搜索栏配置
+   *
+   * @default {}
    */
-  search?:
-    | MaybeRefOrGetter<
-        false | BuildFormOptionResult<SearchForm, SearchFormSubmit, Collection>
-      >
-    | ((
-        scope: ProFormScope<SearchForm>
-      ) => BuildFormOptionResult<SearchForm, SearchFormSubmit, Collection>)
+  search?: MaybeRefOrGetter<
+    ProTableSearchOptions<Collection, SearchForm, SearchFormSubmit>
+  >
 
   /**
    * 编辑配置
@@ -438,6 +331,11 @@ export type BuildProTableOptionResult<
   renderHeaderCell?(): VNodeChild
 
   /**
+   * 渲染 Table Body
+   */
+  renderBody?: CustomizeScrollBody<Data>
+
+  /**
    * 渲染 Table Body Wrapper
    */
   renderBodyWrapper?(): VNodeChild
@@ -455,7 +353,7 @@ export type BuildProTableOptionResult<
   /**
    * 渲染空数据时的显示内容
    */
-  renderEmptyText?(): VNodeChild
+  renderEmptyText?: MaybeRef<() => VNodeChild>
 
   /**
    * 渲染总结栏
@@ -470,7 +368,7 @@ export type BuildProTableOptionResult<
   /**
    * 渲染表格尾部
    */
-  renderFooter?(currentPageData: Data[]): VNodeChild
+  renderFooter?: MaybeRef<(currentPageData: Data[]) => VNodeChild>
 
   /**
    * 渲染展开图标
@@ -483,10 +381,49 @@ export type BuildProTableOptionResult<
   renderExpandColumnTitle?(): VNodeChild
 
   /**
-   * 渲染展开行
+   * 渲染额外展开行
    */
   renderExpandedRow?(props: Parameters<ExpandedRowRender<Data>>[0]): VNodeChild
 }
+
+/**
+ * 渲染 Cell Text 参数
+ */
+export type RenderBodyCellTextParams<Data extends DataObject = DataObject> = {
+  text: any
+  value: any
+  record: Data
+  index: number
+  column: InternalProTableColumnProps<Data>
+}
+
+/**
+ * 渲染 Header Cell Text 参数
+ */
+export type RenderHeaderCellTextParams<Data extends DataObject = DataObject> = {
+  title: any
+  column: InternalProTableColumnProps<Data>
+}
+
+/**
+ * Table Search 配置
+ */
+export type ProTableSearchOptions<
+  Collection = any,
+  SearchForm extends DataObject = DataObject,
+  SearchFormSubmit = SearchForm
+> =
+  | false
+  | Omit<
+      BuildFormOptionResult<SearchForm, SearchFormSubmit, Collection>,
+      'columns'
+    >
+  | ((
+      scope: ProFormScope<SearchForm>
+    ) => Omit<
+      BuildFormOptionResult<SearchForm, SearchFormSubmit, Collection>,
+      'columns'
+    >)
 
 // export type ProTableEditable<T> = false | ProTableEditableOptions<T>
 
@@ -534,7 +471,7 @@ export type BuildProTableOptionResult<
 /**
  * ProTable 作用域
  */
-export interface ProTableScope {
+export interface ProTableScope<Data extends DataObject = DataObject> {
   /**
    * 重新加载当前页数据
    */
@@ -601,34 +538,19 @@ export interface BuildTableResult<Data = any> {
 
 export interface BuildTableBinding<
   Data = any,
-  FormData extends DataObject = DataObject
+  SearchForm extends DataObject = DataObject
 > {
   tableProps: ComputedRef<TableProps<Data>> | undefined
-  proFormBinding: false | BuildFormBinding<FormData>
+  tableSlots: ComputedRef<Record<TableSlotValueKey, TableSlotFn> | null>
   toolbar: Ref<InternalProButtonGroupOptions>
+  search: ComputedRef<InternalProTableSearchOptions<SearchForm>>
 }
 
 /**
+ * 解析好的 ProTable Search 配置
+ *
  * @internal
  */
-export interface InternalProTableColumnProps<Data = any> {
-  /**
-   * 是否显示
-   */
-  show: boolean
-
-  /**
-   * 类型
-   */
-  type?: ValueType
-
-  /**
-   * 列 Props
-   */
-  columnProps?: ColumnType<Data>
-
-  /**
-   * 字典配置
-   */
-  dictionary?: ReturnType<typeof buildDictionary>
-}
+export type InternalProTableSearchOptions<
+  SearchForm extends DataObject = DataObject
+> = false | BuildFormBinding<SearchForm>

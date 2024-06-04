@@ -1,37 +1,31 @@
-import { MaybeRef, toRef } from '@vueuse/core'
+import { toRef } from '@vueuse/core'
 import { toValue } from '@vueuse/core'
 import { once } from 'lodash-es'
-import { computed, isRef, nextTick, ref, watch, watchEffect } from 'vue'
+import { computed, isRef, ref, watch } from 'vue'
 
-import { buildDefaultToolbar } from './constant'
+import { buildTableColumn } from './buildTableColumn'
+import { buildDefaultToolbar, tableSlotKey } from './constant'
+import { renderBodyCellText, renderHeaderCellText } from './renderBodyCell'
 
-import { fetchWithLoding, mergeWithTovalue, resolveRef } from '../common'
+import { fetchWithLoding, mergeWithTovalue } from '../common'
 import { buildButtonGroup } from '../ProButton'
-import { buildForm } from '../ProForm'
+import { buildSearch } from '../ProForm'
 
 import { isArray, isFunction, isPlainObject } from '~/utils'
 
+import type { TableSlotFn, TableSlotKey, TableSlotValueKey } from './constant'
 import type {
   BuildProTableOptionResult,
-  BuildTableBinding,
   BuildTableResult,
   FetchProTablePageListResult,
-  InternalProTableColumnProps,
+  InternalProTableSearchOptions,
   ProTableScope,
   ProTableToolbarActions,
 } from './interface'
-import type {
-  DataObject,
-  DeepMaybeRefOrGetter,
-  ToDeepMaybeRefOrGetter,
-} from '../common'
-import type { BuildFormBinding, BuildFormOptionResult } from '../ProForm'
-import type { MaybeRefOrGetter } from '@vueuse/core'
-import type {
-  PaginationProps,
-  TablePaginationConfig,
-  TableProps,
-} from 'ant-design-vue'
+import type { InternalProTableColumnProps } from './internal'
+import type { DataObject } from '../common'
+import type { ProFormColumnOptions } from '../ProForm'
+import type { TableProps } from 'ant-design-vue'
 import type { Ref } from 'vue'
 
 export function buildTable<
@@ -58,6 +52,8 @@ export function buildTable<
     next,
   }
 
+  const optionResult = options(scope)
+
   const {
     data,
     defaultData,
@@ -74,25 +70,135 @@ export function buildTable<
     onLoad,
     onLoadingChange,
     onRequestError,
-  } = options(scope)
+    renderTable,
+    renderHeaderWrapper,
+    renderHeaderRow,
+    renderHeaderCell,
+    renderBody,
+    renderBodyWrapper,
+    renderBodyRow,
+    renderBodyCell,
+    // renderCustomFilterDropdown,
+    // renderCustomFilterIcon,
+    // renderEmptyText,
+    // renderExpandColumnTitle,
+    // renderExpandIcon,
+    // renderExpandedRow,
+    // renderFooter,
+    // renderSummary,
+    // renderTitle,
+  } = optionResult
+
+  // 获取初始的页数和每页数量
+  let defaultCurrent = 1
+  let defaultPageSize = 10
+  const initialPagination = toValue(toValue(tableProps)?.pagination)
+  if (initialPagination !== false) {
+    defaultCurrent = toValue(initialPagination?.current) ?? defaultCurrent
+    defaultPageSize = toValue(initialPagination?.pageSize) ?? defaultPageSize
+  }
 
   // 当前页
-  const currentPage = ref(1)
+  const currentPage = ref(defaultCurrent)
   // 每页数据数量
-  const currentPageSize = ref(10)
+  const currentPageSize = ref(defaultPageSize)
+  // 是否还有下一页数据
+  const hasMore = ref(false)
   // 实际的数据集合
   const resolvedData = ref(defaultData ?? []) as Ref<Data[]>
   // 请求 loading
   const loading = ref(false)
-  // 搜索表单配置
-  let proFormBinding: BuildTableBinding<Data, SearchForm>['proFormBinding'] =
-    false
+
+  // 解析 toolbar
+  const resolvedToolbar = buildButtonGroup<ProTableToolbarActions, {}>(
+    toolbar,
+    buildDefaultToolbar(scope)
+  )
+
+  // 只调用一次的获取集合函数
+  const fetchDictionaryCollectionOnce = isFunction(fetchDictionaryCollection)
+    ? once(fetchDictionaryCollection)
+    : undefined
+
+  // 构建 Table 列
+  const resolvedTableColumns = ref([]) as Ref<
+    InternalProTableColumnProps<Data>[]
+  >
+  // 构建 Search 列配置
+  const resolvedSearchColumns = ref([]) as Ref<
+    ProFormColumnOptions<Data, any, Collection>[]
+  >
+
+  if (columns) {
+    watch(
+      toRef(columns),
+      _columns => {
+        resolvedTableColumns.value = []
+        resolvedSearchColumns.value = []
+        const { search, table } = _columns.reduce(
+          (prev, curr) => {
+            prev.search.push(
+              mergeWithTovalue(
+                {},
+                { label: curr.label, name: curr.name, type: curr.type },
+                toValue(curr.search)
+              )
+            )
+            const tableColumnOptions = buildTableColumn(
+              curr,
+              fetchDictionaryCollectionOnce
+            )
+            if (tableColumnOptions) {
+              prev.table.push(tableColumnOptions)
+            }
+
+            return prev
+          },
+          {
+            search: [],
+            table: [],
+          } as {
+            search: ProFormColumnOptions<Data, any, Collection>[]
+            table: InternalProTableColumnProps<Data>[]
+          }
+        )
+
+        resolvedTableColumns.value = table
+        resolvedSearchColumns.value = search
+      },
+      { immediate: true, deep: true }
+    )
+  }
 
   // 解析 Table Props
   const resolvedTableProps = computed<TableProps<Data>>(() => {
+    const tablePropsValue = toValue(tableProps)
     const propsValue = mergeWithTovalue<TableProps<Data>>(
       {},
-      toValue(tableProps)
+      {
+        loading,
+        dataSource: resolvedData,
+        columns: resolvedTableColumns,
+      },
+      tablePropsValue,
+      {
+        // TODO:
+        components: {
+          table: renderTable,
+          header: {
+            wrapper: renderHeaderWrapper,
+            row: renderHeaderRow,
+            cell: renderHeaderCell,
+          },
+          body: isFunction(renderBody)
+            ? renderBody
+            : {
+                wrapper: renderBodyWrapper,
+                row: renderBodyRow,
+                cell: renderBodyCell,
+              },
+        },
+      }
     )
 
     if (propsValue.pagination !== false) {
@@ -112,34 +218,45 @@ export function buildTable<
     return propsValue
   })
 
-  // 解析 toolbar
-  const resolvedToolbar = buildButtonGroup<ProTableToolbarActions, {}>(
-    toolbar,
-    buildDefaultToolbar(scope)
-  )
+  // 解析 Table Slots
+  const resolvedTableSlots = computed(() => {
+    return Object.keys(tableSlotKey).reduce(
+      (prev, curr) => {
+        const key = curr as TableSlotKey
+        if (optionResult[key]) {
+          const fn = isRef(optionResult[key])
+            ? optionResult[key].value
+            : optionResult[key]
 
-  // 只调用一次的获取集合函数
-  const fetchDictionaryCollectionOnce = isFunction(fetchDictionaryCollection)
-    ? once(fetchDictionaryCollection)
-    : undefined
+          prev[tableSlotKey[key]] = fn
+        }
+        return prev
+      },
+      // 默认包含 bodyCell 和 headerCell 的插槽
+      {
+        bodyCell: renderBodyCellText,
+        headerCell: renderHeaderCellText,
+      } as Record<TableSlotValueKey, TableSlotFn>
+    )
+  })
 
-  // 构建列
-  const resolvedColumns = ref([]) as Ref<
-    Ref<InternalProTableColumnProps<Data>>[]
-  >
-  // const resolvedColumnsMap = new Map<
-  //   NamePath,
-  //   InternalProFormColumnOptions<T>
-  // >()
-
-  if (columns) {
-    watch(toRef(columns), _columns => {
-      resolvedColumns.value = []
-      for (const c of toValue(_columns)) {
-        buildTableColumn
+  // 解析 search
+  const resolvedSearch = computed<InternalProTableSearchOptions<SearchForm>>(
+    () => {
+      const searchValue = toValue(search)
+      if (searchValue === false) {
+        return false
       }
-    })
-  }
+
+      // @ts-ignore
+      return buildSearch(scope => {
+        return {
+          ...(isFunction(searchValue) ? searchValue(scope) : searchValue),
+          columns: resolvedSearchColumns,
+        }
+      }).proFormBinding
+    }
+  )
 
   // 监听 loading 变化
   if (isFunction(onLoadingChange)) {
@@ -155,33 +272,6 @@ export function buildTable<
     })
   }
 
-  // 如果 search 是 ref 则监听其变化
-  if (isRef(search)) {
-    watch(
-      search,
-      _search => {
-        proFormBinding = !_search
-          ? _search
-          : buildForm(() => _search).proFormBinding
-      },
-      { immediate: true }
-    )
-  } else if (search) {
-    const res = buildForm<SearchForm, SearchFormSubmit>(scope => {
-      if (isFunction(search)) {
-        const res = search(scope)
-        if (res === false) {
-          proFormBinding = false
-          return {}
-        }
-        return res
-      }
-      return search
-    })
-
-    proFormBinding = res.proFormBinding
-  }
-
   /**
    * 是否是分页数据
    */
@@ -194,7 +284,7 @@ export function buildTable<
   /**
    * 获取数据
    */
-  async function _fetchTableData(pageSize?: number, pageNum?: number) {
+  async function _fetchTableData(pageNum?: number, pageSize?: number) {
     fetchWithLoding(
       loading,
       () => {
@@ -204,20 +294,15 @@ export function buildTable<
           | Promise<Data[] | FetchProTablePageListResult<Data>>
 
         if (isFunction(fetchTableData)) {
-          const { pagination } = toValue(resolvedTableProps)
-          const page =
-            pagination !== false
-              ? {
-                  pageNum: (pageNum = pageNum ?? pagination!.current!),
-                  pageSize: (pageSize = pageSize ?? pagination!.pageSize!),
-                }
-              : undefined
           res = fetchTableData({
-            page,
+            page: {
+              pageNum: pageNum ?? currentPage.value,
+              pageSize: pageSize ?? currentPageSize.value,
+            },
             params: toValue(params),
           })
         } else {
-          res = toValue(data) ?? []
+          res = toValue(data) ?? resolvedData.value
         }
 
         return res
@@ -241,7 +326,7 @@ export function buildTable<
     )
   }
 
-  // 如果 data 是
+  // 如果 data 和 params 是响应式才需要监听
   if (isRef(data) || isRef(params)) {
     watch(
       [data, params],
@@ -287,8 +372,9 @@ export function buildTable<
   return {
     proTableBinding: {
       tableProps: resolvedTableProps,
+      tableSlots: resolvedTableSlots,
       toolbar: resolvedToolbar,
-      proFormBinding: proFormBinding,
+      search: resolvedSearch,
     },
   }
 }

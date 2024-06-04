@@ -1,7 +1,5 @@
 import { mergeWith } from 'lodash-es'
-import { isRef, toValue } from 'vue'
-
-import type { ToDeepMaybeRefOrGetter } from './interface'
+import { isRef, toValue, unref } from 'vue'
 
 // export function mergeWithTovalue<TObject, TSource>(
 //   object: TObject,
@@ -81,6 +79,18 @@ export function mergeWithTovalue<T = any>(target: any, ...source: any[]): T {
     ...source,
     (_: any, srcValue: any) => {
       return isRef(srcValue) ? toValue(srcValue) ?? null : undefined
+    },
+  ]
+  // @ts-ignore
+  return mergeWith(...args)
+}
+
+export function mergeWithUnref<T = any>(target: any, ...source: any[]): T {
+  const args = [
+    target,
+    ...source,
+    (_: any, srcValue: any) => {
+      return isRef(srcValue) ? unref(srcValue) ?? null : undefined
     },
   ]
   // @ts-ignore
