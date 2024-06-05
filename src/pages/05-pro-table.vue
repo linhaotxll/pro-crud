@@ -1,58 +1,75 @@
 <template>
+  <button @click="setValue">set</button>
   <pro-table v-bind="proTableBinding" />
 </template>
 
 <script lang="tsx" setup>
-import { ref } from 'vue'
+import { h, ref } from 'vue'
 
 import { buildTable } from '~/components/ProTable'
-
-import type { Ref } from 'vue'
 
 type Person = {
   name: string
   age: number
 }
 
-const stack: Person[] = [
-  { name: 'IconMan', age: 24 },
-  { name: 'Nicholas', age: 25 },
-]
-
-const defaultPerson: Person = {
-  name: 'Edwards',
-  age: 26,
+const vi = {
+  fn(func: any) {
+    return func
+  },
 }
 
-const sleep = (time: number) => new Promise(r => setTimeout(r, time))
+function setValue() {
+  renderFilterDropdown.value = renderFilterDropdownFn
+  renderFilterIcon.value = renderFilterIconFn
+  renderNameFilterIcon.value = renderNameFilterIconFn
+  renderNameFilterDropdown.value = renderNameFilterDropdownFn
+}
 
-// const data = ref([]) as Ref<Person[]>
+// normal filter
+const renderFilterDropdownFn = () =>
+  h('div', { class: 'filter-dropdown' }, `dropdown text`)
+
+const renderFilterDropdown = ref()
+
+const renderFilterIconFn = () => h('div', { class: 'filter-icon' }, `icon text`)
+
+const renderFilterIcon = ref()
+
+// name filter
+const renderNameFilterDropdownFn = () =>
+  h('div', { class: 'name-filter-dropdown' }, `name dropdown text`)
+
+const renderNameFilterDropdown = ref()
+
+const renderNameFilterIconFn = () =>
+  h('div', { class: 'name-filter-icon' }, `name icon text`)
+
+const renderNameFilterIcon = ref()
+
+const data = ref<Person[]>([{ name: 'IconMan', age: 24 }])
 const { proTableBinding } = buildTable<Person>(() => {
   return {
     columns: [
       {
         label: '姓名',
         name: 'name',
-        renderCell(ctx) {
-          return `姓名是${ctx.text}`
-        },
+        renderFilterDropdown: renderNameFilterDropdown,
+        renderFilterIcon: renderNameFilterIcon,
+        columnProps: { customFilterDropdown: true },
       },
       {
         label: '年龄',
         name: 'age',
-        renderCell(ctx) {
-          return `年龄是${ctx.text}`
-        },
       },
     ],
-    async fetchTableData() {
-      await sleep(10000)
-      return [{ name: 'IconMan', age: 24 }]
+    data,
+    renderFilterDropdown() {
+      return '123'
     },
-    // renderEmptyText: () => 'empty',
-    // search: false,
-    // defaultData: [defaultPerson],
-    // data: [],
+    renderFilterIcon() {
+      return 'icon111'
+    },
   }
 })
 </script>

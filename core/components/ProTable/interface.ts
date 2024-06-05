@@ -1,42 +1,8 @@
-// import type {
-//   ValueType,
-//   ColumnType,
-//   DictionaryCollectionOptions,
-//   ColumnDictionaryOptions,
-//   useDictionary,
-// } from '../common'
-// import type { ExtractMaybeRef, JSXElement, MaybeRef } from '../common/interface'
-// import type { ActionOption, ActionsList } from '../ProButton'
-// import type { SuccessToastOptions } from '../Toast'
-// import type {
-//   ButtonProps,
-//   ModalProps,
-//   PopconfirmProps,
-//   SpaceProps,
-//   SpinProps,
-//   TableProps,
-//   TooltipProps,
-// } from 'ant-design-vue'
-// import type { Key } from 'ant-design-vue/es/_util/type'
-// import type { SizeType } from 'ant-design-vue/es/config-provider'
-// import type {
-//   FilterDropdownProps,
-//   FilterValue,
-//   SorterResult,
-// } from 'ant-design-vue/es/table/interface'
-// import type {
-//   DataIndex,
-//   ExpandedRowRender,
-// } from 'ant-design-vue/es/vc-table/interface'
-// import type { CSSProperties, ComputedRef, Ref, VNode } from 'vue'
-
 import type { TableSlotFn, TableSlotValueKey } from './constant'
 import type { InternalProTableColumnProps } from './internal'
 import type {
   DataObject,
   DeepMaybeRefOrGetter,
-  // ExtractMaybeRef,
-  // MaybeRef,
   NamePath,
   ValueType,
 } from '../common'
@@ -54,8 +20,9 @@ import type {
   ProFormScope,
 } from '../ProForm'
 import type { MaybeRefOrGetter } from '@vueuse/core'
-import type { TableProps } from 'ant-design-vue'
+import type { FlexProps, TableProps } from 'ant-design-vue'
 import type { ColumnType } from 'ant-design-vue/es/table'
+import type { FilterDropdownProps } from 'ant-design-vue/es/table/interface'
 import type {
   CustomizeScrollBody,
   ExpandedRowRender,
@@ -139,19 +106,18 @@ export interface ProTableColumnProps<
   renderCell?: MaybeRef<(ctx: RenderBodyCellTextParams<Data>) => VNodeChild>
 
   /**
-   * 自定义渲染筛选菜单
+   * 自定义渲染单独列筛选菜单
    */
-  renderFilterDropdown?(): VNodeChild
+  renderFilterDropdown?: MaybeRef<
+    (ctx: RenderCustomFilterDropdown<Data>) => VNodeChild
+  >
 
   /**
-   * 自定义渲染筛选图标
+   * 自定义渲染单独列筛选图标
    */
-  renderFilterIcon?(): VNodeChild
-
-  // /**
-  //  * 编辑配置
-  //  */
-  // editable?: ProTableColumnEditable<T>
+  renderFilterIcon?: MaybeRef<
+    (ctx: RenderCustomFilterIconParams<Data>) => VNodeChild
+  >
 }
 
 /**
@@ -219,22 +185,20 @@ export type BuildProTableOptionResult<
     DeepMaybeRefOrGetter<Omit<TableProps<Data>, 'components' | 'columns'>>
   >
 
-  // /**
-  //  * 初始页数
-  //  *
-  //  * @default 1
-  //  */
-  // initialPageNumber?: number
-
-  /**
-   * Table 插槽
-   */
-  // tableSlots?: TableSlots<Data>
-
   /**
    * TODO: 列配置
    */
   columns?: MaybeRefOrGetter<ProTableColumnProps<Data, any, Collection>[]>
+
+  /**
+   * 包裹 Flex 属性
+   */
+  wrapperProps?: MaybeRefOrGetter<FlexProps>
+
+  /**
+   * 自定义渲染包裹元素
+   */
+  renderWrapper?: MaybeRef<RenderWrapperFn>
 
   /**
    * 操作列配置
@@ -261,29 +225,6 @@ export type BuildProTableOptionResult<
   search?: MaybeRefOrGetter<
     ProTableSearchOptions<Collection, SearchForm, SearchFormSubmit>
   >
-
-  /**
-   * 编辑配置
-   */
-  // editable?: ProTableEditable<T>
-
-  /**
-   * 是否自动填充父元素
-   */
-  // autoFill?: boolean
-
-  // /**
-  //  * 提交编辑行内容
-  //  */
-  // submitEditable?: (
-  //   values: T,
-  //   ctx: BodyCellSlotParams<T>
-  // ) => Promise<boolean> | boolean
-
-  // /**
-  //  * table 尺寸发生改变
-  //  */
-  // onSizeChange?: (size: SizeType) => void
 
   /**
    * 对获取的数据进行处理
@@ -358,12 +299,12 @@ export type BuildProTableOptionResult<
   /**
    * 渲染总结栏
    */
-  renderSummary?(): VNodeChild
+  renderSummary?: MaybeRef<() => VNodeChild>
 
   /**
    * 渲染表格标题
    */
-  renderTitle?(currentPageData: Data[]): VNodeChild
+  renderTitle?: MaybeRef<(currentPageData: Data[]) => VNodeChild>
 
   /**
    * 渲染表格尾部
@@ -384,6 +325,44 @@ export type BuildProTableOptionResult<
    * 渲染额外展开行
    */
   renderExpandedRow?(props: Parameters<ExpandedRowRender<Data>>[0]): VNodeChild
+
+  /**
+   * 自定义渲染通用列筛选菜单
+   */
+  renderFilterDropdown?: MaybeRef<
+    (ctx: RenderCustomFilterDropdown<Data>) => VNodeChild
+  >
+
+  /**
+   * 自定义渲染通用列筛选图标
+   */
+  renderFilterIcon?: MaybeRef<
+    (ctx: RenderCustomFilterIconParams<Data>) => VNodeChild
+  >
+}
+
+/**
+ * 渲染包裹元素
+ */
+export type RenderWrapperFn = (dom: VNodeChild) => VNodeChild
+
+/**
+ * 渲染筛选 Icon 图表的参数
+ */
+export interface RenderCustomFilterIconParams<
+  Data extends DataObject = DataObject
+> {
+  filtered: boolean
+  column: InternalProTableColumnProps<Data>
+}
+
+/**
+ * 渲染筛选内容的参数
+ */
+export interface RenderCustomFilterDropdown<
+  Data extends DataObject = DataObject
+> extends Omit<FilterDropdownProps<Data>, 'column'> {
+  column: InternalProTableColumnProps<Data>
 }
 
 /**
@@ -542,6 +521,8 @@ export interface BuildTableBinding<
 > {
   tableProps: ComputedRef<TableProps<Data>> | undefined
   tableSlots: ComputedRef<Record<TableSlotValueKey, TableSlotFn> | null>
+  wrapperProps: ComputedRef<FlexProps>
+  renderWrapper: RenderWrapperFn | ComputedRef<RenderWrapperFn> | undefined
   toolbar: Ref<InternalProButtonGroupOptions>
   search: ComputedRef<InternalProTableSearchOptions<SearchForm>>
 }

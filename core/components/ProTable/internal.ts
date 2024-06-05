@@ -1,5 +1,7 @@
 import type {
   RenderBodyCellTextParams,
+  RenderCustomFilterDropdown,
+  RenderCustomFilterIconParams,
   RenderHeaderCellTextParams,
 } from './interface'
 import type { DataObject, NamePath, ValueType } from '../common'
@@ -44,12 +46,12 @@ export interface InternalColumnOptions<Data extends DataObject = DataObject> {
   /**
    * 自定义渲染筛选菜单
    */
-  renderFilterDropdown?(): VNodeChild
+  renderFilterDropdown?(ctx: RenderCustomFilterDropdown<Data>): VNodeChild
 
   /**
    * 自定义渲染筛选图标
    */
-  renderFilterIcon?(): VNodeChild
+  renderFilterIcon?(ctx: RenderCustomFilterIconParams<Data>): VNodeChild
 }
 
 /**

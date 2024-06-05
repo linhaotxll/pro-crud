@@ -2,6 +2,7 @@ import { ReloadOutlined } from '@ant-design/icons-vue'
 import { h } from 'vue'
 
 import type { ProTableScope, ProTableToolbarActionGroup } from './interface'
+import type { FlexProps } from 'ant-design-vue'
 import type { ValueOf } from 'type-fest'
 import type { VNodeChild } from 'vue'
 
@@ -43,6 +44,8 @@ export const tableSlotKey = {
   renderExpandIcon: 'expandIcon',
   renderExpandColumnTitle: 'expandColumnTitle',
   renderExpandedRow: 'expandedRowRender',
+  renderFilterDropdown: 'customFilterDropdown',
+  renderFilterIcon: 'customFilterIcon',
 } as const
 
 export type TableSlotKey = keyof typeof tableSlotKey
@@ -51,3 +54,10 @@ export type TableSlotValueKey =
   | 'bodyCell'
   | 'headerCell'
 export type TableSlotFn = (...args: any[]) => VNodeChild
+
+/**
+ * Table 最外层 Flex Props
+ */
+export const TableContainerProps: FlexProps = {
+  vertical: true,
+}

@@ -4,8 +4,17 @@ import { once } from 'lodash-es'
 import { computed, isRef, ref, watch } from 'vue'
 
 import { buildTableColumn } from './buildTableColumn'
-import { buildDefaultToolbar, tableSlotKey } from './constant'
-import { renderBodyCellText, renderHeaderCellText } from './renderBodyCell'
+import {
+  buildDefaultToolbar,
+  TableContainerProps,
+  tableSlotKey,
+} from './constant'
+import {
+  createCustomFilterDropdown,
+  createCustomFilterIcon,
+  renderBodyCellText,
+  renderHeaderCellText,
+} from './renderBodyCell'
 
 import { fetchWithLoding, mergeWithTovalue } from '../common'
 import { buildButtonGroup } from '../ProButton'
@@ -25,7 +34,7 @@ import type {
 import type { InternalProTableColumnProps } from './internal'
 import type { DataObject } from '../common'
 import type { ProFormColumnOptions } from '../ProForm'
-import type { TableProps } from 'ant-design-vue'
+import type { FlexProps, TableProps } from 'ant-design-vue'
 import type { Ref } from 'vue'
 
 export function buildTable<
@@ -64,9 +73,12 @@ export function buildTable<
     search,
     action,
     toolbar,
+    wrapperProps,
+    renderWrapper,
     fetchDictionaryCollection,
     fetchTableData,
     onDataSourceChange,
+    postData,
     onLoad,
     onLoadingChange,
     onRequestError,
@@ -78,15 +90,6 @@ export function buildTable<
     renderBodyWrapper,
     renderBodyRow,
     renderBodyCell,
-    // renderCustomFilterDropdown,
-    // renderCustomFilterIcon,
-    // renderEmptyText,
-    // renderExpandColumnTitle,
-    // renderExpandIcon,
-    // renderExpandedRow,
-    // renderFooter,
-    // renderSummary,
-    // renderTitle,
   } = optionResult
 
   // 获取初始的页数和每页数量
@@ -102,12 +105,22 @@ export function buildTable<
   const currentPage = ref(defaultCurrent)
   // 每页数据数量
   const currentPageSize = ref(defaultPageSize)
-  // 是否还有下一页数据
-  const hasMore = ref(false)
+  // TODO: 是否还有下一页数据
+  // const hasMore = ref(false)
   // 实际的数据集合
   const resolvedData = ref(defaultData ?? []) as Ref<Data[]>
   // 请求 loading
   const loading = ref(false)
+
+  // 解析包裹 flex 属性
+  const resolvedWrapperProps = computed<FlexProps>(() =>
+    mergeWithTovalue({}, TableContainerProps, toValue(wrapperProps))
+  )
+
+  // 解析渲染包裹元素的函数
+  const resolvedRenderWrapper = isRef(renderWrapper)
+    ? computed(() => toValue(renderWrapper))
+    : renderWrapper
 
   // 解析 toolbar
   const resolvedToolbar = buildButtonGroup<ProTableToolbarActions, {}>(
@@ -224,9 +237,16 @@ export function buildTable<
       (prev, curr) => {
         const key = curr as TableSlotKey
         if (optionResult[key]) {
-          const fn = isRef(optionResult[key])
-            ? optionResult[key].value
+          let fn = isRef(optionResult[key])
+            ? optionResult[key]!.value
             : optionResult[key]
+
+          if (key === 'renderFilterIcon' && fn) {
+            fn = createCustomFilterIcon(fn)
+          }
+          if (key === 'renderFilterDropdown' && fn) {
+            fn = createCustomFilterDropdown(fn)
+          }
 
           prev[tableSlotKey[key]] = fn
         }
@@ -308,15 +328,22 @@ export function buildTable<
         return res
       },
       res => {
+        let _resolvedData: Data[]
         if (isPaginationData(res)) {
-          resolvedData.value = res.data
+          _resolvedData = res.data
         } else {
-          resolvedData.value = res
+          _resolvedData = res
+        }
+
+        if (isFunction(postData)) {
+          _resolvedData = postData(_resolvedData)
         }
 
         if (isFunction(onLoad)) {
-          onLoad(resolvedData.value)
+          onLoad(_resolvedData)
         }
+
+        resolvedData.value = _resolvedData
       },
       onRequestError,
       () => {
@@ -333,7 +360,7 @@ export function buildTable<
       () => {
         _fetchTableData()
       },
-      { immediate: true }
+      { immediate: true, deep: true }
     )
   } else {
     if (immediate) {
@@ -373,6 +400,8 @@ export function buildTable<
     proTableBinding: {
       tableProps: resolvedTableProps,
       tableSlots: resolvedTableSlots,
+      wrapperProps: resolvedWrapperProps,
+      renderWrapper: resolvedRenderWrapper,
       toolbar: resolvedToolbar,
       search: resolvedSearch,
     },

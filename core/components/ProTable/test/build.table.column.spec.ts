@@ -151,4 +151,139 @@ describe('Build Pro Table Columns', () => {
     expect(wrapper.findAll('.name-header-cell')[0].text()).toBe('{姓名}')
     expect(renderNameHeaderCellFn).toHaveBeenCalledTimes(1)
   })
+
+  test('column dynamic visible', async () => {
+    type Person = {
+      name: string
+      age: number
+    }
+
+    const list: Person[] = [
+      { name: 'IconMan', age: 24 },
+      { name: 'Nicholas', age: 25 },
+    ]
+
+    const App = defineComponent({
+      name: 'App',
+      setup() {
+        const nameVisible = ref(true)
+        const { proTableBinding } = buildTable<Person>(() => {
+          return {
+            columns: [
+              {
+                label: '姓名',
+                name: 'name',
+                show: nameVisible,
+              },
+              {
+                label: '年龄',
+                name: 'age',
+              },
+            ],
+            data: list,
+          }
+        })
+        return () => {
+          return [
+            h(ProTable, proTableBinding),
+            h('button', {
+              class: 'toggle-button',
+              onClick() {
+                nameVisible.value = !nameVisible.value
+              },
+            }),
+          ]
+        }
+      },
+    })
+
+    const wrapper = mount(App, {
+      global: {
+        plugins: [antdv],
+      },
+    })
+
+    expect(wrapper.findAllComponents(ProTable).length).toBe(1)
+    expect(wrapper.findAll('.ant-table-tbody tr').length).toBe(2)
+    expect(wrapper.findAll('.ant-table-tbody tr')[0].findAll('td').length).toBe(
+      2
+    )
+    expect(wrapper.findAll('.ant-table-tbody tr')[1].findAll('td').length).toBe(
+      2
+    )
+
+    const toggleButton = wrapper.find('.toggle-button')
+    expect(toggleButton.exists()).toBe(true)
+
+    await toggleButton.trigger('click')
+
+    expect(wrapper.findAll('.ant-table-tbody tr').length).toBe(2)
+    expect(wrapper.findAll('.ant-table-tbody tr')[0].findAll('td').length).toBe(
+      1
+    )
+    expect(wrapper.findAll('.ant-table-tbody tr')[1].findAll('td').length).toBe(
+      1
+    )
+  })
+
+  test('column dynamic label', async () => {
+    type Person = {
+      name: string
+      age: number
+    }
+
+    const list: Person[] = [
+      { name: 'IconMan', age: 24 },
+      { name: 'Nicholas', age: 25 },
+    ]
+
+    const App = defineComponent({
+      name: 'App',
+      setup() {
+        const nameLabel = ref('姓名')
+        const { proTableBinding } = buildTable<Person>(() => {
+          return {
+            columns: [
+              {
+                label: nameLabel,
+                name: 'name',
+              },
+              {
+                label: '年龄',
+                name: 'age',
+              },
+            ],
+            data: list,
+          }
+        })
+        return () => {
+          return [
+            h(ProTable, proTableBinding),
+            h('button', {
+              class: 'toggle-button',
+              onClick() {
+                nameLabel.value = `${nameLabel.value}${nameLabel.value}`
+              },
+            }),
+          ]
+        }
+      },
+    })
+
+    const wrapper = mount(App, {
+      global: {
+        plugins: [antdv],
+      },
+    })
+
+    expect(wrapper.findAll('.ant-table-thead th').length).toBe(2)
+    expect(wrapper.findAll('.ant-table-thead th')[0].text()).toBe('姓名')
+
+    const toggleButton = wrapper.find('.toggle-button')
+    expect(toggleButton.exists()).toBe(true)
+
+    await toggleButton.trigger('click')
+
+    expect(wrapper.findAll('.ant-table-thead th')[0].text()).toBe('姓名姓名')
+  })
 })
