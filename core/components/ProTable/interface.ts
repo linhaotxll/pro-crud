@@ -254,42 +254,42 @@ export type BuildProTableOptionResult<
   /**
    * 渲染 Table
    */
-  renderTable?(): VNodeChild
+  renderTable?: MaybeRef<() => VNodeChild>
 
   /**
    * 渲染 Table Header Wrapper
    */
-  renderHeaderWrapper?(): VNodeChild
+  renderHeaderWrapper?: MaybeRef<() => VNodeChild>
 
   /**
    * 渲染 Table Header Row
    */
-  renderHeaderRow?(): VNodeChild
+  renderHeaderRow?: MaybeRef<() => VNodeChild>
 
   /**
    * 渲染 Table Header Cell
    */
-  renderHeaderCell?(): VNodeChild
+  renderHeaderCell?: MaybeRef<() => VNodeChild>
 
   /**
    * 渲染 Table Body
    */
-  renderBody?: CustomizeScrollBody<Data>
+  renderBody?: MaybeRef<CustomizeScrollBody<Data>>
 
   /**
    * 渲染 Table Body Wrapper
    */
-  renderBodyWrapper?(): VNodeChild
+  renderBodyWrapper?: MaybeRef<() => VNodeChild>
 
   /**
    * 渲染 Table Body Row
    */
-  renderBodyRow?(): VNodeChild
+  renderBodyRow?: MaybeRef<() => VNodeChild>
 
   /**
    * 渲染 Table Body Cell
    */
-  renderBodyCell?(): VNodeChild
+  renderBodyCell?: MaybeRef<() => VNodeChild>
 
   /**
    * 渲染空数据时的显示内容

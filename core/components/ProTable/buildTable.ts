@@ -1,7 +1,7 @@
 import { toRef } from '@vueuse/core'
 import { toValue } from '@vueuse/core'
 import { once } from 'lodash-es'
-import { computed, isRef, ref, watch } from 'vue'
+import { computed, isRef, ref, unref, watch } from 'vue'
 
 import { buildTableColumn } from './buildTableColumn'
 import {
@@ -82,14 +82,6 @@ export function buildTable<
     onLoad,
     onLoadingChange,
     onRequestError,
-    renderTable,
-    renderHeaderWrapper,
-    renderHeaderRow,
-    renderHeaderCell,
-    renderBody,
-    renderBodyWrapper,
-    renderBodyRow,
-    renderBodyCell,
   } = optionResult
 
   // 获取初始的页数和每页数量
@@ -187,31 +179,15 @@ export function buildTable<
   const resolvedTableProps = computed<TableProps<Data>>(() => {
     const tablePropsValue = toValue(tableProps)
     const propsValue = mergeWithTovalue<TableProps<Data>>(
-      {},
+      {
+        components: extractComponents(optionResult),
+      },
       {
         loading,
         dataSource: resolvedData,
         columns: resolvedTableColumns,
       },
-      tablePropsValue,
-      {
-        // TODO:
-        components: {
-          table: renderTable,
-          header: {
-            wrapper: renderHeaderWrapper,
-            row: renderHeaderRow,
-            cell: renderHeaderCell,
-          },
-          body: isFunction(renderBody)
-            ? renderBody
-            : {
-                wrapper: renderBodyWrapper,
-                row: renderBodyRow,
-                cell: renderBodyCell,
-              },
-        },
-      }
+      tablePropsValue
     )
 
     if (propsValue.pagination !== false) {
@@ -406,4 +382,58 @@ export function buildTable<
       search: resolvedSearch,
     },
   }
+}
+
+const renderComponentsKey = [
+  'renderTable',
+  'renderHeaderWrapper',
+  'renderHeaderRow',
+  'renderHeaderCell',
+  'renderBodyWrapper',
+  'renderBodyRow',
+  'renderBodyCell',
+  'renderBody',
+] as const
+
+const renderComponentsName = {
+  renderTable: 'table',
+  renderHeaderWrapper: 'wrapper',
+  renderHeaderRow: 'row',
+  renderHeaderCell: 'cell',
+  renderBodyWrapper: 'wrapper',
+  renderBodyRow: 'row',
+  renderBodyCell: 'cell',
+  // renderBody 优先级最高
+  renderBody: 'body',
+} as const
+
+function extractComponents(optionsResult: BuildProTableOptionResult) {
+  let components: any
+  for (const key of renderComponentsKey) {
+    if (optionsResult[key]) {
+      components ||= {}
+
+      if (key === 'renderTable') {
+        components[renderComponentsName[key]] = unref(optionsResult[key])
+      } else if (
+        key === 'renderHeaderCell' ||
+        key === 'renderHeaderRow' ||
+        key === 'renderHeaderWrapper'
+      ) {
+        components.header ||= {}
+        components.header[renderComponentsName[key]] = unref(optionsResult[key])
+      } else if (
+        key === 'renderBodyWrapper' ||
+        key === 'renderBodyRow' ||
+        key === 'renderBodyCell'
+      ) {
+        components.body ||= {}
+        components.body[renderComponentsName[key]] = unref(optionsResult[key])
+      } else if (key === 'renderBody') {
+        components[renderComponentsName[key]] = unref(optionsResult[key])
+      }
+    }
+  }
+
+  return components
 }
