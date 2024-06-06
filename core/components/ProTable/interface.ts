@@ -93,7 +93,9 @@ export interface ProTableColumnProps<
   /**
    * 搜索栏配置
    */
-  search?: MaybeRefOrGetter<ProFormColumnOptions<Data, Dictionary, Collection>>
+  search?: MaybeRefOrGetter<
+    Omit<ProFormColumnOptions<Data, Dictionary, Collection>, 'dict' | 'type'>
+  >
 
   /**
    * 自定义渲染表头

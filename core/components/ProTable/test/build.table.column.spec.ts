@@ -1,11 +1,13 @@
 import { mount } from '@vue/test-utils'
-import antdv from 'ant-design-vue'
+import antdv, { DatePicker, Input, InputNumber } from 'ant-design-vue'
 import { describe, expect, test, vi } from 'vitest'
 import { defineComponent, h, ref } from 'vue'
 
+import { ProForm, ProFormItem } from '../../ProForm'
 import { buildTable } from '../buildTable'
 import { ProTable } from '../ProTable'
 
+import type { ValueType } from '../../common'
 import type {
   RenderBodyCellTextParams,
   RenderHeaderCellTextParams,
@@ -285,5 +287,87 @@ describe('Build Pro Table Columns', () => {
     await toggleButton.trigger('click')
 
     expect(wrapper.findAll('.ant-table-thead th')[0].text()).toBe('姓名姓名')
+  })
+
+  test('column dynamic type', async () => {
+    type Person = {
+      name: string
+      age: number
+    }
+
+    const list: Person[] = [
+      { name: 'IconMan', age: 24 },
+      { name: 'Nicholas', age: 25 },
+    ]
+
+    const App = defineComponent({
+      name: 'App',
+      setup() {
+        const nameType = ref<ValueType>('text')
+        // @ts-ignore
+        const { proTableBinding } = buildTable<Person>(() => {
+          return {
+            columns: [
+              {
+                label: '姓名',
+                name: 'name',
+                type: nameType,
+                search: { type: 'digit' },
+              },
+              {
+                label: '年龄',
+                name: 'age',
+                type: 'digit',
+              },
+            ],
+            data: list,
+          }
+        })
+        return () => {
+          return [
+            h(ProTable, proTableBinding),
+            h('button', {
+              class: 'toggle-button',
+              onClick() {
+                nameType.value = 'date'
+              },
+            }),
+          ]
+        }
+      },
+    })
+
+    const wrapper = mount(App, {
+      global: {
+        plugins: [antdv],
+      },
+    })
+
+    expect(wrapper.findAllComponents(ProForm).length).toBe(1)
+    expect(wrapper.findAllComponents(ProFormItem).length).toBe(2)
+    expect(
+      wrapper.findAllComponents(ProFormItem)[0].findAllComponents(Input).length
+    ).toBe(1)
+    expect(
+      wrapper.findAllComponents(ProFormItem)[1].findAllComponents(InputNumber)
+        .length
+    ).toBe(1)
+
+    const toggleButton = wrapper.find('.toggle-button')
+    expect(toggleButton.exists()).toBe(true)
+
+    await toggleButton.trigger('click')
+
+    expect(
+      wrapper.findAllComponents(ProFormItem)[0].findAllComponents(Input).length
+    ).toBe(0)
+    expect(
+      wrapper.findAllComponents(ProFormItem)[0].findAllComponents(DatePicker)
+        .length
+    ).toBe(1)
+    expect(
+      wrapper.findAllComponents(ProFormItem)[1].findAllComponents(InputNumber)
+        .length
+    ).toBe(1)
   })
 })

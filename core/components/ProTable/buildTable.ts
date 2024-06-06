@@ -146,7 +146,8 @@ export function buildTable<
               mergeWithTovalue(
                 {},
                 { label: curr.label, name: curr.name, type: curr.type },
-                toValue(curr.search)
+                toValue(curr.search),
+                { type: curr.type, dict: curr.dict }
               )
             )
             const tableColumnOptions = buildTableColumn(
