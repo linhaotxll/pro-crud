@@ -1,5 +1,12 @@
 import { mount } from '@vue/test-utils'
-import antdv, { Button, DatePicker, Input, InputNumber } from 'ant-design-vue'
+import antdv, {
+  Button,
+  DatePicker,
+  Input,
+  InputNumber,
+  Select,
+  Tag,
+} from 'ant-design-vue'
 import { describe, expect, test, vi } from 'vitest'
 import { defineComponent, h, ref } from 'vue'
 
@@ -529,5 +536,122 @@ describe('Build Pro Table Columns', () => {
         .findAll('td')[2]
         .findAllComponents(Button).length
     ).toBe(3)
+  })
+
+  test('dictionary only called once', async () => {
+    type Person = {
+      name: string
+      age: number
+    }
+
+    const list: Person[] = [
+      { name: 'IconMan', age: 24 },
+      { name: 'Nicholas', age: 25 },
+    ]
+
+    const options = [
+      { label: '1岁', value: 1 },
+      { label: '2岁', value: 2 },
+    ]
+
+    const fetchDictionary = vi.fn(() => options)
+
+    const App = defineComponent({
+      name: 'App',
+      setup() {
+        const { proTableBinding } = buildTable<Person>(() => {
+          return {
+            columns: [
+              {
+                label: '年龄',
+                name: 'age',
+                type: 'select',
+                dict: {
+                  fetchDictionary,
+                },
+              },
+            ],
+            data: list,
+          }
+        })
+        return () => {
+          return [
+            h(ProTable, proTableBinding),
+            h('button', {
+              class: 'toggle-button',
+            }),
+          ]
+        }
+      },
+    })
+
+    const wrapper = mount(App, {
+      global: {
+        plugins: [antdv],
+      },
+    })
+
+    expect(fetchDictionary).toHaveBeenCalledTimes(1)
+    expect(
+      wrapper.findComponent(ProForm).findComponent(Select).vm.$props.options
+    ).toMatchObject(options)
+  })
+
+  test('dictionary render tag in table', async () => {
+    type Person = {
+      name: string
+      age: number
+    }
+
+    const list: Person[] = [
+      { name: 'IconMan', age: 1 },
+      { name: 'Nicholas', age: 2 },
+    ]
+
+    const options = [
+      { label: '1岁', value: 1 },
+      { label: '2岁', value: 2 },
+    ]
+
+    const fetchDictionary = vi.fn(() => options)
+
+    const App = defineComponent({
+      name: 'App',
+      setup() {
+        const { proTableBinding } = buildTable<Person>(() => {
+          return {
+            columns: [
+              {
+                label: '年龄',
+                name: 'age',
+                type: 'select',
+                dict: {
+                  fetchDictionary,
+                },
+              },
+            ],
+            data: list,
+          }
+        })
+        return () => {
+          return [
+            h(ProTable, proTableBinding),
+            h('button', {
+              class: 'toggle-button',
+            }),
+          ]
+        }
+      },
+    })
+
+    const wrapper = mount(App, {
+      global: {
+        plugins: [antdv],
+      },
+    })
+
+    expect(wrapper.findAllComponents(Tag).length).toBe(2)
+    expect(wrapper.findAllComponents(Tag)[0].text()).toBe('1岁')
+    expect(wrapper.findAllComponents(Tag)[1].text()).toBe('2岁')
   })
 })

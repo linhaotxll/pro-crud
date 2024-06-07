@@ -1,5 +1,5 @@
 import { mount } from '@vue/test-utils'
-import antdv, { Flex, Pagination, Table } from 'ant-design-vue'
+import antdv, { Flex, Pagination, Select, Table } from 'ant-design-vue'
 import { describe, expect, test, vi } from 'vitest'
 import { defineComponent, h, nextTick, ref } from 'vue'
 
@@ -1608,5 +1608,78 @@ describe('Build Pro Table', () => {
     expect(renderBodyWrapperFn).toHaveBeenCalledTimes(1)
     expect(renderBodyRowFn).toHaveBeenCalledTimes(1)
     expect(renderBodyCellFn).toHaveBeenCalledTimes(1)
+  })
+
+  test('dictionary collection', async () => {
+    type Collection = {
+      status: { label: string; value: number }[]
+    }
+
+    const status = [
+      { label: '开启', value: 1 },
+      { label: '关闭', value: 2 },
+    ]
+
+    const gender = [
+      { label: '男', value: 1 },
+      { label: '女', value: 2 },
+    ]
+    const fetchDictionaryCollection = vi.fn(() => ({
+      status,
+    }))
+
+    const App = defineComponent({
+      name: 'App',
+      setup() {
+        const { proTableBinding } = buildTable<Person, null, Collection>(() => {
+          return {
+            columns: [
+              {
+                label: '状态',
+                name: 'status',
+                type: 'select',
+                dict: {
+                  fetchDictionaryInCollection(collection) {
+                    return collection.status
+                  },
+                },
+              },
+              {
+                label: '性别',
+                name: 'gender',
+                type: 'select',
+                dict: {
+                  fetchDictionary() {
+                    return gender
+                  },
+                },
+              },
+            ],
+            fetchDictionaryCollection,
+          }
+        })
+        return () => {
+          return [h(ProTable, proTableBinding)]
+        }
+      },
+    })
+
+    const wrapper = mount(App, {
+      global: {
+        plugins: [antdv],
+      },
+    })
+
+    expect(
+      wrapper.findComponent(ProForm).findAllComponents(Select).length
+    ).toBe(2)
+    expect(
+      wrapper.findComponent(ProForm).findAllComponents(Select)[0].vm.$props
+        .options
+    ).toMatchObject(status)
+    expect(
+      wrapper.findComponent(ProForm).findAllComponents(Select)[1].vm.$props
+        .options
+    ).toMatchObject(gender)
   })
 })

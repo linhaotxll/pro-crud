@@ -1,4 +1,5 @@
 import type { MaybeRef } from '../common'
+import type { ComputedRef, Ref } from 'vue'
 
 /**
  * 字典选项
@@ -57,4 +58,15 @@ export interface DictionaryCollection<Collection = any> {
    * 获取字典集合
    */
   fetchDictionaryCollection?: () => Collection | Promise<Collection>
+}
+
+export interface BuildDictionaryResult {
+  dictionary: Ref<DictionaryOption[]>
+  dictionaryMap: ComputedRef<Record<PropertyKey, DictionaryOption>>
+  loading: ComputedRef<boolean>
+}
+
+export interface DictionaryOption {
+  label: PropertyKey
+  value: any
 }

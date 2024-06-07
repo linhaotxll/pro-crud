@@ -1,11 +1,16 @@
 import { toValue } from 'vue'
 
+import { createRenderDictionaryColumn } from './renderBodyCell'
+
 import { mergeWithTovalue } from '../common'
 import { mergeWithUnref } from '../common/merge'
 import { buildDictionary } from '../ProDictionary'
 
 import type { ProTableColumnProps } from './interface'
-import type { InternalProTableColumnProps } from './internal'
+import type {
+  InternalColumnOptions,
+  InternalProTableColumnProps,
+} from './internal'
 import type { DataObject } from '../common'
 import type { DictionaryCollection } from '../ProDictionary'
 
@@ -55,7 +60,7 @@ export function buildTableColumn<
     fetchDictionaryCollection
   )
 
-  const _column = mergeWithUnref(
+  const _column: InternalColumnOptions<Data> = mergeWithUnref(
     {
       name: resolvedName,
       type: resolvedType,
@@ -63,10 +68,13 @@ export function buildTableColumn<
       dictionary: resolvedDictionary,
     },
     rest
-    // {
-    //   renderCell: column.renderCell,
-    // }
   )
+
+  // console.log('_column: ', _column.dictionary?.dictionaryMap)
+
+  if (resolvedDictionary) {
+    _column.renderCell = createRenderDictionaryColumn(_column.renderCell)
+  }
 
   result = mergeWithTovalue(
     {
@@ -77,6 +85,8 @@ export function buildTableColumn<
     toValue(columnProps)
   )
   // })
+
+  console.log('_column: ', result?._column.dictionary?.dictionaryMap)
 
   return result
 }

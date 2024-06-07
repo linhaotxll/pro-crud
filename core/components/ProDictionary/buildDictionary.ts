@@ -1,4 +1,4 @@
-import { computed, ref, toValue, watchEffect } from 'vue'
+import { computed, markRaw, ref, toRaw, toValue, watchEffect } from 'vue'
 
 import { ensureDictionary } from './ensureDictionary'
 
@@ -6,28 +6,43 @@ import { isArray, isFunction } from '../../utils'
 import { fetchWithLoding, type ValueType } from '../common'
 
 import type {
+  BuildDictionaryResult,
   DictionaryCollection,
   DictionaryColumn,
+  DictionaryOption,
   DictionaryOptions,
 } from './interface'
 import type { Ref } from 'vue'
+
+const dictionaryCache = new WeakMap<any, any>()
 
 export function buildDictionary<Dictionary = any, Collection = any>(
   dictionatyOptions: DictionaryColumn['dict'],
   type: ValueType,
   optionFetchCollection: DictionaryCollection<Collection>['fetchDictionaryCollection'],
   fetchDataEffect?: (dict: DictionaryOptions<Dictionary, Collection>) => any
-) {
-  console.log('buildCDictionary')
+): BuildDictionaryResult | undefined {
   if (!ensureDictionary(type, dictionatyOptions)) {
     return
+  }
+
+  const dictionatyOptionsValue = toRaw(dictionatyOptions)
+
+  if (dictionatyOptionsValue && dictionaryCache.has(dictionatyOptionsValue)) {
+    return dictionaryCache.get(dictionatyOptionsValue)
   }
 
   const isCollection = typeof optionFetchCollection === 'function'
   const fetchLoading = ref(false)
   const collectionLoading = isCollection ? ref(false) : null
   const collection = isCollection ? (ref() as Ref<Collection>) : null
-  const dictionary = ref([]) as Ref<{ label: string; value: any }[]>
+  const dictionary = ref([]) as Ref<DictionaryOption[]>
+  const dictionaryMap = computed(() =>
+    dictionary.value.reduce((prev, curr) => {
+      prev[curr.value] = curr
+      return prev
+    }, {} as Record<PropertyKey, DictionaryOption>)
+  )
 
   if (isCollection) {
     fetchCollection()
@@ -113,8 +128,14 @@ export function buildDictionary<Dictionary = any, Collection = any>(
     )
   })
 
-  return {
+  // 返回对象标记为非响应式，避免获取里面的 ref 属性自动解绑
+  const result = markRaw({
     dictionary,
+    dictionaryMap,
     loading: computed(() => fetchLoading.value || !!collectionLoading?.value),
-  }
+  })
+
+  dictionaryCache.set(dictionatyOptionsValue, result)
+
+  return result
 }

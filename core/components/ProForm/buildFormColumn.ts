@@ -38,8 +38,8 @@ export function buildFormColumn<T extends DataObject = DataObject>(
   >
 
   watchEffect(() => {
-    console.log('buildFormColumn')
-    column = merge({}, DefaultProFormColumn, column)
+    // dict 不能被合并，防止外层 ProTable 传递 dict 被克隆
+    column = merge({ dict: column.dict }, DefaultProFormColumn, column)
 
     const {
       show,

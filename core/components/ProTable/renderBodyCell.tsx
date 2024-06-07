@@ -1,3 +1,5 @@
+import { Tag } from 'ant-design-vue'
+
 import { isFunction } from '~/utils'
 
 import type {
@@ -6,6 +8,7 @@ import type {
   RenderCustomFilterIconParams,
   RenderHeaderCellTextParams,
 } from './interface'
+import type { InternalColumnOptions } from './internal'
 import type { DataObject } from '../common'
 import type { VNodeChild } from 'vue'
 
@@ -76,5 +79,34 @@ export function createCustomFilterDropdown<
     const { renderFilterDropdown } = ctx.column._column
 
     return renderFilterDropdown?.(ctx) ?? renderCustomFilterDropdown(ctx)
+  }
+}
+
+export function createRenderDictionaryColumn<
+  Data extends DataObject = DataObject
+>(originRenderCell: InternalColumnOptions<Data>['renderCell']) {
+  return function (ctx: RenderBodyCellTextParams<Data>) {
+    if (isFunction(originRenderCell)) {
+      return originRenderCell(ctx)
+    }
+
+    const {
+      text,
+      column: {
+        _column: { dictionary },
+      },
+    } = ctx
+
+    console.log(111, dictionary)
+
+    // 渲染表单中的字典值
+    if (dictionary) {
+      // const c = dictionary.dictionaryMap.value
+      // const b = dictionary.dictionaryMap.value?.[text]
+      // const a = dictionary.dictionaryMap.value?.[text].label
+      // console.log(123456789, c, b, a)
+      return <Tag>{dictionary.dictionaryMap.value?.[text]?.label ?? text}</Tag>
+    }
+    return text
   }
 }

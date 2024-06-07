@@ -29,7 +29,6 @@ import type {
   BuildTableResult,
   FetchProTablePageListResult,
   InternalProTableSearchOptions,
-  ProTableColumnProps,
   ProTableScope,
   ProTableToolbarActions,
 } from './interface'
@@ -148,14 +147,18 @@ export function buildTable<
           (prev, curr) => {
             // 合并搜索列配置，type 和 dict 只能使用 table column 上的配置
             // 其余可以在 search 中单独配置
-            prev.search.push(
-              mergeWithTovalue(
-                {},
-                { label: curr.label, name: curr.name },
-                toValue(curr.search),
-                { type: curr.type, dict: curr.dict }
-              )
+            const searchOptions = mergeWithTovalue(
+              { label: curr.label, name: curr.name },
+              toValue(curr.search),
+              { type: curr.type }
             )
+
+            // search 和 table 的 dict 要保持是同一个对象，不能被 merge 克隆
+            if (curr.dict) {
+              searchOptions.dict = curr.dict
+            }
+
+            prev.search.push(searchOptions)
             // 构建 table column
             const tableColumnOptions = buildTableColumn(
               curr,
