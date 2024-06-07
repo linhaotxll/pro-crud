@@ -1,4 +1,4 @@
-import { toValue, watchEffect } from 'vue'
+import { toValue } from 'vue'
 
 import { mergeWithTovalue } from '../common'
 import { mergeWithUnref } from '../common/merge'
@@ -28,7 +28,7 @@ export function buildTableColumn<
     name,
     columnProps,
     dict,
-    search,
+    search: _,
     // renderCell,
     ...rest
   } = column

@@ -125,7 +125,7 @@ export interface ProTableColumnProps<
 /**
  * Pro Table 列按钮组
  */
-export type ProTableActionGroup = ActionGroupOption<ProTableActions, {}>
+export type ProTableColumnActionGroup = ActionGroupOption<ProTableActions, {}>
 
 /**
  * Pro Table 列按钮
@@ -184,7 +184,12 @@ export type BuildProTableOptionResult<
    * Table props
    */
   tableProps?: MaybeRefOrGetter<
-    DeepMaybeRefOrGetter<Omit<TableProps<Data>, 'components' | 'columns'>>
+    DeepMaybeRefOrGetter<
+      Omit<
+        TableProps<Data>,
+        'components' | 'columns' | 'dataSource' | 'loading'
+      >
+    >
   >
 
   /**
@@ -205,7 +210,11 @@ export type BuildProTableOptionResult<
   /**
    * 操作列配置
    */
-  action?: MaybeRefOrGetter<ProTableActionGroup>
+  actionColumn?: MaybeRefOrGetter<
+    ProTableColumnProps<Data, null, Collection> & {
+      action?: ProTableColumnActionGroup
+    }
+  >
 
   /**
    * toolbar 配置
@@ -316,17 +325,21 @@ export type BuildProTableOptionResult<
   /**
    * 渲染展开图标
    */
-  renderExpandIcon?(props: RenderExpandIconProps<Data>): VNodeChild
+  renderExpandIcon?: MaybeRef<
+    (props: RenderExpandIconProps<Data>) => VNodeChild
+  >
 
   /**
    * 渲染展开列表头
    */
-  renderExpandColumnTitle?(): VNodeChild
+  renderExpandColumnTitle?: MaybeRef<() => VNodeChild>
 
   /**
    * 渲染额外展开行
    */
-  renderExpandedRow?(props: Parameters<ExpandedRowRender<Data>>[0]): VNodeChild
+  renderExpandedRow?: MaybeRef<
+    (props: Parameters<ExpandedRowRender<Data>>[0]) => VNodeChild
+  >
 
   /**
    * 自定义渲染通用列筛选菜单

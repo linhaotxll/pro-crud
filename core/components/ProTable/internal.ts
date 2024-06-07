@@ -5,6 +5,7 @@ import type {
   RenderHeaderCellTextParams,
 } from './interface'
 import type { DataObject, NamePath, ValueType } from '../common'
+import type { buildButtonGroup } from '../ProButton'
 import type { buildDictionary } from '../ProDictionary'
 import type { ColumnType } from 'ant-design-vue/es/table'
 import type { VNodeChild } from 'vue'
@@ -32,6 +33,11 @@ export interface InternalColumnOptions<Data extends DataObject = DataObject> {
    * 字典配置
    */
   dictionary?: ReturnType<typeof buildDictionary>
+
+  /**
+   * 操作列配置
+   */
+  action?: ReturnType<typeof buildButtonGroup>
 
   /**
    * 自定义渲染表头

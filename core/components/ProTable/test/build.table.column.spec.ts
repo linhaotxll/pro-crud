@@ -1,5 +1,5 @@
 import { mount } from '@vue/test-utils'
-import antdv, { DatePicker, Input, InputNumber } from 'ant-design-vue'
+import antdv, { Button, DatePicker, Input, InputNumber } from 'ant-design-vue'
 import { describe, expect, test, vi } from 'vitest'
 import { defineComponent, h, ref } from 'vue'
 
@@ -369,5 +369,165 @@ describe('Build Pro Table Columns', () => {
       wrapper.findAllComponents(ProFormItem)[1].findAllComponents(InputNumber)
         .length
     ).toBe(1)
+  })
+
+  test('action column toggle visible', async () => {
+    type Person = {
+      name: string
+      age: number
+    }
+
+    const list: Person[] = [
+      { name: 'IconMan', age: 24 },
+      { name: 'Nicholas', age: 25 },
+    ]
+
+    const App = defineComponent({
+      name: 'App',
+      setup() {
+        const actionColumnShow = ref(false)
+        const { proTableBinding } = buildTable<Person>(() => {
+          return {
+            columns: [
+              {
+                label: '姓名',
+                name: 'name',
+              },
+              {
+                label: '年龄',
+                name: 'age',
+                type: 'digit',
+              },
+            ],
+            data: list,
+            actionColumn: {
+              show: actionColumnShow,
+            },
+          }
+        })
+        return () => {
+          return [
+            h(ProTable, proTableBinding),
+            h('button', {
+              class: 'toggle-button',
+              onClick() {
+                actionColumnShow.value = !actionColumnShow.value
+              },
+            }),
+          ]
+        }
+      },
+    })
+
+    const wrapper = mount(App, {
+      global: {
+        plugins: [antdv],
+      },
+    })
+
+    expect(wrapper.findAll('.ant-table-thead tr th').length).toBe(2)
+    expect(wrapper.findAll('.ant-table-thead tr th')[0].text()).toBe('姓名')
+    expect(wrapper.findAll('.ant-table-thead tr th')[1].text()).toBe('年龄')
+
+    const toggleButton = wrapper.find('.toggle-button')
+    expect(toggleButton.exists()).toBe(true)
+
+    await toggleButton.trigger('click')
+
+    expect(wrapper.findAll('.ant-table-thead tr th').length).toBe(3)
+    expect(wrapper.findAll('.ant-table-thead tr th')[0].text()).toBe('姓名')
+    expect(wrapper.findAll('.ant-table-thead tr th')[1].text()).toBe('年龄')
+    expect(wrapper.findAll('.ant-table-thead tr th')[2].text()).toBe('操作')
+  })
+
+  test('action column dynamic add', async () => {
+    type Person = {
+      name: string
+      age: number
+    }
+
+    const list: Person[] = [
+      { name: 'IconMan', age: 24 },
+      { name: 'Nicholas', age: 25 },
+    ]
+
+    const App = defineComponent({
+      name: 'App',
+      setup() {
+        const actions = ref<any>({
+          edit: { show: true, text: '编辑' },
+          delete: { show: true, text: '删除' },
+        })
+        const { proTableBinding } = buildTable<Person>(() => {
+          return {
+            columns: [
+              {
+                label: '姓名',
+                name: 'name',
+              },
+              {
+                label: '年龄',
+                name: 'age',
+                type: 'digit',
+              },
+            ],
+            data: list,
+            actionColumn: {
+              show: true,
+              action: {
+                actions,
+              },
+            },
+          }
+        })
+        return () => {
+          return [
+            h(ProTable, proTableBinding),
+            h('button', {
+              class: 'toggle-button',
+              onClick() {
+                actions.value = {
+                  ...actions.value,
+                  view: { show: true, text: '详情' },
+                }
+              },
+            }),
+          ]
+        }
+      },
+    })
+
+    const wrapper = mount(App, {
+      global: {
+        plugins: [antdv],
+      },
+    })
+
+    expect(wrapper.findAll('.ant-table-thead tr th').length).toBe(3)
+    expect(wrapper.findAll('.ant-table-thead tr th')[0].text()).toBe('姓名')
+    expect(wrapper.findAll('.ant-table-thead tr th')[1].text()).toBe('年龄')
+    expect(wrapper.findAll('.ant-table-thead tr th')[2].text()).toBe('操作')
+
+    expect(wrapper.findAll('.ant-table-tbody tr')[0].findAll('td').length).toBe(
+      3
+    )
+    expect(
+      wrapper
+        .findAll('.ant-table-tbody tr')[0]
+        .findAll('td')[2]
+        .findAllComponents(Button).length
+    ).toBe(2)
+
+    const toggleButton = wrapper.find('.toggle-button')
+    expect(toggleButton.exists()).toBe(true)
+
+    await toggleButton.trigger('click')
+
+    expect(
+      wrapper
+        .findAll('.ant-table-tbody tr')[0]
+        .findAll('td')[2]
+        .findAllComponents(Button).length
+    ).toBe(3)
   })
 })

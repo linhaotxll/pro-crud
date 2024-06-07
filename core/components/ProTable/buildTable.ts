@@ -6,6 +6,7 @@ import { computed, isRef, ref, unref, watch } from 'vue'
 import { buildTableColumn } from './buildTableColumn'
 import {
   buildDefaultToolbar,
+  TableActionColumnOptions,
   TableContainerProps,
   tableSlotKey,
 } from './constant'
@@ -28,6 +29,7 @@ import type {
   BuildTableResult,
   FetchProTablePageListResult,
   InternalProTableSearchOptions,
+  ProTableColumnProps,
   ProTableScope,
   ProTableToolbarActions,
 } from './interface'
@@ -54,6 +56,7 @@ export function buildTable<
     SearchFormSubmit
   >
 ): BuildTableResult<Data> {
+  // ProTable 作用域对象
   const scope: ProTableScope<Data> = {
     reload,
     reset,
@@ -71,7 +74,7 @@ export function buildTable<
     params,
     columns,
     search,
-    action,
+    actionColumn,
     toolbar,
     wrapperProps,
     renderWrapper,
@@ -84,7 +87,7 @@ export function buildTable<
     onRequestError,
   } = optionResult
 
-  // 获取初始的页数和每页数量
+  // 在 pagination 中获取初始页数配置
   let defaultCurrent = 1
   let defaultPageSize = 10
   const initialPagination = toValue(toValue(tableProps)?.pagination)
@@ -125,15 +128,16 @@ export function buildTable<
     ? once(fetchDictionaryCollection)
     : undefined
 
-  // 构建 Table 列
+  // 解析完成构建 Table 列配置
   const resolvedTableColumns = ref([]) as Ref<
     InternalProTableColumnProps<Data>[]
   >
-  // 构建 Search 列配置
+  // 解析完成构建 ProSearch 列配置
   const resolvedSearchColumns = ref([]) as Ref<
     ProFormColumnOptions<Data, any, Collection>[]
   >
 
+  // 监听列变化，解析列配置
   if (columns) {
     watch(
       toRef(columns),
@@ -142,18 +146,22 @@ export function buildTable<
         resolvedSearchColumns.value = []
         const { search, table } = _columns.reduce(
           (prev, curr) => {
+            // 合并搜索列配置，type 和 dict 只能使用 table column 上的配置
+            // 其余可以在 search 中单独配置
             prev.search.push(
               mergeWithTovalue(
                 {},
-                { label: curr.label, name: curr.name, type: curr.type },
+                { label: curr.label, name: curr.name },
                 toValue(curr.search),
                 { type: curr.type, dict: curr.dict }
               )
             )
+            // 构建 table column
             const tableColumnOptions = buildTableColumn(
               curr,
               fetchDictionaryCollectionOnce
             )
+            // 只会将需要展示的列存入最终结果中
             if (tableColumnOptions) {
               prev.table.push(tableColumnOptions)
             }
@@ -176,6 +184,21 @@ export function buildTable<
     )
   }
 
+  // 解析操作列配置
+  const resolvedActionColumn = actionColumn
+    ? computed(() => {
+        const { action, ...column } = toValue(actionColumn)
+        const c = buildTableColumn(
+          mergeWithTovalue({}, TableActionColumnOptions, column)
+        )
+        if (c) {
+          c._column.action = buildButtonGroup(action)
+        }
+
+        return c
+      })
+    : undefined
+
   // 解析 Table Props
   const resolvedTableProps = computed<TableProps<Data>>(() => {
     const tablePropsValue = toValue(tableProps)
@@ -183,49 +206,64 @@ export function buildTable<
       {
         components: extractComponents(optionResult),
       },
+      tablePropsValue,
       {
         loading,
         dataSource: resolvedData,
-        columns: resolvedTableColumns,
-      },
-      tablePropsValue
+        columns: computed(() =>
+          resolvedActionColumn && resolvedActionColumn.value
+            ? resolvedTableColumns.value.concat(resolvedActionColumn.value)
+            : resolvedTableColumns.value
+        ),
+      }
     )
 
+    // 合并分页配置
     if (propsValue.pagination !== false) {
-      propsValue.pagination = {
-        'onUpdate:current'(pageNum) {
-          _fetchTableData(pageNum)
-        },
-        'onUpdate:pageSize'(pageSize) {
-          _fetchTableData(pageSize)
-        },
-        current: currentPage.value,
-        pageSize: currentPageSize.value,
-        ...propsValue.pagination,
-      }
+      propsValue.pagination = mergeWithTovalue(
+        {},
+        toValue(propsValue.pagination),
+        {
+          'onUpdate:current'(pageNum: number) {
+            _fetchTableData(pageNum)
+          },
+          'onUpdate:pageSize'(pageSize: number) {
+            _fetchTableData(undefined, pageSize)
+          },
+          current: currentPage.value,
+          pageSize: currentPageSize.value,
+        }
+      )
     }
 
     return propsValue
   })
 
   // 解析 Table Slots
+  // 遍历 tableSlotKey，将可能存在的 slot 记录下来
+  // renderFilterIcon 和 renderFilterDropdown 需要创建一个新的函数
+  // 优先渲染列配置上的 slot，如果没有再渲染 table 上的 slot
   const resolvedTableSlots = computed(() => {
     return Object.keys(tableSlotKey).reduce(
       (prev, curr) => {
         const key = curr as TableSlotKey
         if (optionResult[key]) {
-          let fn = isRef(optionResult[key])
-            ? optionResult[key]!.value
-            : optionResult[key]
+          let fn = unref(optionResult[key])
 
           if (key === 'renderFilterIcon' && fn) {
-            fn = createCustomFilterIcon(fn)
+            fn = createCustomFilterIcon(
+              fn as Parameters<typeof createCustomFilterIcon>[0]
+            )
           }
           if (key === 'renderFilterDropdown' && fn) {
-            fn = createCustomFilterDropdown(fn)
+            fn = createCustomFilterDropdown(
+              fn as Parameters<typeof createCustomFilterDropdown>[0]
+            )
           }
 
-          prev[tableSlotKey[key]] = fn
+          if (fn) {
+            prev[tableSlotKey[key]] = fn
+          }
         }
         return prev
       },

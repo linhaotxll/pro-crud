@@ -1,12 +1,25 @@
 import { ReloadOutlined } from '@ant-design/icons-vue'
 import { h } from 'vue'
 
-import type { ProTableScope, ProTableToolbarActionGroup } from './interface'
+import { ProButtonGroup } from '../ProButton'
+
+import type {
+  ProTableColumnProps,
+  ProTableScope,
+  ProTableToolbarActionGroup,
+} from './interface'
 import type { FlexProps } from 'ant-design-vue'
 import type { ValueOf } from 'type-fest'
 import type { VNodeChild } from 'vue'
 
-// 获取默认 toolbar
+/**
+ * 解析默认 toolbar 配置
+ *
+ * 默认展示刷新按钮
+ *
+ *  @param {ProTableScope} scope ProTable 作用域
+ * @returns toolbar 配置对象
+ */
 export const buildDefaultToolbar = (
   scope: ProTableScope
 ): ProTableToolbarActionGroup => {
@@ -60,4 +73,14 @@ export type TableSlotFn = (...args: any[]) => VNodeChild
  */
 export const TableContainerProps: FlexProps = {
   vertical: true,
+}
+
+/**
+ * Table 操作列配置
+ */
+export const TableActionColumnOptions: ProTableColumnProps = {
+  label: '操作',
+  renderCell(ctx) {
+    return <ProButtonGroup action={ctx.column._column.action} />
+  },
 }
