@@ -65,8 +65,6 @@ export const ProFormItem = defineComponent({
         name: resolvedNamePath,
       }
 
-      console.log('render pro form item: ', formItemProps)
-
       return (
         <Col {...columnValue.col}>
           <FormItem {...formItemProps}>{slots}</FormItem>

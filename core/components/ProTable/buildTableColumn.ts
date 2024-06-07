@@ -53,15 +53,6 @@ export function buildTableColumn<
     dict,
     resolvedType,
     fetchDictionaryCollection
-    // dict => {
-    //   if (dict.dependences) {
-    //     // TODO: scope
-    //     return dict.dependences.reduce((prev, dept) => {
-    //       set(prev, dept, scope.getFieldValue(dept))
-    //       return prev
-    //     }, {})
-    //   }
-    // }
   )
 
   const _column = mergeWithUnref(

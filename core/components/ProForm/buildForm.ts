@@ -46,7 +46,6 @@ export function buildForm<
 >(
   options: (scope: ProFormScope<T>) => BuildFormOptionResult<T, S>
 ): BuildFormResult<T> {
-  console.log('build form')
   const scope: ProFormScope<T> = {
     getFormValues,
     submit,

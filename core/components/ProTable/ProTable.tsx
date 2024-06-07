@@ -32,8 +32,8 @@ export const ProTable = defineComponent({
 
   setup(props) {
     return () => {
-      console.log('table props: ', toValue(props.tableProps))
-      console.log('table slots: ', toValue(props.tableSlots))
+      // console.log('table props: ', toValue(props.tableProps))
+      // console.log('table slots: ', toValue(props.tableSlots))
 
       const $table = (
         <Table {...toValue(props.tableProps)}>

@@ -27,7 +27,7 @@ export const ProForm = defineComponent({
     expose(props.scope)
 
     return () => {
-      console.log('render pro form: ')
+      // console.log('render pro form: ')
 
       // 按钮组
       const actionGroupValue = toValue(props.actionGroup)

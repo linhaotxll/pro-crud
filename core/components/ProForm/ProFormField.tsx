@@ -60,7 +60,6 @@ export const ProFormField = defineComponent({
     return () => {
       const columnValue = toValue(props.column)
 
-      console.log('render pro field: ')
       const {
         is,
         props: fieldProps,
