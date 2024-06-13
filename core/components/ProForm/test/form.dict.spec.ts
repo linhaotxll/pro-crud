@@ -4,10 +4,9 @@ import { describe, test } from 'vitest'
 import { expect } from 'vitest'
 import { vi } from 'vitest'
 import { beforeEach } from 'vitest'
-import { defineComponent, h, nextTick, ref, toValue } from 'vue'
+import { defineComponent, h, nextTick, ref } from 'vue'
 
 import { ProForm, buildForm } from '..'
-import { ProDictionary } from '../../ProDictionary'
 
 import type { ProFormScope } from '..'
 
@@ -60,7 +59,6 @@ describe('Pro Form Dictionary', () => {
       },
     })
 
-    expect(wrapper.findAllComponents(ProDictionary).length).toBe(3)
     expect(wrapper.findAllComponents(Select).length).toBe(1)
     expect(wrapper.findAllComponents(RadioGroup).length).toBe(1)
     expect(wrapper.findAllComponents(CheckboxGroup).length).toBe(1)
@@ -104,7 +102,6 @@ describe('Pro Form Dictionary', () => {
       attachTo: 'body',
     })
 
-    expect(wrapper.findAllComponents(ProDictionary).length).toBe(1)
     expect(wrapper.findAllComponents(Select).length).toBe(1)
 
     // 展开下拉选项
@@ -171,7 +168,6 @@ describe('Pro Form Dictionary', () => {
       attachTo: 'body',
     })
 
-    expect(wrapper.findAllComponents(ProDictionary).length).toBe(1)
     expect(wrapper.findAllComponents(Select).length).toBe(1)
 
     // 展开下拉选项
@@ -240,7 +236,6 @@ describe('Pro Form Dictionary', () => {
       attachTo: 'body',
     })
 
-    expect(wrapper.findAllComponents(ProDictionary).length).toBe(1)
     expect(wrapper.findAllComponents(Select).length).toBe(1)
 
     // 展开下拉选项
@@ -307,22 +302,11 @@ describe('Pro Form Dictionary', () => {
       attachTo: 'body',
     })
 
-    expect(wrapper.findAllComponents(ProDictionary).length).toBe(1)
-    expect(
-      toValue(
-        wrapper.findAllComponents(ProDictionary)[0].props().ctx.column
-          .dictionary?.loading
-      )
-    ).toBe(true)
+    expect(wrapper.findComponent(Select).vm.$props.loading).toBe(true)
 
     await sleep(300)
 
-    expect(
-      toValue(
-        wrapper.findAllComponents(ProDictionary)[0].props().ctx.column
-          .dictionary?.loading
-      )
-    ).toBe(false)
+    expect(wrapper.findComponent(Select).vm.$props.loading).toBe(false)
 
     // 展开下拉选项
     expect(onDropdownVisibleChange).toHaveBeenCalledTimes(0)
@@ -388,7 +372,6 @@ describe('Pro Form Dictionary', () => {
       attachTo: 'body',
     })
 
-    expect(wrapper.findAllComponents(ProDictionary).length).toBe(2)
     expect(wrapper.findAllComponents(Select).length).toBe(2)
 
     expect(fetchDataFn).toHaveBeenCalledTimes(1)
@@ -502,7 +485,6 @@ describe('Pro Form Dictionary', () => {
       attachTo: 'body',
     })
 
-    expect(wrapper.findAllComponents(ProDictionary).length).toBe(2)
     expect(wrapper.findAllComponents(Select).length).toBe(2)
     expect(fetchDictionaryCollection).toHaveBeenCalledTimes(1)
     expect(fetchGenderDict).toHaveBeenCalledTimes(0)
@@ -605,27 +587,16 @@ describe('Pro Form Dictionary', () => {
       attachTo: 'body',
     })
 
-    expect(wrapper.findAllComponents(ProDictionary).length).toBe(1)
     expect(wrapper.findAllComponents(Select).length).toBe(1)
     expect(fetchDictionaryCollection).toHaveBeenCalledTimes(1)
     expect(fetchGenderDict).toHaveBeenCalledTimes(0)
     expect(onDropdownVisibleChange).toHaveBeenCalledTimes(0)
 
-    expect(
-      toValue(
-        wrapper.findAllComponents(ProDictionary)[0].props().ctx.column
-          .dictionary?.loading
-      )
-    ).toBe(true)
+    expect(wrapper.findComponent(Select).vm.$props.loading).toBe(true)
 
     await sleep(300)
 
-    expect(
-      toValue(
-        wrapper.findAllComponents(ProDictionary)[0].props().ctx.column
-          .dictionary?.loading
-      )
-    ).toBe(false)
+    expect(wrapper.findComponent(Select).vm.$props.loading).toBe(false)
 
     // 展开状态下拉选项
     wrapper

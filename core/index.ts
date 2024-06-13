@@ -25,7 +25,6 @@ import { merge } from 'lodash-es'
 
 import { DefaultValueType } from './components/common'
 import { ProCrud } from './components/ProCrud'
-import { ProDictionary, ProSelect } from './components/ProDictionary'
 import { ProForm, ProFormList } from './components/ProForm'
 import { ProRender } from './components/ProRender'
 import { ProTable } from './components/ProTable'
@@ -39,12 +38,8 @@ import type { Plugin } from 'vue'
 
 export const ProComponents: Plugin<ProComponentsOptions> = {
   install(app, options) {
-    // app.component(ProCrud.name, ProCrud)
     app.component(ProTable.name!, ProTable)
-    // app.component(ProRender.name, ProRender)
     app.component(ProForm.name!, ProForm)
-    // app.component(ProSelect.name, ProSelect)
-    // app.component(ProDictionary.name, ProDictionary)
     app.component(ProFormList.name!, ProFormList)
 
     app

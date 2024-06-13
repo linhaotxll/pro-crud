@@ -1,12 +1,12 @@
+import { Tag } from 'ant-design-vue'
 import { merge } from 'lodash-es'
-import { h, inject } from 'vue'
-
-import { ProDictionary } from '../ProDictionary'
+import { h, inject, resolveComponent, toValue } from 'vue'
 
 import { GlobalOption } from '~/constant'
 
+import type { DataObject } from './interface'
 import type { InternalProFormColumnOptions, ProFormScope } from '../ProForm'
-import type { BodyCellSlotParams } from '../ProTable'
+import type { RenderBodyCellTextParams } from '../ProTable'
 import type { CSSProperties, Slots, VNode, VNodeChild } from 'vue'
 
 /**
@@ -32,7 +32,6 @@ export type ValueType =
   | 'time-range'
   | 'auto-complete'
   | 'cascader'
-  // | 'dict'
   | 'select'
   | 'radio-group'
   | 'checkbox-group'
@@ -92,10 +91,21 @@ export interface ValueTypeFormProps {
   [name: string]: any
 }
 
-export interface ValueTypeTable<T> {
+export interface ValueTypeTable<T extends DataObject = DataObject> {
+  /**
+   * 组件名
+   */
   is?: any
+
+  /**
+   * 传递给组件的参数
+   */
   props?: any
-  render?: (ctx: BodyCellSlotParams<T>) => VNode
+
+  /**
+   * 自定义渲染组件函数
+   */
+  render?: (ctx: RenderBodyCellTextParams<T>) => VNodeChild
 }
 
 export const DefaultValueType: Record<ValueType, ValueTypeValue> = {
@@ -266,23 +276,64 @@ export const DefaultValueType: Record<ValueType, ValueTypeValue> = {
   // },
 
   select: {
-    // table: { is: 'pro-dictionary' },
-    form: { render: ctx => h(ProDictionary, { ctx, is: 'select' }) },
+    table: {
+      render: renderDictionaryInTable,
+    },
+    form: {
+      render: renderDictionaryInForm,
+    },
   },
 
   'radio-group': {
-    // table: { is: 'pro-dictionary' },
-    form: { render: ctx => h(ProDictionary, { ctx, is: 'radio-group' }) },
+    table: {
+      render: renderDictionaryInTable,
+    },
+    form: { render: renderDictionaryInForm },
   },
 
   'checkbox-group': {
-    // table: { is: 'pro-dictionary' },
-    form: { render: ctx => h(ProDictionary, { ctx, is: 'checkbox-group' }) },
+    table: {
+      render: renderDictionaryInTable,
+    },
+    form: { render: renderDictionaryInForm },
   },
 
   list: {
     form: { is: 'pro-form-list' },
   },
+}
+
+/**
+ * 渲染字典数据在 Table 中的内容
+ */
+function renderDictionaryInTable(ctx: RenderBodyCellTextParams<object>) {
+  const {
+    text,
+    column: {
+      _column: { dictionary },
+    },
+  } = ctx
+  const childText = dictionary?.dictionaryMap.value?.[text]?.label as string
+  return h(Tag, childText)
+}
+
+/**
+ * 渲染字典数据在 Form 中的内容
+ */
+function renderDictionaryInForm(ctx: ValueTypeFormProps) {
+  const {
+    column: { type, dictionary: { dictionary, loading } = {} },
+  } = ctx
+
+  return h(
+    resolveComponent(`a-${type}`),
+    {
+      ...ctx,
+      options: toValue(dictionary),
+      loading: toValue(loading),
+    },
+    ctx.slots
+  )
 }
 
 export function ensureValueType() {

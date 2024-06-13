@@ -1,7 +1,5 @@
 import { toValue } from 'vue'
 
-import { createRenderDictionaryColumn } from './renderBodyCell'
-
 import { mergeWithTovalue } from '../common'
 import { mergeWithUnref } from '../common/merge'
 import { buildDictionary } from '../ProDictionary'
@@ -41,8 +39,6 @@ export function buildTableColumn<
   const resolvedShow = toValue(show)
 
   if (!resolvedShow) {
-    // result.value = { show: resolvedShow }
-    // result.show = resolvedShow
     return
   }
 
@@ -70,12 +66,6 @@ export function buildTableColumn<
     rest
   )
 
-  // console.log('_column: ', _column.dictionary?.dictionaryMap)
-
-  if (resolvedDictionary) {
-    _column.renderCell = createRenderDictionaryColumn(_column.renderCell)
-  }
-
   result = mergeWithTovalue(
     {
       dataIndex: resolvedName,
@@ -84,9 +74,6 @@ export function buildTableColumn<
     },
     toValue(columnProps)
   )
-  // })
-
-  console.log('_column: ', result?._column.dictionary?.dictionaryMap)
 
   return result
 }
