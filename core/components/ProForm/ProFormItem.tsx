@@ -38,6 +38,7 @@ export const ProFormItem = defineComponent({
 
       const field = ensureValueType()[columnValue.type!]?.form
       if (!field) {
+        console.warn(`"${columnValue.type}" Not Found`)
         return null
       }
 
