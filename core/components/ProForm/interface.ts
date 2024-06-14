@@ -3,6 +3,7 @@ import type {
   DataObject,
   DeepMaybeRefOrGetter,
   JSXElement,
+  NamePath,
   ValueType,
 } from '../common'
 import type {
@@ -27,10 +28,7 @@ import type {
   FormInstance,
   SpaceProps,
 } from 'ant-design-vue'
-import type {
-  NamePath,
-  ValidateOptions,
-} from 'ant-design-vue/es/form/interface'
+import type { ValidateOptions } from 'ant-design-vue/es/form/interface'
 import type { ComputedRef, Ref, UnwrapRef, VNodeChild } from 'vue'
 
 /**

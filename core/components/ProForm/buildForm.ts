@@ -27,17 +27,14 @@ import type {
   ProFormActions,
   ProFormScope,
 } from './interface'
-import type { DataObject } from '../common'
+import type { DataObject, NamePath } from '../common'
 import type {
   FormProps,
   ColProps,
   FormInstance,
   RowProps,
 } from 'ant-design-vue'
-import type {
-  NamePath,
-  ValidateOptions,
-} from 'ant-design-vue/es/form/interface'
+import type { ValidateOptions } from 'ant-design-vue/es/form/interface'
 import type { Ref } from 'vue'
 
 export function buildForm<

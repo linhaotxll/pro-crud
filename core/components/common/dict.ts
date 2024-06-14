@@ -2,8 +2,8 @@ import { computed, isRef, ref, watch, watchEffect } from 'vue'
 
 import { resolveRef } from './utils'
 
+import type { NamePath } from './interface'
 import type { ProFormScope } from '../ProForm'
-import type { NamePath } from 'ant-design-vue/es/form/interface'
 import type { ComputedRef, MaybeRefOrGetter, Ref } from 'vue'
 
 /**

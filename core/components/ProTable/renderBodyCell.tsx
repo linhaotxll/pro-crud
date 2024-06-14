@@ -1,5 +1,3 @@
-import { Tag } from 'ant-design-vue'
-
 import { ensureValueType, type DataObject } from '../common'
 
 import { isFunction } from '~/utils'
@@ -10,7 +8,6 @@ import type {
   RenderCustomFilterIconParams,
   RenderHeaderCellTextParams,
 } from './interface'
-import type { InternalColumnOptions } from './internal'
 import type { VNodeChild } from 'vue'
 
 /**
@@ -31,6 +28,7 @@ export function renderBodyCellText(ctx: RenderBodyCellTextParams<object>) {
     return renderCell(ctx)
   }
 
+  // 再根据 type 查询 table 的渲染方式
   if (type) {
     const tableConfig = ensureValueType()[type].table
     if (tableConfig) {

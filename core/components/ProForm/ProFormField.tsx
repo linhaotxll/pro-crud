@@ -11,8 +11,7 @@ import {
 import { mergeWithTovalue, type ValueTypeForm } from '../common'
 
 import type { InternalProFormColumnOptions, ProFormScope } from './interface'
-import type { ValueTypeFormProps } from '../common'
-import type { NamePath } from 'ant-design-vue/es/form/interface'
+import type { NamePath, ValueTypeFormProps } from '../common'
 import type { CSSProperties, PropType, Ref } from 'vue'
 
 export const ProFormField = defineComponent({

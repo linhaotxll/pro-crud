@@ -16,10 +16,9 @@ import type {
   ProFormColumnOptions,
   ProFormScope,
 } from './interface'
-import type { DataObject } from '../common'
+import type { DataObject, NamePath } from '../common'
 import type { DictionaryCollection } from '../ProDictionary'
 import type { ColProps, FormItemProps } from 'ant-design-vue'
-import type { NamePath } from 'ant-design-vue/es/form/interface'
 import type { ComputedRef, Ref } from 'vue'
 
 export function buildFormColumn<T extends DataObject = DataObject>(
