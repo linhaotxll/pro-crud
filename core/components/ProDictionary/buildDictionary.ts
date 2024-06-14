@@ -1,9 +1,9 @@
-import { computed, markRaw, ref, toRaw, toValue, watchEffect } from 'vue'
+import { computed, markRaw, ref, toRaw, watchEffect } from 'vue'
 
 import { ensureDictionary } from './ensureDictionary'
 
 import { isArray, isFunction } from '../../utils'
-import { fetchWithLoding, type ValueType } from '../common'
+import { fetchWithLoding, toValueWithCtx, type ValueType } from '../common'
 
 import type {
   BuildDictionaryResult,
@@ -99,7 +99,7 @@ export function buildDictionary<Dictionary = any, Collection = any>(
   }
 
   watchEffect(() => {
-    const dictValue = toValue(dictionatyOptions!)
+    const dictValue = toValueWithCtx(dictionatyOptions!)
     const {
       data,
       labelField = 'label',
@@ -109,10 +109,10 @@ export function buildDictionary<Dictionary = any, Collection = any>(
     } = dictValue
 
     const [dataValue, labelFieldValue, valueFieldValue, collectionValue] = [
-      toValue(data),
-      toValue(labelField),
-      toValue(valueField),
-      toValue(collection),
+      toValueWithCtx(data),
+      toValueWithCtx(labelField),
+      toValueWithCtx(valueField),
+      toValueWithCtx(collection),
     ]
 
     const deptParams = fetchDataEffect?.(dictValue)

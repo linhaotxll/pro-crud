@@ -1,4 +1,3 @@
-import { toValue } from '@vueuse/core'
 import cloneDeep from 'clone-deep'
 import { get, set, unset, has, once } from 'lodash-es'
 import { computed, inject, ref, toRaw, reactive, watchEffect } from 'vue'
@@ -15,7 +14,7 @@ import { useValues } from './useValues'
 
 import { GlobalOption } from '../../constant'
 import { isFunction } from '../../utils'
-import { mergeWithTovalue } from '../common'
+import { mergeWithTovalue, toValueWithCtx } from '../common'
 import { buildButtonGroup } from '../ProButton'
 import { toast as showToast } from '../Toast'
 
@@ -80,7 +79,7 @@ export function buildForm<
 
   // 解析 Form Props
   const resolvedFormProps = formProps
-    ? computed<FormProps>(() => mergeWithTovalue({}, toValue(formProps)))
+    ? computed<FormProps>(() => mergeWithTovalue({}, toValueWithCtx(formProps)))
     : undefined
 
   // 是否是行内模式
@@ -90,28 +89,28 @@ export function buildForm<
 
   // 解析通用 Row Props
   const resolvedCommonRowProps = row
-    ? computed<RowProps>(() => mergeWithTovalue({}, toValue(row)))
+    ? computed<RowProps>(() => mergeWithTovalue({}, toValueWithCtx(row)))
     : undefined
 
   // 解析通用 Col Props
   // 行内模式使用 ProSearch，否则使用正常模式，其中不使用默认值需要指定 null
   const resolvedCommonColProps = computed<ColProps | undefined>(() => {
-    if (toValue(isInlineLayout)) {
-      return mergeWithTovalue({}, DefaultProSearchCol, toValue(col))
+    if (toValueWithCtx(isInlineLayout)) {
+      return mergeWithTovalue({}, DefaultProSearchCol, toValueWithCtx(col))
     }
     return col === null
       ? undefined
-      : mergeWithTovalue({}, DefaultProFormCol, toValue(col))
+      : mergeWithTovalue({}, DefaultProFormCol, toValueWithCtx(col))
   })
 
   // 解析通用 Label Col Props
   const resolvedCommonLabelColProps = labelCol
-    ? computed<ColProps>(() => mergeWithTovalue({}, toValue(labelCol)))
+    ? computed<ColProps>(() => mergeWithTovalue({}, toValueWithCtx(labelCol)))
     : undefined
 
   // 解析通用 Wrapper Col Props
   const resolvedCommonWrapperColProps = wrapperCol
-    ? computed<ColProps>(() => mergeWithTovalue({}, toValue(wrapperCol)))
+    ? computed<ColProps>(() => mergeWithTovalue({}, toValueWithCtx(wrapperCol)))
     : undefined
 
   // 构建列
@@ -128,7 +127,7 @@ export function buildForm<
 
   watchEffect(() => {
     resolvedColumns.value = []
-    const columnsValue = toValue(columns)
+    const columnsValue = toValueWithCtx(columns)
     if (!columnsValue) {
       return
     }
@@ -159,17 +158,17 @@ export function buildForm<
   >(
     computed(() => {
       const args: any[] = []
-      if (toValue(isInlineLayout)) {
+      if (toValueWithCtx(isInlineLayout)) {
         args.push(
           buildDefaultProSearchActionGroup(
             scope,
-            toValue(resolvedCommonColProps),
-            toValue(resolvedColumns),
-            toValue(action)
+            toValueWithCtx(resolvedCommonColProps),
+            toValueWithCtx(resolvedColumns),
+            toValueWithCtx(action)
           )
         )
       } else {
-        args.push(buildDefaultProFormActionGroup(scope), toValue(action))
+        args.push(buildDefaultProFormActionGroup(scope), toValueWithCtx(action))
       }
       return mergeWithTovalue({}, ...args)
     })
@@ -215,7 +214,7 @@ export function buildForm<
         : (params as unknown as any)
 
     // 再监测每个字段是否需要上传，不需要会删除
-    for (const column of toValue(resolvedColumns)) {
+    for (const column of toValueWithCtx(resolvedColumns)) {
       const { submitted, itemProps, transform } = column.value
       const name = itemProps?.name
 

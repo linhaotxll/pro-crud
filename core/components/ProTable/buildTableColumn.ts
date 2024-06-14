@@ -1,6 +1,4 @@
-import { toValue } from 'vue'
-
-import { mergeWithTovalue } from '../common'
+import { mergeWithTovalue, toValueWithCtx } from '../common'
 import { mergeWithUnref } from '../common/merge'
 import { buildDictionary } from '../ProDictionary'
 
@@ -36,18 +34,18 @@ export function buildTableColumn<
     ...rest
   } = column
   // 解析是否显示
-  const resolvedShow = toValue(show)
+  const resolvedShow = toValueWithCtx(show)
 
   if (!resolvedShow) {
     return
   }
 
   // 解析路径
-  const resolvedName = toValue(name)
+  const resolvedName = toValueWithCtx(name)
   // 解析类型
-  const resolvedType = toValue(type)
+  const resolvedType = toValueWithCtx(type)
   // 解析名称
-  const resolvedLabel = toValue(label)
+  const resolvedLabel = toValueWithCtx(label)
 
   // 解析字典配置
   const resolvedDictionary = buildDictionary(
@@ -72,7 +70,7 @@ export function buildTableColumn<
       title: resolvedLabel,
       _column,
     },
-    toValue(columnProps)
+    toValueWithCtx(columnProps)
   )
 
   return result

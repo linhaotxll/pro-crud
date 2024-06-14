@@ -1,10 +1,10 @@
 import { Col, FormItem } from 'ant-design-vue'
-import { defineComponent, toValue } from 'vue'
+import { defineComponent } from 'vue'
 
 import { ProFormListPlaceholder } from './constant'
 import { ProFormField } from './ProFormField'
 
-import { ensureValueType, findAndReplace } from '../common'
+import { ensureValueType, findAndReplace, toValueWithCtx } from '../common'
 
 import type { InternalProFormColumnOptions, ProFormScope } from './interface'
 import type { FormItemProps } from 'ant-design-vue'
@@ -24,7 +24,7 @@ export const ProFormItem = defineComponent({
 
   setup(props) {
     return () => {
-      const columnValue = toValue(props.column)
+      const columnValue = toValueWithCtx(props.column)
 
       if (!columnValue.show) {
         return null

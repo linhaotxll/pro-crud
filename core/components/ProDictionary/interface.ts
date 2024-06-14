@@ -1,4 +1,4 @@
-import type { MaybeRef } from '../common'
+import type { MaybeRefOrGetter } from '../common'
 import type { ComputedRef, Ref } from 'vue'
 
 /**
@@ -8,7 +8,7 @@ export interface DictionaryOptions<Dictionary = any, Collection = any> {
   /**
    * 数据源
    */
-  data?: MaybeRef<Dictionary[]>
+  data?: MaybeRefOrGetter<Dictionary[]>
 
   /**
    * 获取数据源
@@ -25,14 +25,14 @@ export interface DictionaryOptions<Dictionary = any, Collection = any> {
    *
    * @default 'label'
    */
-  labelField?: MaybeRef<string>
+  labelField?: MaybeRefOrGetter<string>
 
   /**
    * 字典值字段
    *
    * @default 'value'
    */
-  valueField?: MaybeRef<string>
+  valueField?: MaybeRefOrGetter<string>
 
   /**
    * 依赖内容,变化时会将其最为参数重新调用 fetchDictionary
@@ -47,7 +47,7 @@ export interface DictionaryColumn<Dictionary = any, Collection = any> {
   /**
    * 字典配置
    */
-  dict?: MaybeRef<DictionaryOptions<Dictionary, Collection>>
+  dict?: MaybeRefOrGetter<DictionaryOptions<Dictionary, Collection>>
 }
 
 /**

@@ -1,5 +1,5 @@
 import { merge, set } from 'lodash-es'
-import { toValue, ref, watchEffect } from 'vue'
+import { ref, watchEffect } from 'vue'
 
 import { buildFormListColumns } from './buildFormListColumn'
 import {
@@ -8,7 +8,12 @@ import {
   ProFormListPlaceholder,
 } from './constant'
 
-import { getUuid, mergeWithTovalue, ensureValueType } from '../common'
+import {
+  getUuid,
+  mergeWithTovalue,
+  ensureValueType,
+  toValueWithCtx,
+} from '../common'
 import { buildDictionary } from '../ProDictionary'
 
 import type {
@@ -54,10 +59,9 @@ export function buildFormColumn<T extends DataObject = DataObject>(
     } = column
 
     // 解析显示状态
-    const resolvedShow = toValue(show!)
+    const resolvedShow = toValueWithCtx(show!)
     // 解析 name
-    // const resolvedName = toValue(name)
-    const resolvedName = appendListName(toValue(name), parent?.name)
+    const resolvedName = appendListName(toValueWithCtx(name), parent?.name)
 
     const result: InternalProFormColumnOptions<T> = {
       show: resolvedShow,
@@ -72,24 +76,26 @@ export function buildFormColumn<T extends DataObject = DataObject>(
     }
 
     // 解析 label
-    const resolvedLabel = toValue(label)
+    const resolvedLabel = toValueWithCtx(label)
     // 解析 type
-    const resolvedType = toValue(type!)
+    const resolvedType = toValueWithCtx(type!)
 
     // TODO: 这里嵌套深一点使用 ref
     // 解析 Label Col
     const resolvedLabelCol: ColProps = mergeWithTovalue(
       {},
-      toValue(commonLabelCol),
-      toValue(itemProps)?.labelCol
+      toValueWithCtx(commonLabelCol),
+      toValueWithCtx(itemProps)?.labelCol
     )
 
     // 解析 Wrapper Col
     const resolvedWrapperCol: ColProps = mergeWithTovalue(
       {},
-      toValue(commonWrapperCol),
-      toValue(itemProps)?.wrapperCol,
-      toValue(isInlineLayout) ? DefaultProSearchWrapperColProps : undefined
+      toValueWithCtx(commonWrapperCol),
+      toValueWithCtx(itemProps)?.wrapperCol,
+      toValueWithCtx(isInlineLayout)
+        ? DefaultProSearchWrapperColProps
+        : undefined
     )
 
     // 合并 Form Item Props
@@ -101,7 +107,7 @@ export function buildFormColumn<T extends DataObject = DataObject>(
         label: resolvedLabel,
       },
       // TODO: 这里要把 labelCol,wrapperCol,name 去掉
-      toValue(itemProps)
+      toValueWithCtx(itemProps)
     )
 
     // 合并 Field Props
@@ -109,14 +115,14 @@ export function buildFormColumn<T extends DataObject = DataObject>(
       ? mergeWithTovalue(
           {},
           ensureValueType()[resolvedType].form?.props,
-          toValue(fieldProps)
+          toValueWithCtx(fieldProps)
         )
       : undefined
 
     // 解析列配置
     const resolvedColProps: ColProps | undefined =
       col || commonCol
-        ? mergeWithTovalue({}, toValue(commonCol), toValue(col))
+        ? mergeWithTovalue({}, toValueWithCtx(commonCol), toValueWithCtx(col))
         : undefined
 
     // 解析子列配置

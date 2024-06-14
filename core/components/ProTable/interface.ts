@@ -3,6 +3,7 @@ import type { InternalProTableColumnProps } from './internal'
 import type {
   DataObject,
   DeepMaybeRefOrGetter,
+  MaybeRefOrGetter,
   NamePath,
   ValueType,
 } from '../common'
@@ -19,7 +20,6 @@ import type {
   ProFormColumnOptions,
   ProFormScope,
 } from '../ProForm'
-import type { MaybeRefOrGetter } from '@vueuse/core'
 import type { FlexProps, TableProps } from 'ant-design-vue'
 import type { ColumnType } from 'ant-design-vue/es/table'
 import type { FilterDropdownProps } from 'ant-design-vue/es/table/interface'

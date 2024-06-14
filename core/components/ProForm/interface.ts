@@ -2,7 +2,7 @@ import type {
   Arrayable,
   DataObject,
   DeepMaybeRefOrGetter,
-  JSXElement,
+  MaybeRefOrGetter,
   NamePath,
   ValueType,
 } from '../common'
@@ -18,7 +18,6 @@ import type {
   DictionaryColumn,
 } from '../ProDictionary'
 import type { SuccessToastOptions } from '../Toast'
-import type { MaybeRefOrGetter } from '@vueuse/core'
 import type {
   ColProps,
   FormItemProps,
@@ -381,7 +380,7 @@ export interface ProFormListOptions<C extends object = any> {
   /**
    * 自定义复制按钮
    */
-  renderCopyRecordButton?: (copy: () => void) => JSXElement
+  renderCopyRecordButton?: (copy: () => void) => VNodeChild
 
   /**
    * 复制按钮配置
@@ -547,16 +546,6 @@ export interface InternalProFormColumnOptions<
       }
     | undefined
   >
-
-  // /**
-  //  * 解析好的字典配置
-  //  */
-  // dict?: ReturnType<typeof useDictionary>
-
-  // /**
-  //  * 解析好的子控件
-  //  */
-  // children?: ComputedRef<InternalProFormColumnOptions<T>>[]
 }
 
 /**

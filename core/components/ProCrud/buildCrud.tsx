@@ -27,7 +27,7 @@ import {
 import { useDialog } from './useDialog'
 import { useOperate } from './useOperate'
 
-import { processDictionary, unRef } from '../common'
+import { unRef } from '../common'
 import { buildForm, type ProFormColumnOptions } from '../ProForm'
 import { buildTable } from '../ProTable'
 import { showToast } from '../Toast'
@@ -679,12 +679,12 @@ function normalizeColumns(
     viewForm: [],
   }
 
-  const resolveDictionary = processDictionary(fetchDictCollection)
-  resolveDictionary.resolved = true
+  // const resolveDictionary = processDictionary(fetchDictCollection)
+  // resolveDictionary.resolved = true
 
   // 重写获取集合的方法，下透到 Form 和 Table 不会再次解析
   // @ts-ignore
-  options.fetchDictCollection = resolveDictionary
+  // options.fetchDictCollection = resolveDictionary
 
   const result =
     columns?.reduce((prev, curr) => {

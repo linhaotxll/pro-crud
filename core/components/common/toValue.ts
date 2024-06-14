@@ -1,7 +1,12 @@
-import { isRef, toValue as vueToValue } from 'vue'
+import { unref, type MaybeRef } from 'vue'
 
-import type { MaybeRef } from './interface'
+export type MaybeRefOrGetter<T, C = any> = MaybeRef<T> | ((ctx: C) => T)
 
-export function toValue<T>(source: MaybeRef<T>) {
-  return isRef(source) ? toValue(source) : vueToValue(source)
+type AnyFn = (...args: any[]) => any
+
+export function toValueWithCtx<T, C = any>(
+  r: MaybeRefOrGetter<T, C>,
+  ctx?: C
+): T {
+  return typeof r === 'function' ? (r as AnyFn)(ctx) : unref(r)
 }

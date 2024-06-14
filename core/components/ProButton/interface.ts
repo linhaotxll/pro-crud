@@ -1,5 +1,4 @@
-import type { DeepMaybeRefOrGetter } from '../common'
-import type { MaybeRefOrGetter } from '@vueuse/core'
+import type { DeepMaybeRefOrGetter, MaybeRefOrGetter } from '../common'
 import type {
   ButtonProps,
   ModalProps,

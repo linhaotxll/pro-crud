@@ -1,13 +1,15 @@
 import { Tag } from 'ant-design-vue'
 import { merge } from 'lodash-es'
-import { h, inject, resolveComponent, toValue } from 'vue'
+import { h, inject, resolveComponent } from 'vue'
+
+import { toValueWithCtx } from './toValue'
 
 import { GlobalOption } from '~/constant'
 
 import type { DataObject } from './interface'
 import type { InternalProFormColumnOptions, ProFormScope } from '../ProForm'
 import type { RenderBodyCellTextParams } from '../ProTable'
-import type { CSSProperties, Slots, VNode, VNodeChild } from 'vue'
+import type { CSSProperties, Slots, VNodeChild } from 'vue'
 
 /**
  * 字段类型
@@ -40,7 +42,7 @@ export type ValueType =
 /**
  * 自定义字段配置
  */
-export interface ValueTypeValue<R = any> {
+export interface ValueTypeValue<R extends DataObject = DataObject> {
   /**
    * 自定义表单字段配置
    */
@@ -329,8 +331,8 @@ function renderDictionaryInForm(ctx: ValueTypeFormProps) {
     resolveComponent(`a-${type}`),
     {
       ...ctx,
-      options: toValue(dictionary),
-      loading: toValue(loading),
+      options: toValueWithCtx(dictionary),
+      loading: toValueWithCtx(loading),
     },
     ctx.slots
   )

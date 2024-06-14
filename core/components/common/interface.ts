@@ -1,13 +1,4 @@
-import { type MaybeRefOrGetter } from '@vueuse/core'
-import { type ComputedRef, type VNode } from 'vue'
-
-export type ToHandles<T> = {
-  [P in keyof T as P extends string ? `on${Capitalize<P>}` : never]: (
-    ...args: T[P] extends (...args: any) => any ? Parameters<T[P]> : []
-  ) => void
-}
-
-export type MaybeRef<T> = ComputedRef<T> | MaybeRefOrGetter<T>
+import type { MaybeRef, MaybeRefOrGetter } from 'vue'
 
 export type ExtractMaybeRef<T> = T extends object
   ? MaybeRef<{
@@ -26,10 +17,6 @@ export type DeepMaybeRefOrGetter<T> = T extends object
   : MaybeRefOrGetter<T>
 
 export type Arrayable<T> = T | T[]
-
-export type JSXElement = VNode | number | string | undefined | null
-
-export type ValueOf<T> = T[keyof T]
 
 export type NamePath = string | number | (string | number)[]
 

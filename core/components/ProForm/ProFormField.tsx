@@ -5,10 +5,9 @@ import {
   onBeforeMount,
   onBeforeUnmount,
   resolveComponent,
-  toValue,
 } from 'vue'
 
-import { mergeWithTovalue, type ValueTypeForm } from '../common'
+import { mergeWithTovalue, toValueWithCtx, type ValueTypeForm } from '../common'
 
 import type { InternalProFormColumnOptions, ProFormScope } from './interface'
 import type { NamePath, ValueTypeFormProps } from '../common'
@@ -47,17 +46,17 @@ export const ProFormField = defineComponent({
     })
 
     // 不需要保留字段时,卸载前将字段删除,重新添加时将字段设置
-    if (!toValue(props.column).preserve) {
+    if (!toValueWithCtx(props.column).preserve) {
       onBeforeUnmount(() => {
-        props.scope?.removeFields(toValue(props.column).name)
+        props.scope?.removeFields(toValueWithCtx(props.column).name)
       })
       onBeforeMount(() => {
-        props.scope?.reset([toValue(props.column).name])
+        props.scope?.reset([toValueWithCtx(props.column).name])
       })
     }
 
     return () => {
-      const columnValue = toValue(props.column)
+      const columnValue = toValueWithCtx(props.column)
 
       const {
         is,
@@ -92,8 +91,8 @@ export const ProFormField = defineComponent({
           scope: props.scope,
           slots,
         },
-        toValue(fieldProps),
-        toValue(props.column)?.fieldProps
+        toValueWithCtx(fieldProps),
+        toValueWithCtx(props.column)?.fieldProps
       )
 
       if (typeof render === 'function') {

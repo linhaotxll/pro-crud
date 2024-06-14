@@ -1,4 +1,4 @@
-import { ref, toValue, watchEffect } from 'vue'
+import { ref, watchEffect } from 'vue'
 
 import { buildFormColumn } from './buildFormColumn'
 import {
@@ -8,7 +8,7 @@ import {
   DefaultFormListSpaceProps,
 } from './constant'
 
-import { mergeWithTovalue } from '../common'
+import { mergeWithTovalue, toValueWithCtx } from '../common'
 
 import type {
   InternalProFormColumnOptions,
@@ -31,7 +31,7 @@ export function buildFormListColumns(
 
   watchEffect(() => {
     // 监听 list 本身发生变化
-    const listValue = toValue(list)
+    const listValue = toValueWithCtx(list)
 
     if (!listValue) {
       resolvedList.value = undefined
@@ -47,7 +47,7 @@ export function buildFormListColumns(
       space,
       ...rest
     } = listValue
-    const childrenValue = toValue(children)
+    const childrenValue = toValueWithCtx(children)
     if (!childrenValue || !childrenValue.length) {
       resolvedList.value = undefined
       return
@@ -69,7 +69,7 @@ export function buildFormListColumns(
     }
 
     // 复制按钮
-    const copyButtonPropsValue = toValue(copyButtonProps)
+    const copyButtonPropsValue = toValueWithCtx(copyButtonProps)
     const mergedCopyButtonProps =
       copyButtonPropsValue !== false
         ? mergeWithTovalue(
@@ -80,7 +80,7 @@ export function buildFormListColumns(
         : copyButtonPropsValue
 
     // 删除按钮
-    const deleteButtonPropsValue = toValue(deleteButtonProps)
+    const deleteButtonPropsValue = toValueWithCtx(deleteButtonProps)
     const mergedDeleteButtonProps =
       deleteButtonPropsValue !== false
         ? mergeWithTovalue(
@@ -91,7 +91,7 @@ export function buildFormListColumns(
         : deleteButtonPropsValue
 
     // 创建按钮
-    const createButtonPropsValue = toValue(creatorButtonProps)
+    const createButtonPropsValue = toValueWithCtx(creatorButtonProps)
     const mergedCreatorButtonProps =
       createButtonPropsValue !== false
         ? mergeWithTovalue(
@@ -105,7 +105,7 @@ export function buildFormListColumns(
     const reoslvedSpaceProps = mergeWithTovalue(
       {},
       DefaultFormListSpaceProps,
-      toValue(space)
+      toValueWithCtx(space)
     )
 
     resolvedList.value = {

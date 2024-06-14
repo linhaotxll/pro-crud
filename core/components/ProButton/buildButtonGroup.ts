@@ -1,9 +1,8 @@
-import { toValue } from '@vueuse/core'
 import { ref, watchEffect } from 'vue'
 
 import { DefaultAction, DefaultActionGroup } from './constant'
 
-import { mergeWithTovalue } from '../common'
+import { mergeWithTovalue, toValueWithCtx } from '../common'
 
 import type {
   ActionGroupOption,
@@ -12,7 +11,7 @@ import type {
   InternalProButtonGroupOptions,
   InternalProButtonOptions,
 } from './interface'
-import type { MaybeRefOrGetter } from '@vueuse/core'
+import type { MaybeRefOrGetter } from '../common'
 import type { Ref, UnwrapRef } from 'vue'
 
 export function buildButtonGroup<T extends CustomActions, R = object>(
@@ -28,14 +27,14 @@ export function buildButtonGroup<T extends CustomActions, R = object>(
   watchEffect(() => {
     const actionValue: UnwrapRef<ActionGroupOption<T, R>> = mergeWithTovalue(
       {},
-      toValue(defaultAction),
-      toValue(action)
+      toValueWithCtx(defaultAction),
+      toValueWithCtx(action)
     )
 
     const { show = DefaultActionGroup.show, actions, ...rest } = actionValue
 
     // 解析是否显示按扭组
-    const resolvedShow = toValue(show!)
+    const resolvedShow = toValueWithCtx(show!)
 
     // @ts-ignore
     const result: InternalProButtonGroupOptions & UnwrapRef<R> = {
@@ -47,7 +46,9 @@ export function buildButtonGroup<T extends CustomActions, R = object>(
       return
     }
 
-    const resolvedActions = toValue(actions) as ActionsList<any> | undefined
+    const resolvedActions = toValueWithCtx(actions) as
+      | ActionsList<any>
+      | undefined
 
     if (resolvedActions) {
       result.actions = Object.keys(resolvedActions)
