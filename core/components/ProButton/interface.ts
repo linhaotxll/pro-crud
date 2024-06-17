@@ -1,11 +1,11 @@
-import type { DeepMaybeRefOrGetter, MaybeRefOrGetter } from '../common'
+import type { DeepMaybeRefOrGetter } from '../common'
 import type {
   ButtonProps,
   ModalProps,
   PopconfirmProps,
   SpaceProps,
 } from 'ant-design-vue'
-import type { VNodeChild } from 'vue'
+import type { MaybeRefOrGetter, VNodeChild } from 'vue'
 
 /**
  * 自定义按扭
@@ -31,7 +31,7 @@ export type ActionGroupOption<T extends CustomActions, R = any> = {
   /**
    * 按钮列表
    */
-  actions?: MaybeRefOrGetter<ActionsList<T>>
+  actions?: MaybeRefOrGetter<T>
 } & R
 
 /**

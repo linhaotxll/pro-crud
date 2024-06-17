@@ -1,8 +1,6 @@
 import { Tag } from 'ant-design-vue'
 import { merge } from 'lodash-es'
-import { h, inject, resolveComponent } from 'vue'
-
-import { toValueWithCtx } from './toValue'
+import { h, inject, resolveComponent, toValue } from 'vue'
 
 import { GlobalOption } from '~/constant'
 
@@ -331,8 +329,8 @@ function renderDictionaryInForm(ctx: ValueTypeFormProps) {
     resolveComponent(`a-${type}`),
     {
       ...ctx,
-      options: toValueWithCtx(dictionary),
-      loading: toValueWithCtx(loading),
+      options: toValue(dictionary),
+      loading: toValue(loading),
     },
     ctx.slots
   )

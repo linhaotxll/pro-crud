@@ -1,7 +1,5 @@
 import { merge } from 'lodash-es'
-import { ref } from 'vue'
-
-import { unRef } from '../common'
+import { ref, toValue } from 'vue'
 
 import type { ProFormInstance } from '../ProForm'
 import type { ModalProps } from 'ant-design-vue'
@@ -32,7 +30,7 @@ export function useDialog<T extends object = any>(form: ProFormInstance<T>) {
     const mergedProps = merge({}, props, { open, onClose: hideDialog })
     return Object.entries(mergedProps).reduce((prev, [key, prop]) => {
       // @ts-ignore
-      prev[key] = unRef(prop)
+      prev[key] = toValue(prop)
       return prev
     }, {})
   }

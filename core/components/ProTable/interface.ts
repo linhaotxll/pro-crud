@@ -3,7 +3,6 @@ import type { InternalProTableColumnProps } from './internal'
 import type {
   DataObject,
   DeepMaybeRefOrGetter,
-  MaybeRefOrGetter,
   NamePath,
   ValueType,
 } from '../common'
@@ -28,7 +27,13 @@ import type {
   ExpandedRowRender,
   RenderExpandIconProps,
 } from 'ant-design-vue/es/vc-table/interface'
-import type { ComputedRef, MaybeRef, Ref, VNodeChild } from 'vue'
+import type {
+  ComputedRef,
+  MaybeRef,
+  MaybeRefOrGetter,
+  Ref,
+  VNodeChild,
+} from 'vue'
 
 /**
  * 获取 Pro Table 数据函数
@@ -130,7 +135,7 @@ export type ProTableColumnActionGroup = ActionGroupOption<ProTableActions, {}>
 /**
  * Pro Table 列按钮
  */
-export type ProTableActions = {} & CustomActions
+export type ProTableActions = Record<string, MaybeRefOrGetter<ActionOption>>
 
 /**
  * Pro Table Toolbar 按钮组

@@ -1,7 +1,6 @@
 export * from './interface'
 export * from './utils'
 export * from './type'
-export { toValueWithCtx, type MaybeRefOrGetter } from './toValue'
-export { mergeWithTovalue } from './merge'
+export * from './merge'
 export { invokeEventHandler } from './event'
 export { DefaultValueType, ensureValueType } from './type'

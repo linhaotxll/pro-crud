@@ -2,6 +2,7 @@ import { ReloadOutlined } from '@ant-design/icons-vue'
 import { h } from 'vue'
 
 import { ProButtonGroup } from '../ProButton'
+import { buildButtonGroupInRender } from '../ProButton/buildButtonGroup'
 
 import type {
   ProTableColumnProps,
@@ -81,6 +82,11 @@ export const TableContainerProps: FlexProps = {
 export const TableActionColumnOptions: ProTableColumnProps = {
   label: '操作',
   renderCell(ctx) {
-    return <ProButtonGroup action={ctx.column._column.action} />
+    const action = buildButtonGroupInRender(
+      ctx.column._column.action,
+      undefined,
+      ctx
+    )
+    return <ProButtonGroup action={action} />
   },
 }

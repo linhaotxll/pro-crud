@@ -27,7 +27,6 @@ import {
 import { useDialog } from './useDialog'
 import { useOperate } from './useOperate'
 
-import { unRef } from '../common'
 import { buildForm, type ProFormColumnOptions } from '../ProForm'
 import { buildTable } from '../ProTable'
 import { showToast } from '../Toast'
@@ -747,7 +746,7 @@ function normalizeShow(
   ).reduce<BuildCrudContext<any, any, any, any, any, any>['show']>(
     (prev, type) => {
       prev[type] = computed(() =>
-        unRef(optionResult[type]?.show ?? DefaultShow.show)
+        toValue(optionResult[type]?.show ?? DefaultShow.show)
       )
       return prev
     },

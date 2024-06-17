@@ -1,8 +1,8 @@
 import { CopyOutlined, DeleteOutlined } from '@ant-design/icons-vue'
 import { merge } from 'lodash-es'
-import { h } from 'vue'
+import { h, toValue } from 'vue'
 
-import { getUuid, mergeWithTovalue, toValueWithCtx } from '../common'
+import { getUuid, mergeWithTovalue } from '../common'
 
 import type {
   InternalProFormColumnOptions,
@@ -98,12 +98,12 @@ export const buildDefaultProSearchActionGroup = <
       offset: 0,
     },
     commonCol,
-    toValueWithCtx(col)
+    toValue(col)
   )
 
   const total =
     columns.reduce<number>((prev, column) => {
-      const columnValue = toValueWithCtx(column)
+      const columnValue = toValue(column)
       // 每个列所占的格子数量，已经合并了公共和单独配置的数量
       // Pro Search 默认会设置公共 col
       const columnCol: ColProps = columnValue.col!

@@ -1,8 +1,8 @@
-import { ref, watchEffect } from 'vue'
+import { ref, toValue, watchEffect } from 'vue'
 
 import { DefaultAction, DefaultActionGroup } from './constant'
 
-import { mergeWithTovalue, toValueWithCtx } from '../common'
+import { mergeWithTovalue } from '../common'
 
 import type {
   ActionGroupOption,
@@ -11,8 +11,7 @@ import type {
   InternalProButtonGroupOptions,
   InternalProButtonOptions,
 } from './interface'
-import type { MaybeRefOrGetter } from '../common'
-import type { Ref, UnwrapRef } from 'vue'
+import type { MaybeRefOrGetter, Ref, UnwrapRef } from 'vue'
 
 export function buildButtonGroup<T extends CustomActions, R = object>(
   action?: MaybeRefOrGetter<ActionGroupOption<T, R>>,
@@ -25,42 +24,57 @@ export function buildButtonGroup<T extends CustomActions, R = object>(
   >
 
   watchEffect(() => {
-    const actionValue: UnwrapRef<ActionGroupOption<T, R>> = mergeWithTovalue(
-      {},
-      toValueWithCtx(defaultAction),
-      toValueWithCtx(action)
-    )
-
-    const { show = DefaultActionGroup.show, actions, ...rest } = actionValue
-
-    // 解析是否显示按扭组
-    const resolvedShow = toValueWithCtx(show!)
-
-    // @ts-ignore
-    const result: InternalProButtonGroupOptions & UnwrapRef<R> = {
-      show: resolvedShow,
-    }
-
-    if (!resolvedShow) {
-      internalProButtonGroup.value = result
-      return
-    }
-
-    const resolvedActions = toValueWithCtx(actions) as
-      | ActionsList<any>
-      | undefined
-
-    if (resolvedActions) {
-      result.actions = Object.keys(resolvedActions)
-        .map<InternalProButtonOptions>(name => {
-          return mergeWithTovalue({}, DefaultAction, resolvedActions[name])
-        })
-        .sort((a, b) => (a.order ?? 0) - (b.order ?? 0))
-    }
-
-    mergeWithTovalue(result, rest)
-    internalProButtonGroup.value = result
+    internalProButtonGroup.value = _buildButtonGroup(action, defaultAction)
   })
 
   return internalProButtonGroup
+}
+
+export function buildButtonGroupInRender<T extends CustomActions, R = object>(
+  action?: MaybeRefOrGetter<ActionGroupOption<T, R>>,
+  defaultAction?: MaybeRefOrGetter<
+    ActionGroupOption<CustomActions, Record<string, any>>
+  >
+) {
+  return _buildButtonGroup(action, defaultAction)
+}
+
+function _buildButtonGroup<T extends CustomActions, R = object>(
+  action?: MaybeRefOrGetter<ActionGroupOption<T, R>>,
+  defaultAction?: MaybeRefOrGetter<
+    ActionGroupOption<CustomActions, Record<string, any>>
+  >
+) {
+  const actionValue: UnwrapRef<ActionGroupOption<T, R>> = mergeWithTovalue(
+    {},
+    toValue(defaultAction),
+    toValue(action)
+  )
+
+  const { show = DefaultActionGroup.show, actions, ...rest } = actionValue
+
+  // 解析是否显示按扭组
+  const resolvedShow = toValue(show!)
+
+  // @ts-ignore
+  const result: InternalProButtonGroupOptions & UnwrapRef<R> = {
+    show: resolvedShow,
+  }
+
+  if (!resolvedShow) {
+    return result
+  }
+
+  const resolvedActions = toValue(actions) as ActionsList<any> | undefined
+
+  if (resolvedActions) {
+    result.actions = Object.keys(resolvedActions)
+      .map<InternalProButtonOptions>(name => {
+        return mergeWithTovalue({}, DefaultAction, resolvedActions[name])
+      })
+      .sort((a, b) => (a.order ?? 0) - (b.order ?? 0))
+  }
+
+  mergeWithTovalue(result, rest)
+  return result
 }

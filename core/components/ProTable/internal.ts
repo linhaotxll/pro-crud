@@ -1,11 +1,11 @@
 import type {
+  ProTableColumnActionGroup,
   RenderBodyCellTextParams,
   RenderCustomFilterDropdown,
   RenderCustomFilterIconParams,
   RenderHeaderCellTextParams,
 } from './interface'
 import type { DataObject, NamePath, ValueType } from '../common'
-import type { buildButtonGroup } from '../ProButton'
 import type { buildDictionary } from '../ProDictionary'
 import type { ColumnType } from 'ant-design-vue/es/table'
 import type { VNodeChild } from 'vue'
@@ -37,7 +37,7 @@ export interface InternalColumnOptions<Data extends DataObject = DataObject> {
   /**
    * 操作列配置
    */
-  action?: ReturnType<typeof buildButtonGroup>
+  action?: ProTableColumnActionGroup
 
   /**
    * 自定义渲染表头

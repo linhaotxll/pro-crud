@@ -2,7 +2,6 @@ import type {
   Arrayable,
   DataObject,
   DeepMaybeRefOrGetter,
-  MaybeRefOrGetter,
   NamePath,
   ValueType,
 } from '../common'
@@ -28,7 +27,13 @@ import type {
   SpaceProps,
 } from 'ant-design-vue'
 import type { ValidateOptions } from 'ant-design-vue/es/form/interface'
-import type { ComputedRef, Ref, UnwrapRef, VNodeChild } from 'vue'
+import type {
+  ComputedRef,
+  MaybeRefOrGetter,
+  Ref,
+  UnwrapRef,
+  VNodeChild,
+} from 'vue'
 
 /**
  * ProForm 作用域

@@ -1,10 +1,8 @@
 import { Button, Space } from 'ant-design-vue'
 import { cloneDeep } from 'lodash-es'
-import { defineComponent } from 'vue'
+import { defineComponent, toValue } from 'vue'
 
 import { ProFormItem } from './ProFormItem'
-
-import { toValueWithCtx } from '../common'
 
 import type { InternalProFormColumnOptions, ProFormScope } from './interface'
 import type { PropType } from 'vue'
@@ -30,7 +28,7 @@ export const ProFormList = defineComponent({
     function handleCreateNewLine(record?: any) {
       const current = props.value?.length ?? 0
       const { max = Number.MAX_VALUE, creatorRecord } =
-        toValueWithCtx(props.column?.list) ?? {}
+        toValue(props.column?.list) ?? {}
 
       if (current >= max) {
         // showToast(`最多添加${max}条数据`, undefined, 'warning')
@@ -48,8 +46,7 @@ export const ProFormList = defineComponent({
     function handleDeleteLine(index: number) {
       if (props.value) {
         const current = props.value.length
-        const { min = Number.MIN_VALUE } =
-          toValueWithCtx(props.column?.list) ?? {}
+        const { min = Number.MIN_VALUE } = toValue(props.column?.list) ?? {}
 
         if (current <= min) {
           // showToast(`最少保持${min}条数据`, undefined, 'warning')
@@ -72,17 +69,17 @@ export const ProFormList = defineComponent({
     return () => {
       console.log('render pro form list')
       // 没有配置 list 或 children 均不会渲染
-      const listValue = toValueWithCtx(props.column.list)
+      const listValue = toValue(props.column.list)
       if (!listValue) {
         return null
       }
 
-      const children = toValueWithCtx(listValue.children)
+      const children = toValue(listValue.children)
       if (!children || !children.length) {
         return null
       }
 
-      const value = toValueWithCtx(props.value)
+      const value = toValue(props.value)
 
       const { copyButtonProps, deleteButtonProps, creatorButtonProps } =
         listValue || {}

@@ -1,5 +1,4 @@
-import type { MaybeRefOrGetter } from '../common'
-import type { ComputedRef, Ref } from 'vue'
+import type { ComputedRef, MaybeRefOrGetter, Ref } from 'vue'
 
 /**
  * 字典选项

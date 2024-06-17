@@ -1,7 +1,6 @@
 import { Flex, Table, type TableProps } from 'ant-design-vue'
-import { defineComponent, isRef } from 'vue'
+import { defineComponent, isRef, toValue } from 'vue'
 
-import { toValueWithCtx } from '../common'
 import { ProButtonGroup } from '../ProButton'
 import { ProForm } from '../ProForm'
 
@@ -33,18 +32,18 @@ export const ProTable = defineComponent({
   setup(props) {
     return () => {
       const $table = (
-        <Table {...toValueWithCtx(props.tableProps)}>
-          {toValueWithCtx(props.tableSlots)}
+        <Table {...toValue(props.tableProps)}>
+          {toValue(props.tableSlots)}
         </Table>
       )
 
-      const resolvedToolbar = toValueWithCtx(props.toolbar)
+      const resolvedToolbar = toValue(props.toolbar)
 
       const $toolbar = resolvedToolbar?.show ? (
         <ProButtonGroup action={resolvedToolbar} />
       ) : null
 
-      const searchValue = toValueWithCtx(props.search)
+      const searchValue = toValue(props.search)
 
       const $search =
         searchValue !== false ? <ProForm {...searchValue} /> : null
@@ -57,7 +56,7 @@ export const ProTable = defineComponent({
         ) : isFunction(props.renderWrapper) ? (
           props.renderWrapper($children)
         ) : (
-          <Flex {...toValueWithCtx(props.wrapperProps)}>{$children}</Flex>
+          <Flex {...toValue(props.wrapperProps)}>{$children}</Flex>
         )
 
         return Wrap

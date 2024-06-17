@@ -1,13 +1,10 @@
 import { Space } from 'ant-design-vue'
-import { defineComponent } from 'vue'
+import { defineComponent, toValue } from 'vue'
 
 import { ProButton } from './ProButton'
 
-import { toValueWithCtx } from '../common'
-
 import type { InternalProButtonGroupOptions } from './interface'
-import type { MaybeRefOrGetter } from '../common'
-import type { PropType } from 'vue'
+import type { MaybeRefOrGetter, PropType } from 'vue'
 
 export const ProButtonGroup = defineComponent({
   name: 'ProButtonGroup',
@@ -18,7 +15,7 @@ export const ProButtonGroup = defineComponent({
 
   setup(props) {
     return () => {
-      const actionValue = toValueWithCtx(props.action)
+      const actionValue = toValue(props.action)
       if (!actionValue || !actionValue.show) {
         return null
       }

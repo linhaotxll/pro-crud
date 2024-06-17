@@ -1,6 +1,6 @@
 import { toRef } from '@vueuse/core'
 import { once } from 'lodash-es'
-import { computed, isRef, ref, unref, watch } from 'vue'
+import { computed, isRef, ref, toValue, unref, watch } from 'vue'
 
 import { buildTableColumn } from './buildTableColumn'
 import {
@@ -16,7 +16,7 @@ import {
   renderHeaderCellText,
 } from './renderBodyCell'
 
-import { fetchWithLoding, mergeWithTovalue, toValueWithCtx } from '../common'
+import { fetchWithLoding, mergeWithTovalue } from '../common'
 import { buildButtonGroup } from '../ProButton'
 import { buildSearch } from '../ProForm'
 
@@ -88,14 +88,10 @@ export function buildTable<
   // 在 pagination 中获取初始页数配置
   let defaultCurrent = 1
   let defaultPageSize = 10
-  const initialPagination = toValueWithCtx(
-    toValueWithCtx(tableProps)?.pagination
-  )
+  const initialPagination = toValue(toValue(tableProps)?.pagination)
   if (initialPagination !== false) {
-    defaultCurrent =
-      toValueWithCtx(initialPagination?.current) ?? defaultCurrent
-    defaultPageSize =
-      toValueWithCtx(initialPagination?.pageSize) ?? defaultPageSize
+    defaultCurrent = toValue(initialPagination?.current) ?? defaultCurrent
+    defaultPageSize = toValue(initialPagination?.pageSize) ?? defaultPageSize
   }
 
   // 当前页
@@ -111,12 +107,12 @@ export function buildTable<
 
   // 解析包裹 flex 属性
   const resolvedWrapperProps = computed<FlexProps>(() =>
-    mergeWithTovalue({}, TableContainerProps, toValueWithCtx(wrapperProps))
+    mergeWithTovalue({}, TableContainerProps, toValue(wrapperProps))
   )
 
   // 解析渲染包裹元素的函数
   const resolvedRenderWrapper = isRef(renderWrapper)
-    ? computed(() => toValueWithCtx(renderWrapper))
+    ? computed(() => toValue(renderWrapper))
     : renderWrapper
 
   // 解析 toolbar
@@ -152,7 +148,7 @@ export function buildTable<
             // 其余可以在 search 中单独配置
             const searchOptions = mergeWithTovalue(
               { label: curr.label, name: curr.name },
-              toValueWithCtx(curr.search),
+              toValue(curr.search),
               { type: curr.type }
             )
 
@@ -193,12 +189,12 @@ export function buildTable<
   // 解析操作列配置
   const resolvedActionColumn = actionColumn
     ? computed(() => {
-        const { action, ...column } = toValueWithCtx(actionColumn)
+        const { action, ...column } = toValue(actionColumn)
         const c = buildTableColumn(
           mergeWithTovalue({}, TableActionColumnOptions, column)
         )
         if (c) {
-          c._column.action = buildButtonGroup(action)
+          c._column.action = action
         }
 
         return c
@@ -207,7 +203,7 @@ export function buildTable<
 
   // 解析 Table Props
   const resolvedTableProps = computed<TableProps<Data>>(() => {
-    const tablePropsValue = toValueWithCtx(tableProps)
+    const tablePropsValue = toValue(tableProps)
     const propsValue = mergeWithTovalue<TableProps<Data>>(
       {
         components: extractComponents(optionResult),
@@ -228,7 +224,7 @@ export function buildTable<
     if (propsValue.pagination !== false) {
       propsValue.pagination = mergeWithTovalue(
         {},
-        toValueWithCtx(propsValue.pagination),
+        toValue(propsValue.pagination),
         {
           'onUpdate:current'(pageNum: number) {
             _fetchTableData(pageNum)
@@ -284,7 +280,7 @@ export function buildTable<
   // 解析 search
   const resolvedSearch = computed<InternalProTableSearchOptions<SearchForm>>(
     () => {
-      const searchValue = toValueWithCtx(search)
+      const searchValue = toValue(search)
       if (searchValue === false) {
         return false
       }
@@ -340,10 +336,10 @@ export function buildTable<
               pageNum: pageNum ?? currentPage.value,
               pageSize: pageSize ?? currentPageSize.value,
             },
-            params: toValueWithCtx(params),
+            params: toValue(params),
           })
         } else {
-          res = toValueWithCtx(data) ?? resolvedData.value
+          res = toValue(data) ?? resolvedData.value
         }
 
         return res
