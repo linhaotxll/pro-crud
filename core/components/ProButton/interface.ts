@@ -49,7 +49,7 @@ export type ActionsList<T extends CustomActions> = {
 /**
  * 按钮配置
  */
-export interface ActionOption {
+export interface ActionOption<C = any> {
   /**
    * 是否显示
    *
@@ -89,7 +89,7 @@ export interface ActionOption {
   /**
    * 自定义渲染内容
    */
-  render?: MaybeRefOrGetter<() => VNodeChild>
+  render?: MaybeRefOrGetter<(ctx: C) => VNodeChild>
 }
 
 /**

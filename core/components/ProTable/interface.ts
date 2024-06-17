@@ -130,12 +130,18 @@ export interface ProTableColumnProps<
 /**
  * Pro Table 列按钮组
  */
-export type ProTableColumnActionGroup = ActionGroupOption<ProTableActions, {}>
+export type ProTableColumnActionGroup<C = any> = ActionGroupOption<
+  ProTableActions<C>,
+  {}
+>
 
 /**
  * Pro Table 列按钮
  */
-export type ProTableActions = Record<string, MaybeRefOrGetter<ActionOption>>
+export type ProTableActions<C = any> = Record<
+  string,
+  MaybeRefOrGetter<ActionOption<C>>
+>
 
 /**
  * Pro Table Toolbar 按钮组
@@ -217,7 +223,7 @@ export type BuildProTableOptionResult<
    */
   actionColumn?: MaybeRefOrGetter<
     ProTableColumnProps<Data, null, Collection> & {
-      action?: ProTableColumnActionGroup
+      action?: ProTableColumnActionGroup<RenderBodyCellTextParams<Data>>
     }
   >
 

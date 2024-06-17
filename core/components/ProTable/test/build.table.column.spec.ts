@@ -538,6 +538,75 @@ describe('Build Pro Table Columns', () => {
     ).toBe(3)
   })
 
+  test('action column render', async () => {
+    type Person = {
+      name: string
+      age: number
+    }
+
+    const list: Person[] = [
+      { name: 'IconMan', age: 1 },
+      { name: 'Nicholas', age: 2 },
+    ]
+
+    const App = defineComponent({
+      name: 'App',
+      setup() {
+        const { proTableBinding } = buildTable<Person>(() => {
+          return {
+            columns: [
+              {
+                label: '姓名',
+                name: 'name',
+              },
+              {
+                label: '年龄',
+                name: 'age',
+              },
+            ],
+            data: list,
+            actionColumn: {
+              action: {
+                actions: {
+                  add: {
+                    render: ctx =>
+                      h(
+                        'button',
+                        { class: 'add-button' },
+                        `新增${ctx.record.name}`
+                      ),
+                  },
+                  edit: {
+                    text: '编辑',
+                    props: {
+                      danger: true,
+                    },
+                  },
+                },
+              },
+            },
+          }
+        })
+        return () => {
+          return [
+            h(ProTable, proTableBinding),
+            h('button', {
+              class: 'toggle-button',
+            }),
+          ]
+        }
+      },
+    })
+
+    const wrapper = mount(App, {
+      global: {
+        plugins: [antdv],
+      },
+    })
+
+    expect(wrapper.find('.add-button').exists()).toBe(true)
+  })
+
   test('dictionary only called once', async () => {
     type Person = {
       name: string
