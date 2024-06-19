@@ -13,37 +13,44 @@ import type {
 } from './interface'
 import type { MaybeRefOrGetter, Ref, UnwrapRef } from 'vue'
 
-export function buildButtonGroup<T extends CustomActions, R = object>(
+export function buildButtonGroup<T extends CustomActions, R = object, C = any>(
   action?: MaybeRefOrGetter<ActionGroupOption<T, R>>,
   defaultAction?: MaybeRefOrGetter<
     ActionGroupOption<CustomActions, Record<string, any>>
-  >
+  >,
+  ctx?: C
 ) {
   const internalProButtonGroup = ref({}) as Ref<
     InternalProButtonGroupOptions & UnwrapRef<R>
   >
 
   watchEffect(() => {
-    internalProButtonGroup.value = _buildButtonGroup(action, defaultAction)
+    internalProButtonGroup.value = _buildButtonGroup(action, defaultAction, ctx)
   })
 
   return internalProButtonGroup
 }
 
-export function buildButtonGroupInRender<T extends CustomActions, R = object>(
+export function buildButtonGroupInRender<
+  T extends CustomActions,
+  R = object,
+  C = any
+>(
   action?: MaybeRefOrGetter<ActionGroupOption<T, R>>,
   defaultAction?: MaybeRefOrGetter<
     ActionGroupOption<CustomActions, Record<string, any>>
-  >
+  >,
+  ctx?: C
 ) {
-  return _buildButtonGroup(action, defaultAction)
+  return _buildButtonGroup(action, defaultAction, ctx)
 }
 
-function _buildButtonGroup<T extends CustomActions, R = object>(
+function _buildButtonGroup<T extends CustomActions, R = object, C = any>(
   action?: MaybeRefOrGetter<ActionGroupOption<T, R>>,
   defaultAction?: MaybeRefOrGetter<
     ActionGroupOption<CustomActions, Record<string, any>>
-  >
+  >,
+  ctx?: C
 ) {
   const actionValue: UnwrapRef<ActionGroupOption<T, R>> = mergeWithTovalue(
     {},
@@ -70,7 +77,7 @@ function _buildButtonGroup<T extends CustomActions, R = object>(
   if (resolvedActions) {
     result.actions = Object.keys(resolvedActions)
       .map<InternalProButtonOptions>(name => {
-        return mergeWithTovalue({}, DefaultAction, resolvedActions[name])
+        return mergeWithTovalue({ ctx }, DefaultAction, resolvedActions[name])
       })
       .sort((a, b) => (a.order ?? 0) - (b.order ?? 0))
   }

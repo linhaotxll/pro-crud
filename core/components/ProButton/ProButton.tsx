@@ -43,10 +43,11 @@ export const ProButton = defineComponent({
         confirmType,
         confirmProps,
         render,
+        ctx,
       } = props.option
 
       if (typeof render === 'function') {
-        return render()
+        return render(ctx)
       }
 
       const { onClick: _, ...restProps } = buttonProps ?? {}

@@ -115,7 +115,7 @@ export interface InternalProButtonGroupOptions {
 /**
  * 内部使用按扭配制
  */
-export interface InternalProButtonOptions {
+export interface InternalProButtonOptions<C = any> {
   /**
    * 是否显示按扭
    */
@@ -149,7 +149,12 @@ export interface InternalProButtonOptions {
   /**
    * 自定义渲染函数
    */
-  render?: () => VNodeChild
+  render?: (ctx?: C) => VNodeChild
+
+  /**
+   * 作用域对象
+   */
+  ctx?: any
 }
 
 /**
