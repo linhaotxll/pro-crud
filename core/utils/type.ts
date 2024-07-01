@@ -14,5 +14,13 @@ export const isFunction = (value: unknown): value is Function =>
 export const isString = (value: unknown): value is string =>
   typeof value === 'string'
 
+export const isUndefined = (value: unknown): value is undefined =>
+  typeof value === 'undefined'
+
+export const isNull = (value: unknown): value is null => value === null
+
 export const isPlainObject = (value: unknown): value is Record<string, any> =>
   toRawType(value) === 'Object'
+
+export const isNil = (value: unknown): value is undefined | null =>
+  isUndefined(value) || isNull(value)
