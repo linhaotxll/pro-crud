@@ -10,7 +10,9 @@ import type { MaybeRefOrGetter, VNodeChild } from 'vue'
 /**
  * 自定义按扭
  */
-export type CustomActions = Record<string, MaybeRefOrGetter<ActionOption>>
+export type CustomActions = {
+  [name: string]: MaybeRefOrGetter<ActionOption> | undefined
+}
 
 /**
  * 按钮组配置
