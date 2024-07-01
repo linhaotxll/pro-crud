@@ -24,7 +24,7 @@ import { GlobalOption } from '../../constant'
 import { isFunction } from '../../utils'
 import { mergeWithTovalue } from '../common'
 import { buildButtonGroup } from '../ProButton'
-import { toast as showToast } from '../Toast'
+import { showToast } from '../Toast'
 
 import type {
   BuildFormOptionResult,
