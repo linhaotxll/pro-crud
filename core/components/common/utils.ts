@@ -1,6 +1,6 @@
 import { isPromise } from '~/utils'
 
-import type { SuccessToastOptions } from '../Toast'
+import type { ToastOptions } from '../Toast'
 import type { Ref } from 'vue'
 
 const hasOwnProperty = Object.prototype.hasOwnProperty
@@ -8,7 +8,7 @@ const hasOwnProperty = Object.prototype.hasOwnProperty
 export const hasOwn = (obj: any, key: PropertyKey) =>
   hasOwnProperty.call(obj, key)
 
-export function genToast(content: string): SuccessToastOptions {
+export function genToast(content: string): ToastOptions {
   // @ts-ignore
   return { type: 'message', props: { title: content, message: content } }
 }
