@@ -36,7 +36,7 @@ export type ActionGroupOption<
   /**
    * 按钮列表
    */
-  actions?: MaybeRefOrGetter<T>
+  actions?: MaybeRefOrGetter<T & CustomActions>
 } & R
 
 /**
