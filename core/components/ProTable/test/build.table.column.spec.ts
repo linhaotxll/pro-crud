@@ -566,10 +566,11 @@ describe('Build Pro Table Columns', () => {
             ],
             data: list,
             actionColumn: {
+              show: true,
               action: {
                 actions: {
                   add: {
-                    render: ctx =>
+                    render: (_, ctx) =>
                       h(
                         'button',
                         { class: 'add-button' },

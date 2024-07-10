@@ -1,4 +1,6 @@
-import { toValue } from 'vue'
+import { ref, toValue } from 'vue'
+
+import { mergeTableColumnOptions } from './constant'
 
 import { mergeWithTovalue } from '../common'
 import { mergeWithUnref } from '../common/merge'
@@ -11,6 +13,7 @@ import type {
 } from './internal'
 import type { DataObject } from '../common'
 import type { DictionaryCollection } from '../ProDictionary'
+import type { Ref } from 'vue'
 
 export function buildTableColumn<
   Data extends DataObject = any,
@@ -18,10 +21,10 @@ export function buildTableColumn<
   Collection = any
 >(
   column: ProTableColumnProps<Data, Dictionary, Collection>,
+  columnIndex: number,
   fetchDictionaryCollection?: DictionaryCollection['fetchDictionaryCollection']
-): InternalProTableColumnProps | undefined {
-  let result: InternalProTableColumnProps | undefined = undefined
-  // const result = ref({}) as Ref<InternalProTableColumnProps<Data>>
+) {
+  const result = ref({}) as Ref<InternalProTableColumnProps<Data>>
 
   // watchEffect(() => {
   const {
@@ -32,20 +35,28 @@ export function buildTableColumn<
     columnProps,
     dict,
     search: _,
-    // renderCell,
     ...rest
   } = column
   // 解析是否显示
   const resolvedShow = toValue(show)
 
-  if (!resolvedShow) {
-    return
-  }
-
   // 解析路径
   const resolvedName = toValue(name)
   // 解析类型
   const resolvedType = toValue(type)
+
+  if (!resolvedShow) {
+    result.value = {
+      _column: {
+        show: false,
+        columnIndex,
+        name: resolvedName,
+        type: resolvedType,
+      },
+    }
+    return result
+  }
+
   // 解析名称
   const resolvedLabel = toValue(label)
 
@@ -58,15 +69,17 @@ export function buildTableColumn<
 
   const _column: InternalColumnOptions<Data> = mergeWithUnref(
     {
+      columnIndex,
       name: resolvedName,
       type: resolvedType,
       show: resolvedShow,
       dictionary: resolvedDictionary,
     },
+    mergeTableColumnOptions,
     rest
   )
 
-  result = mergeWithTovalue(
+  result.value = mergeWithTovalue(
     {
       dataIndex: resolvedName,
       title: resolvedLabel,

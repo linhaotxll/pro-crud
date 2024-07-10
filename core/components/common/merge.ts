@@ -10,6 +10,11 @@ export function mergeWithTovalue<T = any>(target: any, ...sources: any[]): T {
   return target
 }
 
+export function mergeWithNormal<T = any>(target: any, ...sources: any[]): T {
+  merge(target, value => unref(value), ...sources)
+  return target
+}
+
 export function mergeWithTovalueNoFunc<T = any>(
   target: any,
   ...sources: any[]
@@ -30,15 +35,19 @@ export function mergeWithUnref<T = any>(target: any, ...source: any[]): T {
   return mergeWith(...args)
 }
 
-function merge(target: any, customizer?: (value: any) => any, ...sources: any) {
+export function merge(
+  target: any,
+  customizer?: (value: any) => any,
+  ...sources: any
+) {
   customizer ||= (value: any) => value
 
   for (const s of sources) {
     const source = toValue(s)
     for (const key in source) {
-      if (source[key] === undefined && key in target) {
-        continue
-      }
+      // if (source[key] === undefined && key in target) {
+      //   continue
+      // }
       if (isPlainObjectOrArray(source[key])) {
         if (
           isPlainObjectOrArray(target[key]) &&

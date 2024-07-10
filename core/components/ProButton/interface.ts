@@ -17,7 +17,10 @@ export type CustomActions = {
 /**
  * 按钮组配置
  */
-export type ActionGroupOption<T extends CustomActions, R = any> = {
+export type ActionGroupOption<
+  T extends CustomActions = CustomActions,
+  R = any
+> = {
   /**
    * 是否显示按钮组
    *
@@ -51,7 +54,7 @@ export type ActionsList<T extends CustomActions> = {
 /**
  * 按钮配置
  */
-export interface ActionOption<C = any> {
+export type ActionOption<C = any> = {
   /**
    * 是否显示
    *
@@ -67,7 +70,11 @@ export interface ActionOption<C = any> {
   /**
    * 按钮 props
    */
-  props?: MaybeRefOrGetter<DeepMaybeRefOrGetter<ButtonProps>>
+  props?: MaybeRefOrGetter<
+    DeepMaybeRefOrGetter<Omit<ButtonProps, 'onClick'>>
+  > & {
+    onClick?: (e: PointerEvent, ctx: C) => void
+  }
 
   /**
    * 顺序
@@ -75,23 +82,36 @@ export interface ActionOption<C = any> {
   order?: MaybeRefOrGetter<number>
 
   /**
+   * 自定义渲染内容
+   */
+  render?: MaybeRefOrGetter<ProButtonRender<C>>
+
+  /**
    * 点击按钮确认弹窗类型，false 则不需要
    *
    * @default false
    */
-  confirmType?: MaybeRefOrGetter<ProButtonConfirmType>
+  confirmType?: MaybeRefOrGetter<false>
+} & {
+  /**
+   * 点击按钮确认弹窗类型，popconfirm
+   */
+  confirmType?: MaybeRefOrGetter<'popconfirm'>
 
   /**
-   * 确认弹窗 props
+   * popconfirm 组件 props
    */
-  confirmProps?: MaybeRefOrGetter<
-    DeepMaybeRefOrGetter<PopconfirmProps> | DeepMaybeRefOrGetter<ModalProps>
-  >
+  confirmProps?: DeepMaybeRefOrGetter<PopconfirmProps>
+} & {
+  /**
+   * 点击按钮确认弹窗类型，modal
+   */
+  confirmType?: MaybeRefOrGetter<'modal'>
 
   /**
-   * 自定义渲染内容
+   * modal 组件 props
    */
-  render?: MaybeRefOrGetter<(ctx: C) => VNodeChild>
+  confirmProps?: DeepMaybeRefOrGetter<ModalProps>
 }
 
 /**
@@ -117,7 +137,7 @@ export interface InternalProButtonGroupOptions {
 /**
  * 内部使用按扭配制
  */
-export interface InternalProButtonOptions<C = any> {
+export type InternalProButtonOptions<C = any> = {
   /**
    * 是否显示按扭
    */
@@ -139,25 +159,31 @@ export interface InternalProButtonOptions<C = any> {
   order?: number
 
   /**
-   * 点击按钮确认弹窗类型，false 则不需要
-   */
-  confirmType?: ProButtonConfirmType
-
-  /**
-   * 确认弹窗 props
-   */
-  confirmProps?: PopconfirmProps | ModalProps
-
-  /**
    * 自定义渲染函数
    */
-  render?: (ctx?: C) => VNodeChild
+  render?: ProButtonRender<C>
 
   /**
    * 作用域对象
    */
   ctx?: any
+
+  /**
+   * 点击按钮确认弹窗类型，false 则不需要
+   */
+  confirmType?: false
+} & {
+  confirmType?: 'popconfirm'
+  confirmProps?: PopconfirmProps
+} & {
+  confirmType?: 'modal'
+  confirmProps?: ModalProps
 }
+
+export type ProButtonRender<C = any> = (
+  attrs: ButtonProps,
+  ctx: C
+) => VNodeChild
 
 /**
  * Pro Button 确认弹窗类型

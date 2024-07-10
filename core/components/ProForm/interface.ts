@@ -16,7 +16,7 @@ import type {
   DictionaryCollection,
   DictionaryColumn,
 } from '../ProDictionary'
-import type { SuccessToastOptions } from '../Toast'
+import type { ToastOptions } from '../Toast'
 import type {
   ColProps,
   FormItemProps,
@@ -174,7 +174,7 @@ export interface BuildFormOptionResult<
   /**
    * 接口调用成功是否需要提示信息
    */
-  toast?: SuccessToastOptions
+  toast?: ToastOptions
 
   /**
    * 表单提交前触发，可用来转换提交数据
@@ -458,7 +458,7 @@ export interface InternalProFormColumnOptions<
   /**
    * 表单类型
    */
-  type?: ValueType
+  type: ValueType
 
   /**
    * 是否将字段提交

@@ -1,10 +1,13 @@
 import { Button, Modal, Popconfirm } from 'ant-design-vue'
-import { defineComponent } from 'vue'
+import { defineComponent, ref } from 'vue'
 
-import { invokeEventHandler } from '../common'
+import { mergeWithTovalue } from '../common'
+
+import { isArray, isFunction } from '~/utils'
 
 import type { InternalProButtonOptions } from './interface'
 import type { ModalProps, PopconfirmProps } from 'ant-design-vue'
+import type { MouseEventHandler } from 'ant-design-vue/es/_util/EventInterface'
 import type { PropType } from 'vue'
 
 export const ProButton = defineComponent({
@@ -18,6 +21,36 @@ export const ProButton = defineComponent({
   },
 
   setup(props) {
+    const buttonLoading = ref(false)
+
+    function invokeEventHandler(
+      handles: MouseEventHandler | MouseEventHandler[] | undefined,
+      e: MouseEvent,
+      ctx: any
+    ) {
+      if (!handles) {
+        return
+      }
+
+      if (isFunction(handles)) {
+        buttonLoading.value = true
+        // @ts-ignore
+        return Promise.resolve(handles(e, ctx)).finally(() => {
+          buttonLoading.value = false
+        })
+      } else if (isArray(handles)) {
+        buttonLoading.value = true
+        const tasks: Promise<any>[] = []
+        for (const handle of handles) {
+          // @ts-ignore
+          tasks.push(Promise.resolve(handle(e, ctx)))
+        }
+        return Promise.allSettled(tasks).finally(() => {
+          buttonLoading.value = false
+        })
+      }
+    }
+
     function handleClickButton(e: MouseEvent) {
       const { confirmProps, confirmType, props: buttonProps } = props.option
       if (confirmType === 'popconfirm') {
@@ -25,11 +58,20 @@ export const ProButton = defineComponent({
       }
 
       if (confirmType === 'modal') {
-        Modal.confirm(confirmProps as ModalProps)
+        const modelProps = mergeWithTovalue({}, confirmProps, {
+          onOk(e: MouseEvent) {
+            return invokeEventHandler(
+              (confirmProps as ModalProps).onOk,
+              e,
+              props.option.ctx
+            )
+          },
+        })
+        Modal.confirm(modelProps)
         return
       }
 
-      invokeEventHandler(buttonProps?.onClick, e)
+      invokeEventHandler(buttonProps?.onClick, e, props.option.ctx)
     }
 
     return () => {
@@ -47,23 +89,35 @@ export const ProButton = defineComponent({
       } = props.option
 
       if (typeof render === 'function') {
-        return render(ctx)
+        return render({ loading: buttonLoading.value }, ctx)
       }
 
       const { onClick: _, ...restProps } = buttonProps ?? {}
 
       const $button = (
-        <Button {...restProps} onClick={handleClickButton}>
+        <Button
+          {...restProps}
+          loading={buttonLoading.value}
+          onClick={handleClickButton}
+        >
           {text}
         </Button>
       )
 
-      const $popconfirm =
-        confirmType === 'popconfirm' ? (
-          <Popconfirm {...(confirmProps as PopconfirmProps)}>
-            {$button}
-          </Popconfirm>
-        ) : null
+      let $popconfirm
+      if (confirmType === 'popconfirm') {
+        const props = mergeWithTovalue({}, confirmProps, {
+          onConfirm(e: MouseEvent) {
+            return invokeEventHandler(
+              (confirmProps as PopconfirmProps).onConfirm,
+              e,
+              ctx
+            )
+          },
+        })
+
+        $popconfirm = <Popconfirm {...props}>{$button}</Popconfirm>
+      }
 
       return $popconfirm ?? $button
     }

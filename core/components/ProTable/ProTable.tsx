@@ -27,6 +27,7 @@ export const ProTable = defineComponent({
     toolbar: Object as PropType<Ref<InternalProButtonGroupOptions>>,
     wrapperProps: Object as PropType<ComputedRef<FlexProps>>,
     renderWrapper: Object as PropType<BuildTableBinding['renderWrapper']>,
+    editable: Object as PropType<BuildTableBinding['editable']>,
   },
 
   setup(props) {
@@ -36,6 +37,18 @@ export const ProTable = defineComponent({
           {toValue(props.tableSlots)}
         </Table>
       )
+
+      const editableValue = toValue(props.editable)
+
+      const $mergeTable =
+        editableValue === false ? (
+          $table
+        ) : (
+          <ProForm
+            {...toValue(editableValue?.editFormBinding)}
+            render={() => $table}
+          />
+        )
 
       const resolvedToolbar = toValue(props.toolbar)
 
@@ -48,7 +61,7 @@ export const ProTable = defineComponent({
       const $search =
         searchValue !== false ? <ProForm {...searchValue} /> : null
 
-      const $children = [$search, $toolbar, $table].filter(Boolean)
+      const $children = [$search, $toolbar, $mergeTable].filter(Boolean)
 
       if ($children.length > 1) {
         const Wrap = isRef(props.renderWrapper) ? (

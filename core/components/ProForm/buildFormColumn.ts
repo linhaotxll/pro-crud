@@ -16,6 +16,8 @@ import {
 } from '../common'
 import { buildDictionary } from '../ProDictionary'
 
+import { isArray } from '~/utils'
+
 import type {
   InternalProFormColumnOptions,
   ProFormColumnOptions,
@@ -62,10 +64,13 @@ export function buildFormColumn<T extends DataObject = DataObject>(
     const resolvedShow = toValue(show!)
     // 解析 name
     const resolvedName = appendListName(toValue(name), parent?.name)
+    // 解析 type
+    const resolvedType = toValue(type!)
 
     const result: InternalProFormColumnOptions<T> = {
       show: resolvedShow,
       name: resolvedName,
+      type: resolvedType,
     }
 
     // 只会解析显示的列
@@ -77,8 +82,6 @@ export function buildFormColumn<T extends DataObject = DataObject>(
 
     // 解析 label
     const resolvedLabel = toValue(label)
-    // 解析 type
-    const resolvedType = toValue(type!)
 
     // TODO: 这里嵌套深一点使用 ref
     // 解析 Label Col
@@ -180,7 +183,9 @@ export function buildFormColumn<T extends DataObject = DataObject>(
 
 function appendListName(columnName: NamePath, parentName?: NamePath) {
   if (!parentName) {
-    return columnName
+    // debugger
+    return isArray(columnName) ? [...columnName] : columnName
+    // return columnName
   }
   const names = Array.isArray(parentName) ? [...parentName] : [parentName]
   if (Array.isArray(columnName)) {

@@ -12,14 +12,16 @@ import { mergeWithTovalue, type ValueTypeForm } from '../common'
 
 import type { InternalProFormColumnOptions, ProFormScope } from './interface'
 import type { NamePath, ValueTypeFormProps } from '../common'
-import type { CSSProperties, PropType, Ref } from 'vue'
+import type { CSSProperties, MaybeRefOrGetter, PropType } from 'vue'
 
 export const ProFormField = defineComponent({
   name: 'ProFormField',
 
   props: {
     column: {
-      type: Object as PropType<Ref<InternalProFormColumnOptions<any>>>,
+      type: Object as PropType<
+        MaybeRefOrGetter<InternalProFormColumnOptions<any>>
+      >,
       required: true,
     },
     scope: Object as PropType<ProFormScope<any>>,

@@ -1,5 +1,7 @@
 import type {
+  EditableKeys,
   ProTableColumnActionGroup,
+  ProTableEditableColumnActionGroup,
   RenderBodyCellTextParams,
   RenderCustomFilterDropdown,
   RenderCustomFilterIconParams,
@@ -7,6 +9,9 @@ import type {
 } from './interface'
 import type { DataObject, NamePath, ValueType } from '../common'
 import type { buildDictionary } from '../ProDictionary'
+import type { BuildFormBinding, ProFormScope } from '../ProForm'
+import type { ToastOptions } from '../Toast'
+import type { Key } from 'ant-design-vue/es/_util/type'
 import type { ColumnType } from 'ant-design-vue/es/table'
 import type { VNodeChild } from 'vue'
 
@@ -15,6 +20,11 @@ import type { VNodeChild } from 'vue'
  */
 export interface InternalColumnOptions<Data extends DataObject = DataObject> {
   /**
+   * 索引
+   */
+  columnIndex: number
+
+  /**
    * 是否显示
    */
   show: boolean
@@ -22,12 +32,17 @@ export interface InternalColumnOptions<Data extends DataObject = DataObject> {
   /**
    * 字段名
    */
-  name?: NamePath
+  name: NamePath | undefined
 
   /**
    * 类型
    */
-  type?: ValueType
+  type: ValueType
+
+  /**
+   * 是否可编辑
+   */
+  editable?: boolean | ((ctx: RenderBodyCellTextParams<Data>) => boolean)
 
   /**
    * 字典配置
@@ -70,3 +85,25 @@ export interface InternalProTableColumnProps<Data = any>
    */
   _column: InternalColumnOptions
 }
+
+/**
+ * 解析后的编辑配置
+ */
+export type InternalProTableEditableOptions<Data extends DataObject = any> =
+  | false
+  | {
+      type: 'single' | 'multiple'
+      action: ProTableEditableColumnActionGroup<RenderBodyCellTextParams<Data>>
+      saveToast: ToastOptions
+      removeToast: ToastOptions
+      onlyEditOneLineToast: ToastOptions
+      editableKeys?: EditableKeys
+      editFormBinding: BuildFormBinding<Data>
+      formScope: ProFormScope<Data>
+      saveRequest?: (
+        data: Partial<Data>,
+        ctx: RenderBodyCellTextParams<Data>
+      ) => Promise<boolean> | boolean
+    }
+
+export type InternalEditableKeys = Map<Key, true | NamePath[]>

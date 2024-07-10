@@ -8,14 +8,16 @@ import { ensureValueType, findAndReplace } from '../common'
 
 import type { InternalProFormColumnOptions, ProFormScope } from './interface'
 import type { FormItemProps } from 'ant-design-vue'
-import type { PropType, Ref } from 'vue'
+import type { MaybeRefOrGetter, PropType } from 'vue'
 
 export const ProFormItem = defineComponent({
   name: 'ProFormItem',
 
   props: {
     column: {
-      type: Object as PropType<Ref<InternalProFormColumnOptions<any>>>,
+      type: Object as PropType<
+        MaybeRefOrGetter<InternalProFormColumnOptions<any>>
+      >,
       required: true,
     },
     scope: Object as PropType<ProFormScope<any>>,
@@ -33,8 +35,6 @@ export const ProFormItem = defineComponent({
       const resolvedNamePath = Array.isArray(columnValue.name)
         ? findAndReplace(columnValue.name, ProFormListPlaceholder, props.index)
         : columnValue.name
-
-      // console.log('render pro form item', columnValue.itemProps)
 
       const field = ensureValueType()[columnValue.type!]?.form
       if (!field) {

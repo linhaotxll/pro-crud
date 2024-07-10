@@ -1,5 +1,8 @@
 import type { TableSlotFn, TableSlotValueKey } from './constant'
-import type { InternalProTableColumnProps } from './internal'
+import type {
+  InternalProTableColumnProps,
+  InternalProTableEditableOptions,
+} from './internal'
 import type {
   DataObject,
   DeepMaybeRefOrGetter,
@@ -19,7 +22,9 @@ import type {
   ProFormColumnOptions,
   ProFormScope,
 } from '../ProForm'
+import type { ToastOptions } from '../Toast'
 import type { FlexProps, TableProps } from 'ant-design-vue'
+import type { Key } from 'ant-design-vue/es/_util/type'
 import type { ColumnType } from 'ant-design-vue/es/table'
 import type { FilterDropdownProps } from 'ant-design-vue/es/table/interface'
 import type {
@@ -96,10 +101,37 @@ export interface ProTableColumnProps<
   >
 
   /**
+   * 表单公共配置，包括 search、editable
+   */
+  form?: MaybeRefOrGetter<
+    Omit<
+      ProFormColumnOptions<Data, Dictionary, Collection>,
+      'dict' | 'type' | 'name'
+    >
+  >
+
+  /**
    * 搜索栏配置
    */
   search?: MaybeRefOrGetter<
     Omit<ProFormColumnOptions<Data, Dictionary, Collection>, 'dict' | 'type'>
+  >
+
+  /**
+   * 是否可编辑
+   *
+   * @default false
+   */
+  editable?: boolean | ((ctx: RenderBodyCellTextParams<Data>) => boolean)
+
+  /**
+   * 编辑表单列配置
+   */
+  editableForm?: MaybeRefOrGetter<
+    Omit<
+      ProFormColumnOptions<Data, Dictionary, Collection>,
+      'dict' | 'type' | 'name'
+    >
   >
 
   /**
@@ -138,10 +170,47 @@ export type ProTableColumnActionGroup<C = any> = ActionGroupOption<
 /**
  * Pro Table 列按钮
  */
-export type ProTableActions<C = any> = Record<
-  string,
-  MaybeRefOrGetter<ActionOption<C>>
+export interface ProTableActions<C = any> {
+  /**
+   * 开始编辑按钮
+   */
+  edit?: MaybeRefOrGetter<ActionOption<C>>
+
+  /**
+   * 自定义按钮
+   */
+  [name: string]: MaybeRefOrGetter<ActionOption<C>> | undefined
+}
+
+/**
+ * Pro Table 编辑按钮组
+ */
+export type ProTableEditableColumnActionGroup<
+  Data extends DataObject = DataObject
+> = ActionGroupOption<
+  ProTableEditableActions<RenderBodyCellTextParams<Data>>,
+  {}
 >
+
+/**
+ * Pro Table 编辑列按钮
+ */
+export type ProTableEditableActions<C = any> = {
+  /**
+   * 保存
+   */
+  save?: MaybeRefOrGetter<ActionOption<C>>
+
+  /**
+   * 取消编辑
+   */
+  cancel?: MaybeRefOrGetter<ActionOption<C>>
+
+  /**
+   * 自定义按钮
+   */
+  [name: string]: MaybeRefOrGetter<ActionOption<C>> | undefined
+}
 
 /**
  * Pro Table Toolbar 按钮组
@@ -160,6 +229,14 @@ export type ProTableToolbarActions = {
    */
   reload?: MaybeRefOrGetter<ActionOption>
 } & CustomActions
+
+export type ProTableActionColumn<
+  Data extends DataObject = DataObject,
+  Collection = any
+> =
+  | ProTableColumnProps<Data, null, Collection> & {
+      action?: ProTableColumnActionGroup<RenderBodyCellTextParams<Data>>
+    }
 
 /**
  * buildTable option 返回值
@@ -220,12 +297,10 @@ export type BuildProTableOptionResult<
 
   /**
    * 操作列配置
+   *
+   * @default { show: false }
    */
-  actionColumn?: MaybeRefOrGetter<
-    ProTableColumnProps<Data, null, Collection> & {
-      action?: ProTableColumnActionGroup<RenderBodyCellTextParams<Data>>
-    }
-  >
+  actionColumn?: MaybeRefOrGetter<ProTableActionColumn<Data, Collection>>
 
   /**
    * toolbar 配置
@@ -247,6 +322,13 @@ export type BuildProTableOptionResult<
   search?: MaybeRefOrGetter<
     ProTableSearchOptions<Collection, SearchForm, SearchFormSubmit>
   >
+
+  /**
+   * 编辑表格配置
+   *
+   * @default false
+   */
+  editable?: MaybeRefOrGetter<ProTableEditableOptions | false>
 
   /**
    * 对获取的数据进行处理
@@ -430,48 +512,65 @@ export type ProTableSearchOptions<
       'columns'
     >)
 
-// export type ProTableEditable<T> = false | ProTableEditableOptions<T>
+export type EditableKeys = (Key | [Key, NamePath[]])[]
 
-// /**
-//  * ProTable 编辑配置
-//  */
-// export interface ProTableEditableOptions<T> {
-//   type?: 'cell' | 'single' | 'multiple'
+/**
+ * Table 编辑配置
+ */
+export interface ProTableEditableOptions<
+  Data extends DataObject = DataObject,
+  Collection = any
+> {
+  /**
+   * 编辑类型
+   *
+   * @default 'single'
+   */
+  type?: 'single' | 'multiple'
 
-//   /**
-//    * 编辑模式下的操作
-//    */
-//   actions?: ActionsList<ProTableEditableActions<T>>
+  /**
+   * 编辑模式下的操作列按钮组配置
+   */
+  action?: ProTableEditableColumnActionGroup<RenderBodyCellTextParams<Data>>
 
-//   /**
-//    * 编辑成功提示
-//    *
-//    * @default '编辑成功'
-//    */
-//   toast?: SuccessToastOptions
-// }
+  /**
+   * 正在编辑的行，受控属性
+   *
+   * [1, 2, 3]
+   * [
+   *  [1, ['name']],
+   *  [2, ['age']],
+   * ]
+   */
+  editableKeys?: MaybeRefOrGetter<EditableKeys>
 
-// /**
-//  * 编辑模式下操作
-//  */
-// export interface ProTableEditableActions<T> {
-//   /**
-//    * 确认按钮配置
-//    */
-//   ok?: ProTableActionProps<T>
+  /**
+   * 编辑表单配置
+   */
+  form?:
+    | Omit<BuildFormOptionResult<Data, Data, Collection>, 'columns'>
+    | ((
+        scope: ProFormScope<Data>
+      ) => Omit<BuildFormOptionResult<Data, Data, Collection>, 'columns'>)
 
-//   /**
-//    * 取消按钮配置
-//    */
-//   cancel?: ProTableActionProps<T>
-// }
+  /**
+   * 保存请求
+   */
+  saveRequest?: (
+    data: Partial<Data>,
+    ctx: RenderBodyCellTextParams<Data>
+  ) => Promise<boolean> | boolean
 
-// export interface ProvideEditTableOptions<T> extends ProTableEditableOptions<T> {
-//   editRowKeys: Ref<Key[]>
-//   values: Record<string, any>
+  /**
+   * 保存成功 toast
+   */
+  saveToast?: MaybeRefOrGetter<ToastOptions>
 
-//   getRowKey(record: T): Key
-// }
+  /**
+   * 只能编辑一行的的提示
+   */
+  onlyEditOneLineToast?: MaybeRefOrGetter<ToastOptions>
+}
 
 /**
  * ProTable 作用域
@@ -497,52 +596,49 @@ export interface ProTableScope<Data extends DataObject = DataObject> {
    */
   next(): Promise<void>
 
-  // /**
-  //  * 获取 ATable ref
-  //  */
-  // getTableRef(): Ref<any>
+  /**
+   * 开始编辑
+   *
+   * @param {Key} rowKey rowId 或者索引
+   * @param {NamePath} columnName 列名称，仅在 type 是 cell 下有效
+   */
+  startEdit: (rowKey: Key, columnName?: NamePath[]) => void
 
-  // /**
-  //  * 开始编辑
-  //  *
-  //  * @param rowKey 需要编辑的行 id，使用 rowKey
-  //  */
-  // startEditable(rowKey: Key): void
+  /**
+   * 取消编辑
+   *
+   * @param {Key} rowKey rowId 或者索引
+   * @param {NamePath} columnName 列名称，仅在 type 是 cell 下有效
+   */
+  cancelEdit: (rowKey: Key, columnName?: NamePath) => void
 
-  // /**
-  //  * 取消编辑
-  //  *
-  //  * @param rowKey 需要编辑的行 id，使用 rowKey
-  //  */
-  // cancelEditable(rowKey: Key): void
+  /**
+   * 获取一行的编辑数据
+   */
+  getEditableRowData(rowKey: Key): Data | undefined
 
-  // /**
-  //  * 检测是否处于编辑状态
-  //  * @param rowKey
-  //  * @param columnName
-  //  */
-  // validateEditable(rowKey: Key): boolean
+  /**
+   * 获取整个 table 编辑的数据
+   */
+  getEditableRowsData(): Data[] | null
 
-  // /**
-  //  * 获取行数据
-  //  * @param rowKey
-  //  */
-  // getRowData(rowKey: Key): T | undefined
+  /**
+   * 设置一行编辑的数据
+   */
+  setEditableRowData(rowKey: Key, data: Partial<Data>): void
 
-  // /**
-  //  * 设置行数据
-  //  * @param rowKey
-  //  * @param data
-  //  */
-  // setRowData(rowKey: Key, data: Partial<T>): void
+  /**
+   * 清空一行编辑的数据
+   */
+  clearEditableRowData(rowKey: Key): void
 }
 
-export interface BuildTableResult<Data = any> {
+export interface BuildTableResult<Data extends DataObject = any> {
   proTableBinding: BuildTableBinding<Data>
 }
 
 export interface BuildTableBinding<
-  Data = any,
+  Data extends DataObject = any,
   SearchForm extends DataObject = DataObject
 > {
   tableProps: ComputedRef<TableProps<Data>> | undefined
@@ -551,6 +647,7 @@ export interface BuildTableBinding<
   renderWrapper: RenderWrapperFn | ComputedRef<RenderWrapperFn> | undefined
   toolbar: Ref<InternalProButtonGroupOptions>
   search: ComputedRef<InternalProTableSearchOptions<SearchForm>>
+  editable: ComputedRef<InternalProTableEditableOptions<any>>
 }
 
 /**

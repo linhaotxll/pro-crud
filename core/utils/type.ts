@@ -24,3 +24,9 @@ export const isPlainObject = (value: unknown): value is Record<string, any> =>
 
 export const isNil = (value: unknown): value is undefined | null =>
   isUndefined(value) || isNull(value)
+
+export const isBoolean = (value: unknown): value is boolean =>
+  typeof value === 'boolean'
+
+export const isNumber = (value: unknown): value is number =>
+  typeof value === 'number'

@@ -1,7 +1,7 @@
 import { mount } from '@vue/test-utils'
 import { Button, Popconfirm, Space } from 'ant-design-vue'
-import { describe, expect, test, vi } from 'vitest'
-import { defineComponent, h, ref } from 'vue'
+import { beforeEach, describe, expect, test, vi } from 'vitest'
+import { defineComponent, h, nextTick, ref } from 'vue'
 
 import { ProButtonGroup, buildButtonGroup } from '..'
 
@@ -9,6 +9,10 @@ import type { ProButtonConfirmType } from '..'
 import type { ModalProps, PopconfirmProps } from 'ant-design-vue'
 
 describe('Pro Button', () => {
+  beforeEach(() => {
+    document.body.innerHTML = ''
+  })
+
   test('pro button default value', () => {
     const buttonGroup = buildButtonGroup(
       {
@@ -506,5 +510,113 @@ describe('Pro Button', () => {
     await wrapper.findComponent(Button).vm.$emit('click')
 
     expect(buttonOnClick).toBeCalledTimes(1)
+  })
+
+  test('pro button onClick loading', async () => {
+    const sleep = (time: number) => new Promise(r => setTimeout(r, time))
+    const onClickWith1s = vi.fn(async () => {
+      await sleep(1000)
+    })
+    const onClickWith2s = vi.fn(async () => {
+      await sleep(2000)
+    })
+
+    const App = defineComponent({
+      name: 'App',
+      setup() {
+        const buttonGroup = buildButtonGroup({
+          actions: {
+            single: {
+              text: '确认',
+              props: { onClick: onClickWith1s },
+            },
+            multiple: {
+              text: '取消',
+              props: { onClick: [onClickWith1s, onClickWith2s] },
+            },
+            popconfirm: {
+              confirmType: 'popconfirm',
+              confirmProps: {
+                onConfirm: onClickWith1s,
+              },
+              text: 'popconfirm',
+            },
+            modal: {
+              confirmType: 'modal',
+              confirmProps: {
+                onOk: onClickWith1s,
+              },
+              text: 'modal',
+            },
+          },
+        })
+
+        return () => {
+          return h(ProButtonGroup, { action: buttonGroup })
+        }
+      },
+    })
+
+    const wrapper = mount(App, {
+      attachTo: 'body',
+      global: {
+        stubs: {
+          transition: false,
+        },
+      },
+    })
+
+    expect(wrapper.findAllComponents(Button).length).toBe(4)
+
+    // single
+    const singleButton = wrapper.findAllComponents(Button)[0]
+    expect(singleButton.vm.$props.loading).toBe(false)
+    await singleButton.vm.$emit('click')
+    expect(singleButton.vm.$props.loading).toBe(true)
+    await sleep(1000)
+    expect(singleButton.vm.$props.loading).toBe(false)
+
+    // multiple
+    const multipleButton = wrapper.findAllComponents(Button)[1]
+    expect(multipleButton.vm.$props.loading).toBe(false)
+    await multipleButton.vm.$emit('click')
+    expect(multipleButton.vm.$props.loading).toBe(true)
+    await sleep(2000)
+    expect(multipleButton.vm.$props.loading).toBe(false)
+
+    // popconfirm
+    const popconfirmButton = wrapper.findAllComponents(Button)[2]
+    expect(popconfirmButton.text()).toBe('popconfirm')
+    expect(popconfirmButton.vm.$props.loading).toBe(false)
+    await popconfirmButton.vm.$emit('click')
+    expect(popconfirmButton.vm.$props.loading).toBe(false)
+    expect(document.querySelector('.ant-popover')).not.toBe(null)
+    expect(document.querySelectorAll('.ant-popover button').length).toBe(2)
+    expect(
+      document.querySelectorAll('.ant-popover button')[1].querySelector('span')!
+        .innerHTML
+    ).toBe('OK')
+
+    // modal
+    expect(document.querySelector('.ant-modal')).toBe(null)
+    const modalButton = wrapper.findAllComponents(Button)[3]
+    expect(modalButton.text()).toBe('modal')
+    expect(modalButton.vm.$props.loading).toBe(false)
+    await modalButton.vm.$emit('click')
+    expect(modalButton.vm.$props.loading).toBe(false)
+    expect(document.querySelector('.ant-modal')).not.toBe(null)
+    expect(
+      document.querySelectorAll('.ant-modal-confirm-btns button').length
+    ).toBe(2)
+    expect(
+      document
+        .querySelectorAll('.ant-modal-confirm-btns button')[1]
+        .querySelector('span')!.innerHTML
+    ).toBe('OK')
+    document
+      .querySelectorAll('.ant-modal-confirm-btns button')[1]!
+      .dispatchEvent(new MouseEvent('click'))
+    await nextTick()
+    expect(modalButton.vm.$props.loading).toBe(true)
   })
 })

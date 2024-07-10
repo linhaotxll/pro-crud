@@ -13,7 +13,11 @@ import type {
 } from './interface'
 import type { MaybeRefOrGetter, Ref, UnwrapRef } from 'vue'
 
-export function buildButtonGroup<T extends CustomActions, R = object, C = any>(
+export function buildButtonGroup<
+  T extends CustomActions = CustomActions,
+  R = object,
+  C = any
+>(
   action?: MaybeRefOrGetter<ActionGroupOption<T, R>>,
   defaultAction?: MaybeRefOrGetter<
     ActionGroupOption<CustomActions, Record<string, any>>
