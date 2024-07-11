@@ -31,9 +31,14 @@
 // import type { ComputedRef, Ref } from 'vue'
 
 import type { DataObject } from '../common'
-import type { DictionaryCollection } from '../ProDictionary'
+import type { BuildModalFormOptionReturn, ModalFormScope } from '../ModalForm'
+import type { ActionGroupOption, ActionOption } from '../ProButton'
+import type { ProFormColumnOptions, ProFormScope } from '../ProForm'
 import type {
   BuildProTableOptionResult,
+  FetchTableListRequest,
+  ProTableColumnProps,
+  ProTableScope,
   RenderBodyCellTextParams,
 } from '../ProTable'
 import type { ToastOptions } from '../Toast'
@@ -77,21 +82,35 @@ import type { MaybeRefOrGetter } from 'vue'
 //   response: R
 // }
 
-// /**
-//  * ProCrud 作用域
-//  */
-// export interface ProCrudScope<
-//   T extends object,
-//   S extends object,
-//   A extends object,
-//   E extends object
-// > {
-//   search: ProSearchScope<S>
-//   table: ProTableScope<T>
-//   addForm: CrudFormScope<A>
-//   editForm: CrudFormScope<E>
-//   viewForm: CrudFormScope<T>
-// }
+/**
+ * ProCrud 作用域
+ */
+export interface ProCrudScope<
+  Data extends DataObject = DataObject
+  // T extends object,
+  // S extends object,
+  // A extends object,
+  // E extends object
+> {
+  search: ProFormScope<Partial<Data>>
+  table: ProTableScope<Data>
+  modal: ProCrudModalScope<Data>
+  // addForm: CrudFormScope<A>
+  // editForm: CrudFormScope<E>
+  // viewForm: CrudFormScope<T>
+}
+
+/**
+ * Pro Crud Modal 作用域
+ */
+export type ProCrudModalScope<Data extends DataObject = DataObject> = Omit<
+  ModalFormScope<Partial<Data>>,
+  'showModal'
+> & {
+  showEditModal(record: Data): void
+  showAddModal(record: Data): void
+  showViewModal(record: Data): void
+}
 
 // /**
 //  * ProCrud 表单作用域，包含打开、关闭弹窗方法
@@ -203,72 +222,30 @@ import type { MaybeRefOrGetter } from 'vue'
 //  */
 export interface BuildCrudOptionReturn<
   Data extends DataObject = DataObject,
+  Params = any,
   Collection = any,
-  CreateForm = any
-> extends DictionaryCollection<Collection> {
-  // /**
-  //  * 所有列配置
-  //  */
-  // columns?: ProCrudColumnOption<T, S, A, E>[]
+  SearchForm extends DataObject = DataObject,
+  SearchFormSubmit = SearchForm
+> extends Omit<
+      BuildProTableOptionResult<
+        Data,
+        Params,
+        Collection,
+        SearchForm,
+        SearchFormSubmit
+      >,
+      'columns' | 'fetchTableData' | 'actionColumn'
+    >,
+    Omit<BuildModalFormOptionReturn, 'renderTrigger'> {
+  /**
+   * 列配置
+   */
+  columns?: ProCrudColumnOption<Data, any, Collection>[]
 
   /**
-   * 表格配置
+   * 列按钮组
    */
-  table: MaybeRefOrGetter<
-    Omit<BuildProTableOptionResult<Data>, 'fetchTableData' | 'data' | 'columns'>
-  >
-
-  // /**
-  //  * 添加、编辑、查看表单公共配置
-  //  */
-  // form?: CrudFormOption
-
-  // /**
-  //  * 添加、编辑、查看弹窗公共配置
-  //  */
-  // dialog?: CrudDialogOption
-
-  // /**
-  //  * 添加表单配置
-  //  */
-  // addForm?: CrudFormOptionResult
-
-  // /**
-  //  * 添加表单弹窗配置
-  //  */
-  // addFormDialog?: CrudDialogOption
-
-  // /**
-  //  * 编辑表单配置
-  //  */
-  // editForm?: CrudFormOptionResult
-
-  // /**
-  //  * 编辑表单弹窗配置
-  //  */
-  // editFormDialog?: CrudDialogOption
-
-  // /**
-  //  * 查看表单配置
-  //  */
-  // viewForm?: CrudViewFormOptionResult
-
-  // /**
-  //  * 查看表单弹窗配置
-  //  */
-  // viewFormDialog?: CrudDialogOption
-
-  // /**
-  //  * 表格配置
-  //  */
-  // table?: Omit<
-  //   BuildProTableOptionResult<T, any>,
-  //   'data' | 'columns' | 'action' | 'toolbar'
-  // > & {
-  //   show?: MaybeRef<boolean>
-  //   toolbar?: ProTableToolbarOption<ProCrudTableToolbarActions>
-  //   action?: CrudActionOption<T>
-  // }
+  actionColumn?: MaybeRefOrGetter<ProCrudActionColumnOptions>
 
   /**
    * 点击重置后是否自动调用查询接口
@@ -298,30 +275,10 @@ export interface BuildCrudOptionReturn<
    */
   editToast?: ToastOptions
 
-  // /**
-  //  * 转换请求前的参数
-  //  *
-  //  * @param {TransformQueryParams} ctx 查询参数，包含分页，搜索条件
-  //  * @returns 转换后的参数，直接传递给 fetchPaginationData 请求
-  //  */
-  // transformQuery?(ctx: TransformQueryParams<S, any>): S1
-
-  // /**
-  //  * 转换请求后的响应数据
-  //  *
-  //  * @param {TransformResponseParams} ctx 响应参数，包含响应数据、查询数据
-  //  */
-  // transformResponse?(
-  //   ctx: TransformResponseParams<S1, R>
-  // ): FetchTableDataResult<T>
-
-  // /**
-  //  * 获取分页接口
-  //  *
-  //  * @param params 若有 transformQuery 则是其结果，没有则是 TransformQueryParams<F>
-  //  * @returns 返回结果，若有 transformResponse 则是其转换结果，没有则必须是 FetchTableDataResult
-  //  */
-  // fetchPaginationData?(params: S1): Promise<R>
+  /**
+   * 获取数据请求
+   */
+  fetchTableData?: FetchTableListRequest<Data, Params>
 
   /**
    * 删除接口
@@ -339,7 +296,7 @@ export interface BuildCrudOptionReturn<
    * @param form 编辑表单数据
    * @returns {boolean} 添加是否成功，返回 true 会有提示信息
    */
-  addRequest?: (form: CreateForm) => Promise<boolean> | boolean
+  addRequest?: (form: Partial<Data>) => Promise<boolean> | boolean
 
   /**
    * 编辑接口
@@ -347,7 +304,78 @@ export interface BuildCrudOptionReturn<
    * @param form 编辑表单数据 + 行数据
    * @returns {boolean} 编辑是否成功，返回 true 会有提示信息
    */
-  editRequest?: (form: CreateForm) => Promise<boolean> | boolean
+  editRequest?: (form: Partial<Data>) => Promise<boolean> | boolean
+}
+
+/**
+ * Pro Crud 操作列
+ */
+export type ProCrudActionColumnOptions<Data extends DataObject = DataObject> =
+  ProTableColumnProps<Data> & {
+    action?: ProCrudActionColumnGroup<Data>
+  }
+
+/**
+ * Pro Crud 操作列按钮组
+ */
+export type ProCrudActionColumnGroup<Data extends DataObject = DataObject> =
+  ActionGroupOption<
+    ProCrudActionColumnActions<RenderBodyCellTextParams<Data>>,
+    {}
+  >
+
+/**
+ * Pro Crud 列按钮
+ */
+export type ProCrudActionColumnActions<C = any> = {
+  /**
+   * 查看
+   */
+  view?: MaybeRefOrGetter<ActionOption<C>>
+
+  /**
+   * 编辑
+   */
+  edit?: MaybeRefOrGetter<ActionOption<C>>
+
+  /**
+   * 删除
+   */
+  delete?: MaybeRefOrGetter<ActionOption<C>>
+
+  /**
+   * 自定义按钮
+   */
+  [name: string]: MaybeRefOrGetter<ActionOption<C>> | undefined
+}
+
+/**
+ * 弹窗类型
+ */
+export const enum ModalType {
+  /**
+   * 新增
+   */
+  Add,
+
+  /**
+   * 编辑
+   */
+  Edit,
+
+  /**
+   * 查看
+   */
+  View,
+}
+
+export interface BuildCrudContext<
+  Data extends DataObject = DataObject,
+  Collection = any
+> {
+  options(scope: ProCrudScope<Data>): BuildCrudOptionReturn<Data, Collection>
+  optionResult: BuildCrudOptionReturn<Data, Collection>
+  scope: ProCrudScope<Data>
 }
 
 // /**
@@ -457,62 +485,35 @@ export interface BuildCrudOptionReturn<
 //   // proTableRef: Ref<ProTableInstance<any> | null>
 // }
 
-// /**
-//  * ProdCrud Column 配置
-//  *
-//  * @param T 整个表单值
-//  */
-// export interface ProCrudColumnOption<
-//   T extends object,
-//   S extends object,
-//   A extends object,
-//   E extends object
-// > extends ColumnDictionaryOptions {
-//   /**
-//    * 名称
-//    */
-//   label?: MaybeRef<string>
+/**
+ * ProdCrud Column 配置
+ */
+export interface ProCrudColumnOption<
+  Data extends DataObject = any,
+  Dictionary = any,
+  Collection = any
+> extends ProTableColumnProps<Data, Dictionary, Collection> {
+  /**
+   * 添加表单配置
+   */
+  addForm?: MaybeRefOrGetter<
+    Omit<ProFormColumnOptions<Data, Dictionary, Collection>, 'dict' | 'type'>
+  >
 
-//   /**
-//    * 字段值
-//    */
-//   name: MaybeRef<string>
+  /**
+   * 编辑表单配置
+   */
+  editForm?: MaybeRefOrGetter<
+    Omit<ProFormColumnOptions<Data, Dictionary, Collection>, 'dict' | 'type'>
+  >
 
-//   /**
-//    * 类型
-//    */
-//   type?: MaybeRef<ValueType | string>
-
-//   /**
-//    * 查询表单列配置
-//    */
-//   search?: ProCrudFormOptions<S>
-
-//   /**
-//    * 表格列配˙
-//    */
-//   table?: Omit<ProTableColumnProps<T>, 'label' | 'prop' | 'dict'>
-
-//   /**
-//    * 新增、编辑、查看通用表单配置
-//    */
-//   form?: ProCrudFormOptions<any>
-
-//   /**
-//    * 编辑表单列配置
-//    */
-//   editForm?: ProCrudFormOptions<E>
-
-//   /**
-//    * 新增表单列配置
-//    */
-//   addForm?: ProCrudFormOptions<A>
-
-//   /**
-//    * 详情表单列配置
-//    */
-//   viewForm?: ProCrudFormOptions<T>
-// }
+  /**
+   * 详情表单配置
+   */
+  viewForm?: MaybeRefOrGetter<
+    Omit<ProFormColumnOptions<Data, Dictionary, Collection>, 'dict' | 'type'>
+  >
+}
 
 // export type ProCrudFormOptions<T extends object> = Omit<
 //   ProFormColumnOptions<T>,

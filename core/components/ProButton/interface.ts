@@ -3,6 +3,7 @@ import type {
   ButtonProps,
   ModalProps,
   PopconfirmProps,
+  PopoverProps,
   SpaceProps,
 } from 'ant-design-vue'
 import type { MaybeRefOrGetter, VNodeChild } from 'vue'
@@ -89,27 +90,18 @@ export type ActionOption<C = any> = {
    *
    * @default false
    */
-  confirmType?: MaybeRefOrGetter<false>
-} & {
-  /**
-   * 点击按钮确认弹窗类型，popconfirm
-   */
-  confirmType?: MaybeRefOrGetter<'popconfirm'>
+  confirmType?: MaybeRefOrGetter<false | 'popconfirm' | 'modal'>
 
   /**
    * popconfirm 组件 props
    */
-  confirmProps?: DeepMaybeRef<PopconfirmProps>
-} & {
-  /**
-   * 点击按钮确认弹窗类型，modal
-   */
-  confirmType?: MaybeRefOrGetter<'modal'>
-
-  /**
-   * modal 组件 props
-   */
-  confirmProps?: DeepMaybeRef<ModalProps>
+  confirmProps?:
+    | (MaybeRefOrGetter<DeepMaybeRef<Omit<ModalProps, 'onOk'>>> & {
+        onOk?: (e: PointerEvent, ctx: C) => void
+      })
+    | (MaybeRefOrGetter<DeepMaybeRef<Omit<PopoverProps, 'onConfirm'>>> & {
+        onConfirm?: (e: PointerEvent, ctx: C) => void
+      })
 }
 
 /**

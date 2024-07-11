@@ -49,6 +49,7 @@ import type {
   BuildTableResult,
   FetchProTablePageListResult,
   ProTableScope,
+  ProTableScopeWithSearch,
   ProTableToolbarActions,
 } from './interface'
 import type {
@@ -77,7 +78,7 @@ interface BuildTableContext<
     SearchForm,
     SearchFormSubmit
   >
-  scope: ProTableScope<Data>
+  scope: ProTableScopeWithSearch<Data>
   optionResult: BuildProTableOptionResult
 
   columns: {
@@ -140,7 +141,7 @@ function buildTableMiddleware<Data extends DataObject = DataObject>(
   nextMiddleware: () => void
 ) {
   // ProTable 作用域对象
-  const scope: ProTableScope<any>['table'] = {
+  const scope: ProTableScope<any> = {
     reload,
     reset,
     previous,

@@ -1,50 +1,89 @@
-import { genToast } from '../common'
+import { showToast } from '../Toast'
 
-import type { ProSearchInstance } from './../ProSearch/interface'
-import type { ProTableInstance } from './../ProTable/interface'
-import type { CrudDialogOption } from './interface'
-import type { ProFormInstance } from '../ProForm'
-import type { InjectionKey, Ref } from 'vue'
+import type { BuildCrudContext, BuildCrudOptionReturn } from './interface'
 
-export const ProSearchRef = Symbol() as InjectionKey<
-  Ref<ProSearchInstance<any> | null>
->
+/**
+ * 默认 Crud 返回值
+ */
+export const buildDefaultCrudOptions = ({
+  scope,
+  optionResult: { deleteRequest, deleteToast },
+}: BuildCrudContext): BuildCrudOptionReturn => {
+  return {
+    addToast: '新增成功',
+    editToast: '编辑成功',
+    deleteToast: '删除成功',
+    search: {
+      action: {
+        actions: {
+          search: {
+            show: true,
+            text: '搜索',
+            props: {
+              type: 'primary',
+              onClick() {
+                scope.search.submit()
+              },
+            },
+          },
 
-export const ProTableRef = Symbol() as InjectionKey<
-  Ref<ProTableInstance<any> | null>
->
+          reset: {
+            show: true,
+            text: '重置',
+            props: {
+              onClick() {
+                scope.search.reset()
+              },
+            },
+          },
+        },
+      },
+    },
+    actionColumn: {
+      action: {
+        actions: {
+          view: {
+            show: true,
+            text: '查看',
+            props: {
+              onClick(_, ctx) {
+                scope.modal.showViewModal(ctx.record)
+              },
+            },
+          },
 
-export const AddFormRef = Symbol() as InjectionKey<
-  Ref<ProFormInstance<any> | null>
->
+          edit: {
+            show: true,
+            text: '编辑',
+            props: {
+              type: 'primary',
+              onClick(_, ctx) {
+                scope.modal.showViewModal(ctx.record)
+              },
+            },
+          },
 
-export const EditFormRef = Symbol() as InjectionKey<
-  Ref<ProFormInstance<any> | null>
->
-
-export const ViewFormRef = Symbol() as InjectionKey<
-  Ref<ProFormInstance<any> | null>
->
-
-// 默认显示搜索栏，添加表单，编辑表单，查看表单，table
-export const DefaultShow = {
-  show: true,
+          delete: {
+            show: true,
+            text: '删除',
+            confirmType: 'modal',
+            confirmProps: {
+              onOk: (_, ctx) => {
+                Promise.resolve(deleteRequest?.(ctx) ?? false).then(res => {
+                  if (res) {
+                    scope.table.reload()
+                    showToast(deleteToast)
+                  }
+                })
+              },
+            },
+            props: {
+              type: 'primary',
+              danger: true,
+            },
+          },
+        },
+      },
+    },
+  }
 }
-
-export const DefaultDialogOption: CrudDialogOption = {
-  is: 'a-modal',
-  props: { width: '40%' },
-}
-
-export const DefaultCrudForm = {
-  col: { span: 12 },
-  row: { gutter: 16 },
-}
-
-export const DefaultEditFormToast = genToast('编辑成功')
-
-export const DefaultAddFormToast = genToast('新增成功')
-
-export const DeleteRecordToast = genToast('删除成功')
-
-export const ConfirmDeleteContent = '确认删除这一项？'
