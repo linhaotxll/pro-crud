@@ -1,4 +1,4 @@
-import type { DeepMaybeRefOrGetter } from '../common'
+import type { DeepMaybeRef } from '@vueuse/core'
 import type {
   ButtonProps,
   ModalProps,
@@ -31,7 +31,7 @@ export type ActionGroupOption<
   /**
    * 按钮间距配置
    */
-  space?: DeepMaybeRefOrGetter<SpaceProps>
+  space?: DeepMaybeRef<SpaceProps>
 
   /**
    * 按钮列表
@@ -70,9 +70,7 @@ export type ActionOption<C = any> = {
   /**
    * 按钮 props
    */
-  props?: MaybeRefOrGetter<
-    DeepMaybeRefOrGetter<Omit<ButtonProps, 'onClick'>>
-  > & {
+  props?: MaybeRefOrGetter<DeepMaybeRef<Omit<ButtonProps, 'onClick'>>> & {
     onClick?: (e: PointerEvent, ctx: C) => void
   }
 
@@ -101,7 +99,7 @@ export type ActionOption<C = any> = {
   /**
    * popconfirm 组件 props
    */
-  confirmProps?: DeepMaybeRefOrGetter<PopconfirmProps>
+  confirmProps?: DeepMaybeRef<PopconfirmProps>
 } & {
   /**
    * 点击按钮确认弹窗类型，modal
@@ -111,7 +109,7 @@ export type ActionOption<C = any> = {
   /**
    * modal 组件 props
    */
-  confirmProps?: DeepMaybeRefOrGetter<ModalProps>
+  confirmProps?: DeepMaybeRef<ModalProps>
 }
 
 /**

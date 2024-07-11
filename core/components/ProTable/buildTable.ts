@@ -54,7 +54,7 @@ import type { ProFormColumnOptions, ProFormScope } from '../ProForm'
 import type { FlexProps, TableProps } from 'ant-design-vue'
 import type { Key } from 'ant-design-vue/es/_util/type'
 import type { GetRowKey } from 'ant-design-vue/es/vc-table/interface'
-import type { Ref } from 'vue'
+import type { ComputedRef, Ref } from 'vue'
 
 export function buildTable<
   Data extends DataObject = DataObject,
@@ -162,8 +162,8 @@ export function buildTable<
   )
 
   // 解析编辑配置
-  const resolvedEditable = computed<InternalProTableEditableOptions<Data>>(
-    () => {
+  const resolvedEditable: ComputedRef<InternalProTableEditableOptions<Data>> =
+    computed(() => {
       const editableValue = toValue(editable)
       if (editableValue === false) {
         return false
@@ -192,8 +192,7 @@ export function buildTable<
         ),
         editableValue
       )
-    }
-  )
+    })
 
   // 只调用一次的获取集合函数
   const fetchDictionaryCollectionOnce = isFunction(fetchDictionaryCollection)

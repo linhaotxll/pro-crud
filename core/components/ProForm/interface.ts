@@ -1,10 +1,4 @@
-import type {
-  Arrayable,
-  DataObject,
-  DeepMaybeRefOrGetter,
-  NamePath,
-  ValueType,
-} from '../common'
+import type { Arrayable, DataObject, NamePath, ValueType } from '../common'
 import type {
   ActionGroupOption,
   ActionOption,
@@ -17,6 +11,7 @@ import type {
   DictionaryColumn,
 } from '../ProDictionary'
 import type { ToastOptions } from '../Toast'
+import type { DeepMaybeRef } from '@vueuse/core'
 import type {
   ColProps,
   FormItemProps,
@@ -131,7 +126,7 @@ export interface BuildFormOptionResult<
   /**
    * 表单额外的配置，不包含 model
    */
-  formProps?: MaybeRefOrGetter<DeepMaybeRefOrGetter<Omit<FormProps, 'model'>>>
+  formProps?: MaybeRefOrGetter<DeepMaybeRef<Omit<FormProps, 'model'>>>
 
   /**
    * 表单初始值
@@ -141,25 +136,22 @@ export interface BuildFormOptionResult<
   /**
    * 通用 row 配置
    */
-  row?: MaybeRefOrGetter<DeepMaybeRefOrGetter<RowProps>> | undefined | null
+  row?: MaybeRefOrGetter<DeepMaybeRef<RowProps>> | undefined | null
 
   /**
    * 通用 col 配置
    */
-  col?: MaybeRefOrGetter<DeepMaybeRefOrGetter<ColProps>> | undefined | null
+  col?: MaybeRefOrGetter<DeepMaybeRef<ColProps>> | undefined | null
 
   /**
    * 通用 Label Col 配置
    */
-  labelCol?: MaybeRefOrGetter<DeepMaybeRefOrGetter<ColProps>> | undefined | null
+  labelCol?: MaybeRefOrGetter<DeepMaybeRef<ColProps>> | undefined | null
 
   /**
    * 通用 Wrapper Col 配置
    */
-  wrapperCol?:
-    | MaybeRefOrGetter<DeepMaybeRefOrGetter<ColProps>>
-    | undefined
-    | null
+  wrapperCol?: MaybeRefOrGetter<DeepMaybeRef<ColProps>> | undefined | null
 
   /**
    * 列配置
@@ -260,7 +252,7 @@ export interface ProFormColumnOptions<
   /**
    * 每个 FormItem 所在列配置
    */
-  col?: MaybeRefOrGetter<DeepMaybeRefOrGetter<ColProps>>
+  col?: MaybeRefOrGetter<DeepMaybeRef<ColProps>>
 
   /**
    * 表单被删除时是否保留字段值
@@ -279,7 +271,7 @@ export interface ProFormColumnOptions<
   /**
    * 表单额外的 props
    */
-  fieldProps?: MaybeRefOrGetter<DeepMaybeRefOrGetter<Record<string, any>>>
+  fieldProps?: MaybeRefOrGetter<DeepMaybeRef<Record<string, any>>>
 
   /**
    * 表单插槽
@@ -289,7 +281,7 @@ export interface ProFormColumnOptions<
   /**
    * Form Item 额外的 props
    */
-  itemProps?: MaybeRefOrGetter<DeepMaybeRefOrGetter<FormItemProps>>
+  itemProps?: MaybeRefOrGetter<DeepMaybeRef<FormItemProps>>
 
   /**
    * FormItem 插槽

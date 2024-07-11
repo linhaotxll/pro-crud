@@ -3,12 +3,7 @@ import type {
   InternalProTableColumnProps,
   InternalProTableEditableOptions,
 } from './internal'
-import type {
-  DataObject,
-  DeepMaybeRefOrGetter,
-  NamePath,
-  ValueType,
-} from '../common'
+import type { DataObject, NamePath, ValueType } from '../common'
 import type {
   ActionGroupOption,
   ActionOption,
@@ -23,6 +18,7 @@ import type {
   ProFormScope,
 } from '../ProForm'
 import type { ToastOptions } from '../Toast'
+import type { DeepMaybeRef } from '@vueuse/core'
 import type { FlexProps, TableProps } from 'ant-design-vue'
 import type { Key } from 'ant-design-vue/es/_util/type'
 import type { ColumnType } from 'ant-design-vue/es/table'
@@ -97,7 +93,7 @@ export interface ProTableColumnProps<
    * 列配置
    */
   columnProps?: MaybeRefOrGetter<
-    DeepMaybeRefOrGetter<Omit<ColumnType<Data>, 'title' | 'dataIndex' | 'key'>>
+    DeepMaybeRef<Omit<ColumnType<Data>, 'title' | 'dataIndex' | 'key'>>
   >
 
   /**
@@ -272,7 +268,7 @@ export type BuildProTableOptionResult<
    * Table props
    */
   tableProps?: MaybeRefOrGetter<
-    DeepMaybeRefOrGetter<
+    DeepMaybeRef<
       Omit<
         TableProps<Data>,
         'components' | 'columns' | 'dataSource' | 'loading'
@@ -610,7 +606,7 @@ export interface ProTableScope<Data extends DataObject = DataObject> {
    * @param {Key} rowKey rowId 或者索引
    * @param {NamePath} columnName 列名称，仅在 type 是 cell 下有效
    */
-  cancelEdit: (rowKey: Key, columnName?: NamePath) => void
+  cancelEdit: (rowKey: Key, columnName?: NamePath[]) => void
 
   /**
    * 获取一行的编辑数据
