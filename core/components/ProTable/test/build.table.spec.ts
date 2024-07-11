@@ -24,7 +24,7 @@ type Person = {
 const sleep = (time = 0) => new Promise(r => setTimeout(r, time))
 
 describe('Build Pro Table', () => {
-  test('default contain toolbar, table and search', () => {
+  test('default contain toolbar and table', () => {
     const App = defineComponent({
       name: 'App',
       setup() {
@@ -42,9 +42,9 @@ describe('Build Pro Table', () => {
       },
     })
     expect(wrapper.findAllComponents(Flex).length).toBe(1)
-    expect(wrapper.findAllComponents(Flex)[0].vm.$el.children.length).toBe(3)
-    expect(wrapper.findAllComponents(ProButtonGroup).length).toBe(2)
-    expect(wrapper.findAllComponents(ProForm).length).toBe(1)
+    expect(wrapper.findAllComponents(Flex)[0].vm.$el.children.length).toBe(2)
+    expect(wrapper.findAllComponents(ProButtonGroup).length).toBe(1)
+    expect(wrapper.findAllComponents(ProForm).length).toBe(0)
     expect(wrapper.findAllComponents(Table).length).toBe(1)
   })
 
@@ -78,19 +78,19 @@ describe('Build Pro Table', () => {
         plugins: [antdv],
       },
     })
-    expect(wrapper.findAllComponents(Flex).length).toBe(1)
-    expect(wrapper.findAllComponents(ProButtonGroup).length).toBe(1)
+    expect(wrapper.findAllComponents(Flex).length).toBe(0)
+    expect(wrapper.findAllComponents(ProButtonGroup).length).toBe(0)
     expect(wrapper.findAllComponents(Table).length).toBe(1)
     const toggleButton = wrapper.find('.toggle-show-btn')
     expect(toggleButton.exists()).toBe(true)
     await toggleButton.trigger('click')
     expect(wrapper.findAllComponents(Flex).length).toBe(1)
-    expect(wrapper.findAllComponents(Flex)[0].vm.$el.children.length).toBe(3)
-    expect(wrapper.findAllComponents(ProButtonGroup).length).toBe(2)
+    expect(wrapper.findAllComponents(Flex)[0].vm.$el.children.length).toBe(2)
+    expect(wrapper.findAllComponents(ProButtonGroup).length).toBe(1)
     expect(wrapper.findAllComponents(Table).length).toBe(1)
     await toggleButton.trigger('click')
-    expect(wrapper.findAllComponents(Flex).length).toBe(1)
-    expect(wrapper.findAllComponents(ProButtonGroup).length).toBe(1)
+    expect(wrapper.findAllComponents(Flex).length).toBe(0)
+    expect(wrapper.findAllComponents(ProButtonGroup).length).toBe(0)
     expect(wrapper.findAllComponents(Table).length).toBe(1)
   })
 
@@ -102,6 +102,7 @@ describe('Build Pro Table', () => {
         const { proTableBinding } = buildTable(() => {
           return {
             search,
+            columns: [{ name: 'name', label: '姓名' }],
           }
         })
         return () => {
@@ -747,7 +748,7 @@ describe('Build Pro Table', () => {
       [`${list[1].name}`, '2'],
     ])
 
-    await scope!.next()
+    await scope!.table.next()
     await nextTick()
 
     expectRecord(2, 2, [
@@ -755,7 +756,7 @@ describe('Build Pro Table', () => {
       [`${list[3].name}`, '4'],
     ])
 
-    await scope!.previous()
+    await scope!.table.previous()
     await nextTick()
 
     expectRecord(3, 1, [
@@ -1351,7 +1352,7 @@ describe('Build Pro Table', () => {
             h('button', {
               class: 'reload-button',
               onClick() {
-                scope.reload()
+                scope.table.reload()
               },
             }),
           ]

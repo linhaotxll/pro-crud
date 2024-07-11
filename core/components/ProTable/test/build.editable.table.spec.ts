@@ -521,7 +521,7 @@ describe('Build Pro Editable Table', () => {
 
     expect(wrapper.findAllComponents(InputNumber).length).toBe(1)
 
-    scope!.setEditableRowData(data[0].id, { age: 666, name: '222' })
+    scope!.table.setEditableRowData(data[0].id, { age: 666, name: '222' })
     await nextTick()
 
     expect(wrapper.findComponent(InputNumber).find('input').element.value).toBe(
@@ -754,7 +754,7 @@ describe('Build Pro Editable Table', () => {
             h('button', {
               class: 'set-row-button',
               onClick() {
-                scope!.setEditableRowData(2, {
+                scope!.table.setEditableRowData(2, {
                   name: 'Nicholas Double',
                   age: 50,
                 })
@@ -763,43 +763,43 @@ describe('Build Pro Editable Table', () => {
             h('button', {
               class: 'clear-row-button',
               onClick() {
-                scope!.clearEditableRowData(2)
+                scope!.table.clearEditableRowData(2)
               },
             }),
             h('button', {
               class: 'get-row-button',
               onClick() {
-                editData = scope!.getEditableRowData(2)
+                editData = scope!.table.getEditableRowData(2)
               },
             }),
             h('button', {
               class: 'get-rows-button',
               onClick() {
-                editData = scope!.getEditableRowsData()
+                editData = scope!.table.getEditableRowsData()
               },
             }),
             h('button', {
               class: 'start-row-button',
               onClick() {
-                scope!.startEdit(2)
+                scope!.table.startEdit(2)
               },
             }),
             h('button', {
               class: 'start-cell-button',
               onClick() {
-                scope!.startEdit(3, ['name'])
+                scope!.table.startEdit(3, ['name'])
               },
             }),
             h('button', {
               class: 'cancel-row-button',
               onClick() {
-                scope!.cancelEdit(2)
+                scope!.table.cancelEdit(2)
               },
             }),
             h('button', {
               class: 'cancel-cell-button',
               onClick() {
-                scope!.cancelEdit(3, ['name'])
+                scope!.table.cancelEdit(3, ['name'])
               },
             }),
           ]

@@ -1,5 +1,5 @@
 import { ReloadOutlined } from '@ant-design/icons-vue'
-import { h, toValue } from 'vue'
+import { h, toValue, unref } from 'vue'
 
 import { getUuid, mergeWithTovalue } from '../common'
 import { ProButtonGroup } from '../ProButton'
@@ -9,6 +9,7 @@ import { showToast } from '../Toast'
 import { isFunction, isNil } from '~/utils'
 
 import type {
+  BuildProTableOptionResult,
   ProTableColumnActionGroup,
   ProTableColumnProps,
   ProTableEditableOptions,
@@ -48,7 +49,7 @@ export const buildDefaultToolbar = (
           type: 'primary',
           shape: 'circle',
           onClick() {
-            return scope.reload()
+            return scope.table.reload()
           },
         },
       },
@@ -149,7 +150,7 @@ export function buildTableEnableEditDefaultAction(
         props: {
           onClick(_, ctx) {
             const name = ctx.column._column.name
-            scope.startEdit(
+            scope.table.startEdit(
               getRowKey(ctx.record, tableProps),
               isNil(name) ? undefined : [name]
             )
@@ -188,7 +189,7 @@ export function buildTableEditableDefaultOption(
                 const rowKey = getRowKey(ctx.record, tableProps)
                 const promise = Promise.resolve(
                   editableValue.saveRequest?.(
-                    scope.getEditableRowData(rowKey)!,
+                    scope.table.getEditableRowData(rowKey)!,
                     ctx
                   )
                 )
@@ -196,8 +197,8 @@ export function buildTableEditableDefaultOption(
                 promise.then(res => {
                   if (res) {
                     showToast(editableValue.saveToast)
-                    scope.cancelEdit(rowKey)
-                    return scope.reload()
+                    scope.table.cancelEdit(rowKey)
+                    return scope.table.reload()
                   }
                 })
 
@@ -212,7 +213,7 @@ export function buildTableEditableDefaultOption(
           props: {
             onClick(_, ctx) {
               const rowKey = getRowKey(ctx.record, tableProps)
-              scope.cancelEdit(rowKey)
+              scope.table.cancelEdit(rowKey)
             },
           },
         },
@@ -248,3 +249,57 @@ export function getRowKey<Data extends DataObject = DataObject>(
 }
 
 export const TableEditableNamePlaceholder = getUuid() + '__placeholder__'
+
+const renderComponentsKey = [
+  'renderTable',
+  'renderHeaderWrapper',
+  'renderHeaderRow',
+  'renderHeaderCell',
+  'renderBodyWrapper',
+  'renderBodyRow',
+  'renderBodyCell',
+  'renderBody',
+] as const
+
+const renderComponentsName = {
+  renderTable: 'table',
+  renderHeaderWrapper: 'wrapper',
+  renderHeaderRow: 'row',
+  renderHeaderCell: 'cell',
+  renderBodyWrapper: 'wrapper',
+  renderBodyRow: 'row',
+  renderBodyCell: 'cell',
+  // renderBody 优先级最高
+  renderBody: 'body',
+} as const
+
+export function extractComponents(optionsResult: BuildProTableOptionResult) {
+  let components: any
+  for (const key of renderComponentsKey) {
+    if (optionsResult[key]) {
+      components ||= {}
+
+      if (key === 'renderTable') {
+        components[renderComponentsName[key]] = unref(optionsResult[key])
+      } else if (
+        key === 'renderHeaderCell' ||
+        key === 'renderHeaderRow' ||
+        key === 'renderHeaderWrapper'
+      ) {
+        components.header ||= {}
+        components.header[renderComponentsName[key]] = unref(optionsResult[key])
+      } else if (
+        key === 'renderBodyWrapper' ||
+        key === 'renderBodyRow' ||
+        key === 'renderBodyCell'
+      ) {
+        components.body ||= {}
+        components.body[renderComponentsName[key]] = unref(optionsResult[key])
+      } else if (key === 'renderBody') {
+        components[renderComponentsName[key]] = unref(optionsResult[key])
+      }
+    }
+  }
+
+  return components
+}

@@ -235,6 +235,25 @@ export type ProTableActionColumn<
     }
 
 /**
+ * buildTable 参数
+ */
+export type BuildTableOption<
+  Data extends DataObject = DataObject,
+  Params = any,
+  Collection = any,
+  SearchForm extends DataObject = DataObject,
+  SearchFormSubmit = SearchForm
+> = (
+  scope: ProTableScope<Data>
+) => BuildProTableOptionResult<
+  Data,
+  Params,
+  Collection,
+  SearchForm,
+  SearchFormSubmit
+>
+
+/**
  * buildTable option 返回值
  */
 export type BuildProTableOptionResult<
@@ -572,61 +591,65 @@ export interface ProTableEditableOptions<
  * ProTable 作用域
  */
 export interface ProTableScope<Data extends DataObject = DataObject> {
-  /**
-   * 重新加载当前页数据
-   */
-  reload(): Promise<void>
+  table: {
+    /**
+     * 重新加载当前页数据
+     */
+    reload(): Promise<void>
 
-  /**
-   * 恢复默认页重新加载
-   */
-  reset(): Promise<void>
+    /**
+     * 恢复默认页重新加载
+     */
+    reset(): Promise<void>
 
-  /**
-   * 跳转上一页
-   */
-  previous(): Promise<void>
+    /**
+     * 跳转上一页
+     */
+    previous(): Promise<void>
 
-  /**
-   * 加载下一页
-   */
-  next(): Promise<void>
+    /**
+     * 加载下一页
+     */
+    next(): Promise<void>
 
-  /**
-   * 开始编辑
-   *
-   * @param {Key} rowKey rowId 或者索引
-   * @param {NamePath} columnName 列名称，仅在 type 是 cell 下有效
-   */
-  startEdit: (rowKey: Key, columnName?: NamePath[]) => void
+    /**
+     * 开始编辑
+     *
+     * @param {Key} rowKey rowId 或者索引
+     * @param {NamePath} columnName 列名称，仅在 type 是 cell 下有效
+     */
+    startEdit: (rowKey: Key, columnName?: NamePath[]) => void
 
-  /**
-   * 取消编辑
-   *
-   * @param {Key} rowKey rowId 或者索引
-   * @param {NamePath} columnName 列名称，仅在 type 是 cell 下有效
-   */
-  cancelEdit: (rowKey: Key, columnName?: NamePath[]) => void
+    /**
+     * 取消编辑
+     *
+     * @param {Key} rowKey rowId 或者索引
+     * @param {NamePath} columnName 列名称，仅在 type 是 cell 下有效
+     */
+    cancelEdit: (rowKey: Key, columnName?: NamePath[]) => void
 
-  /**
-   * 获取一行的编辑数据
-   */
-  getEditableRowData(rowKey: Key): Data | undefined
+    /**
+     * 获取一行的编辑数据
+     */
+    getEditableRowData(rowKey: Key): Data | undefined
 
-  /**
-   * 获取整个 table 编辑的数据
-   */
-  getEditableRowsData(): Data[] | null
+    /**
+     * 获取整个 table 编辑的数据
+     */
+    getEditableRowsData(): Data[] | null
 
-  /**
-   * 设置一行编辑的数据
-   */
-  setEditableRowData(rowKey: Key, data: Partial<Data>): void
+    /**
+     * 设置一行编辑的数据
+     */
+    setEditableRowData(rowKey: Key, data: Partial<Data>): void
 
-  /**
-   * 清空一行编辑的数据
-   */
-  clearEditableRowData(rowKey: Key): void
+    /**
+     * 清空一行编辑的数据
+     */
+    clearEditableRowData(rowKey: Key): void
+  }
+
+  search: ProFormScope
 }
 
 export interface BuildTableResult<Data extends DataObject = any> {
@@ -642,7 +665,7 @@ export interface BuildTableBinding<
   wrapperProps: ComputedRef<FlexProps>
   renderWrapper: RenderWrapperFn | ComputedRef<RenderWrapperFn> | undefined
   toolbar: Ref<InternalProButtonGroupOptions>
-  search: ComputedRef<InternalProTableSearchOptions<SearchForm>>
+  search: InternalProTableSearchOptions<SearchForm>
   editable: ComputedRef<InternalProTableEditableOptions<any>>
 }
 
@@ -653,4 +676,4 @@ export interface BuildTableBinding<
  */
 export type InternalProTableSearchOptions<
   SearchForm extends DataObject = DataObject
-> = false | BuildFormBinding<SearchForm>
+> = BuildFormBinding<SearchForm>

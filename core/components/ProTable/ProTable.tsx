@@ -58,8 +58,9 @@ export const ProTable = defineComponent({
 
       const searchValue = toValue(props.search)
 
-      const $search =
-        searchValue !== false ? <ProForm {...searchValue} /> : null
+      const $search = toValue(searchValue.columns).length ? (
+        <ProForm {...searchValue} />
+      ) : null
 
       const $children = [$search, $toolbar, $mergeTable].filter(Boolean)
 
