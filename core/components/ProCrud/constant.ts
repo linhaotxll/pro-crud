@@ -1,3 +1,6 @@
+import { PlusOutlined } from '@ant-design/icons-vue'
+import { h } from 'vue'
+
 import { showToast } from '../Toast'
 
 import type { BuildCrudContext, BuildCrudOptionReturn } from './interface'
@@ -68,18 +71,32 @@ export const buildDefaultCrudOptions = ({
             text: '删除',
             confirmType: 'modal',
             confirmProps: {
-              onOk: (_, ctx) => {
+              onOk: (_, ctx) =>
                 Promise.resolve(deleteRequest?.(ctx) ?? false).then(res => {
                   if (res) {
                     scope.table.reload()
                     showToast(deleteToast)
                   }
-                })
-              },
+                }),
             },
             props: {
               type: 'primary',
               danger: true,
+            },
+          },
+        },
+      },
+    },
+    toolbar: {
+      actions: {
+        add: {
+          show: true,
+          props: {
+            icon: h(PlusOutlined),
+            type: 'primary',
+            shape: 'circle',
+            onClick() {
+              scope.modal.showAddModal()
             },
           },
         },

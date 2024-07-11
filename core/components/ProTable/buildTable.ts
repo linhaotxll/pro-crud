@@ -48,6 +48,7 @@ import type {
   BuildTableOption,
   BuildTableResult,
   FetchProTablePageListResult,
+  ProTableColumnProps,
   ProTableScope,
   ProTableScopeWithSearch,
   ProTableToolbarActions,
@@ -71,6 +72,7 @@ interface BuildTableContext<
   SearchForm extends DataObject = DataObject,
   SearchFormSubmit extends DataObject = SearchForm
 > {
+  handleColumn?: (column: ProTableColumnProps<Data>) => void
   options: BuildTableOption<
     Data,
     Params,
@@ -104,9 +106,11 @@ export function buildTable<
     Collection,
     SearchForm,
     SearchFormSubmit
-  >
+  >,
+  handleColumn?: (column: ProTableColumnProps<Data>) => void
 ): BuildTableResult<Data> {
   const context: BuildTableContext = {
+    handleColumn,
     options,
     scope: {
       table: null!,
@@ -260,97 +264,6 @@ function buildTableMiddleware<Data extends DataObject = DataObject>(
       )
     })
 
-  // // 只调用一次的获取集合函数
-  // const fetchDictionaryCollectionOnce = isFunction(fetchDictionaryCollection)
-  //   ? once(fetchDictionaryCollection)
-  //   : undefined
-
-  // // 解析完成构建 Table 列配
-  // const resolvedTableColumns = ref([]) as Ref<
-  //   Ref<InternalProTableColumnProps<Data>>[]
-  // >
-
-  // // 解析完成构建 ProSearch 列配置
-  // const resolvedSearchColumns = ref([]) as Ref<
-  //   ProFormColumnOptions<Data, any, Collection>[]
-  // >
-
-  // // 解析完成构建 ProTable Editable 列配置
-  // const resolvedProTableEditableColumns = ref([]) as Ref<
-  //   ProFormColumnOptions<Data, any, Collection>[]
-  // >
-
-  // // 监听列变化，解析列配置
-  // if (columns) {
-  //   watch(
-  //     toRef(columns),
-  //     _columns => {
-  //       resolvedTableColumns.value = []
-  //       resolvedSearchColumns.value = []
-  //       const { search, table, editable } = _columns.reduce(
-  //         (prev, curr, i) => {
-  //           // 构建 table column
-  //           const tableColumnOptions = buildTableColumn(
-  //             curr,
-  //             i,
-  //             fetchDictionaryCollectionOnce
-  //           )
-  //           // 将解析好的列存入最终结果中
-  //           prev.table.push(tableColumnOptions)
-
-  //           const { type, name } = toValue(tableColumnOptions)._column
-
-  //           // 合并搜索列配置，type 和 dict 只能使用 table column 上的配置
-  //           // 其余可以在 search 中单独配置
-  //           const searchOptions = mergeWithTovalue(
-  //             { label: curr.label, name: curr.name },
-  //             toValue(curr.form),
-  //             toValue(curr.search),
-  //             { type }
-  //           )
-
-  //           // 合并编辑列配置，type、dict 和 name 只能使用 table column 上的配置
-  //           // 其余可以在 editableForm 中单独配置
-  //           const editableOptions = mergeWithTovalue(
-  //             { label: curr.label },
-  //             toValue(curr.form),
-  //             toValue(curr.editableForm),
-  //             {
-  //               type,
-  //               itemProps: { noStyle: true },
-  //               name: ['table', TableEditableNamePlaceholder, name],
-  //             }
-  //           )
-
-  //           // search 和 table 的 dict 要保持是同一个对象，不能被 merge 克隆
-  //           if (curr.dict) {
-  //             editableOptions.dict = searchOptions.dict = curr.dict
-  //           }
-
-  //           prev.search.push(searchOptions)
-  //           prev.editable.push(editableOptions)
-
-  //           return prev
-  //         },
-  //         {
-  //           search: [],
-  //           table: [],
-  //           editable: [],
-  //         } as {
-  //           search: ProFormColumnOptions<Data, any, Collection>[]
-  //           editable: ProFormColumnOptions<Data, any, Collection>[]
-  //           table: Ref<InternalProTableColumnProps<Data>>[]
-  //         }
-  //       )
-
-  //       resolvedTableColumns.value = table
-  //       resolvedSearchColumns.value = search
-  //       resolvedProTableEditableColumns.value = editable
-  //     },
-  //     { immediate: true, deep: true }
-  //   )
-  // }
-
   // 解析操作列配置
   const resolvedActionColumn = computed(() => {
     const actionColumnValue = toValue(actionColumn)
@@ -470,24 +383,6 @@ function buildTableMiddleware<Data extends DataObject = DataObject>(
       } as Record<TableSlotValueKey, TableSlotFn>
     )
   })
-
-  // // 解析 search
-  // const resolvedSearch = computed<InternalProTableSearchOptions<SearchForm>>(
-  //   () => {
-  //     const searchValue = toValue(search)
-  //     if (searchValue === false) {
-  //       return false
-  //     }
-
-  //     // @ts-ignore
-  //     return buildSearch(scope => {
-  //       return {
-  //         ...(isFunction(searchValue) ? searchValue(scope) : searchValue),
-  //         columns: resolvedSearchColumns,
-  //       }
-  //     }).proFormBinding
-  //   }
-  // )
 
   // 监听 loading 变化
   if (isFunction(onLoadingChange)) {
@@ -807,14 +702,14 @@ function buildSearchMiddleware<SearchForm extends DataObject = DataObject>(
 
     next()
 
-    // const searchValue = toValue(ctx.optionResult.search)
-
-    // if (searchValue === false) {
-    //   return {}
-    // }
+    const searchValue = toValue(ctx.optionResult.search)
 
     return {
-      // ...(isFunction(searchValue) ? searchValue(scope) : searchValue),
+      ...(searchValue === false
+        ? null
+        : isFunction(searchValue)
+        ? searchValue(scope)
+        : searchValue),
       columns: computed(() => {
         const searchValue = toValue(ctx.optionResult.search)
         return searchValue === false ? [] : ctx.columns.search.value
@@ -901,6 +796,9 @@ function buildBasicMiddleware<
 
             prev.search.push(searchOptions)
             prev.editable.push(editableOptions)
+
+            // TODO:
+            ctx.handleColumn?.({ ...curr, type })
 
             return prev
           },

@@ -97,7 +97,7 @@ export interface ProTableColumnProps<
   >
 
   /**
-   * 表单公共配置，包括 search、editable
+   * 表单公共配置
    */
   form?: MaybeRefOrGetter<
     Omit<

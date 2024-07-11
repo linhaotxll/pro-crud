@@ -13,7 +13,11 @@ import {
 import { buildModalForm } from '../ModalForm'
 import { buildTable } from '../ProTable'
 
-import type { BuildCrudContext, ProCrudModalScope } from './interface'
+import type {
+  BuildCrudContext,
+  ProCrudColumnOption,
+  ProCrudModalScope,
+} from './interface'
 import type { FormProps } from 'ant-design-vue'
 
 export function buildCrud<
@@ -32,6 +36,11 @@ export function buildCrud<
       search: null!,
       modal: null!,
     },
+    modalColumns: {
+      add: [],
+      edit: [],
+      view: [],
+    },
   }
 
   compose<BuildCrudContext>([
@@ -42,30 +51,46 @@ export function buildCrud<
 }
 
 function buildTableMiddleware(ctx: BuildCrudContext, next: NextMiddleware) {
-  //
-  buildTable(tableScope => {
-    ctx.scope.table = tableScope.table
-    ctx.scope.search = tableScope.search
-    next()
+  buildTable(
+    tableScope => {
+      ctx.scope.table = tableScope.table
+      ctx.scope.search = tableScope.search
 
-    // const {
-    // columns,
-    // autoReload,
-    // deleteToast,
-    // addToast,
-    // editToast,
-    // addRequest,
-    // editRequest,
-    // deleteRequest,
-    // fetchTableData,
-    // ...rest
-    // } = ctx.optionResult
+      next()
 
-    return {
-      // ...rest,
-      // fetchTableData,
+      // return {}
+      return ctx.optionResult
+    },
+    (column: ProCrudColumnOption) => {
+      // 新增表单
+      ctx.modalColumns.add.push(
+        mergeWithTovalue(
+          {},
+          toValue(column),
+          toValue(column.form),
+          toValue(column.addForm)
+        )
+      )
+      // 编辑表单
+      ctx.modalColumns.edit.push(
+        mergeWithTovalue(
+          {},
+          toValue(column),
+          toValue(column.form),
+          toValue(column.editForm)
+        )
+      )
+      // 查看表单
+      ctx.modalColumns.view.push(
+        mergeWithTovalue(
+          {},
+          toValue(column),
+          toValue(column.form),
+          toValue(column.viewForm)
+        )
+      )
     }
-  })
+  )
 }
 
 /**
@@ -82,7 +107,7 @@ function buildModalFormMiddleware(ctx: BuildCrudContext, next: NextMiddleware) {
 
   // @ts-ignore
   buildModalForm(({ showModal, ...rest }) => {
-    function showModalWithType(type: ModalType, record: any) {
+    function showModalWithType(type: ModalType, record?: any) {
       modalType.value = type
       rest.setFieldValues(record)
       showModal()
@@ -90,8 +115,8 @@ function buildModalFormMiddleware(ctx: BuildCrudContext, next: NextMiddleware) {
 
     ctx.scope.modal = {
       ...rest,
-      showAddModal(record) {
-        showModalWithType(ModalType.Add, record)
+      showAddModal() {
+        showModalWithType(ModalType.Add)
       },
       showEditModal(record) {
         showModalWithType(ModalType.Edit, record)
