@@ -10,7 +10,15 @@ export type ExtractMaybeRef<T> = T extends object
   ? never
   : MaybeRef<T>
 
-export type DeepMaybeRefOrGetter<T> = T extends object
+// export type DeepMaybeRefOrGetter<T> = T extends object
+//   ? {
+//       [K in keyof T]: DeepMaybeRefOrGetter<T[K]>
+//     }
+//   : MaybeRefOrGetter<T>
+
+export type DeepMaybeRefOrGetter<T> = T extends MaybeRefOrGetter<infer V>
+  ? MaybeRefOrGetter<V>
+  : T extends Array<any> | object
   ? {
       [K in keyof T]: DeepMaybeRefOrGetter<T[K]>
     }

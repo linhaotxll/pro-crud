@@ -1,6 +1,7 @@
 import type { DataObject } from '../common'
 import type { ActionGroupOption, ActionOption } from '../ProButton'
-import type { BuildFormOptionResult } from '../ProForm/interface'
+import type { BuildFormOptionResult, ProFormScope } from '../ProForm/interface'
+import type { DeepMaybeRef } from '@vueuse/core'
 import type { ModalProps } from 'ant-design-vue'
 import type { MaybeRefOrGetter, VNodeChild } from 'vue'
 
@@ -22,7 +23,7 @@ export interface BuildModalFormOptionReturn<
   /**
    * 弹窗 Props
    */
-  modalProps?: MaybeRefOrGetter<Omit<ModalProps, 'open'>>
+  modalProps?: MaybeRefOrGetter<Omit<DeepMaybeRef<ModalProps>, 'footer'>>
 
   /**
    * 表单配置
@@ -63,4 +64,20 @@ export interface ModalFormActions<C = any> {
    * 自定义按钮
    */
   [name: string]: MaybeRefOrGetter<ActionOption<C>> | undefined
+}
+
+/**
+ * Modal Form 作用域
+ */
+export interface ModalFormScope<Data extends DataObject = DataObject>
+  extends ProFormScope<Data> {
+  /**
+   * 打开弹窗
+   */
+  showModal(): void
+
+  /**
+   * 关闭弹窗
+   */
+  hideModal(): void
 }
