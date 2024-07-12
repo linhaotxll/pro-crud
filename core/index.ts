@@ -26,6 +26,7 @@ import { merge } from 'lodash-es'
 import { DefaultValueType } from './components/common'
 import { ModalForm } from './components/ModalForm'
 import { ProButtonGroup } from './components/ProButton'
+import { ProCrud } from './components/ProCrud'
 import { ProForm, ProFormList } from './components/ProForm'
 import { ProTable } from './components/ProTable'
 import { GlobalOption } from './constant'
@@ -43,6 +44,7 @@ export const ProComponents: Plugin<ProComponentsOptions> = {
     app.component(ProFormList.name!, ProFormList)
     app.component(ProButtonGroup.name!, ProButtonGroup)
     app.component(ModalForm.name!, ModalForm)
+    app.component(ProCrud.name!, ProCrud)
 
     app
       .use(Form)

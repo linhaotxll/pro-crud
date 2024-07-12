@@ -1,42 +1,16 @@
-// import type {
-//   ColumnDictionaryOptions,
-//   DictionaryCollectionOptions,
-//   MaybeRef,
-//   ValueType,
-// } from '../common'
-// import type { ActionOption, ActionsList, ActionsOption } from '../ProButton'
-// import type {
-//   BuildFormBinding,
-//   BuildFormOptionResult,
-//   ProFormColumnOptions,
-//   ProFormInstance,
-//   ProFormScope,
-// } from '../ProForm'
-// import type { BuildSearchBinding, ProSearchScope } from '../ProSearch'
-// import type {
-//   BodyCellSlotParams,
-//   BuildProTableBinding,
-//   BuildProTableOptionResult,
-//   FetchTableDataResult,
-//   FetchTableListQuery,
-//   ProTableActionColumnProps,
-//   ProTableActionProps,
-//   ProTableColumnProps,
-//   ProTableScope,
-//   ProTableToolbarOption,
-//   ToolbarOption,
-// } from '../ProTable'
-// import type { SuccessToastOptions } from '../Toast'
-// import type { ModalProps } from 'ant-design-vue'
-// import type { ComputedRef, Ref } from 'vue'
-
 import type { DataObject } from '../common'
-import type { BuildModalFormOptionReturn, ModalFormScope } from '../ModalForm'
+import type {
+  BuildModalFormOptionReturn,
+  ModalFormBinding,
+  ModalFormScope,
+} from '../ModalForm'
 import type { ActionGroupOption, ActionOption } from '../ProButton'
 import type { ProFormColumnOptions, ProFormScope } from '../ProForm'
 import type {
   BuildProTableOptionResult,
+  BuildTableBinding,
   FetchTableListRequest,
+  ProInnerFormOptions,
   ProTableColumnProps,
   ProTableScope,
   ProTableToolbarActions,
@@ -73,16 +47,9 @@ export interface BuildCrudOptionReturn<
   Data extends DataObject = DataObject,
   Params = any,
   Collection = any,
-  SearchForm extends DataObject = DataObject,
-  SearchFormSubmit = SearchForm
+  SearchForm extends DataObject = DataObject
 > extends Omit<
-      BuildProTableOptionResult<
-        Data,
-        Params,
-        Collection,
-        SearchForm,
-        SearchFormSubmit
-      >,
+      BuildProTableOptionResult<Data, Params, Collection, SearchForm>,
       'columns' | 'fetchTableData' | 'actionColumn' | 'toolbar'
     >,
     Omit<BuildModalFormOptionReturn, 'renderTrigger'> {
@@ -100,6 +67,21 @@ export interface BuildCrudOptionReturn<
    * toolbar 配置
    */
   toolbar?: MaybeRefOrGetter<ProCrudToolbarActionGroup>
+
+  /**
+   * 添加表单配置
+   */
+  addForm?: MaybeRefOrGetter<ProInnerFormOptions<Partial<Data>, Collection>>
+
+  /**
+   * 编辑表单配置
+   */
+  editForm?: MaybeRefOrGetter<ProInnerFormOptions<Partial<Data>, Collection>>
+
+  /**
+   * 查看表单配置
+   */
+  viewForm?: MaybeRefOrGetter<ProInnerFormOptions<Partial<Data>, Collection>>
 
   /**
    * 点击重置后是否自动调用查询接口
@@ -253,6 +235,8 @@ export interface BuildCrudContext<
     edit: ProCrudColumnOption[]
     view: ProCrudColumnOption[]
   }
+  tableBinding: BuildTableBinding<Data>
+  modalFormBinding: ModalFormBinding<Partial<Data>>
 }
 
 /**
@@ -264,23 +248,41 @@ export interface ProCrudColumnOption<
   Collection = any
 > extends ProTableColumnProps<Data, Dictionary, Collection> {
   /**
-   * 添加表单配置
+   * 添加表单列配置
    */
-  addForm?: MaybeRefOrGetter<
-    Omit<ProFormColumnOptions<Data, Dictionary, Collection>, 'dict' | 'type'>
-  >
+  addForm?: MaybeRefOrGetter<ProCrudFromOptions<Data, Dictionary, Collection>>
 
   /**
-   * 编辑表单配置
+   * 编辑表单列配置
    */
-  editForm?: MaybeRefOrGetter<
-    Omit<ProFormColumnOptions<Data, Dictionary, Collection>, 'dict' | 'type'>
-  >
+  editForm?: MaybeRefOrGetter<ProCrudFromOptions<Data, Dictionary, Collection>>
 
   /**
-   * 详情表单配置
+   * 详情表单列配置
    */
-  viewForm?: MaybeRefOrGetter<
-    Omit<ProFormColumnOptions<Data, Dictionary, Collection>, 'dict' | 'type'>
-  >
+  viewForm?: MaybeRefOrGetter<ProCrudFromOptions<Data, Dictionary, Collection>>
+}
+
+/**
+ * Pro Crud 表单列配置
+ */
+export type ProCrudFromOptions<
+  Data extends DataObject = any,
+  Dictionary = any,
+  Collection = any
+> = Omit<ProFormColumnOptions<Data, Dictionary, Collection>, 'dict' | 'type'>
+
+/**
+ * Pro Crud Binding
+ */
+export interface ProCrudBinding<Data extends DataObject = DataObject> {
+  tableBinding: BuildTableBinding<Data, DataObject>
+  modalFormBinding: ModalFormBinding<Partial<Data>>
+}
+
+/**
+ * buildCrud 返回值
+ */
+export interface BuildCrudResult<Data extends DataObject = DataObject> {
+  proCrudBinding: ProCrudBinding<Data>
 }

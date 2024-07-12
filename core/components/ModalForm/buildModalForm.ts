@@ -11,19 +11,24 @@ import { mergeWithTovalue, type DataObject } from '../common'
 import { buildButtonGroup } from '../ProButton'
 import { buildForm } from '../ProForm'
 
-import type { BuildModalFormOptionReturn, ModalFormScope } from './interface'
+import type {
+  BuildModalFormOptionReturn,
+  ModalFormBinding,
+  ModalFormScope,
+  RenderTrigger,
+} from './interface'
 import type { InternalProButtonGroupOptions } from '../ProButton'
 import type { ModalProps } from 'ant-design-vue'
-import type { ComputedRef, VNodeChild } from 'vue'
+import type { ComputedRef } from 'vue'
 
 export function buildModalForm<
-  Data extends DataObject = DataObject,
-  R extends DataObject = Data,
+  FormState extends DataObject = DataObject,
+  R extends DataObject = FormState,
   Collection = any
 >(
   options: (
-    scope: ModalFormScope<Data>
-  ) => BuildModalFormOptionReturn<Data, R, Collection>
+    scope: ModalFormScope<FormState>
+  ) => BuildModalFormOptionReturn<FormState, R, Collection>
 ) {
   // 解析 Modal Props
   let resolvedModalProps!: ComputedRef<ModalProps>
@@ -32,13 +37,13 @@ export function buildModalForm<
   let resolvedModalAction!: ComputedRef<InternalProButtonGroupOptions | false>
 
   // 渲染触发打开 Modal 的 DOM
-  let renderTrigger!: () => VNodeChild
+  let renderTrigger!: RenderTrigger
 
   // 弹窗打开状态
   const internalOpen = ref(false)
 
-  const { proFormBinding } = buildForm<Data, R>(scope => {
-    const modalFormScope: ModalFormScope<Data> = {
+  const { proFormBinding } = buildForm<FormState, R>(scope => {
+    const modalFormScope: ModalFormScope<FormState> = {
       ...scope,
       showModal,
       hideModal,
@@ -119,7 +124,7 @@ export function buildModalForm<
     internalOpen.value = false
   }
 
-  const modalFormBinding = {
+  const modalFormBinding: ModalFormBinding = {
     modalProps: resolvedModalProps,
     formBinding: proFormBinding,
     modalAction: resolvedModalAction,

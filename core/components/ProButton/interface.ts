@@ -6,7 +6,7 @@ import type {
   PopoverProps,
   SpaceProps,
 } from 'ant-design-vue'
-import type { MaybeRefOrGetter, VNodeChild } from 'vue'
+import type { AllowedComponentProps, MaybeRefOrGetter, VNodeChild } from 'vue'
 
 /**
  * 自定义按扭
@@ -32,7 +32,7 @@ export type ActionGroupOption<
   /**
    * 按钮间距配置
    */
-  space?: DeepMaybeRef<SpaceProps>
+  space?: DeepMaybeRef<SpaceProps & AllowedComponentProps>
 
   /**
    * 按钮列表

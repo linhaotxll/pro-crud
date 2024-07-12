@@ -8,18 +8,25 @@ import type { BuildCrudContext, BuildCrudOptionReturn } from './interface'
 /**
  * 默认 Crud 返回值
  */
-export const buildDefaultCrudOptions = ({
-  scope,
-  optionResult: { deleteRequest, deleteToast },
-}: BuildCrudContext): BuildCrudOptionReturn => {
+export const buildDefaultCrudOptions = (
+  ctx: BuildCrudContext
+): BuildCrudOptionReturn => {
+  const {
+    scope,
+    optionResult: { deleteRequest, deleteToast },
+  } = ctx
+
   return {
     addToast: '新增成功',
     editToast: '编辑成功',
     deleteToast: '删除成功',
     search: {
       action: {
+        space: {
+          style: 'width: 100%; justify-content: end',
+        },
         actions: {
-          search: {
+          confirm: {
             show: true,
             text: '搜索',
             props: {
@@ -36,13 +43,23 @@ export const buildDefaultCrudOptions = ({
             props: {
               onClick() {
                 scope.search.reset()
+                if (ctx.optionResult.autoReload) {
+                  scope.table.reload()
+                }
               },
             },
           },
         },
       },
+      submitRequest: () => true,
+      toast: false,
+      successRequest() {
+        scope.table.reload()
+      },
     },
     actionColumn: {
+      show: true,
+      columnProps: { width: '15%' },
       action: {
         actions: {
           view: {
@@ -71,6 +88,10 @@ export const buildDefaultCrudOptions = ({
             text: '删除',
             confirmType: 'modal',
             confirmProps: {
+              title: '确认删除这一项？',
+              okButtonProps: { danger: true },
+              okText: '确认',
+              cancelText: '取消',
               onOk: (_, ctx) =>
                 Promise.resolve(deleteRequest?.(ctx) ?? false).then(res => {
                   if (res) {
@@ -88,6 +109,9 @@ export const buildDefaultCrudOptions = ({
       },
     },
     toolbar: {
+      space: {
+        style: 'justify-content: end',
+      },
       actions: {
         add: {
           show: true,
@@ -101,6 +125,9 @@ export const buildDefaultCrudOptions = ({
           },
         },
       },
+    },
+    wrapperProps: {
+      gap: 16,
     },
   }
 }

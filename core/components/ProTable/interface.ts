@@ -241,17 +241,10 @@ export type BuildTableOption<
   Data extends DataObject = DataObject,
   Params = any,
   Collection = any,
-  SearchForm extends DataObject = DataObject,
-  SearchFormSubmit = SearchForm
+  SearchForm extends DataObject = DataObject
 > = (
   scope: ProTableScopeWithSearch<Data>
-) => BuildProTableOptionResult<
-  Data,
-  Params,
-  Collection,
-  SearchForm,
-  SearchFormSubmit
->
+) => BuildProTableOptionResult<Data, Params, Collection, SearchForm>
 
 /**
  * buildTable option 返回值
@@ -260,8 +253,7 @@ export type BuildProTableOptionResult<
   Data extends DataObject = DataObject,
   Params = any,
   Collection = any,
-  SearchForm extends DataObject = DataObject,
-  SearchFormSubmit = SearchForm
+  SearchForm extends DataObject = DataObject
 > = DictionaryCollection<Collection> & {
   /**
    * 数据源
@@ -334,9 +326,7 @@ export type BuildProTableOptionResult<
    *
    * @default {}
    */
-  search?: MaybeRefOrGetter<
-    ProTableSearchOptions<Collection, SearchForm, SearchFormSubmit>
-  >
+  search?: MaybeRefOrGetter<ProInnerFormOptions<SearchForm, Collection>>
 
   /**
    * 编辑表格配置
@@ -508,22 +498,18 @@ export type RenderHeaderCellTextParams<Data extends DataObject = DataObject> = {
 }
 
 /**
- * Table Search 配置
+ * 内部表单配置
  */
-export type ProTableSearchOptions<
-  Collection = any,
-  SearchForm extends DataObject = DataObject,
-  SearchFormSubmit = SearchForm
+export type ProInnerFormOptions<
+  FormState extends DataObject = DataObject,
+  Collection = any
 > =
   | false
-  | Omit<
-      BuildFormOptionResult<SearchForm, SearchFormSubmit, Collection>,
-      'columns'
-    >
+  | Omit<BuildFormOptionResult<FormState, FormState, Collection>, 'columns'>
   | ((
-      scope: ProFormScope<SearchForm>
+      scope: ProFormScope<FormState>
     ) => Omit<
-      BuildFormOptionResult<SearchForm, SearchFormSubmit, Collection>,
+      BuildFormOptionResult<FormState, FormState, Collection>,
       'columns'
     >)
 

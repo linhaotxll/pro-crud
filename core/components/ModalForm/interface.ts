@@ -1,9 +1,22 @@
 import type { DataObject } from '../common'
-import type { ActionGroupOption, ActionOption } from '../ProButton'
-import type { BuildFormOptionResult, ProFormScope } from '../ProForm/interface'
+import type {
+  ActionGroupOption,
+  ActionOption,
+  InternalProButtonGroupOptions,
+} from '../ProButton'
+import type {
+  BuildFormBinding,
+  BuildFormOptionResult,
+  ProFormScope,
+} from '../ProForm/interface'
 import type { DeepMaybeRef } from '@vueuse/core'
 import type { ModalProps } from 'ant-design-vue'
-import type { MaybeRefOrGetter, VNodeChild } from 'vue'
+import type { ComputedRef, MaybeRefOrGetter, VNodeChild } from 'vue'
+
+/**
+ * 渲染打开弹窗的 DOM 函数
+ */
+export type RenderTrigger = (() => VNodeChild) | false
 
 export interface BuildModalFormOptionReturn<
   Data extends DataObject = DataObject,
@@ -13,7 +26,7 @@ export interface BuildModalFormOptionReturn<
   /**
    * 渲染触发打开 Modal 的 DOM
    */
-  renderTrigger?: () => VNodeChild
+  renderTrigger?: RenderTrigger
 
   /**
    * 是否打开
@@ -28,9 +41,7 @@ export interface BuildModalFormOptionReturn<
   /**
    * 表单配置
    */
-  form?: MaybeRefOrGetter<
-    Omit<BuildFormOptionResult<Data, R, Collection>, 'action'>
-  >
+  form?: Omit<BuildFormOptionResult<Data, R, Collection>, 'action'>
 
   /**
    * 按钮组
@@ -80,4 +91,23 @@ export interface ModalFormScope<Data extends DataObject = DataObject>
    * 关闭弹窗
    */
   hideModal(): void
+}
+
+/**
+ * Modal Form Binding
+ */
+export interface ModalFormBinding<FormState extends DataObject = DataObject> {
+  modalProps: ComputedRef<ModalProps>
+  formBinding: BuildFormBinding<FormState>
+  modalAction: ComputedRef<false | InternalProButtonGroupOptions>
+  renderTrigger: RenderTrigger
+}
+
+/**
+ * buildModalForm 返回值
+ */
+export interface BuildModalFormResult<
+  FormState extends DataObject = DataObject
+> {
+  modalFormBinding: ModalFormBinding<FormState>
 }

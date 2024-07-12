@@ -48,7 +48,6 @@ import type {
   BuildTableOption,
   BuildTableResult,
   FetchProTablePageListResult,
-  ProTableColumnProps,
   ProTableScope,
   ProTableScopeWithSearch,
   ProTableToolbarActions,
@@ -69,17 +68,9 @@ interface BuildTableContext<
   Data extends DataObject = DataObject,
   Params = any,
   Collection = any,
-  SearchForm extends DataObject = DataObject,
-  SearchFormSubmit extends DataObject = SearchForm
+  SearchForm extends DataObject = DataObject
 > {
-  handleColumn?: (column: ProTableColumnProps<Data>) => void
-  options: BuildTableOption<
-    Data,
-    Params,
-    Collection,
-    SearchForm,
-    SearchFormSubmit
-  >
+  options: BuildTableOption<Data, Params, Collection, SearchForm>
   scope: ProTableScopeWithSearch<Data>
   optionResult: BuildProTableOptionResult
 
@@ -97,20 +88,11 @@ export function buildTable<
   Data extends DataObject = DataObject,
   Params = any,
   Collection = any,
-  SearchForm extends DataObject = DataObject,
-  SearchFormSubmit extends DataObject = SearchForm
+  SearchForm extends DataObject = DataObject
 >(
-  options: BuildTableOption<
-    Data,
-    Params,
-    Collection,
-    SearchForm,
-    SearchFormSubmit
-  >,
-  handleColumn?: (column: ProTableColumnProps<Data>) => void
+  options: BuildTableOption<Data, Params, Collection, SearchForm>
 ): BuildTableResult<Data> {
   const context: BuildTableContext = {
-    handleColumn,
     options,
     scope: {
       table: null!,
@@ -796,9 +778,6 @@ function buildBasicMiddleware<
 
             prev.search.push(searchOptions)
             prev.editable.push(editableOptions)
-
-            // TODO:
-            ctx.handleColumn?.({ ...curr, type })
 
             return prev
           },

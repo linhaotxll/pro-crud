@@ -11,7 +11,7 @@ import { ProTable } from '../ProTable'
 import type {
   FetchProTablePageListQuery,
   ProTableScope,
-  ProTableSearchOptions,
+  ProInnerFormOptions,
 } from '../interface'
 import type { FlexProps } from 'ant-design-vue'
 import type { Ref } from 'vue'
@@ -98,7 +98,7 @@ describe('Build Pro Table', () => {
     const App = defineComponent({
       name: 'App',
       setup() {
-        const search = ref(false) as Ref<ProTableSearchOptions>
+        const search = ref(false) as Ref<ProInnerFormOptions>
         const { proTableBinding } = buildTable(() => {
           return {
             search,
