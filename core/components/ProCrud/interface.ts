@@ -71,17 +71,17 @@ export interface BuildCrudOptionReturn<
   /**
    * 添加表单配置
    */
-  addForm?: MaybeRefOrGetter<ProInnerFormOptions<Partial<Data>, Collection>>
+  addForm?: ProInnerFormOptions<Partial<Data>, Collection>
 
   /**
    * 编辑表单配置
    */
-  editForm?: MaybeRefOrGetter<ProInnerFormOptions<Partial<Data>, Collection>>
+  editForm?: ProInnerFormOptions<Partial<Data>, Collection>
 
   /**
    * 查看表单配置
    */
-  viewForm?: MaybeRefOrGetter<ProInnerFormOptions<Partial<Data>, Collection>>
+  viewForm?: ProInnerFormOptions<Partial<Data>, Collection>
 
   /**
    * 点击重置后是否自动调用查询接口

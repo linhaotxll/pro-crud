@@ -181,7 +181,7 @@ export interface BuildFormOptionResult<
   /**
    * 接口调用成功时（submitRequest 返回 true）调用
    */
-  successRequest?: () => void
+  successRequest?: (values: R) => void
 
   /**
    * 表单验证失败

@@ -1,47 +1,40 @@
 <template>
-  <ProForm v-bind="proFormBinding" />
-
-  <button @click="handleSetCol">Set Col</button>
-  <button @click="handleSetACtion">Set Action</button>
-  <button @click="reset">Reset</button>
+  <ProCrud v-bind="proCrudBinding" />
 </template>
 
 <script lang="tsx" setup>
-import { ref } from 'vue'
+import { buildCrud } from '~/index'
 
-import { buildForm } from '~/index'
+const sleep = (time: number) => new Promise(r => setTimeout(r, time))
 
-const initialNameColSpan = 2
-const initialActionColSpan = 3
-const nameCol = ref({ span: initialNameColSpan })
-const actionCol = ref({ span: initialActionColSpan })
-
-const { proFormBinding } = buildForm(() => {
+const { proCrudBinding } = buildCrud(() => {
   return {
-    formProps: { layout: 'inline' },
     columns: [
       {
         label: '姓名',
         name: 'name',
-        col: nameCol,
+      },
+      {
+        label: '年龄',
+        name: 'age',
+        type: 'digit',
       },
     ],
-    action: {
-      col: actionCol,
+
+    async fetchTableData() {
+      await sleep(1000)
+      return [
+        {
+          name: 'IconMan',
+          age: 24,
+        },
+      ]
+    },
+
+    editRequest() {
+      debugger
+      return true
     },
   }
 })
-
-function handleSetCol() {
-  nameCol.value.span++
-}
-
-function handleSetACtion() {
-  actionCol.value.span++
-}
-
-function reset() {
-  actionCol.value = { span: initialActionColSpan }
-  nameCol.value = { span: initialNameColSpan }
-}
 </script>

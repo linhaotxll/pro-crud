@@ -43,6 +43,21 @@ export function buildModalForm<
   const internalOpen = ref(false)
 
   const { proFormBinding } = buildForm<FormState, R>(scope => {
+    /**
+     * 打开弹窗
+     */
+    function showModal() {
+      internalOpen.value = true
+    }
+
+    /**
+     * 关闭弹窗
+     */
+    function hideModal() {
+      internalOpen.value = false
+      scope.reset()
+    }
+
     const modalFormScope: ModalFormScope<FormState> = {
       ...scope,
       showModal,
@@ -59,7 +74,7 @@ export function buildModalForm<
 
     // 合并 Modal Props
     resolvedModalProps = computed<ModalProps>(() =>
-      mergeWithTovalue({ onCancel: hideModal }, modalProps, {
+      mergeWithTovalue({ onCancel: hideModal }, toValue(modalProps), {
         open: toValue(internalOpen),
       })
     )
@@ -97,32 +112,21 @@ export function buildModalForm<
 
     renderTrigger = renderTriggerButton
 
-    return mergeWithTovalue(
+    const result = mergeWithTovalue(
       {
+        toast: '保存成功',
+        ...toValue(form),
         successRequest() {
           hideModal()
           modalFormScope.reset()
         },
-        toast: '保存成功',
       },
-      toValue(form),
+
       defaultModalFormOption
     )
+
+    return result
   })
-
-  /**
-   * 打开弹窗
-   */
-  function showModal() {
-    internalOpen.value = true
-  }
-
-  /**
-   * 关闭弹窗
-   */
-  function hideModal() {
-    internalOpen.value = false
-  }
 
   const modalFormBinding: ModalFormBinding = {
     modalProps: resolvedModalProps,

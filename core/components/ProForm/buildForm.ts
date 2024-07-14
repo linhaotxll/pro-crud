@@ -204,7 +204,7 @@ export function buildForm<
 
     // 成功回调
     if (result) {
-      successRequest?.()
+      successRequest?.(params)
       showToast(toast)
     }
   }

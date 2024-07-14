@@ -1,9 +1,17 @@
 import { PlusOutlined } from '@ant-design/icons-vue'
 import { h } from 'vue'
 
+import { ModalType } from './interface'
+
 import { showToast } from '../Toast'
 
-import type { BuildCrudContext, BuildCrudOptionReturn } from './interface'
+import type {
+  BuildCrudContext,
+  BuildCrudOptionReturn,
+  ProCrudScope,
+} from './interface'
+import type { ModalFormActionGroup } from '../ModalForm'
+import type { ModalProps } from 'ant-design-vue'
 
 /**
  * 默认 Crud 返回值
@@ -32,7 +40,7 @@ export const buildDefaultCrudOptions = (
             props: {
               type: 'primary',
               onClick() {
-                scope.search.submit()
+                return scope.search.submit()
               },
             },
           },
@@ -53,9 +61,6 @@ export const buildDefaultCrudOptions = (
       },
       submitRequest: () => true,
       toast: false,
-      successRequest() {
-        scope.table.reload()
-      },
     },
     actionColumn: {
       show: true,
@@ -78,7 +83,7 @@ export const buildDefaultCrudOptions = (
             props: {
               type: 'primary',
               onClick(_, ctx) {
-                scope.modal.showViewModal(ctx.record)
+                scope.modal.showEditModal(ctx.record)
               },
             },
           },
@@ -129,5 +134,62 @@ export const buildDefaultCrudOptions = (
     wrapperProps: {
       gap: 16,
     },
+    // submitter: {
+    //   actions: {
+    //     ok: { show: false },
+    //   },
+    // },
   }
 }
+
+export const defaultModalProps: Record<ModalType, ModalProps> = {
+  [ModalType.Add]: { title: '新增' },
+  [ModalType.Edit]: { title: '编辑' },
+  [ModalType.View]: { title: '查看' },
+}
+
+export const buildDefaultModalSubmitter = (
+  ctx: BuildCrudContext
+): Record<ModalType, ModalFormActionGroup | undefined> => ({
+  [ModalType.Add]: {
+    actions: {
+      ok: {
+        props: {
+          onClick() {
+            return Promise.resolve(
+              ctx.optionResult.addRequest?.(ctx.scope.modal.getFormValues())
+            ).then(res => {
+              if (res) {
+                showToast(ctx.optionResult.addToast)
+
+                ctx.scope.modal.hideModal()
+                ctx.scope.table.reload()
+              }
+            })
+          },
+        },
+      },
+    },
+  },
+  [ModalType.Edit]: {
+    actions: {
+      ok: {
+        props: {
+          onClick() {
+            return Promise.resolve(
+              ctx.optionResult.editRequest?.(ctx.scope.modal.getFormValues())
+            ).then(res => {
+              if (res) {
+                showToast(ctx.optionResult.editToast)
+
+                ctx.scope.modal.hideModal()
+                ctx.scope.table.reload()
+              }
+            })
+          },
+        },
+      },
+    },
+  },
+  [ModalType.View]: { actions: { ok: { show: false } } },
+})

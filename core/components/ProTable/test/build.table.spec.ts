@@ -729,7 +729,7 @@ describe('Build Pro Table', () => {
           pageNum,
           pageSize: 2,
         },
-        params: undefined,
+        params: {},
       })
 
       for (let i = 0; i < values.length; ++i) {

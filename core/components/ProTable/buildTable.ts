@@ -74,6 +74,8 @@ interface BuildTableContext<
   scope: ProTableScopeWithSearch<Data>
   optionResult: BuildProTableOptionResult
 
+  searchParams: Ref<SearchForm>
+
   columns: {
     table: Ref<Ref<InternalProTableColumnProps<Data>>[]>
     search: Ref<ProFormColumnOptions<Data, any, Collection>[]>
@@ -98,6 +100,7 @@ export function buildTable<
       table: null!,
       search: null!,
     },
+    searchParams: ref({}),
     columns: {
       table: null!,
       search: null!,
@@ -407,7 +410,7 @@ function buildTableMiddleware<Data extends DataObject = DataObject>(
               pageNum: pageNum ?? currentPage.value,
               pageSize: pageSize ?? currentPageSize.value,
             },
-            params: toValue(params),
+            params: toValue(resolvedParams),
           })
         } else {
           res = toValue(data) ?? resolvedData.value
@@ -441,19 +444,25 @@ function buildTableMiddleware<Data extends DataObject = DataObject>(
     )
   }
 
+  const resolvedParams = computed(() =>
+    mergeWithTovalue({}, toValue(ctx.searchParams), toValue(params))
+  )
+
+  watch(resolvedParams, () => {
+    _fetchTableData()
+  })
+
   // 如果 data 和 params 是响应式才需要监听
-  if (isRef(data) || isRef(params)) {
+  if (isRef(data)) {
     watch(
-      [data, params],
+      data,
       () => {
         _fetchTableData()
       },
       { immediate: true, deep: true }
     )
-  } else {
-    if (immediate) {
-      _fetchTableData()
-    }
+  } else if (immediate) {
+    _fetchTableData()
   }
 
   /**
@@ -685,13 +694,19 @@ function buildSearchMiddleware<SearchForm extends DataObject = DataObject>(
     next()
 
     const searchValue = toValue(ctx.optionResult.search)
-
-    return {
-      ...(searchValue === false
+    const resolvedSearch =
+      searchValue === false
         ? null
         : isFunction(searchValue)
         ? searchValue(scope)
-        : searchValue),
+        : searchValue
+
+    return {
+      ...resolvedSearch,
+      successRequest(formState: SearchForm) {
+        ctx.searchParams.value = formState
+        resolvedSearch?.successRequest?.(formState)
+      },
       columns: computed(() => {
         const searchValue = toValue(ctx.optionResult.search)
         return searchValue === false ? [] : ctx.columns.search.value

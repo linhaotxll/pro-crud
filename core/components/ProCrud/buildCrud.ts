@@ -1,6 +1,11 @@
-import { computed, ref, toValue, watchEffect } from 'vue'
+import { computed, isRef, ref, toValue, watchEffect } from 'vue'
 
-import { buildDefaultCrudOptions } from './constant'
+import {
+  buildDefaultCrudOptions,
+  buildDefaultModalSubmitter,
+  defaultModalProps,
+  defaultModalSubmitter,
+} from './constant'
 import { type BuildCrudOptionReturn, type ProCrudScope } from './interface'
 import { ModalType } from './interface'
 
@@ -13,15 +18,18 @@ import {
 import { buildModalForm } from '../ModalForm'
 import { buildTable } from '../ProTable'
 
+import { isNil } from '~/utils'
+
 import type {
   BuildCrudContext,
   BuildCrudResult,
   ProCrudModalScope,
 } from './interface'
+import type { BuildModalFormOptionReturn } from '../ModalForm'
 import type { ProFormColumnOptions } from '../ProForm'
 import type { ProInnerFormOptions } from '../ProTable'
 import type { FormProps } from 'ant-design-vue'
-import type { MaybeRefOrGetter, Ref } from 'vue'
+import type { Ref } from 'vue'
 
 export function buildCrud<
   Data extends DataObject = DataObject,
@@ -80,11 +88,12 @@ function buildTableMiddleware(ctx: BuildCrudContext, next: NextMiddleware) {
 /**
  * 不同弹窗传递的 Form Props
  */
-const formPropsWithModalType: Record<ModalType, FormProps | undefined> = {
-  [ModalType.Add]: undefined,
-  [ModalType.Edit]: undefined,
-  [ModalType.View]: { disabled: true },
-}
+const topLevelFormPropsWithModalType: Record<ModalType, FormProps | undefined> =
+  {
+    [ModalType.Add]: undefined,
+    [ModalType.Edit]: undefined,
+    [ModalType.View]: { disabled: true },
+  }
 
 function buildModalFormMiddleware(ctx: BuildCrudContext, next: NextMiddleware) {
   const modalType = ref<ModalType>()
@@ -139,8 +148,7 @@ function buildModalFormMiddleware(ctx: BuildCrudContext, next: NextMiddleware) {
 
     const formMap: Record<
       ModalType,
-      | MaybeRefOrGetter<ProInnerFormOptions<Partial<DataObject>, any>>
-      | undefined
+      ProInnerFormOptions<Partial<DataObject>, any> | undefined
     > = {
       [ModalType.Add]: addForm,
       [ModalType.Edit]: editForm,
@@ -191,23 +199,65 @@ function buildModalFormMiddleware(ctx: BuildCrudContext, next: NextMiddleware) {
       viewFormColumns.value = view
     })
 
-    return {
-      modalProps,
-      submitter,
-      form: computed(() => {
+    // debugger
+    const keys = Object.keys(form ?? {})
+
+    const resolvedModalProps = computed(() => {
+      const type = modalType.value
+      return isNil(type)
+        ? {}
+        : mergeWithTovalue({}, defaultModalProps[type], toValue(modalProps))
+    })
+
+    const resolvedSubmitter = computed(() => {
+      const type = modalType.value
+      return isNil(type)
+        ? undefined
+        : mergeWithTovalue(
+            {},
+            buildDefaultModalSubmitter(ctx)[type],
+            toValue(submitter)
+          )
+    })
+
+    const resolvedForm: BuildModalFormOptionReturn['form'] = {
+      columns: computed(() => {
         const type = modalType.value
-        return mergeWithTovalue(
-          {},
-          toValue(form),
-          type ? toValue(formMap[type]) : undefined,
-          type
-            ? {
-                columns: formColumsMap[type].value,
-                formProps: formPropsWithModalType[type],
-              }
-            : undefined
-        )
+        return !isNil(type) ? formColumsMap[type].value : []
       }),
+      formProps: computed(() => {
+        const type = modalType.value
+        return isNil(type)
+          ? {}
+          : mergeWithTovalue(
+              {},
+              toValue(form?.formProps),
+              topLevelFormPropsWithModalType[type]
+            )
+      }),
+    }
+
+    for (const key of keys) {
+      const resolvedKey =
+        key as keyof Required<BuildModalFormOptionReturn>['form']
+      const value = form![resolvedKey]
+      if (
+        isNil(value) ||
+        resolvedKey === 'columns' ||
+        resolvedKey === 'formProps'
+      ) {
+        continue
+      }
+
+      if (isRef(value)) {
+        resolvedForm![key] = computed<any>(() => toValue(value))
+      }
+    }
+
+    return {
+      modalProps: resolvedModalProps,
+      submitter: resolvedSubmitter,
+      form: resolvedForm,
       renderTrigger: false,
     }
   })
@@ -220,8 +270,8 @@ function buildBasicMiddleware(ctx: BuildCrudContext, next: NextMiddleware) {
 
   ctx.optionResult = mergeWithTovalue(
     { autoReload: true },
-    ctx.optionResult,
-    buildDefaultCrudOptions(ctx)
+    buildDefaultCrudOptions(ctx),
+    ctx.optionResult
   )
   next()
 }
