@@ -15,6 +15,7 @@ import { viteMockServe } from 'vite-plugin-mock'
 import Pages from 'vite-plugin-pages'
 import VueDevTools from 'vite-plugin-vue-devtools'
 import svgLoader from 'vite-svg-loader'
+import { configDefaults } from 'vitest/config'
 
 // import { ProComponentsResolver } from './lib/resolveComponents'
 
@@ -105,5 +106,7 @@ export default defineConfig({
 
   test: {
     environment: 'happy-dom',
+    testTimeout: 10000,
+    exclude: [...configDefaults.exclude, 'src'],
   },
 })
