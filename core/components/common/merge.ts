@@ -1,73 +1,58 @@
-import { isArray, isPlainObject, mergeWith } from 'lodash-es'
-import { isRef, toValue, unref } from 'vue'
+import { toValue, unref } from 'vue'
 
-const getRawType = (val: unknown) => {
-  return Object.prototype.toString.call(val).slice(8, -1)
-}
+import { isArray, isFunction, isNil, isPlainObject } from '~/utils'
 
-export function mergeWithTovalue<T = any>(target: any, ...sources: any[]): T {
-  merge(target, value => unref(value), ...sources)
+export function mergeWithTovalue<T = any>(target: any, ...source: any[]): T {
+  merge(target, ...source)
   return target
 }
 
-export function mergeWithNormal<T = any>(target: any, ...sources: any[]): T {
-  merge(target, value => unref(value), ...sources)
-  return target
-}
-
-export function mergeWithTovalueNoFunc<T = any>(
-  target: any,
-  ...sources: any[]
-): T {
-  merge(target, value => unref(value), ...sources)
-  return target
-}
-
-export function mergeWithUnref<T = any>(target: any, ...source: any[]): T {
-  const args = [
-    target,
-    ...source,
-    (_: any, srcValue: any) => {
-      return isRef(srcValue) ? unref(srcValue) ?? null : undefined
-    },
-  ]
-  // @ts-ignore
-  return mergeWith(...args)
-}
-
-export function merge(
-  target: any,
-  customizer?: (value: any) => any,
-  ...sources: any
-) {
-  customizer ||= (value: any) => value
-
-  for (const s of sources) {
-    const source = toValue(s)
-    for (const key in source) {
-      // if (source[key] === undefined && key in target) {
-      //   continue
-      // }
-      if (isPlainObjectOrArray(source[key])) {
-        if (
-          isPlainObjectOrArray(target[key]) &&
-          getRawType(target[key]) === getRawType(toValue(source[key]))
-        ) {
-          if (isPlainObject(target[key])) {
-            merge(target[key], customizer, source[key])
-          } else {
-            // target[key] = target[key].concat(customizer(source[key]))
-          }
-        } else {
-          target[key] = customizer(source[key])
-        }
+export function merge(target: any, ...sources: any) {
+  for (const source of sources) {
+    const sourceValue = toValue(source)
+    if (isNil(sourceValue)) {
+      continue
+    }
+    const sourceValueKeys = Object.keys(sourceValue)
+    for (const key of sourceValueKeys) {
+      const resolveSourceValue = unref(sourceValue[key])
+      if (isFunction(resolveSourceValue)) {
+        target[key] = resolveSourceValue
       } else {
-        target[key] = customizer(source[key])
+        const value = toValue(sourceValue[key])
+        if (isIgnore(value)) {
+          target[key] = value
+          continue
+        }
+        if (isPlainObject(value)) {
+          merge(
+            (target[key] = isPlainObject(target[key]) ? target[key] : {}),
+            value
+          )
+        } else if (isArray(value)) {
+          merge((target[key] = isArray(target[key]) ? target[key] : []), value)
+        } else {
+          target[key] = value
+        }
       }
     }
   }
+
+  return target
 }
 
-function isPlainObjectOrArray(value: unknown) {
-  return isPlainObject(value) || isArray(value)
+const IgnoreKey = Symbol('ignore merge key')
+
+export function isIgnore(value: any) {
+  return isNil(value) ? true : !!value[IgnoreKey]
+}
+
+export function markIgnoreMerge(value: unknown) {
+  if (isPlainObject(value) || isArray(value)) {
+    Object.defineProperty(value, IgnoreKey, {
+      value: true,
+      configurable: false,
+      enumerable: false,
+    })
+  }
 }

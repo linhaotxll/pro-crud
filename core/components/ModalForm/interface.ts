@@ -1,4 +1,5 @@
 import type { DataObject } from '../common'
+import type { CustomRender } from '../CustomRender'
 import type {
   ActionGroupOption,
   ActionOption,
@@ -11,12 +12,12 @@ import type {
 } from '../ProForm/interface'
 import type { DeepMaybeRef } from '@vueuse/core'
 import type { ModalProps } from 'ant-design-vue'
-import type { ComputedRef, MaybeRefOrGetter, VNodeChild } from 'vue'
+import type { ComputedRef, MaybeRefOrGetter } from 'vue'
 
 /**
  * 渲染打开弹窗的 DOM 函数
  */
-export type RenderTrigger = (() => VNodeChild) | false
+export type RenderTrigger = CustomRender | false
 
 export interface BuildModalFormOptionReturn<
   Data extends DataObject = DataObject,
@@ -52,7 +53,7 @@ export interface BuildModalFormOptionReturn<
 /**
  * Mdoal Form 按钮组
  */
-export type ModalFormActionGroup<C = any> = ActionGroupOption<
+export type ModalFormActionGroup<C extends object = any> = ActionGroupOption<
   ModalFormActions<C>,
   {}
 >
@@ -60,7 +61,7 @@ export type ModalFormActionGroup<C = any> = ActionGroupOption<
 /**
  * Pro Table 列按钮
  */
-export interface ModalFormActions<C = any> {
+export interface ModalFormActions<C extends object = any> {
   /**
    * 确认按钮
    */

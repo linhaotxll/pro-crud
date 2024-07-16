@@ -66,8 +66,9 @@ export function buildModalForm<
 
     const {
       modalProps,
-      renderTrigger: renderTriggerButton = () =>
-        buildDefaultRenderTrigger(modalFormScope),
+      renderTrigger: renderTriggerButton = {
+        fallback: () => buildDefaultRenderTrigger(modalFormScope),
+      },
       submitter,
       form,
     } = options(modalFormScope)

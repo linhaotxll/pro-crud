@@ -5,8 +5,9 @@ import { defineComponent, h, nextTick, ref } from 'vue'
 
 import { ProButtonGroup, buildButtonGroup } from '..'
 
-import type { ProButtonConfirmType } from '..'
-import type { ModalProps, PopconfirmProps } from 'ant-design-vue'
+import type { ProButtonConfirmType, ProButtonConformModalProps } from '..'
+import type { PopconfirmProps } from 'ant-design-vue'
+import type { ButtonType } from 'ant-design-vue/es/button'
 
 describe('Pro Button', () => {
   beforeEach(() => {
@@ -215,7 +216,7 @@ describe('Pro Button', () => {
 
   test('pro button action.props is ref', async () => {
     const buttonProps = ref({ type: 'primary' })
-    const type = ref('default')
+    const type = ref<ButtonType>('default')
 
     const App = defineComponent({
       name: 'App',
@@ -440,7 +441,7 @@ describe('Pro Button', () => {
     const okClick = vi.fn()
     const onVisibleChange = vi.fn()
     const confirmType = ref<ProButtonConfirmType>(false)
-    const confirmProps = ref<ModalProps>({
+    const confirmProps = ref<ProButtonConformModalProps>({
       cancelText: '取消',
       onOk: okClick,
     })

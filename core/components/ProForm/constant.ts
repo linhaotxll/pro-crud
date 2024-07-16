@@ -1,5 +1,4 @@
 import { CopyOutlined, DeleteOutlined } from '@ant-design/icons-vue'
-import { merge } from 'lodash-es'
 import { h, toValue } from 'vue'
 
 import { getUuid, mergeWithTovalue } from '../common'
@@ -11,7 +10,7 @@ import type {
 } from './interface'
 import type { ProFormColumnOptions, ProFormListOptions } from './interface'
 import type { DataObject } from '../common'
-import type { SuccessToastOptions } from '../Toast'
+import type { ToastOptions } from '../Toast'
 import type { ColProps, RowProps, SpaceProps } from 'ant-design-vue'
 import type { CSSProperties, Ref } from 'vue'
 
@@ -132,7 +131,7 @@ export const buildDefaultProSearchActionGroup = <
 
   resolvedCol.offset = offset
 
-  return merge(
+  return mergeWithTovalue(
     {
       col: resolvedCol,
       show: true,
@@ -185,7 +184,7 @@ export const DefaultFormListSpaceProps: SpaceProps = {
 }
 
 // Pro Form Toast
-export const DefaultProFormToast: SuccessToastOptions = '保存成功'
+export const DefaultProFormToast: ToastOptions = '保存成功'
 
 // Pro Search Wrapper Col Props
 export const DefaultProSearchWrapperColProps: ColProps & {

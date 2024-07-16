@@ -13,9 +13,8 @@ import type {
   ProTableColumnActionGroup,
   ProTableColumnProps,
   ProTableEditableOptions,
-  ProTableScopeWithSearch,
+  ProTableScope,
   ProTableToolbarActionGroup,
-  RenderBodyCellTextParams,
 } from './interface'
 import type {
   InternalColumnOptions,
@@ -37,7 +36,7 @@ import type { ComputedRef, MaybeRefOrGetter, VNodeChild } from 'vue'
  * @returns toolbar 配置对象
  */
 export const buildDefaultToolbar = (
-  scope: ProTableScopeWithSearch
+  scope: ProTableScope
 ): ProTableToolbarActionGroup => {
   return {
     show: true,
@@ -95,9 +94,9 @@ export const TableContainerProps: FlexProps = {
  * Table 操作列配置
  */
 export const buildTableActionColumnOptions = (
-  action: ProTableColumnActionGroup<RenderBodyCellTextParams<any>> | undefined,
+  action: ProTableColumnActionGroup<object> | undefined,
   resolvedEditable: ComputedRef<InternalProTableEditableOptions<any>>,
-  scope: ProTableScopeWithSearch,
+  scope: ProTableScope,
   tableProps: ComputedRef<TableProps>,
   editableKeysMap: InternalEditableKeys
 ): ProTableColumnProps => {
@@ -138,7 +137,7 @@ export const buildTableActionColumnOptions = (
  * Table 开启编辑模式默认按钮组
  */
 export function buildTableEnableEditDefaultAction(
-  scope: ProTableScopeWithSearch<any>,
+  scope: ProTableScope,
   tableProps: MaybeRefOrGetter<TableProps>
 ): ProTableColumnActionGroup {
   return {
@@ -165,7 +164,7 @@ export function buildTableEnableEditDefaultAction(
  * Table 编辑默认配置
  */
 export function buildTableEditableDefaultOption(
-  scope: ProTableScopeWithSearch,
+  scope: ProTableScope,
   tableProps: MaybeRefOrGetter<TableProps>,
   editable: ComputedRef<InternalProTableEditableOptions<any>>
 ): ProTableEditableOptions {

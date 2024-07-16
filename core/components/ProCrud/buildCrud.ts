@@ -1,10 +1,9 @@
-import { computed, isRef, ref, toValue, watchEffect } from 'vue'
+import { computed, ref, toValue, watchEffect } from 'vue'
 
 import {
   buildDefaultCrudOptions,
   buildDefaultModalSubmitter,
   defaultModalProps,
-  defaultModalSubmitter,
 } from './constant'
 import { type BuildCrudOptionReturn, type ProCrudScope } from './interface'
 import { ModalType } from './interface'
@@ -23,6 +22,7 @@ import { isNil } from '~/utils'
 import type {
   BuildCrudContext,
   BuildCrudResult,
+  ProCrudColumnOption,
   ProCrudModalScope,
 } from './interface'
 import type { BuildModalFormOptionReturn } from '../ModalForm'
@@ -164,10 +164,18 @@ function buildModalFormMiddleware(ctx: BuildCrudContext, next: NextMiddleware) {
 
       const { add, edit, view } =
         columns?.reduce((prev, column) => {
+          const target: ProCrudColumnOption = {
+            label: column.label,
+            name: column.name,
+          }
+          if (column.type) {
+            target.type = column.type
+          }
           // 新增表单列
           prev.add.push(
             mergeWithTovalue(
-              { label: column.label, name: column.name, type: column.type },
+              {},
+              target,
               toValue(column.form),
               toValue(column.addForm)
             )
@@ -176,7 +184,8 @@ function buildModalFormMiddleware(ctx: BuildCrudContext, next: NextMiddleware) {
           // 编辑表单列
           prev.edit.push(
             mergeWithTovalue(
-              { label: column.label, name: column.name, type: column.type },
+              {},
+              target,
               toValue(column.form),
               toValue(column.editForm)
             )
@@ -185,7 +194,8 @@ function buildModalFormMiddleware(ctx: BuildCrudContext, next: NextMiddleware) {
           // 查看表单列
           prev.view.push(
             mergeWithTovalue(
-              { label: column.label, name: column.name, type: column.type },
+              {},
+              target,
               toValue(column.form),
               toValue(column.viewForm)
             )
@@ -200,7 +210,7 @@ function buildModalFormMiddleware(ctx: BuildCrudContext, next: NextMiddleware) {
     })
 
     // debugger
-    const keys = Object.keys(form ?? {})
+    // const keys = Object.keys(form ?? {})
 
     const resolvedModalProps = computed(() => {
       const type = modalType.value
@@ -220,7 +230,7 @@ function buildModalFormMiddleware(ctx: BuildCrudContext, next: NextMiddleware) {
           )
     })
 
-    const resolvedForm: BuildModalFormOptionReturn['form'] = {
+    const commonFormOptions: BuildModalFormOptionReturn['form'] = {
       columns: computed(() => {
         const type = modalType.value
         return !isNil(type) ? formColumsMap[type].value : []
@@ -237,22 +247,12 @@ function buildModalFormMiddleware(ctx: BuildCrudContext, next: NextMiddleware) {
       }),
     }
 
-    for (const key of keys) {
-      const resolvedKey =
-        key as keyof Required<BuildModalFormOptionReturn>['form']
-      const value = form![resolvedKey]
-      if (
-        isNil(value) ||
-        resolvedKey === 'columns' ||
-        resolvedKey === 'formProps'
-      ) {
-        continue
-      }
-
-      if (isRef(value)) {
-        resolvedForm![key] = computed<any>(() => toValue(value))
-      }
-    }
+    const resolvedForm = computed(() => {
+      const type = modalType.value
+      return isNil(type)
+        ? commonFormOptions
+        : mergeWithTovalue({}, form, formMap[type], commonFormOptions)
+    })
 
     return {
       modalProps: resolvedModalProps,

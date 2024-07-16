@@ -390,9 +390,10 @@ describe('Pro Form Props', () => {
     expect(wrapper.findAllComponents(Button).length).toBe(0)
 
     await button.trigger('click')
-    expect(wrapper.findAllComponents(Button).length).toBe(2)
+    expect(wrapper.findAllComponents(Button).length).toBe(3)
     expect(wrapper.findAllComponents(Button)[0].text()).toBe('重 置')
-    expect(wrapper.findAllComponents(Button)[1].text()).toBe('取 消')
+    expect(wrapper.findAllComponents(Button)[1].text()).toBe('提 交')
+    expect(wrapper.findAllComponents(Button)[2].text()).toBe('取 消')
   })
 
   test('from column is ref', async () => {

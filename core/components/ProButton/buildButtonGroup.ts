@@ -54,7 +54,7 @@ function _buildButtonGroup<T extends CustomActions, R = object, C = any>(
   defaultAction?: MaybeRefOrGetter<
     ActionGroupOption<CustomActions, Record<string, any>>
   >,
-  ctx?: C
+  context?: C
 ) {
   const actionValue: UnwrapRef<ActionGroupOption<T, R>> = mergeWithTovalue(
     {},
@@ -81,7 +81,11 @@ function _buildButtonGroup<T extends CustomActions, R = object, C = any>(
   if (resolvedActions) {
     result.actions = Object.keys(resolvedActions)
       .map<InternalProButtonOptions>(name => {
-        return mergeWithTovalue({ ctx }, DefaultAction, resolvedActions[name])
+        return mergeWithTovalue(
+          { context },
+          DefaultAction,
+          resolvedActions[name]
+        )
       })
       .sort((a, b) => (a.order ?? 0) - (b.order ?? 0))
   }

@@ -1,5 +1,4 @@
 import { Tag } from 'ant-design-vue'
-import { merge } from 'lodash-es'
 import { h, inject, resolveComponent, toValue } from 'vue'
 
 import { GlobalOption } from '~/constant'
@@ -337,5 +336,5 @@ function renderDictionaryInForm(ctx: ValueTypeFormProps) {
 }
 
 export function ensureValueType() {
-  return inject(GlobalOption)?.types ?? merge({}, DefaultValueType)
+  return inject(GlobalOption)?.types ?? DefaultValueType
 }

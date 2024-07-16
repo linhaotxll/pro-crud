@@ -82,8 +82,9 @@ export function renderBodyCellText(
         return (
           <ProFormItem
             column={mergeWithTovalue(
-              { name },
-              editableValue.editFormBinding.columns.value[columnIndex]
+              {},
+              editableValue.editFormBinding.columns.value[columnIndex],
+              { name }
             )}
             scope={editableValue.formScope}
           />

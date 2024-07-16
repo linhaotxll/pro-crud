@@ -1,17 +1,17 @@
-import { describe, expect, test } from 'vitest'
+import { describe, expect, test, vi } from 'vitest'
 import { ref } from 'vue'
 
-import { mergeWithTovalue } from '../merge'
+import { markIgnoreMerge, merge } from '../merge'
 
 describe('merge', () => {
   test('merge nested object', () => {
-    const target = { info: { name: 'IconMan' } }
-    const source = {
+    const source1 = { info: { name: 'IconMan' } }
+    const source2 = {
       info: { age: ref(24) },
       score: ref(99),
       exam: ref({ answer: 2 }),
     }
-    const result = mergeWithTovalue(target, null, source)
+    const result = merge({}, source1, source2)
 
     expect(result).toMatchInlineSnapshot(`
       {
@@ -27,113 +27,66 @@ describe('merge', () => {
     `)
   })
 
-  test('merge non object', () => {
-    const target = { info: { name: 'IconMan' } }
-    const source = {
-      info: { age: ref(24) },
-      score: ref(99),
-      exam: ref({ answer: 2 }),
+  test('merge nested array', () => {
+    const source1 = {
+      persons: [{ name: 'IconMan', age: 24 }],
     }
     const source2 = {
-      gender: 'male',
+      persons: ref([{ name: 'Nicholas', age: ref(25) }]),
+      infos: [ref({ name: 'Txll' })],
     }
-    const result = mergeWithTovalue(target, null, source, source2)
+    const result = merge({}, source1, source2)
 
     expect(result).toMatchInlineSnapshot(`
       {
-        "exam": {
-          "answer": 2,
-        },
-        "gender": "male",
-        "info": {
-          "age": 24,
-          "name": "IconMan",
-        },
-        "score": 99,
-      }
-    `)
-  })
-
-  test('merge non object', () => {
-    const target = {
-      info: { name: 'IconMan' },
-      classes: [{ name: 'Classes One' }],
-    }
-    const source = {
-      info: { age: ref(24) },
-      score: ref(99),
-      exam: ref({ answer: 2 }),
-    }
-    const source2 = {
-      gender: 'male',
-      classes: ref([{ name: 'Classes Two' }]),
-    }
-    const source3 = {
-      classes: [{ name: 'Classes Three' }],
-    }
-    const result = mergeWithTovalue(target, null, source, source2, source3)
-
-    expect(result).toMatchInlineSnapshot(`
-      {
-        "classes": [
+        "infos": [
           {
-            "name": "Classes Two",
+            "name": "Txll",
           },
         ],
-        "exam": {
-          "answer": 2,
-        },
-        "gender": "male",
-        "info": {
-          "age": 24,
-          "name": "IconMan",
-        },
-        "score": 99,
+        "persons": [
+          {
+            "age": 25,
+            "name": "Nicholas",
+          },
+        ],
       }
     `)
   })
 
-  // test('merge non object', () => {
-  //   const ctx = {}
-  //   const countFn = vi.fn(() => 0)
-  //   const target = {
-  //     info: { name: 'IconMan' },
-  //   }
-  //   const source = {
-  //     info: { count: countFn },
-  //   }
+  test('merge function', () => {
+    const sayName = vi.fn()
+    const sayAge = vi.fn()
 
-  //   const result = mergeWithTovalue(target, ctx, source)
-
-  //   expect(result).toMatchInlineSnapshot(`
-  //     {
-  //       "info": {
-  //         "count": 0,
-  //         "name": "IconMan",
-  //       },
-  //     }
-  //   `)
-  //   expect(countFn).toHaveBeenCalledTimes(1)
-  //   expect(countFn).toHaveBeenCalledWith(ctx)
-  // })
-
-  test('source is ref', () => {
-    const target = {
-      info: { name: 'IconMan' },
+    const source1 = {
+      sayName,
     }
-    const source = ref({
-      info: { age: 24 },
-    })
-
-    const result = mergeWithTovalue(target, null, source)
+    const source2 = {
+      sayAge: ref(sayAge),
+    }
+    const result = merge({}, source1, source2)
 
     expect(result).toMatchInlineSnapshot(`
       {
-        "info": {
-          "age": 24,
-          "name": "IconMan",
-        },
+        "sayAge": [MockFunction spy],
+        "sayName": [MockFunction spy],
       }
     `)
+
+    expect(sayName).toHaveBeenCalledTimes(0)
+    expect(sayAge).toHaveBeenCalledTimes(0)
+  })
+
+  test('merge ignore', () => {
+    const source = {
+      info: {
+        name: 'IconMan',
+        age: 24,
+      },
+    }
+    markIgnoreMerge(source.info)
+    const result = merge({}, source)
+
+    expect(result.info).toBe(source.info)
   })
 })

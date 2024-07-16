@@ -1,4 +1,4 @@
-import { merge, set } from 'lodash-es'
+import { set } from 'lodash-es'
 import { ref, toValue, watchEffect } from 'vue'
 
 import { buildFormListColumns } from './buildFormListColumn'
@@ -8,12 +8,7 @@ import {
   ProFormListPlaceholder,
 } from './constant'
 
-import {
-  getUuid,
-  mergeWithTovalue,
-  ensureValueType,
-  mergeWithTovalueNoFunc,
-} from '../common'
+import { getUuid, ensureValueType, mergeWithTovalue } from '../common'
 import { buildDictionary } from '../ProDictionary'
 
 import { isArray } from '~/utils'
@@ -45,7 +40,11 @@ export function buildFormColumn<T extends DataObject = DataObject>(
 
   watchEffect(() => {
     // dict 不能被合并，防止外层 ProTable 传递 dict 被克隆
-    column = merge({ dict: column.dict }, DefaultProFormColumn, column)
+    const mergedColumn = mergeWithTovalue(
+      { dict: column.dict },
+      DefaultProFormColumn,
+      column
+    )
 
     const {
       show,
@@ -58,7 +57,7 @@ export function buildFormColumn<T extends DataObject = DataObject>(
       list,
       dict,
       ...rest
-    } = column
+    } = mergedColumn
 
     // 解析显示状态
     const resolvedShow = toValue(show!)
@@ -113,7 +112,7 @@ export function buildFormColumn<T extends DataObject = DataObject>(
 
     // 合并 Field Props
     const mergedFieldProps = fieldProps
-      ? mergeWithTovalueNoFunc(
+      ? mergeWithTovalue(
           {},
           null,
           ensureValueType()[resolvedType].form?.props,

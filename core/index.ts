@@ -21,9 +21,8 @@ import {
   Modal,
   ConfigProvider,
 } from 'ant-design-vue'
-import { merge } from 'lodash-es'
 
-import { DefaultValueType } from './components/common'
+import { DefaultValueType, mergeWithTovalue } from './components/common'
 import { ModalForm } from './components/ModalForm'
 import { ProButtonGroup } from './components/ProButton'
 import { ProCrud } from './components/ProCrud'
@@ -69,11 +68,8 @@ export const ProComponents: Plugin<ProComponentsOptions> = {
       .use(Modal)
       .use(ConfigProvider)
 
-    const resolvedProComponentOptions: ResolvedProComponentsOptions = merge(
-      {},
-      { types: DefaultValueType },
-      options
-    )
+    const resolvedProComponentOptions: ResolvedProComponentsOptions =
+      mergeWithTovalue({}, { types: DefaultValueType }, options)
 
     app.provide(GlobalOption, resolvedProComponentOptions)
   },

@@ -1,8 +1,11 @@
 import { Modal, type ModalProps } from 'ant-design-vue'
 import { defineComponent, toValue } from 'vue'
 
+import { buildCustomRender } from '../CustomRender'
 import { ProButtonGroup } from '../ProButton'
 import { ProForm, type BuildFormBinding } from '../ProForm'
+
+import { isPlainObject } from '~/utils'
 
 import type { RenderTrigger } from './interface'
 import type { InternalProButtonGroupOptions } from '../ProButton'
@@ -36,7 +39,11 @@ export const ModalForm = defineComponent({
       }
 
       const $trigger =
-        props.renderTrigger === false ? null : props.renderTrigger?.()
+        props.renderTrigger === false
+          ? null
+          : isPlainObject(props.renderTrigger)
+          ? buildCustomRender(props.renderTrigger)
+          : null
 
       return (
         <>

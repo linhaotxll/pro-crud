@@ -5,11 +5,7 @@ import { ModalType } from './interface'
 
 import { showToast } from '../Toast'
 
-import type {
-  BuildCrudContext,
-  BuildCrudOptionReturn,
-  ProCrudScope,
-} from './interface'
+import type { BuildCrudContext, BuildCrudOptionReturn } from './interface'
 import type { ModalFormActionGroup } from '../ModalForm'
 import type { ModalProps } from 'ant-design-vue'
 

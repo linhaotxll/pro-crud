@@ -158,15 +158,13 @@ export interface ProTableColumnProps<
 /**
  * Pro Table 列按钮组
  */
-export type ProTableColumnActionGroup<C = any> = ActionGroupOption<
-  ProTableActions<C>,
-  {}
->
+export type ProTableColumnActionGroup<Data extends object = any> =
+  ActionGroupOption<ProTableActions<RenderBodyCellTextParams<Data>>, {}>
 
 /**
  * Pro Table 列按钮
  */
-export interface ProTableActions<C = any> {
+export interface ProTableActions<C extends object = any> {
   /**
    * 开始编辑按钮
    */
@@ -191,7 +189,7 @@ export type ProTableEditableColumnActionGroup<
 /**
  * Pro Table 编辑列按钮
  */
-export type ProTableEditableActions<C = any> = {
+export type ProTableEditableActions<C extends object = any> = {
   /**
    * 保存
    */
@@ -231,7 +229,7 @@ export type ProTableActionColumn<
   Collection = any
 > =
   | ProTableColumnProps<Data, null, Collection> & {
-      action?: ProTableColumnActionGroup<RenderBodyCellTextParams<Data>>
+      action?: ProTableColumnActionGroup<Data>
     }
 
 /**
@@ -243,7 +241,7 @@ export type BuildTableOption<
   Collection = any,
   SearchForm extends DataObject = DataObject
 > = (
-  scope: ProTableScopeWithSearch<Data>
+  scope: ProTableScope<Data>
 ) => BuildProTableOptionResult<Data, Params, Collection, SearchForm>
 
 /**
@@ -576,7 +574,9 @@ export interface ProTableEditableOptions<
 /**
  * ProTable 作用域
  */
-export interface ProTableScope<Data extends DataObject = DataObject> {
+export interface ProTableScopeWithoutSearch<
+  Data extends DataObject = DataObject
+> {
   /**
    * 重新加载当前页数据
    */
@@ -634,9 +634,9 @@ export interface ProTableScope<Data extends DataObject = DataObject> {
   clearEditableRowData(rowKey: Key): void
 }
 
-export interface ProTableScopeWithSearch<Data extends DataObject = DataObject> {
+export interface ProTableScope<Data extends DataObject = DataObject> {
   search: ProFormScope
-  table: ProTableScope<Data>
+  table: ProTableScopeWithoutSearch<Data>
 }
 
 export interface BuildTableResult<Data extends DataObject = any> {

@@ -29,12 +29,7 @@ import {
   renderHeaderCellText,
 } from './renderBodyCell'
 
-import {
-  compose,
-  fetchWithLoding,
-  mergeWithNormal,
-  mergeWithTovalue,
-} from '../common'
+import { compose, fetchWithLoding, mergeWithTovalue } from '../common'
 import { buildButtonGroup } from '../ProButton'
 import { buildForm, buildSearch } from '../ProForm'
 import { showToast } from '../Toast'
@@ -49,7 +44,7 @@ import type {
   BuildTableResult,
   FetchProTablePageListResult,
   ProTableScope,
-  ProTableScopeWithSearch,
+  ProTableScopeWithoutSearch,
   ProTableToolbarActions,
 } from './interface'
 import type {
@@ -71,7 +66,7 @@ interface BuildTableContext<
   SearchForm extends DataObject = DataObject
 > {
   options: BuildTableOption<Data, Params, Collection, SearchForm>
-  scope: ProTableScopeWithSearch<Data>
+  scope: ProTableScope<Data>
   optionResult: BuildProTableOptionResult
 
   searchParams: Ref<SearchForm>
@@ -130,7 +125,7 @@ function buildTableMiddleware<Data extends DataObject = DataObject>(
   nextMiddleware: () => void
 ) {
   // ProTable 作用域对象
-  const scope: ProTableScope<any> = {
+  const scope: ProTableScopeWithoutSearch<any> = {
     reload,
     reset,
     previous,
@@ -293,7 +288,7 @@ function buildTableMiddleware<Data extends DataObject = DataObject>(
       filterColumns.push(resolvedActionColumn.value)
     }
 
-    const propsValue = mergeWithTovalue<TableProps<Data>>(
+    const propsValue = mergeWithTovalue(
       {
         components: extractComponents(ctx.optionResult),
         rowKey: 'key',
@@ -667,7 +662,7 @@ function buildTableMiddleware<Data extends DataObject = DataObject>(
     rowKey: Key,
     editableValue: ReturnType<typeof isEnableEditable>
   ): Data {
-    return mergeWithNormal(
+    return mergeWithTovalue(
       {},
       resolvedDataRowkeyMap.value[rowKey],
       editableValue?.formScope.getFieldValue(['table', rowKey])

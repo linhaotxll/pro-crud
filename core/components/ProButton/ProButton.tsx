@@ -1,11 +1,15 @@
 import { Button, Modal, Popconfirm } from 'ant-design-vue'
-import { defineComponent, ref } from 'vue'
+import { defineComponent, ref, toValue } from 'vue'
 
 import { mergeWithTovalue } from '../common'
+import { buildCustomRender } from '../CustomRender'
 
 import { isArray, isFunction } from '~/utils'
 
-import type { InternalProButtonOptions } from './interface'
+import type {
+  InternalProButtonOptions,
+  ProButtonRenderParams,
+} from './interface'
 import type { ModalProps, PopconfirmProps } from 'ant-design-vue'
 import type { MouseEventHandler } from 'ant-design-vue/es/_util/EventInterface'
 import type { PropType } from 'vue'
@@ -58,12 +62,12 @@ export const ProButton = defineComponent({
       }
 
       if (confirmType === 'modal') {
-        const modelProps = mergeWithTovalue({}, confirmProps, {
+        const modelProps = mergeWithTovalue({}, toValue(confirmProps), {
           onOk(e: MouseEvent) {
             return invokeEventHandler(
               (confirmProps as ModalProps).onOk,
               e,
-              props.option.ctx
+              props.option.context
             )
           },
         })
@@ -71,7 +75,7 @@ export const ProButton = defineComponent({
         return
       }
 
-      invokeEventHandler(buttonProps?.onClick, e, props.option.ctx)
+      invokeEventHandler(buttonProps?.onClick, e, props.option.context)
     }
 
     return () => {
@@ -84,39 +88,54 @@ export const ProButton = defineComponent({
         props: buttonProps,
         confirmType,
         confirmProps,
+        confirmRender,
         render,
-        ctx,
+        context,
+        is,
       } = props.option
 
-      if (typeof render === 'function') {
-        return render({ loading: buttonLoading.value }, ctx)
-      }
+      const resolvedButtonProps = toValue(buttonProps)
 
-      const { onClick: _, ...restProps } = buttonProps ?? {}
-
-      const $button = (
-        <Button
-          {...restProps}
-          loading={buttonLoading.value}
-          onClick={handleClickButton}
-        >
-          {text}
-        </Button>
+      const mergedContext: ProButtonRenderParams = mergeWithTovalue(
+        {},
+        toValue(context),
+        resolvedButtonProps ? { props: resolvedButtonProps } : null,
+        { props: { onClick: handleClickButton, loading: buttonLoading.value } }
       )
+
+      const $button = buildCustomRender<ProButtonRenderParams>({
+        context: mergedContext,
+        is: is,
+        render,
+        fallback: ctx => <Button {...ctx.props}>{text}</Button>,
+      })
 
       let $popconfirm
       if (confirmType === 'popconfirm') {
-        const props = mergeWithTovalue({}, confirmProps, {
-          onConfirm(e: MouseEvent) {
-            return invokeEventHandler(
-              (confirmProps as PopconfirmProps).onConfirm,
-              e,
-              ctx
-            )
-          },
-        })
+        const resolvedConfirmProp = toValue(confirmProps)
+        const mergedPopconfirmProps = mergeWithTovalue(
+          {},
+          resolvedConfirmProp ? { props: resolvedConfirmProp } : null,
+          {
+            props: {
+              onConfirm(e: MouseEvent) {
+                return invokeEventHandler(
+                  (confirmProps as PopconfirmProps).onConfirm,
+                  e,
+                  context
+                )
+              },
+            },
+          }
+        )
 
-        $popconfirm = <Popconfirm {...props}>{$button}</Popconfirm>
+        $popconfirm = buildCustomRender<ProButtonRenderParams<PopconfirmProps>>(
+          {
+            ...confirmRender,
+            context: mergedPopconfirmProps,
+            fallback: ctx => <Popconfirm {...ctx.props}>{$button}</Popconfirm>,
+          }
+        )
       }
 
       return $popconfirm ?? $button

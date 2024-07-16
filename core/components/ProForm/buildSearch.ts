@@ -1,6 +1,9 @@
-import { merge } from 'lodash-es'
+import { toValue } from 'vue'
+import { computed } from 'vue'
 
 import { buildForm } from './buildForm'
+
+import { mergeWithTovalue } from '../common'
 
 import type {
   ProFormScope,
@@ -15,7 +18,14 @@ export function buildSearch<
 >(
   options: (scope: ProFormScope<T>) => BuildFormOptionResult<T, S>
 ): BuildFormResult<T> {
+  // @ts-ignore
   return buildForm(scope => {
-    return merge({}, options(scope), { formProps: { layout: 'inline' } })
+    const result = options(scope)
+    return {
+      ...result,
+      formProps: computed(() =>
+        mergeWithTovalue({}, toValue(result.formProps), { layout: 'inline' })
+      ),
+    }
   })
 }

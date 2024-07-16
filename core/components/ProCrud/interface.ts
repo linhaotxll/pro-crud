@@ -12,7 +12,7 @@ import type {
   FetchTableListRequest,
   ProInnerFormOptions,
   ProTableColumnProps,
-  ProTableScope,
+  ProTableScopeWithoutSearch,
   ProTableToolbarActions,
   RenderBodyCellTextParams,
 } from '../ProTable'
@@ -24,7 +24,7 @@ import type { MaybeRefOrGetter } from 'vue'
  */
 export interface ProCrudScope<Data extends DataObject = DataObject> {
   search: ProFormScope<Partial<Data>>
-  table: ProTableScope<Data>
+  table: ProTableScopeWithoutSearch<Data>
   modal: ProCrudModalScope<Data>
 }
 
@@ -181,7 +181,7 @@ export type ProCrudActionColumnGroup<Data extends DataObject = DataObject> =
 /**
  * Pro Crud 列按钮
  */
-export type ProCrudActionColumnActions<C = any> = {
+export type ProCrudActionColumnActions<C extends object = any> = {
   /**
    * 查看
    */

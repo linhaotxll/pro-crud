@@ -371,11 +371,11 @@ describe('Pro Form Columns', () => {
     const App = defineComponent({
       name: 'App',
       setup() {
-        const formLabelCol = ref({ span: 4 }) as Ref<ColProps>
-        const formWrapperCol = ref({ span: 20 }) as Ref<ColProps>
+        const formLabelCol = ref({ span: 4 })
+        const formWrapperCol = ref({ span: 20 })
 
-        const labelCol = ref({ span: 6 }) as Ref<ColProps>
-        const wrapperCol = ref({ span: 18 }) as Ref<ColProps>
+        const labelCol = ref({ span: 6 })
+        const wrapperCol = ref({ span: 18 })
 
         const { proFormBinding } = buildForm(() => {
           return {

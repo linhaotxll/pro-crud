@@ -1,3 +1,5 @@
+import type { CustomRender } from './../CustomRender/interface'
+import type { Arrayable } from '../common'
 import type { DeepMaybeRef } from '@vueuse/core'
 import type {
   ButtonProps,
@@ -6,7 +8,7 @@ import type {
   PopoverProps,
   SpaceProps,
 } from 'ant-design-vue'
-import type { AllowedComponentProps, MaybeRefOrGetter, VNodeChild } from 'vue'
+import type { AllowedComponentProps, MaybeRefOrGetter } from 'vue'
 
 /**
  * 自定义按扭
@@ -18,10 +20,7 @@ export type CustomActions = {
 /**
  * 按钮组配置
  */
-export type ActionGroupOption<
-  T extends CustomActions = CustomActions,
-  R = any
-> = {
+export type ActionGroupOption<T = CustomActions, R = any> = {
   /**
    * 是否显示按钮组
    *
@@ -37,7 +36,7 @@ export type ActionGroupOption<
   /**
    * 按钮列表
    */
-  actions?: MaybeRefOrGetter<T & CustomActions>
+  actions?: MaybeRefOrGetter<T>
 } & R
 
 /**
@@ -55,7 +54,9 @@ export type ActionsList<T extends CustomActions> = {
 /**
  * 按钮配置
  */
-export type ActionOption<C = any> = {
+export type ActionOption<C extends object = any> = CustomRender<
+  ProButtonRenderParams<ButtonProps, C>
+> & {
   /**
    * 是否显示
    *
@@ -72,18 +73,13 @@ export type ActionOption<C = any> = {
    * 按钮 props
    */
   props?: MaybeRefOrGetter<DeepMaybeRef<Omit<ButtonProps, 'onClick'>>> & {
-    onClick?: (e: PointerEvent, ctx: C) => void
+    onClick?: Arrayable<(e: PointerEvent, ctx: C) => void>
   }
 
   /**
    * 顺序
    */
   order?: MaybeRefOrGetter<number>
-
-  /**
-   * 自定义渲染内容
-   */
-  render?: MaybeRefOrGetter<ProButtonRender<C>>
 
   /**
    * 点击按钮确认弹窗类型，false 则不需要
@@ -96,12 +92,22 @@ export type ActionOption<C = any> = {
    * popconfirm 组件 props
    */
   confirmProps?:
-    | (MaybeRefOrGetter<DeepMaybeRef<Omit<ModalProps, 'onOk'>>> & {
-        onOk?: (e: PointerEvent, ctx: C) => void
-      })
-    | (MaybeRefOrGetter<DeepMaybeRef<Omit<PopoverProps, 'onConfirm'>>> & {
-        onConfirm?: (e: PointerEvent, ctx: C) => void
-      })
+    | MaybeRefOrGetter<ProButtonConformModalProps<C>>
+    | MaybeRefOrGetter<ProButtonConformPopoverProps<C>>
+}
+
+export type ProButtonConformModalProps<C extends object = any> = Omit<
+  ModalProps,
+  'onOk'
+> & {
+  onOk?: (e: PointerEvent, ctx: C) => void
+}
+
+export type ProButtonConformPopoverProps<C extends object = any> = Omit<
+  PopoverProps,
+  'onConfirm'
+> & {
+  onConfirm?: (e: PointerEvent, ctx: C) => void
 }
 
 /**
@@ -127,7 +133,7 @@ export interface InternalProButtonGroupOptions {
 /**
  * 内部使用按扭配制
  */
-export type InternalProButtonOptions<C = any> = {
+export type InternalProButtonOptions<C extends object = any> = {
   /**
    * 是否显示按扭
    */
@@ -151,12 +157,12 @@ export type InternalProButtonOptions<C = any> = {
   /**
    * 自定义渲染函数
    */
-  render?: ProButtonRender<C>
+  // render?: ProButtonRender<C>
 
   /**
    * 作用域对象
    */
-  ctx?: any
+  // ctx?: any
 
   /**
    * 点击按钮确认弹窗类型，false 则不需要
@@ -165,15 +171,30 @@ export type InternalProButtonOptions<C = any> = {
 } & {
   confirmType?: 'popconfirm'
   confirmProps?: PopconfirmProps
+  confirmRender?: ProButtonRenderParams<PopoverProps, C>
 } & {
   confirmType?: 'modal'
   confirmProps?: ModalProps
+  confirmRender?: ProButtonRenderParams<ModalProps, C>
+} & CustomRender<ProButtonRenderParams<ButtonProps, C>>
+
+// export interface ProButtonRender<C extends object = any> extends C {
+//   props: ButtonProps
+// }
+
+export type ProButtonRenderParams<
+  Props = ButtonProps,
+  Context extends object = any
+> = {
+  props: Props
+} & {
+  [K in keyof Context]: Context[K]
 }
 
-export type ProButtonRender<C = any> = (
-  attrs: ButtonProps,
-  ctx: C
-) => VNodeChild
+// export type ProButtonRender<C = any> = (
+//   attrs: ButtonProps,
+//   ctx: C
+// ) => VNodeChild
 
 /**
  * Pro Button 确认弹窗类型

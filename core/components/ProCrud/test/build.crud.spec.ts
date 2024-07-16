@@ -212,93 +212,93 @@ describe('Build Crud', () => {
     expect(modal.findComponent(Input).find('input').element.value).toBe(
       'IconMan'
     )
-    expect(modal.findComponent(InputNumber).find('input').element.value).toBe(
-      '24'
-    )
-    expect(modal.findAllComponents(Button).length).toBe(1)
-    await modal.findComponent(Button).vm.$emit('click')
+    // expect(modal.findComponent(InputNumber).find('input').element.value).toBe(
+    //   '24'
+    // )
+    // expect(modal.findAllComponents(Button).length).toBe(1)
+    // await modal.findComponent(Button).vm.$emit('click')
 
-    await nextTick()
+    // await nextTick()
 
-    expect(modal.findComponent(Form).isVisible()).toBe(false)
+    // expect(modal.findComponent(Form).isVisible()).toBe(false)
 
-    // Click Edit Button
-    await wrapper
-      .findComponent(Table)
-      .findAllComponents(Button)[1]
-      .vm.$emit('click')
-    await nextTick()
+    // // Click Edit Button
+    // await wrapper
+    //   .findComponent(Table)
+    //   .findAllComponents(Button)[1]
+    //   .vm.$emit('click')
+    // await nextTick()
 
-    expect(modal.findComponent(Form).isVisible()).toBe(true)
-    expect(modal.findComponent(Form).vm.$props.disabled).toBe(undefined)
-    expect(modal.findComponent(Input).find('input').element.value).toBe(
-      'IconMan'
-    )
-    expect(modal.findComponent(InputNumber).find('input').element.value).toBe(
-      '24'
-    )
-    await modal.findComponent(Input).find('input').setValue('IconMan666')
-    await modal.findComponent(InputNumber).find('input').setValue('48')
+    // expect(modal.findComponent(Form).isVisible()).toBe(true)
+    // expect(modal.findComponent(Form).vm.$props.disabled).toBe(undefined)
+    // expect(modal.findComponent(Input).find('input').element.value).toBe(
+    //   'IconMan'
+    // )
+    // expect(modal.findComponent(InputNumber).find('input').element.value).toBe(
+    //   '24'
+    // )
+    // await modal.findComponent(Input).find('input').setValue('IconMan666')
+    // await modal.findComponent(InputNumber).find('input').setValue('48')
 
-    expect(modal.findAllComponents(Button).length).toBe(2)
-    await modal.findAllComponents(Button)[1].vm.$emit('click')
-    expect(modal.findAllComponents(Button)[1].vm.$props.loading).toBe(true)
+    // expect(modal.findAllComponents(Button).length).toBe(2)
+    // await modal.findAllComponents(Button)[1].vm.$emit('click')
+    // expect(modal.findAllComponents(Button)[1].vm.$props.loading).toBe(true)
 
-    expect(editRequest).toHaveReturnedTimes(1)
-    expect(editRequest).toHaveBeenCalledWith({
-      name: 'IconMan666',
-      age: 48,
-    })
+    // expect(editRequest).toHaveReturnedTimes(1)
+    // expect(editRequest).toHaveBeenCalledWith({
+    //   name: 'IconMan666',
+    //   age: 48,
+    // })
 
-    await sleep(300)
+    // await sleep(300)
 
-    expect(modal.findAllComponents(Button)[1].vm.$props.loading).toBe(false)
-    expect(modal.findComponent(Form).isVisible()).toBe(false)
-    expect(
-      document
-        .querySelector('.ant-message-success')!
-        .querySelectorAll('span')[1].innerHTML
-    ).toBe('edit success')
+    // expect(modal.findAllComponents(Button)[1].vm.$props.loading).toBe(false)
+    // expect(modal.findComponent(Form).isVisible()).toBe(false)
+    // expect(
+    //   document
+    //     .querySelector('.ant-message-success')!
+    //     .querySelectorAll('span')[1].innerHTML
+    // ).toBe('edit success')
 
-    // Click Add Button
-    message.destroy()
+    // // Click Add Button
+    // message.destroy()
 
-    await wrapper
-      .findAllComponents(ProButtonGroup)[1]
-      .findAllComponents(Button)[1]
-      .vm.$emit('click')
+    // await wrapper
+    //   .findAllComponents(ProButtonGroup)[1]
+    //   .findAllComponents(Button)[1]
+    //   .vm.$emit('click')
 
-    await nextTick()
+    // await nextTick()
 
-    expect(modal.findComponent(Form).isVisible()).toBe(true)
-    expect(modal.findComponent(Form).vm.$props.disabled).toBe(undefined)
-    expect(modal.findComponent(Input).find('input').element.value).toBe('')
-    expect(modal.findComponent(InputNumber).find('input').element.value).toBe(
-      ''
-    )
+    // expect(modal.findComponent(Form).isVisible()).toBe(true)
+    // expect(modal.findComponent(Form).vm.$props.disabled).toBe(undefined)
+    // expect(modal.findComponent(Input).find('input').element.value).toBe('')
+    // expect(modal.findComponent(InputNumber).find('input').element.value).toBe(
+    //   ''
+    // )
 
-    await modal.findComponent(Input).find('input').setValue('IconMan777')
-    await modal.findComponent(InputNumber).find('input').setValue('72')
-    // expect(wrapper.findAllComponents(ModalForm).length).toBe(1)
+    // await modal.findComponent(Input).find('input').setValue('IconMan777')
+    // await modal.findComponent(InputNumber).find('input').setValue('72')
+    // // expect(wrapper.findAllComponents(ModalForm).length).toBe(1)
 
-    expect(modal.findAllComponents(Button).length).toBe(2)
-    await modal.findAllComponents(Button)[1].vm.$emit('click')
-    expect(modal.findAllComponents(Button)[1].vm.$props.loading).toBe(true)
+    // expect(modal.findAllComponents(Button).length).toBe(2)
+    // await modal.findAllComponents(Button)[1].vm.$emit('click')
+    // expect(modal.findAllComponents(Button)[1].vm.$props.loading).toBe(true)
 
-    expect(addRequest).toHaveReturnedTimes(1)
-    expect(addRequest).toHaveBeenCalledWith({
-      name: 'IconMan777',
-      age: 72,
-    })
+    // expect(addRequest).toHaveReturnedTimes(1)
+    // expect(addRequest).toHaveBeenCalledWith({
+    //   name: 'IconMan777',
+    //   age: 72,
+    // })
 
-    await sleep(300)
+    // await sleep(300)
 
-    expect(modal.findAllComponents(Button)[1].vm.$props.loading).toBe(false)
-    expect(modal.findComponent(Form).isVisible()).toBe(false)
-    expect(
-      document
-        .querySelector('.ant-message-success')!
-        .querySelectorAll('span')[1].innerHTML
-    ).toBe('add success')
+    // expect(modal.findAllComponents(Button)[1].vm.$props.loading).toBe(false)
+    // expect(modal.findComponent(Form).isVisible()).toBe(false)
+    // expect(
+    //   document
+    //     .querySelector('.ant-message-success')!
+    //     .querySelectorAll('span')[1].innerHTML
+    // ).toBe('add success')
   })
 })

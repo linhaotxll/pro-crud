@@ -3,7 +3,6 @@ import { ref, toValue } from 'vue'
 import { mergeTableColumnOptions } from './constant'
 
 import { mergeWithTovalue } from '../common'
-import { mergeWithUnref } from '../common/merge'
 import { buildDictionary } from '../ProDictionary'
 
 import type { ProTableColumnProps } from './interface'
@@ -67,7 +66,7 @@ export function buildTableColumn<
     fetchDictionaryCollection
   )
 
-  const _column: InternalColumnOptions<Data> = mergeWithUnref(
+  const _column: InternalColumnOptions<Data> = mergeWithTovalue(
     {
       columnIndex,
       name: resolvedName,
