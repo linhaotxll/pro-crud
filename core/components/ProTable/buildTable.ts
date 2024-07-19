@@ -292,12 +292,12 @@ function buildTableMiddleware<Data extends DataObject = DataObject>(
       {
         components: extractComponents(ctx.optionResult),
         rowKey: 'key',
+        columns: filterColumns,
       },
       tablePropsValue,
       {
         loading,
         dataSource: resolvedData,
-        columns: filterColumns,
       }
     )
 

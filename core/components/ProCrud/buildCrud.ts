@@ -10,6 +10,7 @@ import { ModalType } from './interface'
 
 import {
   compose,
+  markIgnoreMerge,
   mergeWithTovalue,
   type DataObject,
   type NextMiddleware,
@@ -164,6 +165,7 @@ function buildModalFormMiddleware(ctx: BuildCrudContext, next: NextMiddleware) {
 
       const { add, edit, view } =
         columns?.reduce((prev, column) => {
+          const { dict } = column
           const target: ProCrudColumnOption = {
             label: column.label,
             name: column.name,
@@ -171,10 +173,11 @@ function buildModalFormMiddleware(ctx: BuildCrudContext, next: NextMiddleware) {
           if (column.type) {
             target.type = column.type
           }
+
           // 新增表单列
           prev.add.push(
             mergeWithTovalue(
-              {},
+              { dict },
               target,
               toValue(column.form),
               toValue(column.addForm)
@@ -184,7 +187,7 @@ function buildModalFormMiddleware(ctx: BuildCrudContext, next: NextMiddleware) {
           // 编辑表单列
           prev.edit.push(
             mergeWithTovalue(
-              {},
+              { dict },
               target,
               toValue(column.form),
               toValue(column.editForm)
@@ -194,7 +197,7 @@ function buildModalFormMiddleware(ctx: BuildCrudContext, next: NextMiddleware) {
           // 查看表单列
           prev.view.push(
             mergeWithTovalue(
-              {},
+              { dict },
               target,
               toValue(column.form),
               toValue(column.viewForm)
@@ -268,8 +271,10 @@ function buildModalFormMiddleware(ctx: BuildCrudContext, next: NextMiddleware) {
 function buildBasicMiddleware(ctx: BuildCrudContext, next: NextMiddleware) {
   ctx.optionResult = ctx.options(ctx.scope) ?? {}
 
+  // 标记 optionResult 不可被覆盖解绑
+  markIgnoreMerge(ctx.optionResult)
+
   ctx.optionResult = mergeWithTovalue(
-    { autoReload: true },
     buildDefaultCrudOptions(ctx),
     ctx.optionResult
   )

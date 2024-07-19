@@ -26,6 +26,8 @@ export function buildDictionary<Dictionary = any, Collection = any>(
     return
   }
 
+  // markIgnoreMerge(dictionatyOptions)
+
   const dictionatyOptionsValue = toRaw(dictionatyOptions)
 
   if (dictionatyOptionsValue && dictionaryCache.has(dictionatyOptionsValue)) {

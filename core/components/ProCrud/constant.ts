@@ -21,6 +21,7 @@ export const buildDefaultCrudOptions = (
   } = ctx
 
   return {
+    autoReload: true,
     addToast: '新增成功',
     editToast: '编辑成功',
     deleteToast: '删除成功',

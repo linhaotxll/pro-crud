@@ -13,6 +13,8 @@ export function merge(target: any, ...sources: any) {
     if (isNil(sourceValue)) {
       continue
     }
+
+    const sourceValueIgnore = isIgnore(sourceValue)
     const sourceValueKeys = Object.keys(sourceValue)
     for (const key of sourceValueKeys) {
       const resolveSourceValue = unref(sourceValue[key])
@@ -20,7 +22,7 @@ export function merge(target: any, ...sources: any) {
         target[key] = resolveSourceValue
       } else {
         const value = toValue(sourceValue[key])
-        if (isIgnore(value)) {
+        if (sourceValueIgnore || isIgnore(value)) {
           target[key] = value
           continue
         }

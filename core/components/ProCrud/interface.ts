@@ -250,17 +250,23 @@ export interface ProCrudColumnOption<
   /**
    * 添加表单列配置
    */
-  addForm?: MaybeRefOrGetter<ProCrudFromOptions<Data, Dictionary, Collection>>
+  addForm?: MaybeRefOrGetter<
+    Partial<ProCrudFromOptions<Data, Dictionary, Collection>>
+  >
 
   /**
    * 编辑表单列配置
    */
-  editForm?: MaybeRefOrGetter<ProCrudFromOptions<Data, Dictionary, Collection>>
+  editForm?: MaybeRefOrGetter<
+    Partial<ProCrudFromOptions<Data, Dictionary, Collection>>
+  >
 
   /**
    * 详情表单列配置
    */
-  viewForm?: MaybeRefOrGetter<ProCrudFromOptions<Data, Dictionary, Collection>>
+  viewForm?: MaybeRefOrGetter<
+    Partial<ProCrudFromOptions<Data, Dictionary, Collection>>
+  >
 }
 
 /**
