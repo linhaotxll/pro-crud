@@ -1,7 +1,5 @@
 import { Tag } from 'ant-design-vue'
-import { h, inject, resolveComponent, toValue } from 'vue'
-
-import { GlobalOption } from '~/constant'
+import { h, resolveComponent, toValue } from 'vue'
 
 import type { DataObject } from './interface'
 import type { InternalProFormColumnOptions, ProFormScope } from '../ProForm'
@@ -107,7 +105,7 @@ export interface ValueTypeTable<T extends DataObject = DataObject> {
   render?: (ctx: RenderBodyCellTextParams<T>) => VNodeChild
 }
 
-export const DefaultValueType: Record<ValueType, ValueTypeValue> = {
+export const DefaultValueType = {
   text: {
     form: { is: 'a-input' },
   },
@@ -300,7 +298,7 @@ export const DefaultValueType: Record<ValueType, ValueTypeValue> = {
   list: {
     form: { is: 'pro-form-list' },
   },
-}
+} as const
 
 /**
  * 渲染字典数据在 Table 中的内容
@@ -333,8 +331,4 @@ function renderDictionaryInForm(ctx: ValueTypeFormProps) {
     },
     ctx.slots
   )
-}
-
-export function ensureValueType() {
-  return inject(GlobalOption)?.types ?? DefaultValueType
 }

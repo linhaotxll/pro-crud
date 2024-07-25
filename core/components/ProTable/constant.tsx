@@ -126,6 +126,7 @@ export const buildTableActionColumnOptions = (
 
       return (
         <ProButtonGroup
+          // @ts-ignore
           action={buildButtonGroupInRender(resolvedAction, undefined, ctx)}
         />
       )

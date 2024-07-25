@@ -1,5 +1,13 @@
-import type { ResolvedProComponentsOptions } from './interface'
-import type { InjectionKey } from 'vue'
+import { DefaultValueType } from './components/common'
 
-export const GlobalOption =
-  Symbol() as InjectionKey<ResolvedProComponentsOptions>
+import type { ResolvedProComponentsOptions } from './interface'
+
+let _options: ResolvedProComponentsOptions
+
+export function setGlobalOptions(options: ResolvedProComponentsOptions) {
+  _options = options
+}
+
+export function getGlobalOptions() {
+  return _options ?? { types: DefaultValueType }
+}

@@ -1,9 +1,9 @@
 import { mount } from '@vue/test-utils'
 import antdv, { Col, FormItem, Input } from 'ant-design-vue'
 import { describe, test, expect, vi } from 'vitest'
-import { defineComponent, h, ref } from 'vue'
+import { defineComponent, h, nextTick, ref } from 'vue'
 
-import { ProForm, ProFormField, ProFormItem, buildForm } from '..'
+import { ProForm, ProFormItem, buildForm } from '..'
 import { ProComponents } from '../../../'
 
 import type { InternalProFormColumnOptions, ProFormScope } from '..'
@@ -780,13 +780,52 @@ describe('Pro Form Columns', () => {
       },
     })
 
-    const wrapper = mount(App, {
+    expect(() =>
+      mount(App, {
+        global: {
+          plugins: [antdv, ProComponents],
+        },
+      })
+    ).toThrowError(`"aaa" not found`)
+  })
+
+  test('dict fetchDictionary contain ref', async () => {
+    const fetchDictionary = vi.fn(() => {
+      const count = ref(0)
+      ++count.value
+      return []
+    })
+
+    const App = defineComponent({
+      name: 'App',
+      setup() {
+        const { proFormBinding } = buildForm(() => {
+          return {
+            columns: [
+              {
+                name: 'name',
+                label: '用户名',
+                type: 'select',
+                dict: { fetchDictionary },
+              },
+            ],
+          }
+        })
+
+        return () => {
+          return [h(ProForm, proFormBinding)]
+        }
+      },
+    })
+
+    mount(App, {
       global: {
         plugins: [antdv, ProComponents],
       },
     })
 
-    expect(wrapper.findComponent(ProForm).exists()).toBe(true)
-    expect(wrapper.findComponent(ProFormField).exists()).toBe(false)
+    await nextTick()
+
+    expect(fetchDictionary).toHaveBeenCalledTimes(1)
   })
 })

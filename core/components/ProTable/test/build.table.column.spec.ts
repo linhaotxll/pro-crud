@@ -7,7 +7,7 @@ import antdv, {
   Select,
 } from 'ant-design-vue'
 import { describe, expect, test, vi } from 'vitest'
-import { defineComponent, h, ref } from 'vue'
+import { defineComponent, h, nextTick, ref } from 'vue'
 
 import { ProForm, ProFormItem } from '../../ProForm'
 import { buildTable } from '../buildTable'
@@ -659,6 +659,8 @@ describe('Build Pro Table Columns', () => {
         plugins: [antdv],
       },
     })
+
+    await nextTick()
 
     expect(fetchDictionary).toHaveBeenCalledTimes(1)
     expect(

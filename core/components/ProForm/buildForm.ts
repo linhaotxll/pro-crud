@@ -1,14 +1,6 @@
 import cloneDeep from 'clone-deep'
 import { get, set, unset, has, once } from 'lodash-es'
-import {
-  computed,
-  inject,
-  ref,
-  toRaw,
-  reactive,
-  watchEffect,
-  toValue,
-} from 'vue'
+import { computed, ref, toRaw, reactive, watchEffect, toValue } from 'vue'
 
 import { buildFormColumn } from './buildFormColumn'
 import {
@@ -20,7 +12,6 @@ import {
 } from './constant'
 import { useValues } from './useValues'
 
-import { GlobalOption } from '../../constant'
 import { isFunction } from '../../utils'
 import { mergeWithTovalue } from '../common'
 import { buildButtonGroup } from '../ProButton'
@@ -360,11 +351,6 @@ export function buildForm<
       isInlineLayout,
     },
   }
-
-  inject(GlobalOption)?.hooks?.form?.({
-    proFormScope: scope,
-    proFormBinding: formBinding.proFormBinding,
-  })
 
   return formBinding
 }

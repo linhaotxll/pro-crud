@@ -1671,6 +1671,8 @@ describe('Build Pro Table', () => {
       },
     })
 
+    await nextTick()
+
     expect(
       wrapper.findComponent(ProForm).findAllComponents(Select).length
     ).toBe(2)

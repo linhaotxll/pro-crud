@@ -28,7 +28,7 @@ import { ProButtonGroup } from './components/ProButton'
 import { ProCrud } from './components/ProCrud'
 import { ProForm, ProFormList } from './components/ProForm'
 import { ProTable } from './components/ProTable'
-import { GlobalOption } from './constant'
+import { setGlobalOptions } from './constant'
 
 import type {
   ProComponentsOptions,
@@ -71,7 +71,7 @@ export const ProComponents: Plugin<ProComponentsOptions> = {
     const resolvedProComponentOptions: ResolvedProComponentsOptions =
       mergeWithTovalue({}, { types: DefaultValueType }, options)
 
-    app.provide(GlobalOption, resolvedProComponentOptions)
+    setGlobalOptions(resolvedProComponentOptions)
   },
 }
 

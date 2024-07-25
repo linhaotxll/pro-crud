@@ -2,9 +2,10 @@ import { toValue, type ComputedRef, type VNodeChild } from 'vue'
 
 import { getRowKey, TableEditableNamePlaceholder } from './constant'
 
-import { ensureValueType, mergeWithTovalue, type DataObject } from '../common'
+import { mergeWithTovalue, type DataObject } from '../common'
 import { ProFormItem } from '../ProForm'
 
+import { getGlobalOptions } from '~/constant'
 import { isArray, isBoolean, isFunction } from '~/utils'
 
 import type {
@@ -96,7 +97,7 @@ export function renderBodyCellText(
 
   // 再根据 type 查询 table 的渲染方式
   if (type) {
-    const tableConfig = ensureValueType()[type].table
+    const tableConfig = getGlobalOptions().types[type].table
     if (tableConfig) {
       const CellComponent = tableConfig.is
       if (CellComponent) {

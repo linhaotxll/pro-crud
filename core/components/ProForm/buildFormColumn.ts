@@ -8,9 +8,10 @@ import {
   ProFormListPlaceholder,
 } from './constant'
 
-import { getUuid, ensureValueType, mergeWithTovalue } from '../common'
+import { getUuid, mergeWithTovalue } from '../common'
 import { buildDictionary } from '../ProDictionary'
 
+import { getGlobalOptions } from '~/constant'
 import { isArray } from '~/utils'
 
 import type {
@@ -40,7 +41,7 @@ export function buildFormColumn<T extends DataObject = DataObject>(
 
   watchEffect(() => {
     // dict 不能被合并，防止外层 ProTable 传递 dict 被克隆
-    const mergedColumn = mergeWithTovalue(
+    const mergedColumn: ProFormColumnOptions<any, any, any> = mergeWithTovalue(
       { dict: column.dict },
       DefaultProFormColumn,
       column
@@ -65,6 +66,10 @@ export function buildFormColumn<T extends DataObject = DataObject>(
     const resolvedName = appendListName(toValue(name), parent?.name)
     // 解析 type
     const resolvedType = toValue(type!)
+
+    if (!getGlobalOptions().types[resolvedType]) {
+      throw new Error(`"${resolvedType}" not found`)
+    }
 
     const result: InternalProFormColumnOptions<T> = {
       show: resolvedShow,
@@ -115,7 +120,7 @@ export function buildFormColumn<T extends DataObject = DataObject>(
       ? mergeWithTovalue(
           {},
           null,
-          ensureValueType()[resolvedType].form?.props,
+          getGlobalOptions().types[resolvedType].form?.props,
           toValue(fieldProps)
         )
       : undefined

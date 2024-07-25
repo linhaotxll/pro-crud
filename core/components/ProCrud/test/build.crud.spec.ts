@@ -350,6 +350,8 @@ describe('Build Crud', () => {
       },
     })
 
+    await nextTick()
+
     expect(i).toBe(1)
     expect(wrapper.findAllComponents(Select).length).toBe(1)
     expect(wrapper.findComponent(Select).vm.$props.loading).toBe(true)

@@ -245,6 +245,8 @@ describe('Pro Form Dictionary', () => {
       .element.dispatchEvent(new MouseEvent('mousedown'))
     expect(onDropdownVisibleChange).toHaveBeenCalledTimes(1)
 
+    await nextTick()
+
     expect(fetchDataFn).toHaveBeenCalledTimes(1)
 
     await nextTick()
@@ -301,6 +303,8 @@ describe('Pro Form Dictionary', () => {
       sync: false,
       attachTo: 'body',
     })
+
+    await nextTick()
 
     expect(wrapper.findComponent(Select).vm.$props.loading).toBe(true)
 
@@ -372,6 +376,8 @@ describe('Pro Form Dictionary', () => {
       attachTo: 'body',
     })
 
+    await nextTick()
+
     expect(wrapper.findAllComponents(Select).length).toBe(2)
 
     expect(fetchDataFn).toHaveBeenCalledTimes(1)
@@ -423,6 +429,7 @@ describe('Pro Form Dictionary', () => {
 
     // 点击第禁止个选项
     await $$('.ant-select-item')[1].dispatchEvent(new MouseEvent('click'))
+    await nextTick()
     expect(fetchDataFn).toHaveBeenCalledTimes(2)
     expect(fetchDataFn).toHaveBeenCalledWith({ status: 2 })
   })

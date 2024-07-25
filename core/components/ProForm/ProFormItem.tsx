@@ -4,7 +4,9 @@ import { defineComponent, toValue } from 'vue'
 import { ProFormListPlaceholder } from './constant'
 import { ProFormField } from './ProFormField'
 
-import { ensureValueType, findAndReplace } from '../common'
+import { findAndReplace } from '../common'
+
+import { getGlobalOptions } from '~/constant'
 
 import type { InternalProFormColumnOptions, ProFormScope } from './interface'
 import type { FormItemProps } from 'ant-design-vue'
@@ -36,7 +38,7 @@ export const ProFormItem = defineComponent({
         ? findAndReplace(columnValue.name, ProFormListPlaceholder, props.index)
         : columnValue.name
 
-      const field = ensureValueType()[columnValue.type!]?.form
+      const field = getGlobalOptions().types[columnValue.type!]?.form
       if (!field) {
         console.warn(`"${columnValue.type}" Not Found`)
         return null
