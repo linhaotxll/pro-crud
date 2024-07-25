@@ -1,4 +1,12 @@
-import { computed, markRaw, ref, toRaw, toValue, watchEffect } from 'vue'
+import {
+  computed,
+  markRaw,
+  nextTick,
+  ref,
+  toRaw,
+  toValue,
+  watchEffect,
+} from 'vue'
 
 import { ensureDictionary } from './ensureDictionary'
 
@@ -118,17 +126,17 @@ export function buildDictionary<Dictionary = any, Collection = any>(
     const deptParams = fetchDataEffect?.(dictValue)
 
     // 获取数据放在刷新节点后执行，防止在 fetchData 中存在同步修改响应式数据的情况
-    // nextTick().then(() => {
-    fetchData(
-      dataValue,
-      labelFieldValue,
-      valueFieldValue,
-      collectionValue,
-      deptParams,
-      fetchDictionary,
-      fetchDictionaryInCollection
-    )
-    // })
+    nextTick().then(() => {
+      fetchData(
+        dataValue,
+        labelFieldValue,
+        valueFieldValue,
+        collectionValue,
+        deptParams,
+        fetchDictionary,
+        fetchDictionaryInCollection
+      )
+    })
   })
 
   // 返回对象标记为非响应式，避免获取里面的 ref 属性自动解绑

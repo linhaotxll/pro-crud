@@ -144,16 +144,6 @@ export interface BuildFormOptionResult<
   col?: MaybeRefOrGetter<DeepMaybeRef<ColProps>> | undefined | null
 
   /**
-   * 通用 Label Col 配置
-   */
-  labelCol?: MaybeRefOrGetter<DeepMaybeRef<ColProps>> | undefined | null
-
-  /**
-   * 通用 Wrapper Col 配置
-   */
-  wrapperCol?: MaybeRefOrGetter<DeepMaybeRef<ColProps>> | undefined | null
-
-  /**
    * 列配置
    */
   columns?: MaybeRefOrGetter<ProFormColumnOptions<T>[]>

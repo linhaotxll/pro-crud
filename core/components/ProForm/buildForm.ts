@@ -60,8 +60,8 @@ export function buildForm<
     initialValues,
     columns,
     formProps,
-    labelCol,
-    wrapperCol,
+    // labelCol,
+    // wrapperCol,
     action = {},
     toast = DefaultProFormToast,
     row,
@@ -102,16 +102,6 @@ export function buildForm<
       : mergeWithTovalue({}, DefaultProFormCol, toValue(col))
   })
 
-  // 解析通用 Label Col Props
-  const resolvedCommonLabelColProps = labelCol
-    ? computed<ColProps>(() => mergeWithTovalue({}, toValue(labelCol)))
-    : undefined
-
-  // 解析通用 Wrapper Col Props
-  const resolvedCommonWrapperColProps = wrapperCol
-    ? computed<ColProps>(() => mergeWithTovalue({}, toValue(wrapperCol)))
-    : undefined
-
   // 构建列
   const resolvedColumns = ref([]) as Ref<Ref<InternalProFormColumnOptions<T>>[]>
   const resolvedColumnsMap = new Map<
@@ -133,8 +123,6 @@ export function buildForm<
     for (const column of columnsValue) {
       const resolvedColumn = buildFormColumn(
         resolvedCommonColProps,
-        resolvedCommonLabelColProps,
-        resolvedCommonWrapperColProps,
         isInlineLayout,
         scope,
         column,

@@ -2,11 +2,7 @@ import { set } from 'lodash-es'
 import { ref, toValue, watchEffect } from 'vue'
 
 import { buildFormListColumns } from './buildFormListColumn'
-import {
-  DefaultProFormColumn,
-  DefaultProSearchWrapperColProps,
-  ProFormListPlaceholder,
-} from './constant'
+import { DefaultProFormColumn, ProFormListPlaceholder } from './constant'
 
 import { getUuid, mergeWithTovalue } from '../common'
 import { buildDictionary } from '../ProDictionary'
@@ -26,8 +22,6 @@ import type { ComputedRef, Ref } from 'vue'
 
 export function buildFormColumn<T extends DataObject = DataObject>(
   commonCol: ComputedRef<ColProps | undefined>,
-  commonLabelCol: ComputedRef<ColProps> | undefined,
-  commonWrapperCol: ComputedRef<ColProps> | undefined,
   isInlineLayout: ComputedRef<boolean>,
   scope: ProFormScope<T>,
   column: ProFormColumnOptions<T>,
@@ -87,27 +81,9 @@ export function buildFormColumn<T extends DataObject = DataObject>(
     // 解析 label
     const resolvedLabel = toValue(label)
 
-    // TODO: 这里嵌套深一点使用 ref
-    // 解析 Label Col
-    const resolvedLabelCol: ColProps = mergeWithTovalue(
-      {},
-      toValue(commonLabelCol),
-      toValue(itemProps)?.labelCol
-    )
-
-    // 解析 Wrapper Col
-    const resolvedWrapperCol: ColProps = mergeWithTovalue(
-      {},
-      toValue(commonWrapperCol),
-      toValue(itemProps)?.wrapperCol,
-      toValue(isInlineLayout) ? DefaultProSearchWrapperColProps : undefined
-    )
-
     // 合并 Form Item Props
     const mergedFormItemPtops: FormItemProps = mergeWithTovalue(
       {
-        labelCol: resolvedLabelCol,
-        wrapperCol: resolvedWrapperCol,
         name: resolvedName,
         label: resolvedLabel,
       },
@@ -134,15 +110,7 @@ export function buildFormColumn<T extends DataObject = DataObject>(
     // 解析子列配置
     const resolvedList =
       list && resolvedType === 'list'
-        ? buildFormListColumns(
-            commonCol,
-            commonLabelCol,
-            commonWrapperCol,
-            isInlineLayout,
-            scope,
-            list,
-            result
-          )
+        ? buildFormListColumns(commonCol, isInlineLayout, scope, list, result)
         : undefined
 
     // 解析字典配置

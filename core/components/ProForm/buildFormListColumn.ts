@@ -20,8 +20,6 @@ import type { ComputedRef, Ref } from 'vue'
 
 export function buildFormListColumns(
   commonCol: ComputedRef<ColProps | undefined>,
-  commonLabelCol: ComputedRef<ColProps> | undefined,
-  commonWrapperCol: ComputedRef<ColProps> | undefined,
   isInlineLayout: ComputedRef<boolean>,
   scope: ProFormScope<any>,
   list: ProFormColumnOptions<any>['list'],
@@ -58,8 +56,6 @@ export function buildFormListColumns(
       resolvedChildColumns.push(
         buildFormColumn(
           commonCol,
-          commonLabelCol,
-          commonWrapperCol,
           isInlineLayout,
           scope,
           childrenValue[i],

@@ -251,12 +251,15 @@ function buildModalFormMiddleware(ctx: BuildCrudContext, next: NextMiddleware) {
     }
 
     for (const k of keys) {
+      // @ts-ignore
       commonFormOptions[k] = computed(() => {
         const type = modalType.value
         return !isNil(type)
           ? mergeWithTovalue(
               {},
+              // @ts-ignore
               toValue(form?.[k]),
+              // @ts-ignore
               toValue(formMap[type]?.[k])
             )
           : {}
