@@ -5,12 +5,15 @@ import type {
   ModalFormScope,
 } from '../ModalForm'
 import type { ActionGroupOption, ActionOption } from '../ProButton'
-import type { ProFormColumnOptions, ProFormScope } from '../ProForm'
+import type {
+  BuildFormOptionResult,
+  ProFormColumnOptions,
+  ProFormScope,
+} from '../ProForm'
 import type {
   BuildProTableOptionResult,
   BuildTableBinding,
   FetchTableListRequest,
-  ProInnerFormOptions,
   ProTableColumnProps,
   ProTableScopeWithoutSearch,
   ProTableToolbarActions,
@@ -71,17 +74,17 @@ export interface BuildCrudOptionReturn<
   /**
    * 添加表单配置
    */
-  addForm?: ProInnerFormOptions<Partial<Data>, Collection>
+  addForm?: ProCrudModalFormOptions<Partial<Data>, Collection>
 
   /**
    * 编辑表单配置
    */
-  editForm?: ProInnerFormOptions<Partial<Data>, Collection>
+  editForm?: ProCrudModalFormOptions<Partial<Data>, Collection>
 
   /**
    * 查看表单配置
    */
-  viewForm?: ProInnerFormOptions<Partial<Data>, Collection>
+  viewForm?: ProCrudModalFormOptions<Partial<Data>, Collection>
 
   /**
    * 点击重置后是否自动调用查询接口
@@ -291,4 +294,20 @@ export interface ProCrudBinding<Data extends DataObject = DataObject> {
  */
 export interface BuildCrudResult<Data extends DataObject = DataObject> {
   proCrudBinding: ProCrudBinding<Data>
+}
+
+/**
+ * Pro Crud 弹窗表单配置
+ */
+export interface ProCrudModalFormOptions<
+  Data extends DataObject = DataObject,
+  Collection = any
+> extends Omit<
+    BuildFormOptionResult<Partial<Data>, Partial<Data>, Collection>,
+    'columns'
+  > {
+  /**
+   * 是否显示整个表单弹窗
+   */
+  show?: MaybeRefOrGetter<boolean>
 }

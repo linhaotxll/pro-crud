@@ -24,11 +24,11 @@ import type {
   BuildCrudContext,
   BuildCrudResult,
   ProCrudColumnOption,
+  ProCrudModalFormOptions,
   ProCrudModalScope,
 } from './interface'
 import type { BuildModalFormOptionReturn } from '../ModalForm'
 import type { ProFormColumnOptions } from '../ProForm'
-import type { ProInnerFormOptions } from '../ProTable'
 import type { FormProps } from 'ant-design-vue'
 import type { Ref } from 'vue'
 
@@ -147,10 +147,7 @@ function buildModalFormMiddleware(ctx: BuildCrudContext, next: NextMiddleware) {
       [ModalType.View]: viewFormColumns,
     }
 
-    const formMap: Record<
-      ModalType,
-      ProInnerFormOptions<Partial<DataObject>, any> | undefined
-    > = {
+    const formMap: Record<ModalType, ProCrudModalFormOptions | undefined> = {
       [ModalType.Add]: addForm,
       [ModalType.Edit]: editForm,
       [ModalType.View]: viewForm,
@@ -233,6 +230,8 @@ function buildModalFormMiddleware(ctx: BuildCrudContext, next: NextMiddleware) {
           )
     })
 
+    const keys = ['row', 'col', 'labelCol', 'wrapperCol', ''] as const
+
     const commonFormOptions: BuildModalFormOptionReturn['form'] = {
       columns: computed(() => {
         const type = modalType.value
@@ -245,23 +244,33 @@ function buildModalFormMiddleware(ctx: BuildCrudContext, next: NextMiddleware) {
           : mergeWithTovalue(
               {},
               toValue(form?.formProps),
+              toValue(formMap[type]?.formProps),
               topLevelFormPropsWithModalType[type]
             )
       }),
     }
 
-    const resolvedForm = computed(() => {
-      const type = modalType.value
-      return isNil(type)
-        ? commonFormOptions
-        : mergeWithTovalue({}, form, formMap[type], commonFormOptions)
-    })
+    for (const k of keys) {
+      commonFormOptions[k] = computed(() => {
+        const type = modalType.value
+        return !isNil(type)
+          ? mergeWithTovalue(
+              {},
+              toValue(form?.[k]),
+              toValue(formMap[type]?.[k])
+            )
+          : {}
+      })
+    }
+
+    console.log('commonFormOptions: ', commonFormOptions)
 
     return {
       modalProps: resolvedModalProps,
       submitter: resolvedSubmitter,
-      form: resolvedForm,
+      form: commonFormOptions,
       renderTrigger: false,
+      show: true,
     }
   })
 
