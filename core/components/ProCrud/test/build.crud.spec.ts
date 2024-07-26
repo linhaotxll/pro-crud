@@ -551,5 +551,15 @@ describe('Build Crud', () => {
       wrapper.findComponent(ProForm).findAllComponents(Select)[0].vm.$props
         .options
     ).toMatchObject(status)
+
+    // plus button
+    await wrapper.findAllComponents(Button)[3].vm.$emit('click')
+    await nextTick()
+
+    const modal = wrapper.findComponent(Modal)
+    expect(modal.findAllComponents(Select).length).toBe(1)
+
+    expect(fetchDictionaryCollection).toHaveBeenCalledTimes(1)
+    expect(fetchDictionaryInCollection).toHaveReturnedTimes(1)
   })
 })

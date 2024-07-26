@@ -1,4 +1,5 @@
 import type { ValueType, ValueTypeValue } from './components/common'
+import type { ProCrudToolbarActionGroup } from './components/ProCrud'
 import type {
   FetchProTablePageListQuery,
   FetchTableListRequest,
@@ -30,6 +31,11 @@ export interface ProComponentsOptions {
    * 全局 Table 组件配置
    */
   tableProps?: Omit<TableProps, 'dataSource' | 'loading' | 'columns'>
+
+  /**
+   * 全局 Toolbar 配置
+   */
+  toolbar?: ProCrudToolbarActionGroup
 
   // /**
   //  * 全局 crud 添加、编辑、查看弹窗公共配置
