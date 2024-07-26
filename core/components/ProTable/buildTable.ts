@@ -34,7 +34,8 @@ import { buildButtonGroup } from '../ProButton'
 import { buildForm, buildSearch } from '../ProForm'
 import { showToast } from '../Toast'
 
-import { isArray, isFunction, isNil, isPlainObject } from '~/utils'
+import { getGlobalOptions } from '~/constant'
+import { isArray, isFunction, isNil, isPlainObject, isPromise } from '~/utils'
 
 import type { TableSlotFn, TableSlotKey, TableSlotValueKey } from './constant'
 import type {
@@ -197,7 +198,12 @@ function buildTableMiddleware<Data extends DataObject = DataObject>(
 
   // 解析包裹 flex 属性
   const resolvedWrapperProps = computed<FlexProps>(() =>
-    mergeWithTovalue({}, TableContainerProps, toValue(wrapperProps))
+    mergeWithTovalue(
+      {},
+      getGlobalOptions().wrapperProps,
+      TableContainerProps,
+      toValue(wrapperProps)
+    )
   )
 
   // 解析渲染包裹元素的函数
@@ -294,6 +300,7 @@ function buildTableMiddleware<Data extends DataObject = DataObject>(
         rowKey: 'key',
         columns: filterColumns,
       },
+      getGlobalOptions().tableProps,
       tablePropsValue,
       {
         loading,
@@ -400,13 +407,18 @@ function buildTableMiddleware<Data extends DataObject = DataObject>(
           | Promise<Data[] | FetchProTablePageListResult<Data>>
 
         if (isFunction(fetchTableData)) {
-          res = fetchTableData({
+          const transformQuery =
+            getGlobalOptions().transformQuery ?? ctx.optionResult.transformQuery
+
+          const query = {
             page: {
               pageNum: pageNum ?? currentPage.value,
               pageSize: pageSize ?? currentPageSize.value,
             },
             params: toValue(resolvedParams),
-          })
+          }
+          const resolvedQuery = transformQuery?.(query) ?? query
+          res = fetchTableData(resolvedQuery)
         } else {
           res = toValue(data) ?? resolvedData.value
         }
@@ -414,22 +426,41 @@ function buildTableMiddleware<Data extends DataObject = DataObject>(
         return res
       },
       res => {
-        let _resolvedData: Data[]
-        if (isPaginationData(res)) {
-          _resolvedData = res.data
+        function processResponse(
+          response: Data[] | FetchProTablePageListResult<Data>
+        ) {
+          let _resolvedData: Data[]
+          if (isPaginationData(response)) {
+            _resolvedData = response.data
+          } else {
+            _resolvedData = response
+          }
+
+          if (isFunction(postData)) {
+            _resolvedData = postData(_resolvedData)
+          }
+
+          if (isFunction(onLoad)) {
+            onLoad(_resolvedData)
+          }
+
+          resolvedData.value = _resolvedData
+        }
+
+        const transformResponse =
+          getGlobalOptions().transformResponse ??
+          ctx.optionResult.transformResponse
+
+        if (isFunction(transformResponse)) {
+          const result = transformResponse(res)
+          if (isPromise(result)) {
+            result.then(processResponse)
+          } else {
+            processResponse(result)
+          }
         } else {
-          _resolvedData = res
+          processResponse(res)
         }
-
-        if (isFunction(postData)) {
-          _resolvedData = postData(_resolvedData)
-        }
-
-        if (isFunction(onLoad)) {
-          onLoad(_resolvedData)
-        }
-
-        resolvedData.value = _resolvedData
       },
       onRequestError,
       () => {
@@ -706,6 +737,7 @@ function buildSearchMiddleware<SearchForm extends DataObject = DataObject>(
         const searchValue = toValue(ctx.optionResult.search)
         return searchValue === false ? [] : ctx.columns.search.value
       }),
+      fetchDictionaryCollection: ctx.optionResult.fetchDictionaryCollection,
     }
   })
 

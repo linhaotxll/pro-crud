@@ -453,6 +453,16 @@ export type BuildProTableOptionResult<
   renderFilterIcon?: MaybeRef<
     (ctx: RenderCustomFilterIconParams<Data>) => VNodeChild
   >
+
+  /**
+   * 转换请求数据参数
+   */
+  transformQuery?: (query: FetchProTablePageListQuery<Params>) => any
+
+  /**
+   * 转换请求数据结果
+   */
+  transformResponse?(ctx: any): ReturnType<FetchTableListRequest>
 }
 
 /**

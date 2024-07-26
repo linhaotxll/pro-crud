@@ -136,6 +136,7 @@ function buildModalFormMiddleware(ctx: BuildCrudContext, next: NextMiddleware) {
       addForm,
       editForm,
       viewForm,
+      fetchDictionaryCollection,
     } = ctx.optionResult
 
     const addFormColumns = ref([]) as Ref<ProFormColumnOptions[]>
@@ -231,9 +232,10 @@ function buildModalFormMiddleware(ctx: BuildCrudContext, next: NextMiddleware) {
           )
     })
 
-    const keys = ['row', 'col', 'labelCol', 'wrapperCol', ''] as const
+    const keys = ['row', 'col', 'labelCol', 'wrapperCol'] as const
 
     const commonFormOptions: BuildModalFormOptionReturn['form'] = {
+      fetchDictionaryCollection,
       columns: computed(() => {
         const type = modalType.value
         return !isNil(type) ? formColumsMap[type].value : []

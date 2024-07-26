@@ -489,4 +489,67 @@ describe('Build Crud', () => {
     visible(true)
     // visible(false)
   })
+
+  test('dictionary collection', async () => {
+    const status = [
+      { label: '开启', value: 1 },
+      { label: '关闭', value: 2 },
+    ]
+
+    const fetchDictionaryCollection = vi.fn(() => ({
+      status,
+    }))
+
+    const fetchDictionaryInCollection = vi.fn(
+      (collection: any) => collection.status
+    )
+
+    const App = defineComponent({
+      name: 'App',
+      setup() {
+        const { proCrudBinding } = buildCrud(() => {
+          return {
+            columns: [
+              {
+                label: '岗位',
+                name: 'postIds',
+                type: 'select',
+                search: { show: true },
+                show: false,
+                form: {
+                  fieldProps: { mode: 'multiple' },
+                },
+                dict: {
+                  fetchDictionaryInCollection,
+                },
+              },
+            ],
+            fetchDictionaryCollection,
+          }
+        })
+        return () => {
+          return [h(ProCrud, proCrudBinding)]
+        }
+      },
+    })
+
+    const wrapper = mount(App, {
+      global: {
+        plugins: [antdv],
+      },
+    })
+
+    await nextTick()
+
+    expect(fetchDictionaryCollection).toHaveBeenCalledTimes(1)
+    expect(fetchDictionaryInCollection).toHaveBeenCalledTimes(1)
+
+    expect(
+      wrapper.findComponent(ProForm).findAllComponents(Select).length
+    ).toBe(1)
+    expect(
+      wrapper.findComponent(ProForm).findAllComponents(Select)[0].vm.$props
+        .options
+    ).toMatchObject(status)
+  })
 })
