@@ -11,6 +11,7 @@ import { ModalType } from './interface'
 import {
   compose,
   markIgnoreMerge,
+  mergeWithNoUnref,
   mergeWithTovalue,
   type DataObject,
   type NextMiddleware,
@@ -281,14 +282,16 @@ function buildModalFormMiddleware(ctx: BuildCrudContext, next: NextMiddleware) {
 }
 
 function buildBasicMiddleware(ctx: BuildCrudContext, next: NextMiddleware) {
-  ctx.optionResult = ctx.options(ctx.scope) ?? {}
+  const result = ctx.options(ctx.scope)
 
   // 标记 optionResult 不可被覆盖解绑
   markIgnoreMerge(ctx.optionResult)
 
-  ctx.optionResult = mergeWithTovalue(
-    buildDefaultCrudOptions(ctx),
-    ctx.optionResult
+  ctx.optionResult = mergeWithNoUnref(
+    {},
+    buildDefaultCrudOptions(ctx.scope, result),
+    result
   )
+
   next()
 }

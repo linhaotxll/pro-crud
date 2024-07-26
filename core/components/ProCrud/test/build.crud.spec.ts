@@ -188,7 +188,7 @@ describe('Build Crud', () => {
       .findAllComponents(Button)[0]
       .vm.$emit('click')
 
-    await nextTick()
+    await sleep(0)
 
     expect(wrapper.findComponent(Input).find('input').element.value).toBe('')
     expect(wrapper.findComponent(InputNumber).find('input').element.value).toBe(

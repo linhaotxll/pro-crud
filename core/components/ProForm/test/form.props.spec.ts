@@ -272,6 +272,7 @@ describe('Pro Form Props', () => {
     expect(wrapper.findComponent(ProButtonGroup).exists()).toBe(true)
     expect(wrapper.findAllComponents(Button).length).toBe(0)
 
+    // TODO:
     await button.trigger('click')
     expect(wrapper.findAllComponents(Button).length).toBe(3)
     expect(wrapper.findAllComponents(Button)[0].text()).toBe('重 置')

@@ -5,7 +5,11 @@ import { ModalType } from './interface'
 
 import { showToast } from '../Toast'
 
-import type { BuildCrudContext, BuildCrudOptionReturn } from './interface'
+import type {
+  BuildCrudContext,
+  BuildCrudOptionReturn,
+  ProCrudScope,
+} from './interface'
 import type { ModalFormActionGroup } from '../ModalForm'
 import type { ModalProps } from 'ant-design-vue'
 
@@ -13,15 +17,12 @@ import type { ModalProps } from 'ant-design-vue'
  * 默认 Crud 返回值
  */
 export const buildDefaultCrudOptions = (
-  ctx: BuildCrudContext
+  scope: ProCrudScope,
+  optionResult: BuildCrudOptionReturn
 ): BuildCrudOptionReturn => {
-  const {
-    scope,
-    optionResult: { deleteRequest, deleteToast },
-  } = ctx
+  const { deleteRequest, deleteToast } = optionResult
 
   return {
-    autoReload: true,
     addToast: '新增成功',
     editToast: '编辑成功',
     deleteToast: '删除成功',
@@ -48,7 +49,7 @@ export const buildDefaultCrudOptions = (
             props: {
               onClick() {
                 scope.search.reset()
-                if (ctx.optionResult.autoReload) {
+                if (optionResult.autoReload ?? true) {
                   scope.table.reload()
                 }
               },
