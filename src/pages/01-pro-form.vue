@@ -1,39 +1,45 @@
 <template>
-  <ProCrud v-bind="proCrudBinding" />
+  <steps-form v-bind="stepsFormBinding" />
 </template>
 
 <script lang="tsx" setup>
-import { buildCrud } from '~/index'
+import { buildStepsForm } from '~/index'
 
-const sleep = (time: number) => new Promise(r => setTimeout(r, time))
+interface FormState {
+  info: {
+    name: string
+  }
+  extends: {
+    school: string
+  }
+}
 
-const { proCrudBinding } = buildCrud(() => {
+const { stepsFormBinding } = buildStepsForm<FormState>(() => {
   return {
-    columns: [
-      {
-        label: '姓名',
-        name: 'name',
+    steps: {
+      info: {
+        title: '基本信息',
+        columns: [
+          {
+            label: '姓名',
+            name: 'name',
+          },
+        ],
       },
-      {
-        label: '年龄',
-        name: 'age',
-        type: 'digit',
+
+      extends: {
+        title: '扩展信息',
+        columns: [
+          {
+            label: '学校',
+            name: 'school',
+            type: 'select',
+            dict: {
+              data: [{ label: '清华大学', value: 'qh' }],
+            },
+          },
+        ],
       },
-    ],
-
-    async fetchTableData() {
-      await sleep(1000)
-      return [
-        {
-          name: 'IconMan',
-          age: 24,
-        },
-      ]
-    },
-
-    editRequest() {
-      debugger
-      return true
     },
   }
 })

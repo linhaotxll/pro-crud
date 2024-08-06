@@ -28,6 +28,7 @@ import { ProButtonGroup } from './components/ProButton'
 import { ProCrud } from './components/ProCrud'
 import { ProForm, ProFormList } from './components/ProForm'
 import { ProTable } from './components/ProTable'
+import { StepsForm } from './components/StepsForm'
 import { setGlobalOptions } from './constant'
 
 import type {
@@ -44,6 +45,7 @@ export const ProComponents: Plugin<ProComponentsOptions> = {
     app.component(ProButtonGroup.name!, ProButtonGroup)
     app.component(ModalForm.name!, ModalForm)
     app.component(ProCrud.name!, ProCrud)
+    app.component(StepsForm.name!, StepsForm)
 
     app
       .use(Form)
@@ -78,3 +80,5 @@ export const ProComponents: Plugin<ProComponentsOptions> = {
 export * from './components/ProForm'
 export * from './components/ProCrud'
 export * from './components/ProTable'
+export * from './components/StepsForm'
+export * from './components/ModalForm'
