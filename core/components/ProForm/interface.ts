@@ -104,7 +104,7 @@ export interface BuildFormResult<T extends DataObject = DataObject> {
 
 export interface BuildFormBinding<T extends DataObject = DataObject> {
   row: ComputedRef<RowProps> | undefined
-  columns: Ref<Ref<InternalProFormColumnOptions<T>>[]>
+  columns: Ref<InternalProFormColumnOptions<T>[]>
   formProps: ComputedRef<FormProps> | undefined
   values: T
   actionGroup:
@@ -475,7 +475,7 @@ export interface InternalProFormColumnOptions<
         /**
          * 子控件
          */
-        children?: Ref<InternalProFormColumnOptions<T>>[] | undefined
+        children?: InternalProFormColumnOptions<T>[] | undefined
 
         /**
          * 每行 Space Props

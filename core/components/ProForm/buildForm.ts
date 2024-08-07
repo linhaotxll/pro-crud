@@ -1,6 +1,6 @@
 import cloneDeep from 'clone-deep'
 import { get, set, unset, has, once } from 'lodash-es'
-import { computed, ref, toRaw, reactive, watchEffect, toValue } from 'vue'
+import { computed, ref, toRaw, reactive, toValue, watch, toRef } from 'vue'
 
 import { buildFormColumn } from './buildFormColumn'
 import {
@@ -23,6 +23,7 @@ import type {
   InternalProFormColumnOptions,
   ProFormActionGroupExtends,
   ProFormActions,
+  ProFormColumnOptions,
   ProFormScope,
 } from './interface'
 import type { DataObject, NamePath } from '../common'
@@ -103,7 +104,7 @@ export function buildForm<
   })
 
   // 构建列
-  const resolvedColumns = ref([]) as Ref<Ref<InternalProFormColumnOptions<T>>[]>
+  const resolvedColumns = ref([]) as Ref<InternalProFormColumnOptions<T>[]>
   const resolvedColumnsMap = new Map<
     NamePath,
     InternalProFormColumnOptions<T>
@@ -114,29 +115,38 @@ export function buildForm<
     ? once(fetchDictionaryCollection)
     : undefined
 
-  watchEffect(() => {
-    resolvedColumns.value = []
-    const columnsValue = toValue(columns)
-    if (!columnsValue) {
-      return
-    }
-    for (const column of columnsValue) {
-      const resolvedColumn = buildFormColumn(
-        resolvedCommonColProps,
-        isInlineLayout,
-        scope,
-        column,
-        undefined,
-        fetchDictionaryCollectionOnce,
-        internalColumn => {
-          if (internalColumn.name) {
-            resolvedColumnsMap.set(internalColumn.name, internalColumn)
+  watch(
+    toRef(columns) as Ref<ProFormColumnOptions[] | undefined>,
+    cols => {
+      resolvedColumns.value = []
+
+      if (!cols) {
+        return
+      }
+
+      const tempCols: InternalProFormColumnOptions<DataObject>[] = []
+
+      for (const column of cols) {
+        const resolvedColumn = buildFormColumn(
+          resolvedCommonColProps,
+          isInlineLayout,
+          scope,
+          column,
+          undefined,
+          fetchDictionaryCollectionOnce,
+          internalColumn => {
+            if (internalColumn.name) {
+              resolvedColumnsMap.set(internalColumn.name, internalColumn)
+            }
           }
-        }
-      )
-      resolvedColumns.value.push(resolvedColumn)
-    }
-  })
+        )
+        tempCols.push(resolvedColumn)
+      }
+
+      resolvedColumns.value = tempCols
+    },
+    { immediate: true, deep: true }
+  )
 
   // 构建按扭组
   const actionGroup = buildButtonGroup<
@@ -202,7 +212,7 @@ export function buildForm<
 
     // 再监测每个字段是否需要上传，不需要会删除
     for (const column of toValue(resolvedColumns)) {
-      const { submitted, itemProps, transform } = column.value
+      const { submitted, itemProps, transform } = toValue(column)
       const name = itemProps?.name
 
       if (name) {

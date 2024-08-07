@@ -12,7 +12,7 @@ import type { ProFormColumnOptions, ProFormListOptions } from './interface'
 import type { DataObject } from '../common'
 import type { ToastOptions } from '../Toast'
 import type { ColProps, RowProps, SpaceProps } from 'ant-design-vue'
-import type { CSSProperties, Ref } from 'vue'
+import type { CSSProperties } from 'vue'
 
 /**
  * ProForm Column 默认配置
@@ -88,7 +88,7 @@ export const buildDefaultProSearchActionGroup = <
 >(
   scope: ProFormScope<DataObject>,
   commonCol: ColProps | undefined,
-  columns: Ref<InternalProFormColumnOptions<Data>>[],
+  columns: InternalProFormColumnOptions<Data>[],
   { col, ...rest }: ProFormActionGroup
 ): ProFormActionGroup => {
   const resolvedCol: ColProps = mergeWithTovalue(

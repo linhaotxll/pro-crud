@@ -10,6 +10,8 @@ import type { PropType } from 'vue'
 export const ProFormList = defineComponent({
   name: 'ProFormList',
 
+  inheritAttrs: false,
+
   props: {
     column: {
       type: Object as PropType<InternalProFormColumnOptions<any>>,
