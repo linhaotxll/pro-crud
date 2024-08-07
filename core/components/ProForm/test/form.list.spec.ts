@@ -1,10 +1,12 @@
 import { mount } from '@vue/test-utils'
 import antdv, { Button, Space } from 'ant-design-vue'
-import { describe, test, expect } from 'vitest'
+import { describe, test, expect, vi } from 'vitest'
 import { defineComponent, h, ref } from 'vue'
 
 import { ProForm, ProFormItem, ProFormList, buildForm } from '..'
 import { ProComponents } from '../../../index'
+
+import type { ProFormScope } from '..'
 
 describe('Pro Form Scope', () => {
   test('column.list has columns can render ProFormList', async () => {
@@ -687,5 +689,81 @@ describe('Pro Form Scope', () => {
         .find('label')
         ?.text()
     ).toBe('密码')
+  })
+
+  test('pro form list submit params', async () => {
+    let scope: ProFormScope
+
+    const submitRequest = vi.fn(() => false)
+
+    const App = defineComponent({
+      name: 'App',
+      setup() {
+        const { proFormBinding } = buildForm(s => {
+          scope = s
+
+          return {
+            initialValues: {
+              info: [
+                { username: 'IconMan', age: 24 },
+                { username: 'Nicholas', age: 25 },
+              ],
+            },
+            columns: [
+              {
+                label: '信息',
+                name: ['info'],
+                type: 'list',
+                list: {
+                  children: [
+                    {
+                      label: '用户名',
+                      name: ['username'],
+                      transform: {
+                        to(formValue) {
+                          return `${formValue}-${formValue}`
+                        },
+                      },
+                    },
+                    {
+                      label: '年龄',
+                      name: 'age',
+                      transform: {
+                        to(formValue) {
+                          return formValue * 2
+                        },
+                      },
+                    },
+                  ],
+                },
+              },
+            ],
+            submitRequest,
+          }
+        })
+
+        return () => {
+          return [h(ProForm, proFormBinding)]
+        }
+      },
+    })
+
+    const wrapper = mount(App, {
+      global: {
+        plugins: [antdv, ProComponents],
+      },
+    })
+
+    expect(wrapper.findAll('input').length).toBe(4)
+
+    await scope!.submit()
+
+    expect(submitRequest).toHaveBeenCalledTimes(1)
+    expect(submitRequest).toHaveBeenCalledWith({
+      info: [
+        { username: 'IconMan-IconMan', age: 48 },
+        { username: 'Nicholas-Nicholas', age: 50 },
+      ],
+    })
   })
 })

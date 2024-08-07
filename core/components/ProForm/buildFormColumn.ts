@@ -146,7 +146,7 @@ export function buildFormColumn<T extends DataObject = DataObject>(
   return result
 }
 
-function appendListName(columnName: NamePath, parentName?: NamePath) {
+export function appendListName(columnName: NamePath, parentName?: NamePath) {
   if (!parentName) {
     // debugger
     return isArray(columnName) ? [...columnName] : columnName
@@ -155,7 +155,7 @@ function appendListName(columnName: NamePath, parentName?: NamePath) {
   const names = Array.isArray(parentName) ? [...parentName] : [parentName]
   if (Array.isArray(columnName)) {
     names.push(ProFormListPlaceholder, ...columnName)
-  } else if (columnName) {
+  } else if (columnName != null) {
     names.push(ProFormListPlaceholder, columnName)
   }
   return names

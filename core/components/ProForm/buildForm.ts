@@ -12,7 +12,7 @@ import {
 } from './constant'
 import { useValues } from './useValues'
 
-import { isFunction } from '../../utils'
+import { isArray, isFunction } from '../../utils'
 import { mergeWithTovalue } from '../common'
 import { buildButtonGroup } from '../ProButton'
 import { showToast } from '../Toast'
@@ -212,26 +212,63 @@ export function buildForm<
 
     // 再监测每个字段是否需要上传，不需要会删除
     for (const column of toValue(resolvedColumns)) {
-      const { submitted, itemProps, transform } = toValue(column)
+      const { submitted, itemProps, transform, type, list } = toValue(column)
       const name = itemProps?.name
 
+      const listValue = toValue(list)
+      if (name && type === 'list' && listValue && listValue.children) {
+        const values = get(beforeSubmitParams, name)
+        if (isArray(values)) {
+          for (let j = 0; j < values.length; ++j) {
+            for (let i = 0; i < listValue.children.length; ++i) {
+              const { submitted, transform, name } = listValue.children[i]
+              const resolvedName = name as Array<any>
+              _setValue(
+                resolvedName[resolvedName.length - 1],
+                submitted,
+                transform,
+                values[j]
+              )
+            }
+          }
+
+          // for (let i = 0; i < values.length; ++i) {
+          //   const { submitted, transform, name } = listValue.children[i]
+          //   const resolvedName = name as Array<any>
+          // _setValue(
+          //   resolvedName[resolvedName.length - 1],
+          //   submitted,
+          //   transform,
+          //   values[i]
+          // )
+          // }
+        }
+      }
+
+      if (name) {
+        _setValue(name, submitted, transform, beforeSubmitParams)
+      }
+    }
+
+    function _setValue(
+      name: NamePath,
+      submitted: ProFormColumnOptions['submitted'],
+      transform: ProFormColumnOptions['transform'],
+      result: any
+    ) {
       if (name) {
         // 检测字段是否需要提交上传
         if (
           submitted === false ||
           (typeof submitted === 'function' && submitted(scope) === false)
         ) {
-          unset(beforeSubmitParams, name)
-          continue
+          unset(result, name)
+          return
         }
 
         // 表单数据转换为服务端数据
         if (typeof transform?.to === 'function') {
-          set(
-            beforeSubmitParams,
-            name,
-            transform.to(get(beforeSubmitParams, name))
-          )
+          set(result, name, transform.to(get(result, name)))
         }
       }
     }

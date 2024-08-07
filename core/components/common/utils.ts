@@ -26,7 +26,7 @@ export function findAndReplace(arr: any, item: any, value: any) {
     const index = arr.indexOf(item)
     if (index > -1) {
       arr = arr.slice()
-      arr.splice(index, 1, value)
+      arr[index] = value
     }
   }
 
