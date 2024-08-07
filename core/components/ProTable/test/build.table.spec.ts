@@ -1685,4 +1685,73 @@ describe('Build Pro Table', () => {
         .options
     ).toMatchObject(gender)
   })
+
+  test('pro table pagination', async () => {
+    const dataSource = [
+      { name: 'IconMan', age: 24 },
+      { name: 'Nicholas', age: 25 },
+      { name: 'Txll', age: 26 },
+      { name: 'Mike', age: 27 },
+    ]
+
+    const fetchTableData = vi.fn(query => {
+      return {
+        data: dataSource.slice(
+          query.page.pageNum - 1 * query.page.pageSize,
+          query.page.pageNum * query.page.pageSize
+        ),
+        total: dataSource.length,
+      }
+    })
+
+    const App = defineComponent({
+      name: 'App',
+      setup() {
+        const { proTableBinding } = buildTable<Person>(() => {
+          return {
+            columns: [
+              {
+                label: '姓名',
+                name: 'name',
+              },
+              {
+                label: '性别',
+                name: 'gender',
+              },
+            ],
+            fetchTableData,
+            tableProps: {
+              pagination: {
+                pageSize: 1,
+              },
+            },
+          }
+        })
+        return () => {
+          return [h(ProTable, proTableBinding)]
+        }
+      },
+    })
+
+    const wrapper = mount(App, {
+      global: {
+        plugins: [antdv],
+      },
+    })
+
+    await nextTick()
+
+    expect(wrapper.findComponent(Table).vm.$props.dataSource?.length).toBe(1)
+    expect(wrapper.findAll('.ant-pagination-item').length).toBe(4)
+    expect(wrapper.findComponent(Table).vm.$props.pagination)
+      .toMatchInlineSnapshot(`
+      {
+        "current": 1,
+        "onUpdate:current": [Function],
+        "onUpdate:pageSize": [Function],
+        "pageSize": 1,
+        "total": 4,
+      }
+    `)
+  })
 })

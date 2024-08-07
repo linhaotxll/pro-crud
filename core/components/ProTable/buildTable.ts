@@ -177,6 +177,8 @@ function buildTableMiddleware<Data extends DataObject = DataObject>(
   const currentPageSize = ref(defaultPageSize)
   // TODO: 是否还有下一页数据
   // const hasMore = ref(false)
+  // 总数
+  const total = ref(0)
   // 实际的数据集合
   const resolvedData = ref(defaultData ?? []) as Ref<Data[]>
   const resolvedDataRowkeyMap = computed(() => {
@@ -322,6 +324,7 @@ function buildTableMiddleware<Data extends DataObject = DataObject>(
           },
           current: currentPage.value,
           pageSize: currentPageSize.value,
+          total: total.value,
         }
       )
     }
@@ -430,8 +433,10 @@ function buildTableMiddleware<Data extends DataObject = DataObject>(
           response: Data[] | FetchProTablePageListResult<Data>
         ) {
           let _resolvedData: Data[]
+          let _total = 0
           if (isPaginationData(response)) {
             _resolvedData = response.data
+            _total = response.total
           } else {
             _resolvedData = response
           }
@@ -445,6 +450,7 @@ function buildTableMiddleware<Data extends DataObject = DataObject>(
           }
 
           resolvedData.value = _resolvedData
+          total.value = _total
         }
 
         const transformResponse =
