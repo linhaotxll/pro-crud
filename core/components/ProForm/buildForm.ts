@@ -307,8 +307,29 @@ export function buildForm<
   function setFieldValue(key: NamePath, value: any) {
     const column = resolvedColumnsMap.get(key)
     if (column) {
-      if (typeof column.transform?.from === 'function') {
-        value = column.transform.from(value)
+      const { transform, type, list } = column
+      const listValue = toValue(list)
+
+      if (type === 'list' && listValue?.children && isArray(value)) {
+        for (let j = 0; j < value.length; ++j) {
+          for (let i = 0; i < listValue.children.length; ++i) {
+            const { transform, name } = listValue.children[i]
+            const resolvedName = (name as Array<any>)[
+              (name as any[]).length - 1
+            ]
+            if (isFunction(transform?.from)) {
+              set(
+                value[j],
+                resolvedName,
+                transform.from(get(value[j], resolvedName))
+              )
+            }
+          }
+        }
+      }
+
+      if (typeof transform?.from === 'function') {
+        value = transform.from(value)
       }
     }
     set(values, key, value)

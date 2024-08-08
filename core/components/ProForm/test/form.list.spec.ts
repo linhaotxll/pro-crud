@@ -1,7 +1,7 @@
 import { mount } from '@vue/test-utils'
 import antdv, { Button, Space } from 'ant-design-vue'
 import { describe, test, expect, vi } from 'vitest'
-import { defineComponent, h, ref } from 'vue'
+import { defineComponent, h, nextTick, ref } from 'vue'
 
 import { ProForm, ProFormItem, ProFormList, buildForm } from '..'
 import { ProComponents } from '../../../index'
@@ -765,5 +765,86 @@ describe('Pro Form Scope', () => {
         { username: 'Nicholas-Nicholas', age: 50 },
       ],
     })
+  })
+
+  test('pro form list setFieldValue', async () => {
+    let scope: ProFormScope
+
+    const submitRequest = vi.fn(() => false)
+
+    const App = defineComponent({
+      name: 'App',
+      setup() {
+        const { proFormBinding } = buildForm(s => {
+          scope = s
+
+          return {
+            columns: [
+              {
+                label: '信息',
+                name: 'info',
+                type: 'list',
+                list: {
+                  children: [
+                    {
+                      label: '用户名',
+                      name: 'username',
+                      transform: {
+                        to(formValue) {
+                          return `${formValue}-${formValue}`
+                        },
+                        from(serverValue) {
+                          return `${serverValue}`.split('-')[0]
+                        },
+                      },
+                    },
+                    {
+                      label: '年龄',
+                      name: 'age',
+                      transform: {
+                        to(formValue) {
+                          return formValue * 2
+                        },
+                        from(serverValue) {
+                          return serverValue / 2
+                        },
+                      },
+                    },
+                  ],
+                },
+              },
+            ],
+            submitRequest,
+          }
+        })
+
+        return () => {
+          return [h(ProForm, proFormBinding)]
+        }
+      },
+    })
+
+    const wrapper = mount(App, {
+      global: {
+        plugins: [antdv, ProComponents],
+      },
+    })
+
+    await nextTick()
+
+    scope!.setFieldValues({
+      info: [
+        { username: 'IconMan-IconMan', age: 48 },
+        { username: 'Nicholas-Nicholas', age: 50 },
+      ],
+    })
+
+    await nextTick()
+
+    expect(wrapper.findAll('input').length).toBe(4)
+    expect(wrapper.findAll('input')[0].element.value).toBe('IconMan')
+    expect(wrapper.findAll('input')[1].element.value).toBe('24')
+    expect(wrapper.findAll('input')[2].element.value).toBe('Nicholas')
+    expect(wrapper.findAll('input')[3].element.value).toBe('25')
   })
 })
