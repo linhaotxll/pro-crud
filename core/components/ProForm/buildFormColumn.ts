@@ -8,7 +8,7 @@ import { getUuid, mergeWithTovalue } from '../common'
 import { buildDictionary } from '../ProDictionary'
 
 import { getGlobalOptions } from '~/constant'
-import { isArray } from '~/utils'
+import { isArray, isNil } from '~/utils'
 
 import type {
   InternalProFormColumnOptions,
@@ -27,7 +27,8 @@ export function buildFormColumn<T extends DataObject = DataObject>(
   column: ProFormColumnOptions<T>,
   parent?: InternalProFormColumnOptions<T>,
   fetchDictionaryCollection?: DictionaryCollection['fetchDictionaryCollection'],
-  onChange?: (internalColumn: InternalProFormColumnOptions<T>) => void
+  onChange?: (internalColumn: InternalProFormColumnOptions<T>) => void,
+  formName?: NamePath
 ) {
   // dict 不能被合并，防止外层 ProTable 传递 dict 被克隆
   const mergedColumn: ProFormColumnOptions<any, any, any> = mergeWithTovalue(
@@ -52,7 +53,12 @@ export function buildFormColumn<T extends DataObject = DataObject>(
   // 解析显示状态
   const resolvedShow = toValue(show!)
   // 解析 name
-  const resolvedName = appendListName(toValue(name), parent?.name)
+  const resolvedName = appendListName(
+    toValue(name),
+    parent?.name,
+    parent ? ProFormListPlaceholder : undefined,
+    formName
+  )
   // 解析 type
   const resolvedType = toValue(type!)
 
@@ -146,17 +152,35 @@ export function buildFormColumn<T extends DataObject = DataObject>(
   return result
 }
 
-export function appendListName(columnName: NamePath, parentName?: NamePath) {
-  if (!parentName) {
-    // debugger
-    return isArray(columnName) ? [...columnName] : columnName
-    // return columnName
+export function appendListName(
+  columnName: NamePath,
+  ...parents: (NamePath | undefined | null)[]
+) {
+  if (!parents.length) {
+    return columnName
   }
-  const names = Array.isArray(parentName) ? [...parentName] : [parentName]
-  if (Array.isArray(columnName)) {
-    names.push(ProFormListPlaceholder, ...columnName)
-  } else if (columnName != null) {
-    names.push(ProFormListPlaceholder, columnName)
+
+  const names: (string | number)[] = []
+
+  for (const parent of parents) {
+    if (isArray(parent)) {
+      names.push(...parent)
+    } else if (!isNil(parent)) {
+      names.push(parent)
+    }
   }
-  return names
+
+  if (isArray(columnName)) {
+    names.push(...columnName)
+  } else {
+    names.push(columnName)
+  }
+
+  // const names = Array.isArray(parentName) ? [...parentName] : [parentName]
+  // if (Array.isArray(columnName)) {
+  //   names.push(ProFormListPlaceholder, ...columnName)
+  // } else if (columnName != null) {
+  //   names.push(ProFormListPlaceholder, columnName)
+  // }
+  return names.length === 1 ? names[0] : names
 }

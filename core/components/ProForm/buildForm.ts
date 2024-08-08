@@ -61,8 +61,7 @@ export function buildForm<
     initialValues,
     columns,
     formProps,
-    // labelCol,
-    // wrapperCol,
+    name: formName,
     action = {},
     toast = DefaultProFormToast,
     row,
@@ -116,8 +115,11 @@ export function buildForm<
     : undefined
 
   watch(
-    toRef(columns) as Ref<ProFormColumnOptions[] | undefined>,
-    cols => {
+    [
+      toRef(columns) as Ref<ProFormColumnOptions[] | undefined>,
+      toRef(formName) as Ref<NamePath | undefined>,
+    ],
+    ([cols, formName]) => {
       resolvedColumns.value = []
 
       if (!cols) {
@@ -138,7 +140,8 @@ export function buildForm<
             if (internalColumn.name) {
               resolvedColumnsMap.set(internalColumn.name, internalColumn)
             }
-          }
+          },
+          formName
         )
         tempCols.push(resolvedColumn)
       }
@@ -231,17 +234,6 @@ export function buildForm<
               )
             }
           }
-
-          // for (let i = 0; i < values.length; ++i) {
-          //   const { submitted, transform, name } = listValue.children[i]
-          //   const resolvedName = name as Array<any>
-          // _setValue(
-          //   resolvedName[resolvedName.length - 1],
-          //   submitted,
-          //   transform,
-          //   values[i]
-          // )
-          // }
         }
       }
 
@@ -314,9 +306,7 @@ export function buildForm<
         for (let j = 0; j < value.length; ++j) {
           for (let i = 0; i < listValue.children.length; ++i) {
             const { transform, name } = listValue.children[i]
-            const resolvedName = (name as Array<any>)[
-              (name as any[]).length - 1
-            ]
+            const resolvedName = isArray(name) ? name[name.length - 1] : name
             if (isFunction(transform?.from)) {
               set(
                 value[j],

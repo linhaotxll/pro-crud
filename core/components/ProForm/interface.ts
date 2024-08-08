@@ -129,6 +129,11 @@ export interface BuildFormOptionResult<
   formProps?: MaybeRefOrGetter<DeepMaybeRef<Omit<FormProps, 'model'>>>
 
   /**
+   * 统一列 name 前缀
+   */
+  name?: MaybeRefOrGetter<NamePath>
+
+  /**
    * 表单初始值
    */
   initialValues?: Partial<T>
