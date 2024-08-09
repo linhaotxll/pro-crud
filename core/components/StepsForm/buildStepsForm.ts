@@ -8,9 +8,10 @@ import { isFunction, isPromise } from '~/utils'
 import type { DataObject } from './../common/interface'
 import type {
   BuildStepsFormReturn,
+  StepOptions,
   StepsFormScope,
-  StepsOptions,
 } from './interface'
+import type { CustomRender } from '../CustomRender'
 import type { ActionOption } from '../ProButton'
 import type {
   BuildFormOptionResult,
@@ -34,13 +35,18 @@ export function buildStepsForm<Forms extends DataObject = DataObject>(
   // 解析好的 Steps Props
   let resolvedStepProps: ComputedRef<StepsProps>
 
+  let resolvedWrap: CustomRender | undefined
+
   const { proFormBinding } = buildForm(scope => {
     const {
       stepsProps,
       steps,
       initialValues: formsInitialValues,
+      wrap,
       ...commonForm
     } = options(scope)
+
+    resolvedWrap = wrap
 
     // 步骤列表
     const items = ref<StepsProps['items']>([])
@@ -49,8 +55,7 @@ export function buildStepsForm<Forms extends DataObject = DataObject>(
     const columnsMap = ref<
       Record<
         number,
-        | MaybeRefOrGetter<ProFormColumnOptions<Forms[string], any, any>[]>
-        | undefined
+        MaybeRefOrGetter<ProFormColumnOptions<Forms, any, any>[]> | undefined
       >
     >({})
 
@@ -60,7 +65,7 @@ export function buildStepsForm<Forms extends DataObject = DataObject>(
     )
 
     // 步骤索引映射表单名称前缀
-    const stepsPrefix = ref<Record<number, string>>({})
+    // const stepsPrefix = ref<Record<number, string>>({})
 
     // 步骤索引映射表单 Props
     const formPropsMap = ref<
@@ -68,7 +73,7 @@ export function buildStepsForm<Forms extends DataObject = DataObject>(
     >({})
 
     // 步骤对象
-    const stepsRef = toRef(steps) as Ref<StepsOptions<Forms>>
+    const stepsRef = toRef(steps) as Ref<StepOptions<Forms>[]>
 
     //  步骤索引映射表单操作
     const funcMap: Record<number, FunctionKeys> = {}
@@ -156,10 +161,11 @@ export function buildStepsForm<Forms extends DataObject = DataObject>(
       initialValues: formsInitialValues,
 
       submitRequest(values) {
-        return funcMap[current.value].submitRequest?.(values) ?? true
+        return funcMap[current.value]?.submitRequest?.(values) ?? true
       },
       successRequest(values) {
-        const result = funcMap[current.value].successRequest?.(values) ?? values
+        const result =
+          funcMap[current.value]?.successRequest?.(values) ?? values
         if (isPromise(result)) {
           return result.then(a)
         } else {
@@ -168,8 +174,7 @@ export function buildStepsForm<Forms extends DataObject = DataObject>(
 
         function a() {
           if (!isLast()) {
-            ;(resolvedSubmitParams ||= {})[stepsPrefix.value[current.value]] =
-              result
+            ;(resolvedSubmitParams ||= {})[current.value] = result
 
             handleNextStep()
             if (isLast()) {
@@ -181,37 +186,20 @@ export function buildStepsForm<Forms extends DataObject = DataObject>(
         }
       },
       validateFail(e) {
-        return funcMap[current.value].validateFail?.(e)
+        return funcMap[current.value]?.validateFail?.(e)
       },
-      beforeSubmit() {
-        const prefix = stepsPrefix.value[current.value]
-        const stepForm = prefix
-          ? scope.getFieldValue(prefix)
-          : resolvedSubmitParams
-        return funcMap[current.value].beforeSubmit?.(stepForm) ?? stepForm
+      beforeSubmit(values) {
+        return funcMap[current.value]?.beforeSubmit?.(values) ?? values
       },
 
       toast: false,
 
-      name: computed(() => {
-        return stepsPrefix.value[current.value]
-      }),
-
       formProps: computed(() => {
-        const { rules, ...props } = toValue(
-          formPropsMap.value[current.value] || {}
+        return mergeWithTovalue(
+          {},
+          toValue(toValue(commonForm).formProps),
+          toValue(formPropsMap.value[current.value])
         )
-
-        return mergeWithTovalue({}, toValue(commonForm.formProps), props, {
-          rules: rules
-            ? mergeWithTovalue(
-                {},
-                {
-                  [stepsPrefix.value[current.value]]: rules,
-                }
-              )
-            : undefined,
-        })
       }),
     }
 
@@ -233,82 +221,73 @@ export function buildStepsForm<Forms extends DataObject = DataObject>(
         const tempItems: StepsProps['items'] = []
         const tempColumnsMap: Record<
           number,
-          | MaybeRefOrGetter<ProFormColumnOptions<Forms[string], any, any>[]>
-          | undefined
+          MaybeRefOrGetter<ProFormColumnOptions<Forms, any, any>[]> | undefined
         > = {}
         const tempAction: Record<
           number,
           MaybeRefOrGetter<ProFormActionGroup> | undefined
         > = {}
 
-        const stepsKeys = Object.keys(value)
-
-        const tempStepsPrefix: Record<number, string> = {}
         let tempFormProps: Record<
           number,
           BuildFormOptionResult['formProps']
         > | null = null
 
-        let initialFormValues: Record<string, any> | null = null
+        let initialFormValues: Record<number, any> | null = null
 
-        stepsKeys
-          .sort((a, b) => (value[a].order ?? 0) - (value[b].order ?? 0))
-          .forEach((key, index) => {
-            const options = value[key]
+        value.forEach((options, index) => {
+          ;(initialFormValues ||= {})[index] = {}
 
-            ;(initialFormValues ||= {})[key] = {}
+          const {
+            description,
+            icon,
+            status,
+            disabled,
+            title,
+            subTitle,
+            onClick,
+            columns,
+            action,
+            // initialValues,
+            formProps,
+            ...stepForm
+          } = options
 
-            const {
-              description,
-              icon,
-              status,
-              disabled,
-              title,
-              subTitle,
-              onClick,
-              columns,
-              action,
-              // initialValues,
-              formProps,
-              ...stepForm
-            } = options
-
-            tempItems.push({
-              description,
-              icon,
-              status,
-              disabled,
-              title,
-              subTitle,
-              onClick,
-            })
-
-            tempColumnsMap[index] = columns
-            tempAction[index] = action
-            tempStepsPrefix[index] = key
-            ;(tempFormProps ||= {})[index] = formProps
-
-            const stepFormKeys = Object.keys(stepForm)
-
-            for (const key of stepFormKeys) {
-              const formValue = (stepForm as any)[key]
-              if (isFunction(formValue)) {
-                ;(funcMap[index] ||= {})[key as keyof FunctionKeys] = formValue
-              } else {
-                buildFormReturn[key as keyof typeof buildFormReturn] = computed(
-                  () => {
-                    return mergeWithTovalue(
-                      {},
-                      commonForm[key as keyof typeof commonForm],
-                      (value as any)[stepsKeys[current.value]][key]
-                    )
-                  }
-                ) as any
-              }
-            }
+          tempItems.push({
+            description,
+            icon,
+            status,
+            disabled,
+            title,
+            subTitle,
+            onClick,
           })
 
-        funcMap[stepsKeys.length] = {
+          tempColumnsMap[index] = columns
+          tempAction[index] = action
+          ;(tempFormProps ||= {})[index] = formProps
+
+          const stepFormKeys = Object.keys(stepForm)
+
+          for (const key of stepFormKeys) {
+            const formValue = (stepForm as any)[key]
+            if (isFunction(formValue)) {
+              ;(funcMap[index] ||= {})[key as keyof FunctionKeys] = formValue
+            } else {
+              buildFormReturn[key as keyof typeof buildFormReturn] = computed(
+                () => {
+                  return mergeWithTovalue(
+                    {},
+                    commonForm[key as keyof typeof commonForm],
+                    (value as any)[current.value][key]
+                  )
+                }
+              ) as any
+            }
+          }
+        })
+
+        funcMap[value.length] = {
           submitRequest: commonForm.submitRequest,
           beforeSubmit: commonForm.beforeSubmit,
           validateFail: commonForm.validateFail,
@@ -317,7 +296,6 @@ export function buildStepsForm<Forms extends DataObject = DataObject>(
 
         items.value = tempItems
         columnsMap.value = tempColumnsMap
-        stepsPrefix.value = tempStepsPrefix
         formPropsMap.value = tempFormProps!
       },
       { immediate: true }
@@ -329,6 +307,7 @@ export function buildStepsForm<Forms extends DataObject = DataObject>(
   const stepsFormBinding = {
     stepsProps: resolvedStepProps!,
     proFormBinding,
+    wrap: resolvedWrap,
   }
 
   return {

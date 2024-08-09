@@ -1,5 +1,5 @@
 import { mount } from '@vue/test-utils'
-import antdv, { Button, Input, Select, Steps } from 'ant-design-vue'
+import antdv, { Button, Flex, Form, Input, Select, Steps } from 'ant-design-vue'
 import { describe, expect, test, vi } from 'vitest'
 import { defineComponent, h, nextTick } from 'vue'
 
@@ -49,8 +49,8 @@ describe('StepsForm', () => {
           scope = s
 
           return {
-            steps: {
-              info: {
+            steps: [
+              {
                 title: '基本信息',
                 columns: [
                   {
@@ -69,7 +69,7 @@ describe('StepsForm', () => {
                 submitRequest: infoSubmitRequest,
               },
 
-              extends: {
+              {
                 title: '扩展信息',
                 columns: [
                   {
@@ -84,7 +84,7 @@ describe('StepsForm', () => {
                 beforeSubmit: extendsBeforeSubmit,
                 submitRequest: extendsSubmitRequest,
               },
-            },
+            ],
 
             beforeSubmit: topBeforeSubmit,
             submitRequest: topSubmitRequest,
@@ -144,7 +144,6 @@ describe('StepsForm', () => {
               "请填写姓名",
             ],
             "name": [
-              "info",
               "name",
             ],
             "warnings": [],
@@ -152,15 +151,13 @@ describe('StepsForm', () => {
         ],
         "outOfDate": false,
         "values": {
-          "info": {
-            "name": undefined,
-          },
+          "name": undefined,
         },
       }
     `)
 
     // TODO:
-    scope.setFieldValue(['info', 'name'], 'IconMan')
+    scope.setFieldValue('name', 'IconMan')
 
     await nextTick()
 
@@ -185,17 +182,88 @@ describe('StepsForm', () => {
     expect(wrapper.findAllComponents(Button)[0].text()).toBe('完 成')
     expect(wrapper.findAllComponents(Button)[1].text()).toBe('上一步')
 
-    scope.setFieldValue(['extends', 'school'], 'qh')
+    scope.setFieldValue('school', 'qh')
     await nextTick()
 
     wrapper.findAllComponents(Button)[0].vm.$emit('click')
     await sleep(0)
 
     expect(extendsBeforeSubmit).toHaveBeenCalledTimes(1)
-    expect(extendsBeforeSubmit).toHaveBeenCalledWith({ school: 'qh' })
+    expect(extendsBeforeSubmit).toHaveBeenCalledWith({
+      name: 'IconMan',
+      school: 'qh',
+    })
     expect(extendsSubmitRequest).toHaveBeenCalledTimes(1)
-    expect(extendsSubmitRequest).toHaveBeenCalledWith({ school: 'qh', b: 2 })
+    expect(extendsSubmitRequest).toHaveBeenCalledWith({
+      name: 'IconMan',
+      school: 'qh',
+      b: 2,
+    })
 
     expect(topBeforeSubmit).toHaveBeenCalledTimes(1)
+  })
+
+  test('custom render wrap', async () => {
+    const App = defineComponent({
+      name: 'App',
+      setup() {
+        const { stepsFormBinding } = buildStepsForm(() => {
+          return {
+            steps: [
+              {
+                title: '基本信息',
+                columns: [
+                  {
+                    label: '姓名',
+                    name: 'name',
+                  },
+                ],
+                formProps: {
+                  rules: {
+                    name: { required: true, message: '请填写姓名' },
+                  },
+                },
+                col: { span: 8 },
+              },
+              {
+                title: '扩展信息',
+                columns: [
+                  {
+                    label: '学校',
+                    name: 'school',
+                    type: 'select',
+                    dict: {
+                      data: [{ label: '清华大学', value: 'qh' }],
+                    },
+                  },
+                ],
+              },
+            ],
+
+            wrap: {
+              render: ctx =>
+                h('div', { class: 'wrap-container' }, [
+                  h('div', { class: 'wrap-steps' }, [ctx.$steps]),
+                  h('div', { class: 'wrap-form' }, [ctx.$form]),
+                ]),
+            },
+          }
+        })
+        return () => {
+          return h(StepsForm, stepsFormBinding)
+        }
+      },
+    })
+
+    const wrapper = mount(App, {
+      global: {
+        plugins: [antdv, ProComponents],
+      },
+    })
+
+    expect(wrapper.findAllComponents(Flex).length).toBe(0)
+    expect(wrapper.find('.wrap-container').exists()).toBe(true)
+    expect(wrapper.find('.wrap-steps').findAllComponents(Steps).length).toBe(1)
+    expect(wrapper.find('.wrap-form').findAllComponents(Form).length).toBe(1)
   })
 })
