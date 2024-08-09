@@ -562,4 +562,78 @@ describe('Build Crud', () => {
     expect(fetchDictionaryCollection).toHaveBeenCalledTimes(1)
     expect(fetchDictionaryInCollection).toHaveReturnedTimes(1)
   })
+
+  test('reset search', async () => {
+    const fetchTableData = vi.fn(() => {
+      return []
+    })
+
+    const App = defineComponent({
+      name: 'App',
+      setup() {
+        const { proCrudBinding } = buildCrud(() => {
+          return {
+            fetchTableData,
+            columns: [
+              {
+                label: '姓名',
+                name: 'name',
+              },
+            ],
+            toolbar: { show: false },
+          }
+        })
+        return () => {
+          return [h(ProCrud, proCrudBinding)]
+        }
+      },
+    })
+
+    const wrapper = mount(App, {
+      global: {
+        plugins: [antdv],
+      },
+    })
+
+    expect(fetchTableData).toHaveBeenCalledTimes(1)
+    expect(fetchTableData).toHaveBeenCalledWith({
+      page: { pageNum: 1, pageSize: 10 },
+      params: {},
+    })
+
+    expect(wrapper.findAllComponents(Input).length).toBe(1)
+    await wrapper.findComponent(Input).find('input').setValue('IconMan')
+    await nextTick()
+
+    expect(wrapper.findComponent(Input).find('input').element.value).toBe(
+      'IconMan'
+    )
+
+    expect(wrapper.findAllComponents(Button).length).toBe(2)
+    expect(wrapper.findAllComponents(Button)[1].text()).toBe('搜 索')
+
+    await wrapper.findAllComponents(Button)[1].vm.$emit('click')
+    await sleep(0)
+
+    expect(fetchTableData).toHaveBeenCalledTimes(2)
+    expect(fetchTableData).toHaveBeenCalledWith({
+      page: { pageNum: 1, pageSize: 10 },
+      params: { name: 'IconMan' },
+    })
+
+    expect(wrapper.findAllComponents(Button)[0].text()).toBe('重 置')
+    await wrapper.findAllComponents(Button)[0].vm.$emit('click')
+    await sleep(0)
+
+    expect(fetchTableData).toHaveBeenCalledTimes(3)
+    expect(fetchTableData.mock.calls[0][0]).toMatchInlineSnapshot(`
+      {
+        "page": {
+          "pageNum": 1,
+          "pageSize": 10,
+        },
+        "params": {},
+      }
+    `)
+  })
 })

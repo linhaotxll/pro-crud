@@ -64,7 +64,7 @@ export interface BuildCrudOptionReturn<
   /**
    * 列按钮组
    */
-  actionColumn?: MaybeRefOrGetter<ProCrudActionColumnOptions>
+  actionColumn?: MaybeRefOrGetter<ProCrudActionColumnOptions<Data>>
 
   /**
    * toolbar 配置

@@ -50,7 +50,7 @@ export const buildDefaultCrudOptions = (
               onClick() {
                 scope.search.reset()
                 if (optionResult.autoReload ?? true) {
-                  scope.table.reload()
+                  scope.search.submit()
                 }
               },
             },
