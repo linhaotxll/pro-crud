@@ -156,7 +156,6 @@ describe('StepsForm', () => {
       }
     `)
 
-    // TODO:
     scope.setFieldValue('name', 'IconMan')
 
     await nextTick()
@@ -177,6 +176,7 @@ describe('StepsForm', () => {
 
     expect(wrapper.findAllComponents(Input).length).toBe(0)
     expect(wrapper.findAllComponents(Select).length).toBe(1)
+    expect(wrapper.findComponent(Steps).vm.$props.current).toBe(1)
 
     expect(wrapper.findAllComponents(Button).length).toBe(2)
     expect(wrapper.findAllComponents(Button)[0].text()).toBe('完 成')
@@ -199,6 +199,11 @@ describe('StepsForm', () => {
       school: 'qh',
       b: 2,
     })
+
+    expect(wrapper.findComponent(Steps).vm.$props.current).toBe(1)
+
+    expect(infoBeforeSubmit).toHaveBeenCalledTimes(1)
+    expect(extendsBeforeSubmit).toHaveBeenCalledTimes(1)
 
     expect(topBeforeSubmit).toHaveBeenCalledTimes(1)
   })

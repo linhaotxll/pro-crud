@@ -1,9 +1,11 @@
+import { get, has, set } from 'lodash-es'
 import { computed, ref, toRef, toValue, watch } from 'vue'
 
 import { mergeWithTovalue } from '../common'
 import { buildForm } from '../ProForm'
+import { showToast } from '../Toast'
 
-import { isFunction, isPromise } from '~/utils'
+import { isFunction } from '~/utils'
 
 import type { DataObject } from './../common/interface'
 import type {
@@ -134,10 +136,13 @@ export function buildStepsForm<Forms extends DataObject = DataObject>(
 
     // 是否是最后一步
     function isLast() {
-      return current.value === Object.keys(stepsRef.value).length
+      return current.value === Object.keys(stepsRef.value).length - 1
     }
 
-    let resolvedSubmitParams: any | null = null
+    const resolvedSubmitParams: any = {}
+
+    // 每一步最终的表单数据
+    const paramsMap: Record<number, any> = {}
 
     const buildFormReturn: BuildFormOptionResult = {
       columns: computed(() => {
@@ -154,6 +159,7 @@ export function buildStepsForm<Forms extends DataObject = DataObject>(
         return mergeWithTovalue(
           {},
           defaultAction,
+          toValue(commonForm.action),
           actionMap.value[current.value]
         )
       }),
@@ -164,25 +170,38 @@ export function buildStepsForm<Forms extends DataObject = DataObject>(
         return funcMap[current.value]?.submitRequest?.(values) ?? true
       },
       successRequest(values) {
-        const result =
-          funcMap[current.value]?.successRequest?.(values) ?? values
-        if (isPromise(result)) {
-          return result.then(a)
-        } else {
-          return a()
-        }
-
-        function a() {
-          if (!isLast()) {
-            ;(resolvedSubmitParams ||= {})[current.value] = result
-
-            handleNextStep()
-            if (isLast()) {
-              return scope.submit()
+        paramsMap[current.value] = values
+        funcMap[current.value]?.successRequest?.(values)
+        if (isLast()) {
+          const map = columnsMap.value
+          const columnsKeys = Object.keys(map)
+          const params = {} as Forms
+          for (let i = 0; i < columnsKeys.length; ++i) {
+            const currentStepForm = paramsMap[i]
+            const cols = toValue(map[i])
+            if (!cols) {
+              continue
             }
-          } else {
-            current.value = 0
+
+            for (let j = 0; j < cols.length; ++j) {
+              const name = toValue(cols[j].name)
+              if (has(currentStepForm, name)) {
+                set(params, name, get(currentStepForm, name))
+              }
+            }
           }
+
+          Promise.resolve(commonForm.beforeSubmit?.(params) ?? params)
+            .then(res => {
+              return Promise.resolve(commonForm.submitRequest?.(res))
+            })
+            .then(res => {
+              if (res) {
+                showToast(commonForm.toast)
+              }
+            })
+        } else {
+          handleNextStep()
         }
       },
       validateFail(e) {
@@ -204,14 +223,14 @@ export function buildStepsForm<Forms extends DataObject = DataObject>(
     }
 
     function handleNextStep() {
-      if (current.value < Object.keys(stepsRef.value).length) {
+      if (current.value < Object.keys(stepsRef.value).length - 1) {
         current.value++
       }
     }
 
     function handlePreviousStep() {
       if (current.value > 0) {
-        current.value = current.value - (isLast() ? 2 : 1)
+        current.value--
       }
     }
 
@@ -288,8 +307,11 @@ export function buildStepsForm<Forms extends DataObject = DataObject>(
         })
 
         funcMap[value.length] = {
-          submitRequest: commonForm.submitRequest,
-          beforeSubmit: commonForm.beforeSubmit,
+          submitRequest: () =>
+            commonForm.submitRequest?.(resolvedSubmitParams) ?? false,
+          beforeSubmit: () =>
+            commonForm.beforeSubmit?.(resolvedSubmitParams) ??
+            resolvedSubmitParams,
           validateFail: commonForm.validateFail,
           successRequest: commonForm.successRequest,
         }
