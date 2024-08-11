@@ -215,53 +215,22 @@ export function buildForm<
 
     // 再监测每个字段是否需要上传，不需要会删除
     for (const column of toValue(resolvedColumns)) {
-      const { submitted, itemProps, transform, type, list } = toValue(column)
+      const { submitted, itemProps } = toValue(column)
       const name = itemProps?.name
 
-      const listValue = toValue(list)
-      if (name && type === 'list' && listValue && listValue.children) {
-        const values = get(beforeSubmitParams, name)
-        if (isArray(values)) {
-          for (let j = 0; j < values.length; ++j) {
-            for (let i = 0; i < listValue.children.length; ++i) {
-              const { submitted, transform, name } = listValue.children[i]
-              const resolvedName = name as Array<any>
-              _setValue(
-                resolvedName[resolvedName.length - 1],
-                submitted,
-                transform,
-                values[j]
-              )
-            }
-          }
-        }
-      }
-
       if (name) {
-        _setValue(name, submitted, transform, beforeSubmitParams)
-      }
-    }
-
-    function _setValue(
-      name: NamePath,
-      submitted: ProFormColumnOptions['submitted'],
-      transform: ProFormColumnOptions['transform'],
-      result: any
-    ) {
-      if (name) {
-        // 检测字段是否需要提交上传
         if (
           submitted === false ||
           (typeof submitted === 'function' && submitted(scope) === false)
         ) {
-          unset(result, name)
-          return
+          unset(beforeSubmitParams, name)
+          continue
         }
-
-        // 表单数据转换为服务端数据
-        if (typeof transform?.to === 'function') {
-          set(result, name, transform.to(get(result, name)))
-        }
+        set(
+          beforeSubmitParams,
+          name,
+          transformToValue(name, get(beforeSubmitParams, name))
+        )
       }
     }
 
@@ -297,7 +266,25 @@ export function buildForm<
    * 设置一个表单值
    */
   function setFieldValue(key: NamePath, value: any) {
-    const column = resolvedColumnsMap.get(key)
+    transformFromValue(key, value, values)
+  }
+
+  /**
+   * 设置表单多个值
+   */
+  function setFieldValues(values: Record<string, any>) {
+    const keys = Object.keys(values)
+    for (let i = 0; i < keys.length; ++i) {
+      setFieldValue(keys[i], values[keys[i]])
+    }
+  }
+
+  /**
+   * 获取对应字段名的值
+   */
+  function getFieldValue(name: NamePath) {
+    let value = get(values, name)
+    const column = resolvedColumnsMap.get(name)
     if (column) {
       const { transform, type, list } = column
       const listValue = toValue(list)
@@ -322,23 +309,7 @@ export function buildForm<
         value = transform.from(value)
       }
     }
-    set(values, key, value)
-  }
-
-  /**
-   * 设置表单多个值
-   */
-  function setFieldValues(values: Record<string, any>) {
-    Object.keys(values).forEach(key => {
-      setFieldValue(key, values[key])
-    })
-  }
-
-  /**
-   * 获取对应字段名的值
-   */
-  function getFieldValue(name: NamePath) {
-    return get(values, name)
+    return value
   }
 
   /**
@@ -351,17 +322,15 @@ export function buildForm<
   /**
    * 对整个表单的内容进行验证
    */
-  async function validate(
-    name?: NamePath[] | string,
-    options?: ValidateOptions
-  ) {
-    let validated: T | undefined
-    try {
-      validated = (await formRef.value?.validate(name, options)) as T
-    } catch (e: any) {
-      validateFail?.(e)
-    }
-    return validated
+  function validate(name?: NamePath[] | string, options?: ValidateOptions) {
+    return Promise.resolve<DataObject | undefined>(
+      formRef
+        .value!.validate(name, options)
+        .then(res => res)
+        .catch(e => {
+          validateFail?.(e)
+        })
+    )
   }
 
   /**
@@ -383,6 +352,85 @@ export function buildForm<
    */
   function getFormValues() {
     return values
+  }
+
+  /**
+   * 转换要设置的 value
+   * @param name 表单名称
+   * @param value 表单值
+   * @param target 结果对象
+   */
+  function transformFromValue(name: NamePath, value: any, target: any) {
+    const column = resolvedColumnsMap.get(name)
+    let result: any = value
+
+    if (column) {
+      const { transform, type, list } = column
+      const listValue = toValue(list)
+
+      if (type === 'list' && listValue?.children && isArray(value)) {
+        for (let j = 0; j < value.length; ++j) {
+          for (let i = 0; i < listValue.children.length; ++i) {
+            const { transform, name } = listValue.children[i]
+            const resolvedName = isArray(name) ? name[name.length - 1] : name
+            if (isFunction(transform?.from)) {
+              result ||= []
+              result[j] ||= {}
+              set(
+                result[j],
+                resolvedName,
+                transform.from(get(value[j], resolvedName))
+              )
+            }
+          }
+        }
+      }
+
+      if (typeof transform?.from === 'function') {
+        result = transform.from(result)
+      }
+    }
+    set(target, name, result)
+  }
+
+  /**
+   * 转换要设置的 value
+   * @param name 表单名称
+   * @param target 结果对象
+   */
+  function transformToValue(name: NamePath, target: any) {
+    const column = resolvedColumnsMap.get(name)
+    let result: any = target
+    const value = target
+
+    if (column) {
+      const { transform, type, list } = column
+      const listValue = toValue(list)
+
+      if (type === 'list' && listValue?.children && isArray(value)) {
+        for (let j = 0; j < value.length; ++j) {
+          for (let i = 0; i < listValue.children.length; ++i) {
+            const { transform, name } = listValue.children[i]
+            const resolvedName = isArray(name) ? name[name.length - 1] : name
+            if (isFunction(transform?.to)) {
+              result ||= []
+              result[j] ||= {}
+              set(
+                result[j],
+                resolvedName,
+                transform.to(get(value[j], resolvedName))
+              )
+            }
+          }
+        }
+      }
+
+      if (typeof transform?.to === 'function') {
+        result = transform.to(result)
+      }
+    }
+
+    return result
   }
 
   const formBinding: BuildFormResult<T> = {

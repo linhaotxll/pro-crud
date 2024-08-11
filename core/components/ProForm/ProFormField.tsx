@@ -1,3 +1,4 @@
+import { get, set } from 'lodash-es'
 import {
   computed,
   defineComponent,
@@ -37,14 +38,18 @@ export const ProFormField = defineComponent({
     const vModelValue = computed({
       set(newValue: any) {
         const name = props.name
-        console.log('setter')
         if (name) {
+          const values = props.scope?.getFormValues()
+          if (values) {
+            set(values, name, newValue)
+          }
           props.scope?.setFieldValue(name, newValue)
         }
       },
       get() {
+        const values = props.scope?.getFormValues()
         const name = props.name
-        return name ? props.scope?.getFieldValue(name) : undefined
+        return values && name ? get(values, name) : undefined
       },
     })
 
