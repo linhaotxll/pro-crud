@@ -43,7 +43,6 @@ export const ProFormField = defineComponent({
           if (values) {
             set(values, name, newValue)
           }
-          props.scope?.setFieldValue(name, newValue)
         }
       },
       get() {
