@@ -45,7 +45,15 @@ export interface StepOptions<Form extends DataObject = DataObject>
  */
 export interface StepsFormScope<Forms extends DataObject = DataObject>
   extends ProFormScope<Forms> {
-  [name: string]: any
+  /**
+   * 下一步
+   */
+  nextStep(): void
+
+  /**
+   * 上一步
+   */
+  previousStep(): void
 }
 
 /**

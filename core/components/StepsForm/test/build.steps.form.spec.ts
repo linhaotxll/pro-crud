@@ -1,5 +1,14 @@
 import { mount } from '@vue/test-utils'
-import antdv, { Button, Flex, Form, Input, Select, Steps } from 'ant-design-vue'
+import antdv, {
+  Button,
+  DatePicker,
+  Flex,
+  Form,
+  Input,
+  Select,
+  Steps,
+} from 'ant-design-vue'
+import dayjs from 'dayjs'
 import { describe, expect, test, vi } from 'vitest'
 import { defineComponent, h, nextTick } from 'vue'
 
@@ -7,6 +16,7 @@ import { StepsForm, buildStepsForm } from '..'
 import { ProComponents } from '../../..'
 
 import type { StepsFormScope } from '..'
+import type { Dayjs } from 'dayjs'
 
 const sleep = (time: number) => new Promise(r => setTimeout(r, time))
 
@@ -206,6 +216,102 @@ describe('StepsForm', () => {
     expect(extendsBeforeSubmit).toHaveBeenCalledTimes(1)
 
     expect(topBeforeSubmit).toHaveBeenCalledTimes(1)
+  })
+
+  test('next page', async () => {
+    const transformTo = vi.fn((formValue: Dayjs | null) => {
+      return formValue?.format('YYYY年MM月DD日')
+    })
+
+    const transformFrom = vi.fn((serverValue: string | null) => {
+      return serverValue ? dayjs(serverValue, 'YYYY年MM月DD日') : null
+    })
+
+    const topSubmitRequest = vi.fn(() => {
+      return true
+    })
+
+    const initialDate = '2024年08月11日'
+    // const initialDay = dayjs(initialDate)
+
+    const App = defineComponent({
+      name: 'App',
+      setup() {
+        const { stepsFormBinding } = buildStepsForm(() => {
+          return {
+            initialValues: {
+              name: 'IconMan',
+              startDate: initialDate,
+            },
+            steps: [
+              {
+                title: '基本信息',
+                columns: [
+                  {
+                    label: '姓名',
+                    name: 'name',
+                  },
+                ],
+              },
+
+              {
+                title: '扩展信息',
+                columns: [
+                  {
+                    label: '日期',
+                    name: 'startDate',
+                    type: 'date',
+                    transform: {
+                      from: transformFrom,
+                      to: transformTo,
+                    },
+                  },
+                ],
+              },
+            ],
+
+            submitRequest: topSubmitRequest,
+          }
+        })
+        return () => {
+          return h(StepsForm, stepsFormBinding)
+        }
+      },
+    })
+
+    const wrapper = mount(App, {
+      global: {
+        plugins: [antdv, ProComponents],
+      },
+    })
+
+    expect(wrapper.findAllComponents(Steps).length).toBe(1)
+    expect(wrapper.findAllComponents(Steps)[0].vm.$props.current).toBe(0)
+    expect(wrapper.findAllComponents(Input).length).toBe(1)
+    expect(wrapper.findAllComponents(Input)[0].vm.$props.value).toBe('IconMan')
+
+    await wrapper.findComponent(Button).vm.$emit('click')
+    await sleep(0)
+
+    expect(wrapper.findAllComponents(Steps)[0].vm.$props.current).toBe(1)
+    expect(wrapper.findAllComponents(Input).length).toBe(0)
+    expect(wrapper.findAllComponents(DatePicker).length).toBe(1)
+    expect(transformFrom).toHaveBeenCalledTimes(1)
+    expect(transformFrom).toHaveBeenCalledWith(initialDate)
+
+    await wrapper.findComponent(Button).vm.$emit('click')
+    await sleep(0)
+
+    expect(wrapper.findAllComponents(Steps)[0].vm.$props.current).toBe(1)
+    expect(transformTo).toHaveBeenCalledTimes(1)
+
+    expect(transformTo).toHaveReturnedWith(initialDate)
+
+    expect(topSubmitRequest).toHaveBeenCalledTimes(1)
+    expect(topSubmitRequest).toHaveBeenCalledWith({
+      name: 'IconMan',
+      startDate: initialDate,
+    })
   })
 
   test('custom render wrap', async () => {

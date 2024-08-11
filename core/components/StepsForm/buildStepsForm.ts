@@ -1,5 +1,5 @@
 import { get, has, set } from 'lodash-es'
-import { computed, ref, toRef, toValue, watch } from 'vue'
+import { computed, nextTick, ref, toRef, toValue, watch } from 'vue'
 
 import { mergeWithTovalue } from '../common'
 import { buildForm } from '../ProForm'
@@ -40,13 +40,19 @@ export function buildStepsForm<Forms extends DataObject = DataObject>(
   let resolvedWrap: CustomRender | undefined
 
   const { proFormBinding } = buildForm(scope => {
+    const stepsFormScope: StepsFormScope<Forms> = {
+      ...scope,
+      nextStep: handleNextStep,
+      previousStep: handlePreviousStep,
+    }
+
     const {
       stepsProps,
       steps,
       initialValues: formsInitialValues,
       wrap,
       ...commonForm
-    } = options(scope)
+    } = options(stepsFormScope)
 
     resolvedWrap = wrap
 
@@ -65,9 +71,6 @@ export function buildStepsForm<Forms extends DataObject = DataObject>(
     const actionMap = ref(
       {} as Record<number, MaybeRefOrGetter<ProFormActionGroup> | undefined>
     )
-
-    // 步骤索引映射表单名称前缀
-    // const stepsPrefix = ref<Record<number, string>>({})
 
     // 步骤索引映射表单 Props
     const formPropsMap = ref<
@@ -198,6 +201,7 @@ export function buildStepsForm<Forms extends DataObject = DataObject>(
             .then(res => {
               if (res) {
                 showToast(commonForm.toast)
+                commonForm.successRequest?.(params)
               }
             })
         } else {
@@ -211,7 +215,7 @@ export function buildStepsForm<Forms extends DataObject = DataObject>(
         return funcMap[current.value]?.beforeSubmit?.(values) ?? values
       },
 
-      toast: false,
+      // toast: false,
 
       formProps: computed(() => {
         return mergeWithTovalue(
@@ -225,12 +229,28 @@ export function buildStepsForm<Forms extends DataObject = DataObject>(
     function handleNextStep() {
       if (current.value < Object.keys(stepsRef.value).length - 1) {
         current.value++
+        nextTick(() => {
+          setCurrentStepFieldValues(stepsFormScope.getFormValues())
+        })
       }
     }
 
     function handlePreviousStep() {
       if (current.value > 0) {
         current.value--
+      }
+    }
+
+    function setCurrentStepFieldValues(values: Forms) {
+      const columns = toValue(columnsMap.value[current.value])
+      if (columns) {
+        const params: any = {}
+        for (let i = 0; i < columns.length; ++i) {
+          const name = toValue(columns[i].name)
+          set(params, name, get(values, name))
+        }
+
+        stepsFormScope.setFieldValues(params)
       }
     }
 
