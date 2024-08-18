@@ -175,7 +175,7 @@ function buildModalFormMiddleware(ctx: BuildCrudContext, next: NextMiddleware) {
 
           // 新增表单列
           prev.add.push(
-            mergeWithTovalue(
+            mergeWithNoUnref(
               { dict },
               target,
               toValue(column.form),
@@ -185,7 +185,7 @@ function buildModalFormMiddleware(ctx: BuildCrudContext, next: NextMiddleware) {
 
           // 编辑表单列
           prev.edit.push(
-            mergeWithTovalue(
+            mergeWithNoUnref(
               { dict },
               target,
               toValue(column.form),
@@ -195,7 +195,7 @@ function buildModalFormMiddleware(ctx: BuildCrudContext, next: NextMiddleware) {
 
           // 查看表单列
           prev.view.push(
-            mergeWithTovalue(
+            mergeWithNoUnref(
               { dict },
               target,
               toValue(column.form),
@@ -268,8 +268,6 @@ function buildModalFormMiddleware(ctx: BuildCrudContext, next: NextMiddleware) {
           : {}
       })
     }
-
-    console.log('commonFormOptions: ', commonFormOptions)
 
     return {
       modalProps: resolvedModalProps,
