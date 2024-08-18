@@ -1,6 +1,7 @@
 import { mount } from '@vue/test-utils'
 import antdv, {
   Button,
+  Col,
   DatePicker,
   Flex,
   Form,
@@ -376,5 +377,43 @@ describe('StepsForm', () => {
     expect(wrapper.find('.wrap-container').exists()).toBe(true)
     expect(wrapper.find('.wrap-steps').findAllComponents(Steps).length).toBe(1)
     expect(wrapper.find('.wrap-form').findAllComponents(Form).length).toBe(1)
+  })
+
+  test('action', async () => {
+    const App = defineComponent({
+      name: 'App',
+      setup() {
+        const { stepsFormBinding } = buildStepsForm(() => {
+          return {
+            steps: [
+              {
+                title: '基本信息',
+                columns: [
+                  {
+                    label: '姓名',
+                    name: 'name',
+                  },
+                ],
+                action: {
+                  col: { span: 4, offset: 4 },
+                },
+              },
+            ],
+          }
+        })
+        return () => {
+          return h(StepsForm, stepsFormBinding)
+        }
+      },
+    })
+
+    const wrapper = mount(App, {
+      global: {
+        plugins: [antdv, ProComponents],
+      },
+    })
+
+    expect(wrapper.findAllComponents(Col)[3].vm.$props.span).toBe(4)
+    expect(wrapper.findAllComponents(Col)[3].vm.$props.offset).toBe(4)
   })
 })

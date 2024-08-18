@@ -339,6 +339,7 @@ export function buildStepsForm<Forms extends DataObject = DataObject>(
         items.value = tempItems
         columnsMap.value = tempColumnsMap
         formPropsMap.value = tempFormProps!
+        actionMap.value = tempAction
       },
       { immediate: true }
     )
