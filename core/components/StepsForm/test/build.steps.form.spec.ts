@@ -2,14 +2,13 @@ import { mount } from '@vue/test-utils'
 import antdv, {
   Button,
   Col,
-  DatePicker,
   Flex,
   Form,
   Input,
+  InputNumber,
   Select,
   Steps,
 } from 'ant-design-vue'
-import dayjs from 'dayjs'
 import { describe, expect, test, vi } from 'vitest'
 import { defineComponent, h, nextTick } from 'vue'
 
@@ -17,7 +16,6 @@ import { StepsForm, buildStepsForm } from '..'
 import { ProComponents } from '../../..'
 
 import type { StepsFormScope } from '..'
-import type { Dayjs } from 'dayjs'
 
 const sleep = (time: number) => new Promise(r => setTimeout(r, time))
 
@@ -220,19 +218,21 @@ describe('StepsForm', () => {
   })
 
   test('next page', async () => {
-    const transformTo = vi.fn((formValue: Dayjs | null) => {
-      return formValue?.format('YYYY年MM月DD日')
+    const transformTo = vi.fn((formValue: string | number | null) => {
+      // return formValue?.format('YYYY年MM月DD日')
+      return formValue != null ? +formValue / 2 : 0
     })
 
-    const transformFrom = vi.fn((serverValue: string | null) => {
-      return serverValue ? dayjs(serverValue, 'YYYY年MM月DD日') : null
+    const transformFrom = vi.fn((serverValue: string | null | number) => {
+      // return serverValue ? dayjs(serverValue, 'YYYY年MM月DD日') : null
+      return serverValue ? +serverValue * 2 : 0
     })
 
     const topSubmitRequest = vi.fn(() => {
       return true
     })
 
-    const initialDate = '2024年08月11日'
+    // const initialDate = '2024年08月11日'
     // const initialDay = dayjs(initialDate)
 
     const App = defineComponent({
@@ -242,7 +242,7 @@ describe('StepsForm', () => {
           return {
             initialValues: {
               name: 'IconMan',
-              startDate: initialDate,
+              number: 10,
             },
             steps: [
               {
@@ -259,9 +259,9 @@ describe('StepsForm', () => {
                 title: '扩展信息',
                 columns: [
                   {
-                    label: '日期',
-                    name: 'startDate',
-                    type: 'date',
+                    label: '分书',
+                    name: 'number',
+                    type: 'digit',
                     transform: {
                       from: transformFrom,
                       to: transformTo,
@@ -296,22 +296,23 @@ describe('StepsForm', () => {
 
     expect(wrapper.findAllComponents(Steps)[0].vm.$props.current).toBe(1)
     expect(wrapper.findAllComponents(Input).length).toBe(0)
-    expect(wrapper.findAllComponents(DatePicker).length).toBe(1)
+    expect(wrapper.findAllComponents(InputNumber).length).toBe(1)
     expect(transformFrom).toHaveBeenCalledTimes(1)
-    expect(transformFrom).toHaveBeenCalledWith(initialDate)
+    expect(transformFrom).toHaveBeenCalledWith(10)
+    expect(transformFrom).toHaveReturnedWith(20)
 
     await wrapper.findComponent(Button).vm.$emit('click')
     await sleep(0)
 
     expect(wrapper.findAllComponents(Steps)[0].vm.$props.current).toBe(1)
     expect(transformTo).toHaveBeenCalledTimes(1)
-
-    expect(transformTo).toHaveReturnedWith(initialDate)
+    expect(transformTo).toHaveBeenCalledWith(20)
+    expect(transformTo).toHaveReturnedWith(10)
 
     expect(topSubmitRequest).toHaveBeenCalledTimes(1)
     expect(topSubmitRequest).toHaveBeenCalledWith({
       name: 'IconMan',
-      startDate: initialDate,
+      number: 10,
     })
   })
 

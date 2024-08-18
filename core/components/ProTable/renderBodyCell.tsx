@@ -3,6 +3,7 @@ import { toValue, type ComputedRef, type VNodeChild } from 'vue'
 import { getRowKey, TableEditableNamePlaceholder } from './constant'
 
 import { mergeWithTovalue, type DataObject } from '../common'
+import { buildCustomRender } from '../CustomRender'
 import { ProFormItem } from '../ProForm'
 
 import { getGlobalOptions } from '~/constant'
@@ -99,13 +100,13 @@ export function renderBodyCellText(
   if (type) {
     const tableConfig = getGlobalOptions().types[type].table
     if (tableConfig) {
-      const CellComponent = tableConfig.is
-      if (CellComponent) {
-        return <CellComponent {...tableConfig.props} ctx={ctx} />
-      }
-      if (isFunction(tableConfig.render)) {
-        return tableConfig.render(ctx)
-      }
+      return buildCustomRender({
+        ...tableConfig,
+        context: {
+          ...tableConfig.context,
+          ...ctx,
+        },
+      })
     }
   }
 

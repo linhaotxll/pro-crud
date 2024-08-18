@@ -15,9 +15,4 @@ export interface CustomRender<Context = any> {
    * 组件 Props
    */
   context?: any
-
-  /**
-   * 兜底内容
-   */
-  fallback?: (ctx: Context) => VNodeChild
 }

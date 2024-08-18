@@ -97,7 +97,7 @@ export function buildFormColumn<T extends DataObject = DataObject>(
     ? mergeWithTovalue(
         {},
         null,
-        getGlobalOptions().types[resolvedType].form?.props,
+        getGlobalOptions().types[resolvedType].form?.context,
         toValue(fieldProps)
       )
     : undefined

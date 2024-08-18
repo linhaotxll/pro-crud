@@ -2,14 +2,13 @@ import { get, set } from 'lodash-es'
 import {
   computed,
   defineComponent,
-  h,
   onBeforeMount,
   onBeforeUnmount,
-  resolveComponent,
   toValue,
 } from 'vue'
 
 import { mergeWithTovalue, type ValueTypeForm } from '../common'
+import { buildCustomRender } from '../CustomRender'
 
 import type { InternalProFormColumnOptions, ProFormScope } from './interface'
 import type { NamePath, ValueTypeFormProps } from '../common'
@@ -65,12 +64,7 @@ export const ProFormField = defineComponent({
     return () => {
       const columnValue = toValue(props.column)
 
-      const {
-        is,
-        props: fieldProps,
-        render,
-        vModelName = 'value',
-      } = props.field!
+      const { context: fieldProps, vModelName = 'value' } = props.field!
 
       const style: CSSProperties | undefined = columnValue.fill
         ? { width: '100%' }
@@ -101,11 +95,10 @@ export const ProFormField = defineComponent({
         toValue(props.column)?.fieldProps
       )
 
-      if (typeof render === 'function') {
-        return render(mergeProps)
-      }
-
-      return h(resolveComponent(is), mergeProps, slots)
+      return buildCustomRender({
+        ...props.field,
+        context: mergeProps,
+      })
     }
   },
 })

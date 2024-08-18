@@ -2,6 +2,7 @@ import { Tag } from 'ant-design-vue'
 import { h, resolveComponent, toValue } from 'vue'
 
 import type { DataObject } from './interface'
+import type { CustomRender } from '../CustomRender'
 import type { InternalProFormColumnOptions, ProFormScope } from '../ProForm'
 import type { RenderBodyCellTextParams } from '../ProTable'
 import type { CSSProperties, Slots, VNodeChild } from 'vue'
@@ -46,34 +47,19 @@ export interface ValueTypeValue<R extends DataObject = DataObject> {
   /**
    * 自定义表格字段配置
    */
-  table?: ValueTypeTable<R>
+  table?: CustomRender<R>
 }
 
 /**
  * 自定义表单配置
  */
-export interface ValueTypeForm {
-  /**
-   * 组件名
-   */
-  is?: any
-
+export interface ValueTypeForm extends CustomRender {
   /**
    * v-model 名称
    *
    * @default 'value'
    */
   vModelName?: string
-
-  /**
-   * 传递给组件的参数
-   */
-  props?: any
-
-  /**
-   * 自定义渲染函数
-   */
-  render?: (ctx: ValueTypeFormProps) => VNodeChild
 }
 
 /**

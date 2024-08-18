@@ -27,7 +27,7 @@ export const StepsForm = defineComponent({
       const $form = <ProForm {...props.proFormBinding} />
 
       const Wrap = buildCustomRender<CustomRenderStepsFormWrapContext>({
-        fallback: ctx => (
+        render: ctx => (
           <Flex vertical gap={24}>
             {ctx.$steps}
             {ctx.$form}

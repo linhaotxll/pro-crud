@@ -89,7 +89,7 @@ export const ProButton = defineComponent({
         confirmType,
         confirmProps,
         confirmRender,
-        render,
+        render = ctx => <Button {...ctx.props}>{text}</Button>,
         context,
         is,
       } = props.option
@@ -107,7 +107,6 @@ export const ProButton = defineComponent({
         context: mergedContext,
         is: is,
         render,
-        fallback: ctx => <Button {...ctx.props}>{text}</Button>,
       })
 
       let $popconfirm
@@ -131,9 +130,9 @@ export const ProButton = defineComponent({
 
         $popconfirm = buildCustomRender<ProButtonRenderParams<PopconfirmProps>>(
           {
+            render: ctx => <Popconfirm {...ctx.props}>{$button}</Popconfirm>,
             ...confirmRender,
             context: mergedPopconfirmProps,
-            fallback: ctx => <Popconfirm {...ctx.props}>{$button}</Popconfirm>,
           }
         )
       }
