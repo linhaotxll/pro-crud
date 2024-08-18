@@ -28,8 +28,6 @@ export const ModalForm = defineComponent({
       const modalProps = toValue(props.modalProps)
       const modalAction = toValue(props.modalAction)
 
-      console.log('modalAction: ', modalAction)
-
       const slots = {
         default: () => <ProForm {...props.formBinding} />,
         footer: () =>

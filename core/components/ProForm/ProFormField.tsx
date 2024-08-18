@@ -90,7 +90,6 @@ export const ProFormField = defineComponent({
         {
           [vModelName]: vModelValue.value,
           [`onUpdate:${vModelName}`]: (newValue: any) => {
-            console.log('onUpdate:value')
             return (vModelValue.value = newValue)
           },
           style,
