@@ -101,7 +101,7 @@ export function renderBodyCellText(
     if (tableConfig) {
       const CellComponent = tableConfig.is
       if (CellComponent) {
-        return <CellComponent {...tableConfig.props} />
+        return <CellComponent {...tableConfig.props} ctx={ctx} />
       }
       if (isFunction(tableConfig.render)) {
         return tableConfig.render(ctx)
