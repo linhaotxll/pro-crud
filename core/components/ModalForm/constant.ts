@@ -33,9 +33,8 @@ export function buildModalFormDefaultAction<
         text: '确认',
         props: {
           type: 'primary',
-          async onClick() {
-            const res = await scope.submit()
-            return res
+          onClick() {
+            return scope.submit()
           },
         },
       },

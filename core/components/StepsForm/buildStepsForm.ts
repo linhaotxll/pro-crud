@@ -1,5 +1,5 @@
 import { get, has, set } from 'lodash-es'
-import { computed, nextTick, ref, toRef, toValue, watch } from 'vue'
+import { computed, nextTick, ref, toRef, toValue, unref, watch } from 'vue'
 
 import { mergeWithTovalue } from '../common'
 import { buildForm } from '../ProForm'
@@ -170,11 +170,11 @@ export function buildStepsForm<Forms extends DataObject = DataObject>(
       initialValues: formsInitialValues,
 
       submitRequest(values) {
-        return funcMap[current.value]?.submitRequest?.(values) ?? true
+        return unref(funcMap[current.value]?.submitRequest)?.(values) ?? true
       },
       successRequest(values) {
         paramsMap[current.value] = values
-        funcMap[current.value]?.successRequest?.(values)
+        unref(funcMap[current.value]?.successRequest)?.(values)
         if (isLast()) {
           const map = columnsMap.value
           const columnsKeys = Object.keys(map)
@@ -194,14 +194,14 @@ export function buildStepsForm<Forms extends DataObject = DataObject>(
             }
           }
 
-          Promise.resolve(commonForm.beforeSubmit?.(params) ?? params)
+          Promise.resolve(unref(commonForm.beforeSubmit)?.(params) ?? params)
             .then(res => {
-              return Promise.resolve(commonForm.submitRequest?.(res))
+              return Promise.resolve(unref(commonForm.submitRequest)?.(res))
             })
             .then(res => {
               if (res) {
-                showToast(commonForm.toast)
-                commonForm.successRequest?.(params)
+                showToast(unref(commonForm.toast))
+                unref(commonForm.successRequest)?.(params)
               }
             })
         } else {
@@ -209,10 +209,10 @@ export function buildStepsForm<Forms extends DataObject = DataObject>(
         }
       },
       validateFail(e) {
-        return funcMap[current.value]?.validateFail?.(e)
+        return unref(funcMap[current.value]?.validateFail)?.(e)
       },
       beforeSubmit(values) {
-        return funcMap[current.value]?.beforeSubmit?.(values) ?? values
+        return unref(funcMap[current.value]?.beforeSubmit)?.(values) ?? values
       },
 
       // toast: false,
@@ -313,6 +313,7 @@ export function buildStepsForm<Forms extends DataObject = DataObject>(
             if (isFunction(formValue)) {
               ;(funcMap[index] ||= {})[key as keyof FunctionKeys] = formValue
             } else {
+              // @ts-ignore
               buildFormReturn[key as keyof typeof buildFormReturn] = computed(
                 () => {
                   return mergeWithTovalue(
@@ -328,9 +329,9 @@ export function buildStepsForm<Forms extends DataObject = DataObject>(
 
         funcMap[value.length] = {
           submitRequest: () =>
-            commonForm.submitRequest?.(resolvedSubmitParams) ?? false,
+            unref(commonForm.submitRequest)?.(resolvedSubmitParams) ?? false,
           beforeSubmit: () =>
-            commonForm.beforeSubmit?.(resolvedSubmitParams) ??
+            unref(commonForm.beforeSubmit)?.(resolvedSubmitParams) ??
             resolvedSubmitParams,
           validateFail: commonForm.validateFail,
           successRequest: commonForm.successRequest,

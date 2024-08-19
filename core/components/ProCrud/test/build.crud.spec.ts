@@ -12,7 +12,7 @@ import antdv, {
   Tag,
   message,
 } from 'ant-design-vue'
-import { describe, test, expect, vi } from 'vitest'
+import { describe, test, expect, vi, beforeEach } from 'vitest'
 import { defineComponent, h, nextTick, ref } from 'vue'
 
 import { ProCrud, buildCrud } from '..'
@@ -22,8 +22,11 @@ import { ProForm } from '../../ProForm'
 const sleep = (time: number) => new Promise(r => setTimeout(r, time))
 
 describe('Build Crud', () => {
-  afterEach(() => {
+  beforeEach(() => {
     document.body.innerHTML = ''
+  })
+
+  afterEach(() => {
     Modal.destroyAll()
     message.destroy()
   })
@@ -94,6 +97,7 @@ describe('Build Crud', () => {
       global: {
         plugins: [antdv],
       },
+      attachTo: 'body',
     })
 
     expect(fetchTableData).toHaveBeenCalledTimes(1)
@@ -244,6 +248,7 @@ describe('Build Crud', () => {
 
     expect(modal.findAllComponents(Button).length).toBe(2)
     await modal.findAllComponents(Button)[1].vm.$emit('click')
+    await sleep(0)
     expect(modal.findAllComponents(Button)[1].vm.$props.loading).toBe(true)
 
     expect(editRequest).toHaveReturnedTimes(1)
@@ -285,6 +290,7 @@ describe('Build Crud', () => {
 
     expect(modal.findAllComponents(Button).length).toBe(2)
     await modal.findAllComponents(Button)[1].vm.$emit('click')
+    await sleep(0)
     expect(modal.findAllComponents(Button)[1].vm.$props.loading).toBe(true)
 
     expect(addRequest).toHaveReturnedTimes(1)

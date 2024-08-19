@@ -1,4 +1,4 @@
-import { computed, ref, toValue, watch } from 'vue'
+import { computed, ref, toValue, unref, watch } from 'vue'
 
 import {
   buildDefaultRenderTrigger,
@@ -117,9 +117,10 @@ export function buildModalForm<
       {
         toast: '保存成功',
         ...toValue(form),
-        successRequest() {
+        successRequest(values: any) {
           hideModal()
           modalFormScope.reset()
+          unref(form?.successRequest)?.(values)
         },
       },
 

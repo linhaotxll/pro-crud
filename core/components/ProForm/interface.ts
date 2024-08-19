@@ -24,6 +24,7 @@ import type {
 import type { ValidateOptions } from 'ant-design-vue/es/form/interface'
 import type {
   ComputedRef,
+  MaybeRef,
   MaybeRefOrGetter,
   Ref,
   UnwrapRef,
@@ -161,27 +162,29 @@ export interface BuildFormOptionResult<
   /**
    * 接口调用成功是否需要提示信息
    */
-  toast?: ToastOptions
+  toast?: MaybeRef<ToastOptions | undefined>
 
   /**
    * 表单提交前触发，可用来转换提交数据
    */
-  beforeSubmit?: (values: T) => R | Promise<R>
+  beforeSubmit?: MaybeRef<((values: T) => R | Promise<R>) | undefined | null>
 
   /**
    * 提交表单调用的接口配置
    */
-  submitRequest?: (values: R) => Promise<boolean> | boolean
+  submitRequest?: MaybeRef<
+    ((values: R) => Promise<boolean> | boolean) | undefined | null
+  >
 
   /**
    * 接口调用成功时（submitRequest 返回 true）调用
    */
-  successRequest?: (values: R) => void
+  successRequest?: MaybeRef<((values: R) => void) | undefined | null>
 
   /**
    * 表单验证失败
    */
-  validateFail?(error: any): void
+  validateFail?: MaybeRef<((error: any) => void) | undefined | null>
 }
 
 /**

@@ -2,7 +2,11 @@ import { computed, ref, toValue, watchEffect } from 'vue'
 
 import {
   buildDefaultCrudOptions,
+  buildDefaultModalBeforeSubmit,
+  buildDefaultModalSubmitRequest,
   buildDefaultModalSubmitter,
+  buildDefaultModalToast,
+  buildDefaultModalValidateFail,
   defaultModalProps,
 } from './constant'
 import { type BuildCrudOptionReturn, type ProCrudScope } from './interface'
@@ -227,7 +231,7 @@ function buildModalFormMiddleware(ctx: BuildCrudContext, next: NextMiddleware) {
         ? undefined
         : mergeWithTovalue(
             {},
-            buildDefaultModalSubmitter(ctx)[type],
+            buildDefaultModalSubmitter()[type],
             toValue(submitter)
           )
     })
@@ -251,6 +255,30 @@ function buildModalFormMiddleware(ctx: BuildCrudContext, next: NextMiddleware) {
               topLevelFormPropsWithModalType[type]
             )
       }),
+      toast: computed(() => {
+        const type = modalType.value
+        return !isNil(type) ? buildDefaultModalToast(ctx)?.[type] : undefined
+      }),
+      validateFail: computed(() => {
+        const type = modalType.value
+        return !isNil(type)
+          ? buildDefaultModalValidateFail(ctx)?.[type]
+          : undefined
+      }),
+
+      beforeSubmit: computed(() => {
+        const type = modalType.value
+        return !isNil(type)
+          ? buildDefaultModalBeforeSubmit(ctx)?.[type]
+          : undefined
+      }),
+      submitRequest: computed(() => {
+        const type = modalType.value
+        return !isNil(type)
+          ? buildDefaultModalSubmitRequest(ctx)?.[type]
+          : undefined
+      }),
+      successRequest: ctx.scope.table.reload,
     }
 
     for (const k of keys) {

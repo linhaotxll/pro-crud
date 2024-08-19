@@ -737,7 +737,7 @@ function buildSearchMiddleware<SearchForm extends DataObject = DataObject>(
       ...resolvedSearch,
       successRequest(formState: SearchForm) {
         ctx.searchParams.value = formState
-        resolvedSearch?.successRequest?.(formState)
+        unref(resolvedSearch?.successRequest)?.(formState)
       },
       columns: computed(() => {
         const searchValue = toValue(ctx.optionResult.search)

@@ -1,6 +1,15 @@
 import cloneDeep from 'clone-deep'
 import { get, set, unset, has, once } from 'lodash-es'
-import { computed, ref, toRaw, reactive, toValue, watch, toRef } from 'vue'
+import {
+  computed,
+  ref,
+  toRaw,
+  reactive,
+  toValue,
+  watch,
+  toRef,
+  unref,
+} from 'vue'
 
 import { buildFormColumn } from './buildFormColumn'
 import {
@@ -191,13 +200,14 @@ export function buildForm<
     // 数据转换
     const params = await _beforeSubmit(values)
 
+    const submitRequestValue = unref(submitRequest)
     // 调用接口
-    const result = (await submitRequest?.(params)) ?? false
+    const result = (await submitRequestValue?.(params)) ?? false
 
     // 成功回调
     if (result) {
-      successRequest?.(params)
-      showToast(toast)
+      unref(successRequest)?.(params)
+      showToast(unref(toast))
     }
   }
 
@@ -206,11 +216,12 @@ export function buildForm<
    */
   async function _beforeSubmit(values: T) {
     const params = cloneDeep(toRaw(values))
+    const beforeSubmitValue = unref(beforeSubmit)
 
     // 先进行上传前的处理
     const beforeSubmitParams =
-      typeof beforeSubmit === 'function'
-        ? await beforeSubmit(params)
+      typeof beforeSubmitValue === 'function'
+        ? await beforeSubmitValue(params)
         : (params as unknown as any)
 
     // 再监测每个字段是否需要上传，不需要会删除
@@ -328,7 +339,7 @@ export function buildForm<
         .value!.validate(name, options)
         .then(res => res)
         .catch(e => {
-          validateFail?.(e)
+          unref(validateFail)?.(e)
         })
     )
   }

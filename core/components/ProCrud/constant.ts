@@ -1,5 +1,5 @@
 import { PlusOutlined } from '@ant-design/icons-vue'
-import { h } from 'vue'
+import { h, unref } from 'vue'
 
 import { ModalType } from './interface'
 
@@ -20,9 +20,9 @@ export const buildDefaultCrudOptions = (
   scope: ProCrudScope,
   optionResult: BuildCrudOptionReturn
 ): BuildCrudOptionReturn => {
-  const { deleteRequest, deleteToast } = optionResult
+  const { deleteRequest } = optionResult
 
-  return {
+  const result: BuildCrudOptionReturn = {
     addToast: '新增成功',
     editToast: '编辑成功',
     deleteToast: '删除成功',
@@ -99,7 +99,7 @@ export const buildDefaultCrudOptions = (
                 Promise.resolve(deleteRequest?.(ctx) ?? false).then(res => {
                   if (res) {
                     scope.table.reload()
-                    showToast(deleteToast)
+                    showToast(result.deleteToast)
                   }
                 }),
             },
@@ -132,12 +132,9 @@ export const buildDefaultCrudOptions = (
     wrapperProps: {
       gap: 16,
     },
-    // submitter: {
-    //   actions: {
-    //     ok: { show: false },
-    //   },
-    // },
   }
+
+  return result
 }
 
 export const defaultModalProps: Record<ModalType, ModalProps> = {
@@ -146,48 +143,43 @@ export const defaultModalProps: Record<ModalType, ModalProps> = {
   [ModalType.View]: { title: '查看' },
 }
 
-export const buildDefaultModalSubmitter = (
-  ctx: BuildCrudContext
-): Record<ModalType, ModalFormActionGroup | undefined> => ({
-  [ModalType.Add]: {
-    actions: {
-      ok: {
-        props: {
-          onClick() {
-            return Promise.resolve(
-              ctx.optionResult.addRequest?.(ctx.scope.modal.getFormValues())
-            ).then(res => {
-              if (res) {
-                showToast(ctx.optionResult.addToast)
-
-                ctx.scope.modal.hideModal()
-                ctx.scope.table.reload()
-              }
-            })
-          },
-        },
-      },
-    },
-  },
-  [ModalType.Edit]: {
-    actions: {
-      ok: {
-        props: {
-          onClick() {
-            return Promise.resolve(
-              ctx.optionResult.editRequest?.(ctx.scope.modal.getFormValues())
-            ).then(res => {
-              if (res) {
-                showToast(ctx.optionResult.editToast)
-
-                ctx.scope.modal.hideModal()
-                ctx.scope.table.reload()
-              }
-            })
-          },
-        },
-      },
-    },
-  },
+export const buildDefaultModalSubmitter = (): Record<
+  ModalType,
+  ModalFormActionGroup | undefined
+> => ({
+  [ModalType.Add]: undefined,
+  [ModalType.Edit]: undefined,
   [ModalType.View]: { actions: { ok: { show: false } } },
 })
+
+export const buildDefaultModalSubmitRequest = (ctx: BuildCrudContext) => {
+  return {
+    [ModalType.Add]: ctx.optionResult.addRequest,
+    [ModalType.Edit]: ctx.optionResult.editRequest,
+    [ModalType.View]: undefined,
+  }
+}
+
+export const buildDefaultModalBeforeSubmit = (ctx: BuildCrudContext) => {
+  return {
+    [ModalType.Add]: unref(ctx.optionResult.addForm?.beforeSubmit),
+    [ModalType.Edit]: unref(ctx.optionResult.editForm?.beforeSubmit),
+    [ModalType.View]: undefined,
+  }
+}
+
+export const buildDefaultModalValidateFail = (ctx: BuildCrudContext) => {
+  return {
+    [ModalType.Add]: unref(ctx.optionResult.addForm?.validateFail),
+    [ModalType.Edit]: unref(ctx.optionResult.editForm?.validateFail),
+    [ModalType.View]: undefined,
+  }
+}
+
+export const buildDefaultModalToast = (ctx: BuildCrudContext) => {
+  return {
+    [ModalType.Add]: unref(ctx.optionResult.addToast),
+    [ModalType.Edit]: unref(ctx.optionResult.editToast),
+    [ModalType.View]: undefined,
+  }
+}
