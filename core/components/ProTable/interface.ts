@@ -241,11 +241,10 @@ export type ProTableActionColumn<
 export type BuildTableOption<
   Data extends DataObject = DataObject,
   Params = any,
-  Collection = any,
-  SearchForm extends DataObject = DataObject
+  Collection = any
 > = (
   scope: ProTableScope<Data>
-) => BuildProTableOptionResult<Data, Params, Collection, SearchForm>
+) => BuildProTableOptionResult<Data, Params, Collection>
 
 /**
  * buildTable option 返回值
@@ -253,8 +252,7 @@ export type BuildTableOption<
 export type BuildProTableOptionResult<
   Data extends DataObject = DataObject,
   Params = any,
-  Collection = any,
-  SearchForm extends DataObject = DataObject
+  Collection = any
 > = DictionaryCollection<Collection> & {
   /**
    * 数据源
@@ -327,7 +325,7 @@ export type BuildProTableOptionResult<
    *
    * @default {}
    */
-  search?: MaybeRefOrGetter<ProInnerFormOptions<SearchForm, Collection>>
+  search?: MaybeRefOrGetter<ProInnerFormOptions<Date, Collection>>
 
   /**
    * 编辑表格配置
@@ -656,16 +654,13 @@ export interface BuildTableResult<Data extends DataObject = any> {
   proTableBinding: BuildTableBinding<Data>
 }
 
-export interface BuildTableBinding<
-  Data extends DataObject = any,
-  SearchForm extends DataObject = DataObject
-> {
+export interface BuildTableBinding<Data extends DataObject = any> {
   tableProps: ComputedRef<TableProps<Data>> | undefined
   tableSlots: ComputedRef<Record<TableSlotValueKey, TableSlotFn> | null>
   wrapperProps: ComputedRef<FlexProps>
   renderWrapper: RenderWrapperFn | ComputedRef<RenderWrapperFn> | undefined
   toolbar: Ref<InternalProButtonGroupOptions>
-  search: InternalProTableSearchOptions<SearchForm>
+  search: InternalProTableSearchOptions<Data>
   editable: ComputedRef<InternalProTableEditableOptions<any>>
 }
 

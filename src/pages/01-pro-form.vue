@@ -1,46 +1,60 @@
-<template>
-  <steps-form v-bind="stepsFormBinding" />
-</template>
+<script lang="ts" setup>
+import { buildCrud } from '~/index'
 
-<script lang="tsx" setup>
-import { buildStepsForm } from '~/index'
+const sleep = (time = 1000) => new Promise(r => setTimeout(r, time))
 
-interface FormState {
-  info: {
-    name: string
-  }
-  extends: {
-    school: string
-  }
-}
-
-const { stepsFormBinding } = buildStepsForm<FormState>(() => {
+const { proCrudBinding } = buildCrud(() => {
   return {
-    steps: {
-      info: {
-        title: '基本信息',
-        columns: [
-          {
-            label: '姓名',
-            name: 'name',
-          },
-        ],
+    columns: [
+      {
+        label: '姓名',
+        name: 'name',
       },
+      {
+        label: '年龄',
+        name: 'age',
+        type: 'digit',
+      },
+    ],
 
-      extends: {
-        title: '扩展信息',
-        columns: [
-          {
-            label: '学校',
-            name: 'school',
-            type: 'select',
-            dict: {
-              data: [{ label: '清华大学', value: 'qh' }],
-            },
-          },
-        ],
-      },
+    fetchTableData() {
+      return [{ name: 'IcomMan', age: 24 }]
     },
+    editRequest() {
+      // debugger
+      return sleep(2000).then(() => {
+        return true
+      })
+    },
+    // editToast: {
+    //   type: 'message',
+    //   props: {
+    //     content: 'edit success',
+    //     duration: 100,
+    //   },
+    // },
+    addRequest() {
+      // debugger
+      return sleep(2000).then(() => {
+        return true
+      })
+    },
+    deleteRequest() {
+      return sleep(2000).then(() => {
+        return true
+      })
+    },
+    // addToast: {
+    //   type: 'message',
+    //   props: {
+    //     content: 'add success',
+    //     duration: 100,
+    //   },
+    // },
   }
 })
 </script>
+
+<template>
+  <pro-crud class="h-full" v-bind="proCrudBinding" />
+</template>

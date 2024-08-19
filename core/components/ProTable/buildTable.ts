@@ -66,7 +66,7 @@ interface BuildTableContext<
   Collection = any,
   SearchForm extends DataObject = DataObject
 > {
-  options: BuildTableOption<Data, Params, Collection, SearchForm>
+  options: BuildTableOption<Data, Params, Collection>
   scope: ProTableScope<Data>
   optionResult: BuildProTableOptionResult
 
@@ -78,18 +78,15 @@ interface BuildTableContext<
     editable: Ref<ProFormColumnOptions<Data, any, Collection>[]>
   }
 
-  tableBindings: Omit<BuildTableBinding<Data, SearchForm>, 'search'>
-  searchBindings: BuildTableBinding<Data, SearchForm>['search']
+  tableBindings: Omit<BuildTableBinding<Data>, 'search'>
+  searchBindings: BuildTableBinding<Data>['search']
 }
 
 export function buildTable<
   Data extends DataObject = DataObject,
   Params = any,
-  Collection = any,
-  SearchForm extends DataObject = DataObject
->(
-  options: BuildTableOption<Data, Params, Collection, SearchForm>
-): BuildTableResult<Data> {
+  Collection = any
+>(options: BuildTableOption<Data, Params, Collection>): BuildTableResult<Data> {
   const context: BuildTableContext = {
     options,
     scope: {
@@ -716,11 +713,8 @@ function buildTableMiddleware<Data extends DataObject = DataObject>(
   }
 }
 
-function buildSearchMiddleware<SearchForm extends DataObject = DataObject>(
-  ctx: BuildTableContext,
-  next: NextMiddleware
-) {
-  const { proFormBinding } = buildSearch<SearchForm>(scope => {
+function buildSearchMiddleware(ctx: BuildTableContext, next: NextMiddleware) {
+  const { proFormBinding } = buildSearch<any>(scope => {
     ctx.scope.search = scope
 
     next()
@@ -735,7 +729,7 @@ function buildSearchMiddleware<SearchForm extends DataObject = DataObject>(
 
     return {
       ...resolvedSearch,
-      successRequest(formState: SearchForm) {
+      successRequest(formState: any) {
         ctx.searchParams.value = formState
         unref(resolvedSearch?.successRequest)?.(formState)
       },

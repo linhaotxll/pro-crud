@@ -48,11 +48,11 @@ export type ProCrudModalScope<Data extends DataObject = DataObject> = Omit<
  */
 export interface BuildCrudOptionReturn<
   Data extends DataObject = DataObject,
+  ModalForm = Data,
   Params = any,
-  Collection = any,
-  SearchForm extends DataObject = DataObject
+  Collection = any
 > extends Omit<
-      BuildProTableOptionResult<Data, Params, Collection, SearchForm>,
+      BuildProTableOptionResult<Data, Params, Collection>,
       'columns' | 'fetchTableData' | 'actionColumn' | 'toolbar'
     >,
     Omit<BuildModalFormOptionReturn, 'renderTrigger'> {
@@ -135,7 +135,7 @@ export interface BuildCrudOptionReturn<
    * @param form 编辑表单数据
    * @returns {boolean} 添加是否成功，返回 true 会有提示信息
    */
-  addRequest?: (form: Partial<Data>) => Promise<boolean> | boolean
+  addRequest?: (form: ModalForm) => Promise<boolean> | boolean
 
   /**
    * 编辑接口
@@ -143,7 +143,7 @@ export interface BuildCrudOptionReturn<
    * @param form 编辑表单数据 + 行数据
    * @returns {boolean} 编辑是否成功，返回 true 会有提示信息
    */
-  editRequest?: (form: Partial<Data>) => Promise<boolean> | boolean
+  editRequest?: (form: ModalForm) => Promise<boolean> | boolean
 }
 
 /**
@@ -228,9 +228,12 @@ export const enum ModalType {
 
 export interface BuildCrudContext<
   Data extends DataObject = DataObject,
+  MoalForm = Data,
   Collection = any
 > {
-  options(scope: ProCrudScope<Data>): BuildCrudOptionReturn<Data, Collection>
+  options(
+    scope: ProCrudScope<Data>
+  ): BuildCrudOptionReturn<Data, MoalForm, Collection>
   optionResult: BuildCrudOptionReturn<Data, Collection>
   scope: ProCrudScope<Data>
   modalColumns: {
@@ -285,7 +288,7 @@ export type ProCrudFromOptions<
  * Pro Crud Binding
  */
 export interface ProCrudBinding<Data extends DataObject = DataObject> {
-  tableBinding: BuildTableBinding<Data, DataObject>
+  tableBinding: BuildTableBinding<Data>
   modalFormBinding: ModalFormBinding<Partial<Data>>
 }
 
