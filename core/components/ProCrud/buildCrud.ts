@@ -1,4 +1,4 @@
-import { computed, ref, toValue, watchEffect } from 'vue'
+import { computed, nextTick, ref, toValue, watchEffect } from 'vue'
 
 import {
   buildDefaultCrudOptions,
@@ -23,6 +23,7 @@ import {
 import { buildModalForm } from '../ModalForm'
 import { buildTable } from '../ProTable'
 
+import { getGlobalOptions } from '~/constant'
 import { isNil } from '~/utils'
 
 import type {
@@ -113,6 +114,9 @@ function buildModalFormMiddleware(ctx: BuildCrudContext, next: NextMiddleware) {
       modalType.value = type
       if (record) {
         scope.setFieldValues(record)
+        nextTick(() => {
+          scope.setFieldValues(record)
+        })
       }
 
       showModal()
@@ -319,6 +323,7 @@ function buildBasicMiddleware(ctx: BuildCrudContext, next: NextMiddleware) {
   ctx.optionResult = mergeWithNoUnref(
     {},
     buildDefaultCrudOptions(ctx.scope, result),
+    getGlobalOptions().crudOptions,
     result
   )
 
