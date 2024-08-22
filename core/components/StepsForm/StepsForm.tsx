@@ -1,7 +1,6 @@
 import { Flex, Steps } from 'ant-design-vue'
 import { defineComponent, toValue } from 'vue'
 
-import { buildCustomRender } from '../CustomRender'
 import { ProForm } from '../ProForm'
 
 import type { CustomRenderStepsFormWrapContext } from './interface'
@@ -22,22 +21,33 @@ export const StepsForm = defineComponent({
   setup(props) {
     return () => {
       const stepsProps = toValue(props.stepsProps)
-
       const $steps = <Steps {...stepsProps} />
-      const $form = <ProForm {...props.proFormBinding} />
 
-      const Wrap = buildCustomRender<CustomRenderStepsFormWrapContext>({
-        render: ctx => (
-          <Flex vertical gap={24}>
-            {ctx.$steps}
-            {ctx.$form}
-          </Flex>
-        ),
-        ...props.wrap,
-        context: { $steps, $form },
-      })
+      const $form = (
+        <ProForm
+          {...props.proFormBinding}
+          wrap={{
+            render(ctx) {
+              const context: CustomRenderStepsFormWrapContext = {
+                ...ctx,
+                $steps,
+              }
 
-      return Wrap
+              return (
+                toValue(props.wrap?.render)?.(context) ?? (
+                  <Flex gap={24} vertical>
+                    {$steps}
+                    {ctx.$items}
+                    {ctx.$action}
+                  </Flex>
+                )
+              )
+            },
+          }}
+        />
+      )
+
+      return $form
     }
   },
 })

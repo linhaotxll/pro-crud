@@ -1,6 +1,7 @@
 import type { DataObject } from './../common/interface'
 import type {
   BuildFormOptionResult,
+  CustomRenderFormWrapContext,
   ProFormScope,
 } from './../ProForm/interface'
 import type { CustomRender } from '../CustomRender'
@@ -59,7 +60,10 @@ export interface StepsFormScope<Forms extends DataObject = DataObject>
 /**
  * Steps Form 自定义渲染容器作用域
  */
-export interface CustomRenderStepsFormWrapContext {
+export interface CustomRenderStepsFormWrapContext
+  extends CustomRenderFormWrapContext {
+  /**
+   * 步骤条
+   */
   $steps: VNodeChild
-  $form: VNodeChild
 }

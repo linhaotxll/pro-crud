@@ -1,4 +1,5 @@
 import type { Arrayable, DataObject, NamePath, ValueType } from '../common'
+import type { CustomRender } from '../CustomRender'
 import type {
   ActionGroupOption,
   ActionOption,
@@ -114,6 +115,22 @@ export interface BuildFormBinding<T extends DataObject = DataObject> {
   scope: ProFormScope<T>
   formRef: Ref<FormInstance | null>
   isInlineLayout: ComputedRef<boolean>
+  wrap?: CustomRender<CustomRenderFormWrapContext>
+}
+
+/**
+ * 自定义渲染容器作用域
+ */
+export interface CustomRenderFormWrapContext {
+  /**
+   * 表单项
+   */
+  $items: any
+
+  /**
+   * 按扭组
+   */
+  $action: any
 }
 
 /**
@@ -185,6 +202,11 @@ export interface BuildFormOptionResult<
    * 表单验证失败
    */
   validateFail?: MaybeRef<((error: any) => void) | undefined | null>
+
+  /**
+   * 自定义容器
+   */
+  wrap?: CustomRender<CustomRenderFormWrapContext>
 }
 
 /**

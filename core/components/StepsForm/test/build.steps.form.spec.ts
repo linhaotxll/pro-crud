@@ -357,7 +357,8 @@ describe('StepsForm', () => {
               render: ctx =>
                 h('div', { class: 'wrap-container' }, [
                   h('div', { class: 'wrap-steps' }, [ctx.$steps]),
-                  h('div', { class: 'wrap-form' }, [ctx.$form]),
+                  h('div', { class: 'wrap-form' }, [ctx.$items]),
+                  h('div', { class: 'wrap-action' }, [ctx.$action]),
                 ]),
             },
           }
@@ -375,9 +376,12 @@ describe('StepsForm', () => {
     })
 
     expect(wrapper.findAllComponents(Flex).length).toBe(0)
+    expect(wrapper.findAllComponents(Form).length).toBe(1)
     expect(wrapper.find('.wrap-container').exists()).toBe(true)
     expect(wrapper.find('.wrap-steps').findAllComponents(Steps).length).toBe(1)
-    expect(wrapper.find('.wrap-form').findAllComponents(Form).length).toBe(1)
+    expect(wrapper.find('.wrap-action').findAllComponents(Button).length).toBe(
+      1
+    )
   })
 
   test('action', async () => {

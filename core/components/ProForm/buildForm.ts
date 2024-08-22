@@ -80,6 +80,7 @@ export function buildForm<
     submitRequest,
     successRequest,
     validateFail,
+    wrap,
   } = options(scope)
 
   // 修改 values
@@ -454,6 +455,7 @@ export function buildForm<
       scope,
       formRef,
       isInlineLayout,
+      wrap,
     },
   }
 

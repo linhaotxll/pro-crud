@@ -46,7 +46,7 @@ export const ProTable = defineComponent({
         ) : (
           <ProForm
             {...toValue(editableValue?.editFormBinding)}
-            render={() => $table}
+            wrap={{ render: () => $table }}
           />
         )
 
