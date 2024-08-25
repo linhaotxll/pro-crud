@@ -1,3 +1,7 @@
+import { isVNode } from 'vue'
+
+import type { VueNode } from 'ant-design-vue/es/_util/type'
+
 const toString = Object.prototype.toString
 const toType = (value: unknown): string => toString.call(value)
 const toRawType = (value: unknown) => toType(value).slice(8, -1)
@@ -30,3 +34,11 @@ export const isBoolean = (value: unknown): value is boolean =>
 
 export const isNumber = (value: unknown): value is number =>
   typeof value === 'number'
+
+export const isVueNode = (value: unknown): value is VueNode =>
+  isVNode(value) ||
+  isArray(value) ||
+  isString(value) ||
+  isBoolean(value) ||
+  isNumber(value) ||
+  isNil(value)

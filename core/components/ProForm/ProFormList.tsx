@@ -33,7 +33,6 @@ export const ProFormList = defineComponent({
         toValue(props.column?.list) ?? {}
 
       if (current >= max) {
-        // showToast(`最多添加${max}条数据`, undefined, 'warning')
         return
       }
 
@@ -51,7 +50,6 @@ export const ProFormList = defineComponent({
         const { min = Number.MIN_VALUE } = toValue(props.column?.list) ?? {}
 
         if (current <= min) {
-          // showToast(`最少保持${min}条数据`, undefined, 'warning')
           return
         }
 

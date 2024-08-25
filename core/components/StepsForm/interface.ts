@@ -11,7 +11,7 @@ import type { MaybeRefOrGetter, VNodeChild } from 'vue'
  * buildStepsForm 返回值
  */
 export interface BuildStepsFormReturn<Forms extends DataObject = DataObject>
-  extends Omit<BuildFormOptionResult<Forms>, 'columns'> {
+  extends Omit<BuildFormOptionResult<Forms>, 'columns' | 'wrap'> {
   /**
    * steps props
    */
@@ -25,7 +25,7 @@ export interface BuildStepsFormReturn<Forms extends DataObject = DataObject>
   /**
    * 包裹容器
    */
-  wrap?: Omit<CustomRender<CustomRenderStepsFormWrapContext>, 'fallback'>
+  wrap?: CustomRender<CustomRenderStepsFormWrapContext>
 }
 
 // export type StepsOptions<Forms extends DataObject = DataObject> = {

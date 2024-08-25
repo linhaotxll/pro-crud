@@ -32,7 +32,6 @@ import {
 import { compose, fetchWithLoding, mergeWithTovalue } from '../common'
 import { buildButtonGroup } from '../ProButton'
 import { buildForm, buildSearch } from '../ProForm'
-import { showToast } from '../Toast'
 
 import { getGlobalOptions } from '~/constant'
 import { isArray, isFunction, isNil, isPlainObject, isPromise } from '~/utils'
@@ -571,7 +570,8 @@ function buildTableMiddleware<Data extends DataObject = DataObject>(
     const { type } = editableValue
     if (type === 'single') {
       if (internalEditableKeysMap.size > 0) {
-        showToast(editableValue.onlyEditOneLineToast)
+        // TODO:
+        // showToast(editableValue.onlyEditOneLineToast)
       } else {
         handleChangeEditkeys(rowKey, columnNames)
       }

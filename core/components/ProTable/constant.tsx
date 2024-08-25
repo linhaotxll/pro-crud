@@ -4,7 +4,6 @@ import { h, toValue, unref } from 'vue'
 import { getUuid, mergeWithTovalue } from '../common'
 import { ProButtonGroup } from '../ProButton'
 import { buildButtonGroupInRender } from '../ProButton/buildButtonGroup'
-import { showToast } from '../Toast'
 
 import { isFunction, isNil } from '~/utils'
 
@@ -171,17 +170,21 @@ export function buildTableEditableDefaultOption(
 ): ProTableEditableOptions {
   return {
     type: 'single',
-    saveToast: '保存成功',
-    onlyEditOneLineToast: {
-      type: 'message',
-      props: { content: '只能同时编辑一行', type: 'warning' },
-    },
+    // onlyEditOneLineToast: {
+    //   type: 'message',
+    //   props: { content: '只能同时编辑一行', type: 'warning' },
+    // },
     action: {
       show: true,
       actions: {
         save: {
           show: true,
           text: '保存',
+          toast: {
+            loading: '正在保存',
+            success: '保存成功',
+            error: '保存失败',
+          },
           props: {
             onClick(_, ctx) {
               const editableValue = toValue(editable)
@@ -196,7 +199,6 @@ export function buildTableEditableDefaultOption(
 
                 promise.then(res => {
                   if (res) {
-                    showToast(editableValue.saveToast)
                     scope.table.cancelEdit(rowKey)
                     return scope.table.reload()
                   }

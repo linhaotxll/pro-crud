@@ -16,7 +16,6 @@ import {
   buildDefaultProSearchActionGroup,
   buildDefaultProFormActionGroup,
   DefaultProFormCol,
-  DefaultProFormToast,
   DefaultProSearchCol,
 } from './constant'
 import { useValues } from './useValues'
@@ -24,7 +23,6 @@ import { useValues } from './useValues'
 import { isArray, isFunction } from '../../utils'
 import { mergeWithTovalue } from '../common'
 import { buildButtonGroup } from '../ProButton'
-import { showToast } from '../Toast'
 
 import type {
   BuildFormOptionResult,
@@ -72,7 +70,6 @@ export function buildForm<
     formProps,
     name: formName,
     action = {},
-    toast = DefaultProFormToast,
     row,
     col,
     fetchDictionaryCollection,
@@ -207,8 +204,7 @@ export function buildForm<
 
     // 成功回调
     if (result) {
-      unref(successRequest)?.(params)
-      showToast(unref(toast))
+      return unref(successRequest)?.(params)
     }
   }
 

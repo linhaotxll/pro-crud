@@ -3,8 +3,6 @@ import { h, unref } from 'vue'
 
 import { ModalType } from './interface'
 
-import { showToast } from '../Toast'
-
 import type {
   BuildCrudContext,
   BuildCrudOptionReturn,
@@ -23,9 +21,6 @@ export const buildDefaultCrudOptions = (
   const { deleteRequest } = optionResult
 
   const result: BuildCrudOptionReturn = {
-    addToast: '新增成功',
-    editToast: '编辑成功',
-    deleteToast: '删除成功',
     search: {
       action: {
         space: {
@@ -58,7 +53,6 @@ export const buildDefaultCrudOptions = (
         },
       },
       submitRequest: () => true,
-      toast: false,
     },
     actionColumn: {
       show: true,
@@ -99,9 +93,13 @@ export const buildDefaultCrudOptions = (
                 Promise.resolve(deleteRequest?.(ctx) ?? false).then(res => {
                   if (res) {
                     scope.table.reload()
-                    showToast(result.deleteToast)
                   }
                 }),
+            },
+            toast: {
+              loading: '正在删除',
+              success: '删除成功',
+              error: '删除失败',
             },
             props: {
               type: 'primary',
@@ -147,8 +145,20 @@ export const buildDefaultModalSubmitter = (): Record<
   ModalType,
   ModalFormActionGroup | undefined
 > => ({
-  [ModalType.Add]: undefined,
-  [ModalType.Edit]: undefined,
+  [ModalType.Add]: {
+    actions: {
+      ok: {
+        toast: { loading: '正在新增', success: '新增成功', error: '新增失败' },
+      },
+    },
+  },
+  [ModalType.Edit]: {
+    actions: {
+      ok: {
+        toast: { loading: '正在修改', success: '修改成功', error: '修改失败' },
+      },
+    },
+  },
   [ModalType.View]: { actions: { ok: { show: false } } },
 })
 
@@ -176,10 +186,10 @@ export const buildDefaultModalValidateFail = (ctx: BuildCrudContext) => {
   }
 }
 
-export const buildDefaultModalToast = (ctx: BuildCrudContext) => {
-  return {
-    [ModalType.Add]: unref(ctx.optionResult.addToast),
-    [ModalType.Edit]: unref(ctx.optionResult.editToast),
-    [ModalType.View]: undefined,
-  }
-}
+// export const buildDefaultModalToast = (ctx: BuildCrudContext) => {
+//   return {
+//     [ModalType.Add]: unref(ctx.optionResult.addToast),
+//     [ModalType.Edit]: unref(ctx.optionResult.editToast),
+//     [ModalType.View]: undefined,
+//   }
+// }

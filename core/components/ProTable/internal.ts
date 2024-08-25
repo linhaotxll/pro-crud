@@ -10,7 +10,6 @@ import type {
 import type { DataObject, NamePath, ValueType } from '../common'
 import type { buildDictionary } from '../ProDictionary'
 import type { BuildFormBinding, ProFormScope } from '../ProForm'
-import type { ToastOptions } from '../Toast'
 import type { Key } from 'ant-design-vue/es/_util/type'
 import type { ColumnType } from 'ant-design-vue/es/table'
 import type { VNodeChild } from 'vue'
@@ -94,9 +93,6 @@ export type InternalProTableEditableOptions<Data extends DataObject = any> =
   | {
       type: 'single' | 'multiple'
       action: ProTableEditableColumnActionGroup<RenderBodyCellTextParams<Data>>
-      saveToast: ToastOptions
-      removeToast: ToastOptions
-      onlyEditOneLineToast: ToastOptions
       editableKeys?: EditableKeys
       editFormBinding: BuildFormBinding<Data>
       formScope: ProFormScope<Data>

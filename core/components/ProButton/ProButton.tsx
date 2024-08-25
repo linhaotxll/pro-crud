@@ -1,10 +1,12 @@
 import { Button, Modal, Popconfirm } from 'ant-design-vue'
 import { defineComponent, ref, toValue } from 'vue'
 
+import { useToast } from './shotToast'
+
 import { mergeWithTovalue } from '../common'
 import { buildCustomRender } from '../CustomRender'
 
-import { isArray, isFunction } from '~/utils'
+import { isArray, isFunction, isPromise } from '~/utils'
 
 import type {
   InternalProButtonOptions,
@@ -36,12 +38,20 @@ export const ProButton = defineComponent({
         return
       }
 
+      const { open } = useToast(props.option.toast)
+
+      open('loading')
+
+      let resultPromise: Promise<any> = Promise.resolve()
+
       if (isFunction(handles)) {
         buttonLoading.value = true
         // @ts-ignore
-        return Promise.resolve(handles(e, ctx)).finally(() => {
-          buttonLoading.value = false
-        })
+        const handlesResult = handles(e, ctx)
+
+        resultPromise = isPromise(handlesResult)
+          ? handlesResult
+          : Promise.resolve(handlesResult)
       } else if (isArray(handles)) {
         buttonLoading.value = true
         const tasks: Promise<any>[] = []
@@ -49,10 +59,21 @@ export const ProButton = defineComponent({
           // @ts-ignore
           tasks.push(Promise.resolve(handle(e, ctx)))
         }
-        return Promise.allSettled(tasks).finally(() => {
+        resultPromise = Promise.all(tasks)
+      }
+
+      return resultPromise
+        .then(res => {
+          open('success')
+          return res
+        })
+        .catch(e => {
+          open('error')
+          throw e
+        })
+        .finally(() => {
           buttonLoading.value = false
         })
-      }
     }
 
     function handleClickButton(e: MouseEvent) {

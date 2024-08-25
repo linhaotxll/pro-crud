@@ -3,9 +3,8 @@ import { computed, nextTick, ref, toRef, toValue, unref, watch } from 'vue'
 
 import { mergeWithTovalue } from '../common'
 import { buildForm } from '../ProForm'
-import { showToast } from '../Toast'
 
-import { isFunction } from '~/utils'
+import { isFunction, isPromise } from '~/utils'
 
 import type { DataObject } from './../common/interface'
 import type {
@@ -100,6 +99,7 @@ export function buildStepsForm<Forms extends DataObject = DataObject>(
     // 下一步按钮
     const nextButton: ActionOption = {
       text: '下一步',
+      toast: null,
     }
 
     // 上一步按钮
@@ -146,6 +146,33 @@ export function buildStepsForm<Forms extends DataObject = DataObject>(
 
     // 每一步最终的表单数据
     const paramsMap: Record<number, any> = {}
+
+    function callCommonBeforeSubmit(values: Forms) {
+      const beforeSubmitResult = unref(commonForm.beforeSubmit)?.(values)
+      if (isPromise(beforeSubmitResult)) {
+        return beforeSubmitResult.then(() => {
+          callCommonSubmitRequest(values)
+        })
+      } else {
+        return callCommonSubmitRequest(values)
+      }
+    }
+
+    function callCommonSubmitRequest(values: Forms) {
+      const successRequestResult = unref(commonForm.submitRequest)?.(values)
+      if (isPromise(successRequestResult)) {
+        return successRequestResult.then(() => {
+          callCommonSuccessRequest(values)
+        })
+      } else {
+        return callCommonSuccessRequest(values)
+      }
+    }
+
+    function callCommonSuccessRequest(values: Forms) {
+      //
+      unref(commonForm.successRequest)?.(values)
+    }
 
     const buildFormReturn: BuildFormOptionResult = {
       columns: computed(() => {
@@ -194,16 +221,26 @@ export function buildStepsForm<Forms extends DataObject = DataObject>(
             }
           }
 
-          Promise.resolve(unref(commonForm.beforeSubmit)?.(params) ?? params)
-            .then(res => {
-              return Promise.resolve(unref(commonForm.submitRequest)?.(res))
-            })
-            .then(res => {
-              if (res) {
-                showToast(unref(commonForm.toast))
-                unref(commonForm.successRequest)?.(params)
-              }
-            })
+          return callCommonBeforeSubmit(params)
+          // const commonBeforeSubmitResult =
+          //   unref(commonForm.beforeSubmit)?.(params) ?? params
+          // if (isPromise(commonBeforeSubmitResult)) {
+          //   commonBeforeSubmitResult.then(res => {
+          //     callCommonSubmitRequest(res)
+          //   })
+          // } else {
+          //   callCommonSubmitRequest(commonBeforeSubmitResult)
+          // }
+
+          // return Promise.resolve()
+          //   .then(res => {
+          //     return Promise.resolve(unref(commonForm.submitRequest)?.(res))
+          //   })
+          //   .then(res => {
+          //     if (res) {
+          //       unref(commonForm.successRequest)?.(params)
+          //     }
+          //   })
         } else {
           handleNextStep()
         }

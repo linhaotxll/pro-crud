@@ -1,4 +1,4 @@
-import { flushPromises, mount } from '@vue/test-utils'
+import { mount } from '@vue/test-utils'
 import antdv, { Button, Col, Row } from 'ant-design-vue'
 import { Input } from 'ant-design-vue'
 import { describe, test, expect, beforeEach, vi } from 'vitest'
@@ -345,55 +345,6 @@ describe('Pro Form Props', () => {
 
     await button.trigger('click')
     expect(wrapper.findAllComponents(ProFormItem).length).toBe(0)
-  })
-
-  test('toast default', async () => {
-    const App = defineComponent({
-      name: 'App',
-      setup() {
-        const { proFormBinding } = buildForm(() => {
-          return {
-            submitRequest() {
-              return true
-            },
-            // toast: 'ok',
-            toast: {
-              type: 'message',
-              props: {
-                type: 'error',
-                content: 'error',
-              },
-            },
-          }
-        })
-
-        return () => {
-          return [h(ProForm, proFormBinding)]
-        }
-      },
-    })
-
-    const wrapper = mount(App, {
-      global: {
-        plugins: [antdv],
-      },
-      attachTo: 'body',
-    })
-
-    expect(wrapper.findComponent(ProForm).exists()).toBe(true)
-    expect(wrapper.findAllComponents(Button).length).toBe(1)
-
-    await wrapper.findAllComponents(Button)[0].vm.$emit('click')
-    await nextTick()
-    await flushPromises()
-
-    expect(document.querySelectorAll('.ant-message-error').length).toBe(1)
-
-    expect(
-      document
-        .querySelectorAll('.ant-message-error')[0]
-        .querySelectorAll('span')[1].innerHTML
-    ).toBe('error')
   })
 
   test('column col is not default value', async () => {

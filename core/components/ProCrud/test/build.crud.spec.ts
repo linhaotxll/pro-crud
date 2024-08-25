@@ -68,24 +68,9 @@ describe('Build Crud', () => {
                 type: 'digit',
               },
             ],
-
             fetchTableData,
             editRequest,
-            editToast: {
-              type: 'message',
-              props: {
-                content: 'edit success',
-                duration: 100,
-              },
-            },
             addRequest,
-            addToast: {
-              type: 'message',
-              props: {
-                content: 'add success',
-                duration: 100,
-              },
-            },
           }
         })
 
@@ -265,7 +250,7 @@ describe('Build Crud', () => {
       document
         .querySelector('.ant-message-success')!
         .querySelectorAll('span')[1].innerHTML
-    ).toBe('edit success')
+    ).toBe('修改成功')
 
     // Click Add Button
     message.destroy()
@@ -307,7 +292,7 @@ describe('Build Crud', () => {
       document
         .querySelector('.ant-message-success')!
         .querySelectorAll('span')[1].innerHTML
-    ).toBe('add success')
+    ).toBe('新增成功')
   })
 
   test('dictionary only called once', async () => {

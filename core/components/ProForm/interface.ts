@@ -11,7 +11,6 @@ import type {
   DictionaryCollection,
   DictionaryColumn,
 } from '../ProDictionary'
-import type { ToastOptions } from '../Toast'
 import type { DeepMaybeRef } from '@vueuse/core'
 import type {
   ColProps,
@@ -175,11 +174,6 @@ export interface BuildFormOptionResult<
    * 按钮组
    */
   action?: MaybeRefOrGetter<ProFormActionGroup>
-
-  /**
-   * 接口调用成功是否需要提示信息
-   */
-  toast?: MaybeRef<ToastOptions | undefined>
 
   /**
    * 表单提交前触发，可用来转换提交数据

@@ -131,7 +131,13 @@ describe('Modal Form', () => {
                 },
               ],
               submitRequest,
-              toast: 'save success!',
+            },
+            submitter: {
+              actions: {
+                ok: {
+                  toast: 'save success!',
+                },
+              },
             },
           }
         })

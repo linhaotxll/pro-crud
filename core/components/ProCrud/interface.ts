@@ -19,7 +19,6 @@ import type {
   ProTableToolbarActions,
   RenderBodyCellTextParams,
 } from '../ProTable'
-import type { ToastOptions } from '../Toast'
 import type { MaybeRefOrGetter } from 'vue'
 
 /**
@@ -92,27 +91,6 @@ export interface BuildCrudOptionReturn<
    * @default true
    */
   autoReload?: boolean
-
-  /**
-   * 删除成功提示
-   *
-   * @default '删除成功'
-   */
-  deleteToast?: ToastOptions
-
-  /**
-   * 新增成功提示
-   *
-   * @default '新增成功'
-   */
-  addToast?: ToastOptions
-
-  /**
-   * 编辑成功提示
-   *
-   * @default '编辑成功'
-   */
-  editToast?: ToastOptions
 
   /**
    * 获取数据请求

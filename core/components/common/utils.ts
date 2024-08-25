@@ -1,17 +1,11 @@
 import { isPromise } from '~/utils'
 
-import type { ToastOptions } from '../Toast'
 import type { Ref } from 'vue'
 
 const hasOwnProperty = Object.prototype.hasOwnProperty
 
 export const hasOwn = (obj: any, key: PropertyKey) =>
   hasOwnProperty.call(obj, key)
-
-export function genToast(content: string): ToastOptions {
-  // @ts-ignore
-  return { type: 'message', props: { title: content, message: content } }
-}
 
 export function getUuid() {
   return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {

@@ -5,7 +5,6 @@ import {
   buildDefaultModalBeforeSubmit,
   buildDefaultModalSubmitRequest,
   buildDefaultModalSubmitter,
-  buildDefaultModalToast,
   buildDefaultModalValidateFail,
   defaultModalProps,
 } from './constant'
@@ -260,10 +259,10 @@ function buildModalFormMiddleware(ctx: BuildCrudContext, next: NextMiddleware) {
               topLevelFormPropsWithModalType[type]
             )
       }),
-      toast: computed(() => {
-        const type = modalType.value
-        return !isNil(type) ? buildDefaultModalToast(ctx)?.[type] : undefined
-      }),
+      // toast: computed(() => {
+      //   const type = modalType.value
+      //   return !isNil(type) ? buildDefaultModalToast(ctx)?.[type] : undefined
+      // }),
       validateFail: computed(() => {
         const type = modalType.value
         return !isNil(type)

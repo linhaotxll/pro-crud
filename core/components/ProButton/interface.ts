@@ -8,6 +8,8 @@ import type {
   PopoverProps,
   SpaceProps,
 } from 'ant-design-vue'
+import type { VueNode } from 'ant-design-vue/es/_util/type'
+import type { ArgsProps as MessageArgsProps } from 'ant-design-vue/es/message/interface'
 import type { AllowedComponentProps, MaybeRefOrGetter } from 'vue'
 
 /**
@@ -75,6 +77,11 @@ export type ActionOption<C extends object = any> = CustomRender<
   props?: MaybeRefOrGetter<DeepMaybeRef<Omit<ButtonProps, 'onClick'>>> & {
     onClick?: Arrayable<(e: PointerEvent, ctx: C) => void>
   }
+
+  /**
+   * toast 提示
+   */
+  toast?: MaybeRefOrGetter<ProButtonToastOptions | null>
 
   /**
    * 顺序
@@ -155,14 +162,9 @@ export type InternalProButtonOptions<C extends object = any> = {
   order?: number
 
   /**
-   * 自定义渲染函数
+   * toast 提示
    */
-  // render?: ProButtonRender<C>
-
-  /**
-   * 作用域对象
-   */
-  // ctx?: any
+  toast?: ProButtonToastOptions | null
 
   /**
    * 点击按钮确认弹窗类型，false 则不需要
@@ -178,9 +180,15 @@ export type InternalProButtonOptions<C extends object = any> = {
   confirmRender?: ProButtonRenderParams<ModalProps, C>
 } & CustomRender<ProButtonRenderParams<ButtonProps, C>>
 
-// export interface ProButtonRender<C extends object = any> extends C {
-//   props: ButtonProps
-// }
+export type ProButtonToastOptions =
+  | (() => void)
+  | string
+  | {
+      props?: Omit<MessageArgsProps, 'content' | 'icon'>
+      loading?: VueNode | Pick<MessageArgsProps, 'content' | 'icon'>
+      success?: VueNode | Pick<MessageArgsProps, 'content' | 'icon'>
+      error?: VueNode | Pick<MessageArgsProps, 'content' | 'icon'>
+    }
 
 export type ProButtonRenderParams<
   Props = ButtonProps,
@@ -190,11 +198,6 @@ export type ProButtonRenderParams<
 } & {
   [K in keyof Context]: Context[K]
 }
-
-// export type ProButtonRender<C = any> = (
-//   attrs: ButtonProps,
-//   ctx: C
-// ) => VNodeChild
 
 /**
  * Pro Button 确认弹窗类型

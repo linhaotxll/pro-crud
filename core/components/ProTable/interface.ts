@@ -17,7 +17,6 @@ import type {
   ProFormColumnOptions,
   ProFormScope,
 } from '../ProForm'
-import type { ToastOptions } from '../Toast'
 import type { DeepMaybeRef } from '@vueuse/core'
 import type { FlexProps, TableProps } from 'ant-design-vue'
 import type { Key } from 'ant-design-vue/es/_util/type'
@@ -572,14 +571,9 @@ export interface ProTableEditableOptions<
   ) => Promise<boolean> | boolean
 
   /**
-   * 保存成功 toast
-   */
-  saveToast?: MaybeRefOrGetter<ToastOptions>
-
-  /**
    * 只能编辑一行的的提示
    */
-  onlyEditOneLineToast?: MaybeRefOrGetter<ToastOptions>
+  // onlyEditOneLineToast?: MaybeRefOrGetter<ToastOptions>
 }
 
 /**

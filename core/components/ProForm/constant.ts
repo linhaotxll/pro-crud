@@ -10,7 +10,6 @@ import type {
 } from './interface'
 import type { ProFormColumnOptions, ProFormListOptions } from './interface'
 import type { DataObject } from '../common'
-import type { ToastOptions } from '../Toast'
 import type { ColProps, RowProps, SpaceProps } from 'ant-design-vue'
 import type { CSSProperties } from 'vue'
 
@@ -72,9 +71,14 @@ export const buildDefaultProFormActionGroup = <
       text: '提交',
       props: {
         type: 'primary',
-        onClick: async () => {
-          await scope.submit()
+        onClick: () => {
+          return scope.submit()
         },
+      },
+      toast: {
+        loading: '正在提交',
+        success: '提交成功',
+        error: '提交失败',
       },
     },
   },
@@ -182,9 +186,6 @@ export const DefaultFormListSpaceProps: SpaceProps = {
   style: { width: '100%' },
   align: 'start',
 }
-
-// Pro Form Toast
-export const DefaultProFormToast: ToastOptions = '保存成功'
 
 // Pro Search Wrapper Col Props
 export const DefaultProSearchWrapperColProps: ColProps & {
