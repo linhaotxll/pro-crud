@@ -183,12 +183,14 @@ export type InternalProButtonOptions<C extends object = any> = {
 export type ProButtonToastOptions =
   | (() => void)
   | string
-  | {
-      props?: Omit<MessageArgsProps, 'content' | 'icon'>
-      loading?: VueNode | Pick<MessageArgsProps, 'content' | 'icon'>
-      success?: VueNode | Pick<MessageArgsProps, 'content' | 'icon'>
-      error?: VueNode | Pick<MessageArgsProps, 'content' | 'icon'>
-    }
+  | ProButtonToastObjectOption
+
+export type ProButtonToastObjectOption = {
+  props?: Omit<MessageArgsProps, 'content' | 'icon'>
+  loading?: VueNode | Pick<MessageArgsProps, 'content' | 'icon'>
+  success?: VueNode | Pick<MessageArgsProps, 'content' | 'icon'>
+  error?: VueNode | Pick<MessageArgsProps, 'content' | 'icon'>
+}
 
 export type ProButtonRenderParams<
   Props = ButtonProps,

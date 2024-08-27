@@ -1,4 +1,5 @@
 import type { ValueType, ValueTypeValue } from './components/common'
+import type { ProButtonToastObjectOption } from './components/ProButton'
 import type { BuildCrudOptionReturn } from './components/ProCrud'
 import type {
   FetchProTablePageListQuery,
@@ -37,6 +38,11 @@ export interface ProComponentsOptions {
    */
   crudOptions?: BuildCrudOptionReturn
   // toolbar?: ProCrudToolbarActionGroup
+
+  /**
+   * 全局 toast
+   */
+  toast?: ProButtonToastObjectOption
 
   // /**
   //  * 全局 crud 添加、编辑、查看弹窗公共配置

@@ -7,15 +7,14 @@ import {
 import { isFunction, isString, isVueNode } from '../../utils'
 import { mergeWithTovalue } from '../common'
 
+import { getGlobalOptions } from '~/constant'
+
 import type { ProButtonToastOptions } from './interface'
 
 export function useToast(toast?: ProButtonToastOptions | null) {
-  // debugger
   const { message } = App.useApp() ?? {
     message: _message,
   }
-
-  // const instanceMap = { message, notification }
 
   const key = `${Date.now()}`
 
@@ -29,6 +28,8 @@ export function useToast(toast?: ProButtonToastOptions | null) {
       } else {
         resolvedMessageProps = toast
       }
+
+      mergeWithTovalue(resolvedMessageProps, getGlobalOptions().toast)
 
       const typeProps = resolvedMessageProps[type]
 
@@ -57,14 +58,6 @@ export function useToast(toast?: ProButtonToastOptions | null) {
       message.destroy(key)
     }
   }
-
-  // function getInstance() {
-  //   return !isFunction(toast)
-  //     ? toast?.type
-  //       ? instanceMap[toast.type]
-  //       : undefined
-  //     : undefined
-  // }
 
   return { open, close }
 }
