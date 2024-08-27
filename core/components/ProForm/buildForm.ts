@@ -337,6 +337,7 @@ export function buildForm<
         .then(res => res)
         .catch(e => {
           unref(validateFail)?.(e)
+          throw e
         })
     )
   }
