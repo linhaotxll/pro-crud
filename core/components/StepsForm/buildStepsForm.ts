@@ -148,13 +148,14 @@ export function buildStepsForm<Forms extends DataObject = DataObject>(
     const paramsMap: Record<number, any> = {}
 
     function callCommonBeforeSubmit(values: Forms) {
-      const beforeSubmitResult = unref(commonForm.beforeSubmit)?.(values)
+      const beforeSubmitResult =
+        unref(commonForm.beforeSubmit)?.(values) ?? values
       if (isPromise(beforeSubmitResult)) {
-        return beforeSubmitResult.then(() => {
-          callCommonSubmitRequest(values)
+        return beforeSubmitResult.then(res => {
+          callCommonSubmitRequest(res)
         })
       } else {
-        return callCommonSubmitRequest(values)
+        return callCommonSubmitRequest(beforeSubmitResult)
       }
     }
 
@@ -186,10 +187,11 @@ export function buildStepsForm<Forms extends DataObject = DataObject>(
         } else if (currentStep === Object.keys(stepsRef.value).length - 1) {
           defaultAction = lastStepAction
         }
+        const { actions, ...commonRest } = toValue(commonForm.action) || {}
         return mergeWithTovalue(
           {},
           defaultAction,
-          toValue(commonForm.action),
+          commonRest,
           actionMap.value[current.value]
         )
       }),
