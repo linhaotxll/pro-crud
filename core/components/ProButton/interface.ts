@@ -79,11 +79,6 @@ export type ActionOption<C extends object = any> = CustomRender<
   }
 
   /**
-   * toast 提示
-   */
-  toast?: MaybeRefOrGetter<ProButtonToastOptions | null>
-
-  /**
    * 顺序
    */
   order?: MaybeRefOrGetter<number>
@@ -160,11 +155,6 @@ export type InternalProButtonOptions<C extends object = any> = {
    * 按扭顺序
    */
   order?: number
-
-  /**
-   * toast 提示
-   */
-  toast?: ProButtonToastOptions | null
 
   /**
    * 点击按钮确认弹窗类型，false 则不需要

@@ -115,7 +115,6 @@ export function buildModalForm<
 
     const result = mergeWithTovalue(
       {
-        toast: '保存成功',
         ...toValue(form),
         successRequest(values: any) {
           hideModal()

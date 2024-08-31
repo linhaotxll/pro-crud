@@ -1,8 +1,6 @@
 import { Button, Modal, Popconfirm } from 'ant-design-vue'
 import { defineComponent, ref, toValue } from 'vue'
 
-import { useToast } from './shotToast'
-
 import { mergeWithTovalue } from '../common'
 import { buildCustomRender } from '../CustomRender'
 
@@ -38,10 +36,6 @@ export const ProButton = defineComponent({
         return
       }
 
-      const { open } = useToast(props.option.toast)
-
-      open('loading')
-
       let resultPromise: Promise<any> = Promise.resolve()
 
       if (isFunction(handles)) {
@@ -64,11 +58,9 @@ export const ProButton = defineComponent({
 
       return resultPromise
         .then(res => {
-          open('success')
           return res
         })
         .catch(e => {
-          open('error')
           throw e
         })
         .finally(() => {

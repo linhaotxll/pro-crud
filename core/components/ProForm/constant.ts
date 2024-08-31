@@ -3,6 +3,8 @@ import { h, toValue } from 'vue'
 
 import { getUuid, mergeWithTovalue } from '../common'
 
+import { isNil } from '~/utils'
+
 import type {
   InternalProFormColumnOptions,
   ProFormActionGroup,
@@ -75,11 +77,6 @@ export const buildDefaultProFormActionGroup = <
           return scope.submit()
         },
       },
-      toast: {
-        loading: '正在提交',
-        success: '提交成功',
-        error: '提交失败',
-      },
     },
   },
 })
@@ -98,42 +95,43 @@ export const buildDefaultProSearchActionGroup = <
   const resolvedCol: ColProps = mergeWithTovalue(
     {
       span: DefaultProSearchCol.span!,
-      offset: 0,
     },
     commonCol,
     toValue(col)
   )
 
-  const total =
-    columns.reduce<number>((prev, column) => {
-      const columnValue = toValue(column)
-      // 每个列所占的格子数量，已经合并了公共和单独配置的数量
-      // Pro Search 默认会设置公共 col
-      const columnCol: ColProps = columnValue.col!
+  if (isNil(resolvedCol.offset)) {
+    const total =
+      columns.reduce<number>((prev, column) => {
+        const columnValue = toValue(column)
+        // 每个列所占的格子数量，已经合并了公共和单独配置的数量
+        // Pro Search 默认会设置公共 col
+        const columnCol: ColProps = columnValue.col!
 
-      const show = columnValue.show
+        const show = columnValue.show
 
-      let columnTotal = 0
-      if (show) {
-        columnTotal += +(columnCol.span ?? 0) + +(columnCol.offset ?? 0)
-      }
+        let columnTotal = 0
+        if (show) {
+          columnTotal += +(columnCol.span ?? 0) + +(columnCol.offset ?? 0)
+        }
 
-      prev += columnTotal
+        prev += columnTotal
 
-      return prev
-    }, 0) ?? 0
+        return prev
+      }, 0) ?? 0
 
-  const span = +resolvedCol.span!
+    const span = +resolvedCol.span!
 
-  let offset = 0
-  const residueSpan = 24 - total
-  if (residueSpan < span) {
-    offset = 24 - span
-  } else {
-    offset = 24 - total - span
+    let offset = 0
+    const residueSpan = 24 - total
+    if (residueSpan < span) {
+      offset = 24 - span
+    } else {
+      offset = 24 - total - span
+    }
+
+    resolvedCol.offset = offset
   }
-
-  resolvedCol.offset = offset
 
   return mergeWithTovalue(
     {

@@ -96,11 +96,6 @@ export const buildDefaultCrudOptions = (
                   }
                 }),
             },
-            toast: {
-              loading: '正在删除',
-              success: '删除成功',
-              error: '删除失败',
-            },
             props: {
               type: 'primary',
               danger: true,
@@ -145,20 +140,8 @@ export const buildDefaultModalSubmitter = (): Record<
   ModalType,
   ModalFormActionGroup | undefined
 > => ({
-  [ModalType.Add]: {
-    actions: {
-      ok: {
-        toast: { loading: '正在新增', success: '新增成功', error: '新增失败' },
-      },
-    },
-  },
-  [ModalType.Edit]: {
-    actions: {
-      ok: {
-        toast: { loading: '正在修改', success: '修改成功', error: '修改失败' },
-      },
-    },
-  },
+  [ModalType.Add]: undefined,
+  [ModalType.Edit]: undefined,
   [ModalType.View]: { actions: { ok: { show: false } } },
 })
 

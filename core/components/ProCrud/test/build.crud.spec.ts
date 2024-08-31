@@ -246,11 +246,6 @@ describe('Build Crud', () => {
 
     expect(modal.findAllComponents(Button)[1].vm.$props.loading).toBe(false)
     expect(modal.findComponent(Form).isVisible()).toBe(false)
-    expect(
-      document
-        .querySelector('.ant-message-success')!
-        .querySelectorAll('span')[1].innerHTML
-    ).toBe('修改成功')
 
     // Click Add Button
     message.destroy()
@@ -288,11 +283,6 @@ describe('Build Crud', () => {
 
     expect(modal.findAllComponents(Button)[1].vm.$props.loading).toBe(false)
     expect(modal.findComponent(Form).isVisible()).toBe(false)
-    expect(
-      document
-        .querySelector('.ant-message-success')!
-        .querySelectorAll('span')[1].innerHTML
-    ).toBe('新增成功')
   })
 
   test('dictionary only called once', async () => {

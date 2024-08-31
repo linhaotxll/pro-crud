@@ -99,7 +99,6 @@ export function buildStepsForm<Forms extends DataObject = DataObject>(
     // 下一步按钮
     const nextButton: ActionOption = {
       text: '下一步',
-      toast: null,
     }
 
     // 上一步按钮
@@ -253,8 +252,6 @@ export function buildStepsForm<Forms extends DataObject = DataObject>(
       beforeSubmit(values) {
         return unref(funcMap[current.value]?.beforeSubmit)?.(values) ?? values
       },
-
-      // toast: false,
 
       formProps: computed(() => {
         return mergeWithTovalue(

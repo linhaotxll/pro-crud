@@ -310,14 +310,6 @@ describe('Build Pro Editable Table', () => {
 
     expect(wrapper.findAllComponents(InputNumber).length).toBe(1)
     expect(wrapper.findAllComponents(Button).length).toBe(3)
-
-    // TODO:
-    // expect(document.querySelectorAll('.ant-message-warning').length).toBe(1)
-    // expect(
-    //   document
-    //     .querySelector('.ant-message-warning')!
-    //     .querySelectorAll('span')[1].innerHTML
-    // ).toBe('只能同时编辑一行')
   })
 
   test('multiple mode', async () => {
@@ -576,13 +568,6 @@ describe('Build Pro Editable Table', () => {
     `)
 
     await sleep(1000)
-
-    expect(document.querySelectorAll('.ant-message-success').length).toBe(1)
-    expect(
-      document
-        .querySelector('.ant-message-success')!
-        .querySelectorAll('span')[1].innerHTML
-    ).toBe('保存成功')
 
     expect(wrapper.findAllComponents(Button).length).toBe(2)
     expect(wrapper.findAllComponents(Button)[0].text()).toBe('编 辑')

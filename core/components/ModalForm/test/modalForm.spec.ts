@@ -132,13 +132,6 @@ describe('Modal Form', () => {
               ],
               submitRequest,
             },
-            submitter: {
-              actions: {
-                ok: {
-                  toast: 'save success!',
-                },
-              },
-            },
           }
         })
         return () => {
@@ -185,12 +178,6 @@ describe('Modal Form', () => {
     await sleep(300)
 
     expect(submitButton.vm.$props.loading).toBe(false)
-    expect(document.querySelectorAll('.ant-message-success').length).toBe(1)
-    expect(
-      document
-        .querySelector('.ant-message-success')!
-        .querySelectorAll('span')[1].innerHTML
-    ).toBe('save success!')
 
     expect(modal.findComponent(Input).isVisible()).toBe(false)
   })

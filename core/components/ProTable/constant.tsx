@@ -180,11 +180,6 @@ export function buildTableEditableDefaultOption(
         save: {
           show: true,
           text: '保存',
-          toast: {
-            loading: '正在保存',
-            success: '保存成功',
-            error: '保存失败',
-          },
           props: {
             onClick(_, ctx) {
               const editableValue = toValue(editable)
