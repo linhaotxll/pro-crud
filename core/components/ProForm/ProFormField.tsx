@@ -4,6 +4,7 @@ import {
   defineComponent,
   onBeforeMount,
   onBeforeUnmount,
+  toRaw,
   toValue,
 } from 'vue'
 
@@ -90,6 +91,7 @@ export const ProFormField = defineComponent({
           column: columnValue,
           scope: props.scope,
           slots,
+          ref: toRaw(columnValue).instance,
         },
         toValue(fieldProps),
         toValue(props.column)?.fieldProps

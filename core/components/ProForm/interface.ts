@@ -87,6 +87,11 @@ export interface ProFormScope<T extends DataObject = DataObject> {
    * 清理某个字段的表单验证信息
    */
   clearValidate(nameList?: Arrayable<NamePath>): void
+
+  /**
+   * 获取表单实例
+   */
+  getFieldInstance(name: NamePath): Ref<any> | undefined
 }
 
 /**
@@ -191,6 +196,11 @@ export interface BuildFormOptionResult<
    * 接口调用成功时（submitRequest 返回 true）调用
    */
   successRequest?: MaybeRef<((values: R) => void) | undefined | null>
+
+  /**
+   * 接口调用失败时（submitRequest 返回 false）调用
+   */
+  failRequest?: MaybeRef<(() => void) | undefined | null>
 
   /**
    * 表单验证失败
@@ -421,6 +431,11 @@ export interface ProFormListOptions<C extends object = any> {
 export interface InternalProFormColumnOptions<
   T extends DataObject = DataObject
 > {
+  /**
+   * 表单实例
+   */
+  instance: Ref<any>
+
   /**
    * 显示状态,其余属性只会在显示下才会存在
    */

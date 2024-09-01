@@ -1,5 +1,5 @@
 import { set } from 'lodash-es'
-import { toValue } from 'vue'
+import { ref, toValue } from 'vue'
 
 import { buildFormListColumns } from './buildFormListColumn'
 import { DefaultProFormColumn, ProFormListPlaceholder } from './constant'
@@ -70,6 +70,7 @@ export function buildFormColumn<T extends DataObject = DataObject>(
     show: resolvedShow,
     name: resolvedName,
     type: resolvedType,
+    instance: ref(),
   }
 
   // 只会解析显示的列

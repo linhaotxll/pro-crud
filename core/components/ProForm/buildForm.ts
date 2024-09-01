@@ -60,6 +60,7 @@ export function buildForm<
     validate,
     scrollToField,
     clearValidate,
+    getFieldInstance,
   }
 
   const values = reactive({}) as T
@@ -76,6 +77,7 @@ export function buildForm<
     beforeSubmit,
     submitRequest,
     successRequest,
+    failRequest,
     validateFail,
     wrap,
   } = options(scope)
@@ -205,6 +207,8 @@ export function buildForm<
     // 成功回调
     if (result) {
       return unref(successRequest)?.(params)
+    } else {
+      return unref(failRequest)?.()
     }
   }
 
@@ -440,6 +444,10 @@ export function buildForm<
     }
 
     return result
+  }
+
+  function getFieldInstance(name: NamePath) {
+    return resolvedColumnsMap.get(name)?.instance
   }
 
   const formBinding: BuildFormResult<T> = {
