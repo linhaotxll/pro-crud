@@ -124,13 +124,36 @@ function buildModalFormMiddleware(ctx: BuildCrudContext, next: NextMiddleware) {
     ctx.scope.modal = {
       ...rest,
       showAddModal() {
-        showModalWithType(ModalType.Add)
+        showModalWithType(
+          ModalType.Add,
+          mergeWithTovalue(
+            {},
+            ctx.optionResult.form?.initialValues,
+            ctx.optionResult.addForm?.initialValues
+          )
+        )
       },
       showEditModal(record) {
-        showModalWithType(ModalType.Edit, record)
+        showModalWithType(
+          ModalType.Edit,
+          mergeWithTovalue(
+            {},
+            ctx.optionResult.form?.initialValues,
+            ctx.optionResult.addForm?.initialValues,
+            record
+          )
+        )
       },
       showViewModal(record) {
-        showModalWithType(ModalType.View, record)
+        showModalWithType(
+          ModalType.View,
+          mergeWithTovalue(
+            {},
+            ctx.optionResult.form?.initialValues,
+            ctx.optionResult.addForm?.initialValues,
+            record
+          )
+        )
       },
     } as ProCrudModalScope
 
