@@ -83,7 +83,7 @@ export function buildStepsForm<Forms extends DataObject = DataObject>(
     const funcMap: Record<number, FunctionKeys> = {}
 
     // 当前步骤索引
-    const current = ref(firstIndex)
+    const current = ref(toValue(stepsProps)?.current ?? firstIndex)
 
     // 解析 Steps Props
     resolvedStepProps = computed<StepsProps>(() =>
@@ -150,9 +150,7 @@ export function buildStepsForm<Forms extends DataObject = DataObject>(
       const beforeSubmitResult =
         unref(commonForm.beforeSubmit)?.(values) ?? values
       if (isPromise(beforeSubmitResult)) {
-        return beforeSubmitResult.then(res => {
-          callCommonSubmitRequest(res)
-        })
+        return beforeSubmitResult.then(res => callCommonSubmitRequest(res))
       } else {
         return callCommonSubmitRequest(beforeSubmitResult)
       }
@@ -161,8 +159,12 @@ export function buildStepsForm<Forms extends DataObject = DataObject>(
     function callCommonSubmitRequest(values: Forms) {
       const successRequestResult = unref(commonForm.submitRequest)?.(values)
       if (isPromise(successRequestResult)) {
-        return successRequestResult.then(() => {
-          callCommonSuccessRequest(values)
+        return successRequestResult.then(res => {
+          if (res) {
+            return callCommonSuccessRequest(values)
+          } else {
+            return callCommonFailedRequest()
+          }
         })
       } else {
         return callCommonSuccessRequest(values)
@@ -170,8 +172,11 @@ export function buildStepsForm<Forms extends DataObject = DataObject>(
     }
 
     function callCommonSuccessRequest(values: Forms) {
-      //
-      unref(commonForm.successRequest)?.(values)
+      return unref(commonForm.successRequest)?.(values)
+    }
+
+    function callCommonFailedRequest() {
+      return unref(commonForm.failRequest)?.()
     }
 
     const buildFormReturn: BuildFormOptionResult = {
