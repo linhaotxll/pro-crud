@@ -1,26 +1,22 @@
-import {
-  Form,
-  Row,
-  Col,
-  Tooltip,
-  Input,
-  Select,
-  InputNumber,
-  Slider,
-  Switch,
-  DatePicker,
-  TimePicker,
-  Button,
-  Space,
-  Cascader,
-  Table,
-  Dropdown,
-  Menu,
-  Tag,
-  Spin,
-  Modal,
-  ConfigProvider,
-} from 'ant-design-vue'
+// import {
+//   Input,
+//   Select,
+//   InputNumber,
+//   Slider,
+//   Switch,
+//   DatePicker,
+//   TimePicker,
+//   Cascader,
+//   Button,
+//   Form,
+//   Table,
+//   Popconfirm,
+//   Space,
+//   Col,
+//   Row,
+//   Flex,
+//   Steps,
+// } from 'ant-design-vue'
 
 import { DefaultValueType, mergeWithTovalue } from './components/common'
 import { ModalForm } from './components/ModalForm'
@@ -47,28 +43,23 @@ export const ProComponents: Plugin<ProComponentsOptions> = {
     app.component(ProCrud.name!, ProCrud)
     app.component(StepsForm.name!, StepsForm)
 
-    app
-      .use(Form)
-      .use(Input)
-      .use(Col)
-      .use(Row)
-      .use(Tooltip)
-      .use(Select)
-      .use(InputNumber)
-      .use(Slider)
-      .use(Switch)
-      .use(DatePicker)
-      .use(TimePicker)
-      .use(Button)
-      .use(Space)
-      .use(Cascader)
-      .use(Table)
-      .use(Dropdown)
-      .use(Menu)
-      .use(Tag)
-      .use(Spin)
-      .use(Modal)
-      .use(ConfigProvider)
+    // app.use(Flex)
+    // app.use(Col)
+    // app.use(Row)
+    // app.use(Space)
+    // app.use(Popconfirm)
+    // app.use(Form)
+    // app.use(Table)
+    // app.use(Button)
+    // app.use(Input)
+    // app.use(InputNumber)
+    // app.use(Slider)
+    // app.use(Switch)
+    // app.use(DatePicker)
+    // app.use(TimePicker)
+    // app.use(Cascader)
+    // app.use(Steps)
+    // app.use(Select)
 
     const resolvedProComponentOptions: ResolvedProComponentsOptions =
       mergeWithTovalue({}, { types: DefaultValueType }, options)

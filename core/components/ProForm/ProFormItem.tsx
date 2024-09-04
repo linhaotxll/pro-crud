@@ -1,4 +1,3 @@
-import { Col, FormItem } from 'ant-design-vue'
 import { defineComponent, toValue } from 'vue'
 
 import { ProFormListPlaceholder } from './constant'
@@ -69,9 +68,9 @@ export const ProFormItem = defineComponent({
       }
 
       return (
-        <Col {...columnValue.col}>
-          <FormItem {...formItemProps}>{slots}</FormItem>
-        </Col>
+        <a-Col {...columnValue.col}>
+          <a-form-item {...formItemProps}>{slots}</a-form-item>
+        </a-Col>
       )
     }
   },

@@ -1,4 +1,4 @@
-import { Button, Modal, Popconfirm } from 'ant-design-vue'
+import { Modal, type ModalProps, type PopconfirmProps } from 'ant-design-vue'
 import { defineComponent, ref, toValue } from 'vue'
 
 import { mergeWithTovalue } from '../common'
@@ -10,7 +10,6 @@ import type {
   InternalProButtonOptions,
   ProButtonRenderParams,
 } from './interface'
-import type { ModalProps, PopconfirmProps } from 'ant-design-vue'
 import type { MouseEventHandler } from 'ant-design-vue/es/_util/EventInterface'
 import type { PropType } from 'vue'
 
@@ -102,7 +101,7 @@ export const ProButton = defineComponent({
         confirmType,
         confirmProps,
         confirmRender,
-        render = ctx => <Button {...ctx.props}>{text}</Button>,
+        render = ctx => <a-button {...ctx.props}>{text}</a-button>,
         context,
         is,
       } = props.option
@@ -143,7 +142,9 @@ export const ProButton = defineComponent({
 
         $popconfirm = buildCustomRender<ProButtonRenderParams<PopconfirmProps>>(
           {
-            render: ctx => <Popconfirm {...ctx.props}>{$button}</Popconfirm>,
+            render: ctx => (
+              <a-popconfirm {...ctx.props}>{$button}</a-popconfirm>
+            ),
             ...confirmRender,
             context: mergedPopconfirmProps,
           }

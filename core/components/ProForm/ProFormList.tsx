@@ -1,4 +1,3 @@
-import { Button, Space } from 'ant-design-vue'
 import { cloneDeep } from 'lodash-es'
 import { defineComponent, toValue } from 'vue'
 
@@ -87,37 +86,40 @@ export const ProFormList = defineComponent({
       // 渲染子控件
       const $children = value?.map((_, i) => {
         return (
-          <Space {...listValue.space}>
+          <s-space {...listValue.space}>
             {children.map(child => (
               <ProFormItem column={child} scope={props.scope} index={i} />
             ))}
 
             {/* 复制按钮 */}
             {copyButtonProps !== false ? (
-              <Button {...copyButtonProps} onClick={() => handleCopyLine(i)}>
+              <a-button {...copyButtonProps} onClick={() => handleCopyLine(i)}>
                 {copyButtonProps?.copyButtonText}
-              </Button>
+              </a-button>
             ) : null}
 
             {/* 删除按钮 */}
             {deleteButtonProps !== false ? (
-              <Button
+              <a-button
                 {...deleteButtonProps}
                 onClick={() => handleDeleteLine(i)}
               >
                 {deleteButtonProps?.deleteButtonText}
-              </Button>
+              </a-button>
             ) : null}
-          </Space>
+          </s-space>
         )
       })
 
       // 新增按钮
       const $create =
         creatorButtonProps !== false ? (
-          <Button {...creatorButtonProps} onClick={() => handleCreateNewLine()}>
+          <a-button
+            {...creatorButtonProps}
+            onClick={() => handleCreateNewLine()}
+          >
             {creatorButtonProps?.creatorButtonText}
-          </Button>
+          </a-button>
         ) : null
 
       return (
