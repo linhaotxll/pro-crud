@@ -5,9 +5,11 @@ import { buildCustomRender } from '../CustomRender'
 import { ProButtonGroup } from '../ProButton'
 import { ProForm, type BuildFormBinding } from '../ProForm'
 
+import { getGlobalOptions } from '~/constant'
 import { isPlainObject } from '~/utils'
 
 import type { RenderTrigger } from './interface'
+import type { CustomRender } from '../CustomRender'
 import type { InternalProButtonGroupOptions } from '../ProButton'
 import type { MaybeRefOrGetter, PropType } from 'vue'
 
@@ -21,6 +23,7 @@ export const ModalForm = defineComponent({
       MaybeRefOrGetter<false | InternalProButtonGroupOptions>
     >,
     renderTrigger: [Boolean, Function] as PropType<RenderTrigger>,
+    renderModal: Object as PropType<CustomRender>,
   },
 
   setup(props) {
@@ -43,9 +46,21 @@ export const ModalForm = defineComponent({
           ? buildCustomRender(props.renderTrigger)
           : null
 
+      const modalRenderOptions: CustomRender = {
+        ...getGlobalOptions().modal,
+        ...props.renderModal,
+        context: modalProps,
+      }
+
+      if (!modalRenderOptions.is && !modalRenderOptions.render) {
+        modalRenderOptions.render = ctx => <Modal {...ctx}>{slots}</Modal>
+      }
+
+      const $modal = buildCustomRender(modalRenderOptions, slots)
+
       return (
         <>
-          <Modal {...modalProps}>{slots}</Modal>
+          {$modal}
           {$trigger}
         </>
       )

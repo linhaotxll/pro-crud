@@ -51,17 +51,14 @@ describe('Custom Render', () => {
     const CustomButton = defineComponent({
       name: 'CustomButton',
       props: {
-        context: {
-          type: Object as PropType<Context>,
-          required: true,
-        },
+        name: String as PropType<string>,
       },
       setup(props) {
         return () => {
           return h(
             'button',
             { class: 'component-render' },
-            `Component Render ${props.context.name}`
+            `Component Render ${props.name}`
           )
         }
       },

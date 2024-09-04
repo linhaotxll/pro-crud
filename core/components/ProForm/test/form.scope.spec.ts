@@ -315,7 +315,7 @@ describe('Pro Form Scope', () => {
 
     expect(wrapper.findComponent(ProForm).exists()).toBe(true)
     expect(toValue(proFormRef)).not.toBe(null)
-    expect(Object.keys(toValue(proFormRef)!).length).toBe(10)
+    expect(Object.keys(toValue(proFormRef)!).length).toBe(11)
     expect(toValue(proFormRef)).toHaveProperty('getFormValues')
     expect(toValue(proFormRef)).toHaveProperty('submit')
     expect(toValue(proFormRef)).toHaveProperty('reset')

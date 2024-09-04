@@ -1,4 +1,5 @@
 import type { ValueType, ValueTypeValue } from './components/common'
+import type { CustomRender } from './components/CustomRender'
 import type { BuildCrudOptionReturn } from './components/ProCrud'
 import type {
   FetchProTablePageListQuery,
@@ -36,6 +37,11 @@ export interface ProComponentsOptions {
    * 全局 Toolbar 配置
    */
   crudOptions?: BuildCrudOptionReturn
+
+  /**
+   * 全局弹窗
+   */
+  modal?: CustomRender
   // toolbar?: ProCrudToolbarActionGroup
 
   // /**

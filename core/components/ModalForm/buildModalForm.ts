@@ -17,6 +17,7 @@ import type {
   ModalFormScope,
   RenderTrigger,
 } from './interface'
+import type { CustomRender } from '../CustomRender'
 import type { InternalProButtonGroupOptions } from '../ProButton'
 import type { ModalProps } from 'ant-design-vue'
 import type { ComputedRef } from 'vue'
@@ -38,6 +39,9 @@ export function buildModalForm<
 
   // 渲染触发打开 Modal 的 DOM
   let renderTrigger!: RenderTrigger
+
+  // 渲染弹窗
+  let resolvedRenderModal: CustomRender | undefined
 
   // 弹窗打开状态
   const internalOpen = ref(false)
@@ -66,12 +70,15 @@ export function buildModalForm<
 
     const {
       modalProps,
+      renderModal,
       renderTrigger: renderTriggerButton = {
         render: () => buildDefaultRenderTrigger(modalFormScope),
       },
       submitter,
       form,
     } = options(modalFormScope)
+
+    resolvedRenderModal = renderModal
 
     // 合并 Modal Props
     resolvedModalProps = computed<ModalProps>(() =>
@@ -137,6 +144,7 @@ export function buildModalForm<
     formBinding: proFormBinding,
     modalAction: resolvedModalAction,
     renderTrigger,
+    renderModal: resolvedRenderModal,
   }
 
   return {

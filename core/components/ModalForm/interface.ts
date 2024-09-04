@@ -30,6 +30,11 @@ export interface BuildModalFormOptionReturn<
   renderTrigger?: RenderTrigger
 
   /**
+   * 渲染弹窗
+   */
+  renderModal?: CustomRender
+
+  /**
    * 是否打开
    */
   open?: MaybeRefOrGetter<boolean>
@@ -102,6 +107,7 @@ export interface ModalFormBinding<FormState extends DataObject = DataObject> {
   formBinding: BuildFormBinding<FormState>
   modalAction: ComputedRef<false | InternalProButtonGroupOptions>
   renderTrigger: RenderTrigger
+  renderModal: CustomRender | undefined
 }
 
 /**
