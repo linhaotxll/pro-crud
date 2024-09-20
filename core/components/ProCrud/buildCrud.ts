@@ -39,14 +39,13 @@ import type { Ref } from 'vue'
 
 export function buildCrud<
   Data extends DataObject = DataObject,
-  ModalForm = Data,
   Collection = any
 >(
   options: (
     scope: ProCrudScope<Data>
-  ) => BuildCrudOptionReturn<Data, ModalForm, Collection>
+  ) => BuildCrudOptionReturn<Data, Collection>
 ): BuildCrudResult<Data> {
-  const context: BuildCrudContext<Data, ModalForm, Collection> = {
+  const context: BuildCrudContext<Data, Collection> = {
     options,
     optionResult: null!,
     scope: {

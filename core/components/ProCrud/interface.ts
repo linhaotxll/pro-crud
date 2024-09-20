@@ -47,7 +47,6 @@ export type ProCrudModalScope<Data extends DataObject = DataObject> = Omit<
  */
 export interface BuildCrudOptionReturn<
   Data extends DataObject = DataObject,
-  ModalForm = Data,
   Params = any,
   Collection = any
 > extends Omit<
@@ -113,7 +112,7 @@ export interface BuildCrudOptionReturn<
    * @param form 编辑表单数据
    * @returns {boolean} 添加是否成功，返回 true 会有提示信息
    */
-  addRequest?: (form: ModalForm) => Promise<boolean> | boolean
+  addRequest?: (form: any) => Promise<boolean> | boolean
 
   /**
    * 编辑接口
@@ -121,7 +120,7 @@ export interface BuildCrudOptionReturn<
    * @param form 编辑表单数据 + 行数据
    * @returns {boolean} 编辑是否成功，返回 true 会有提示信息
    */
-  editRequest?: (form: ModalForm) => Promise<boolean> | boolean
+  editRequest?: (form: any) => Promise<boolean> | boolean
 }
 
 /**
@@ -206,12 +205,9 @@ export const enum ModalType {
 
 export interface BuildCrudContext<
   Data extends DataObject = DataObject,
-  MoalForm = Data,
   Collection = any
 > {
-  options(
-    scope: ProCrudScope<Data>
-  ): BuildCrudOptionReturn<Data, MoalForm, Collection>
+  options(scope: ProCrudScope<Data>): BuildCrudOptionReturn<Data, Collection>
   optionResult: BuildCrudOptionReturn<Data, Collection>
   scope: ProCrudScope<Data>
   modalColumns: {
