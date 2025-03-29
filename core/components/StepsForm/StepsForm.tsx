@@ -1,3 +1,4 @@
+import { Flex, Steps, type StepsProps } from 'ant-design-vue'
 import { defineComponent, toValue, unref } from 'vue'
 
 import { ProForm } from '../ProForm'
@@ -7,7 +8,6 @@ import { isFunction } from '~/utils'
 import type { CustomRenderStepsFormWrapContext } from './interface'
 import type { CustomRender } from '../CustomRender'
 import type { BuildFormBinding } from '../ProForm'
-import type { StepsProps } from 'ant-design-vue'
 import type { MaybeRefOrGetter, PropType } from 'vue'
 
 export const StepsForm = defineComponent({
@@ -22,7 +22,7 @@ export const StepsForm = defineComponent({
   setup(props) {
     return () => {
       const stepsProps = toValue(props.stepsProps)
-      const $steps = <a-steps {...stepsProps} />
+      const $steps = <Steps {...stepsProps} />
 
       const $form = (
         <ProForm
@@ -40,12 +40,12 @@ export const StepsForm = defineComponent({
               }
 
               return (
-                <a-flex gap={24} vertical>
+                <Flex gap={24} vertical>
                   {$steps}
                   <div>{ctx.$items}</div>
 
                   {ctx.$action}
-                </a-flex>
+                </Flex>
               )
             },
           }}

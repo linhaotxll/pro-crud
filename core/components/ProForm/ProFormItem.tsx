@@ -1,3 +1,4 @@
+import { Col, FormItem, type FormItemProps } from 'ant-design-vue'
 import { defineComponent, toValue } from 'vue'
 
 import { ProFormListPlaceholder } from './constant'
@@ -8,7 +9,6 @@ import { findAndReplace } from '../common'
 import { getGlobalOptions } from '~/constant'
 
 import type { InternalProFormColumnOptions, ProFormScope } from './interface'
-import type { FormItemProps } from 'ant-design-vue'
 import type { MaybeRefOrGetter, PropType } from 'vue'
 
 export const ProFormItem = defineComponent({
@@ -68,9 +68,9 @@ export const ProFormItem = defineComponent({
       }
 
       return (
-        <a-Col {...columnValue.col}>
-          <a-form-item {...formItemProps}>{slots}</a-form-item>
-        </a-Col>
+        <Col {...columnValue.col}>
+          <FormItem {...formItemProps}>{slots}</FormItem>
+        </Col>
       )
     }
   },

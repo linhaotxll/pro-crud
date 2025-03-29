@@ -1,3 +1,11 @@
+import {
+  Col,
+  Form,
+  Row,
+  type FormInstance,
+  type FormProps,
+  type RowProps,
+} from 'ant-design-vue'
 import { defineComponent, toValue } from 'vue'
 
 import { ProFormItem } from './ProFormItem'
@@ -10,7 +18,6 @@ import type {
   CustomRenderFormWrapContext,
   ProFormScope,
 } from './interface'
-import type { FormInstance, FormProps, RowProps } from 'ant-design-vue'
 import type { ComputedRef, PropType, Ref } from 'vue'
 
 export const ProForm = defineComponent({
@@ -37,9 +44,9 @@ export const ProForm = defineComponent({
       // 按钮组
       const actionGroupValue = toValue(props.actionGroup)
       const $action = actionGroupValue?.show ? (
-        <a-col {...actionGroupValue.col}>
+        <Col {...actionGroupValue.col}>
           <ProButtonGroup action={actionGroupValue} />
-        </a-col>
+        </Col>
       ) : null
 
       const $items = toValue(props.columns)?.map(column => (
@@ -63,19 +70,19 @@ export const ProForm = defineComponent({
               {ctx.$action}
             </>
           ) : (
-            <a-row {...toValue(props.row)}>
+            <Row {...toValue(props.row)}>
               {ctx.$items}
               {ctx.$action}
-            </a-row>
+            </Row>
           ),
         ...props.wrap,
         context: wrapContext,
       })
 
       return (
-        <a-form {...formProps} model={props.values} ref={props.formRef}>
+        <Form {...formProps} model={props.values} ref={props.formRef}>
           {$content}
-        </a-form>
+        </Form>
       )
     }
   },

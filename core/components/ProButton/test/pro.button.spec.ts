@@ -9,7 +9,7 @@ import {
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest'
 import { defineComponent, h, nextTick, ref } from 'vue'
 
-import { ProButtonGroup, buildButtonGroup } from '..'
+import { buildButtonGroup, ProButtonGroup } from '..'
 
 import type { ProButtonConfirmType, ProButtonConformModalProps } from '..'
 import type { PopconfirmProps } from 'ant-design-vue'
@@ -26,25 +26,34 @@ describe('Pro Button', () => {
   })
 
   test('pro button default value', () => {
-    const buttonGroup = buildButtonGroup(
-      {
-        actions: {
-          confirm: { text: '确认' },
-          add: { text: '添加' },
-        },
-      },
-      {
-        actions: {
-          cancel: { text: '取消' },
-          confirm: { show: false },
-        },
-      }
-    )
+    const App = defineComponent({
+      name: 'App',
+      setup() {
+        const buttonGroup = buildButtonGroup(
+          {
+            actions: {
+              confirm: { text: '确认' },
+              add: { text: '添加' },
+            },
+          },
+          {
+            actions: {
+              cancel: { text: '取消' },
+              confirm: { show: false },
+            },
+          }
+        )
 
-    const wrapper = mount(ProButtonGroup, {
-      props: { action: buttonGroup },
+        return () => {
+          return h(ProButtonGroup, { action: buttonGroup })
+        }
+      },
     })
 
+    const wrapper = mount(App)
+
+    expect(wrapper.findAllComponents(ProButtonGroup).length).toBe(1)
+    expect(wrapper.findAllComponents(Space).length).toBe(1)
     expect(wrapper.findAllComponents(Button).length).toBe(2)
     expect(wrapper.findComponent(Button).text()).toBe('取 消')
   })

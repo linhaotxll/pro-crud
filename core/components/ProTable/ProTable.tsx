@@ -1,4 +1,4 @@
-import { type TableProps } from 'ant-design-vue'
+import { Flex, Table, type TableProps } from 'ant-design-vue'
 import { defineComponent, isRef, toValue } from 'vue'
 
 import { ProButtonGroup } from '../ProButton'
@@ -33,9 +33,9 @@ export const ProTable = defineComponent({
   setup(props) {
     return () => {
       const $table = (
-        <a-table {...toValue(props.tableProps)}>
+        <Table {...toValue(props.tableProps)}>
           {toValue(props.tableSlots)}
-        </a-table>
+        </Table>
       )
 
       const editableValue = toValue(props.editable)
@@ -70,7 +70,7 @@ export const ProTable = defineComponent({
         ) : isFunction(props.renderWrapper) ? (
           props.renderWrapper($children)
         ) : (
-          <a-flex {...toValue(props.wrapperProps)}>{$children}</a-flex>
+          <Flex {...toValue(props.wrapperProps)}>{$children}</Flex>
         )
 
         return Wrap

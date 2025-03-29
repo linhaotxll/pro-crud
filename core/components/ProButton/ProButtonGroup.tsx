@@ -1,3 +1,4 @@
+import { Space } from 'ant-design-vue'
 import { defineComponent, toValue } from 'vue'
 
 import { ProButton } from './ProButton'
@@ -14,6 +15,7 @@ export const ProButtonGroup = defineComponent({
 
   setup(props) {
     return () => {
+      // return h('div', '111')
       const actionValue = toValue(props.action)
       if (!actionValue || !actionValue.show) {
         return null
@@ -27,7 +29,7 @@ export const ProButtonGroup = defineComponent({
           ))
         : null
 
-      return $actions ? <a-space {...space}>{$actions}</a-space> : null
+      return $actions ? <Space {...space}>{$actions}</Space> : null
     }
   },
 })
