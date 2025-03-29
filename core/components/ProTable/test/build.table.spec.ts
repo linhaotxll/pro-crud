@@ -1750,6 +1750,7 @@ describe('Build Pro Table', () => {
         "onUpdate:current": [Function],
         "onUpdate:pageSize": [Function],
         "pageSize": 1,
+        "showSizeChanger": false,
         "total": 4,
       }
     `)

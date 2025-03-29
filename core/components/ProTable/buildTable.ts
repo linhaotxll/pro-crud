@@ -309,7 +309,7 @@ function buildTableMiddleware<Data extends DataObject = DataObject>(
     // 合并分页配置
     if (propsValue.pagination !== false) {
       propsValue.pagination = mergeWithTovalue(
-        {},
+        { showSizeChanger: false },
         toValue(propsValue.pagination),
         {
           'onUpdate:current'(pageNum: number) {
