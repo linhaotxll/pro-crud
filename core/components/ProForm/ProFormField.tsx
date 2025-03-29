@@ -58,7 +58,10 @@ export const ProFormField = defineComponent({
         props.scope?.removeFields(toValue(props.column).name)
       })
       onBeforeMount(() => {
-        props.scope?.reset([toValue(props.column).name])
+        const name = toValue(props.column).name
+        if (props.scope?.getFieldValue(name) === undefined) {
+          props.scope?.reset([name])
+        }
       })
     }
 

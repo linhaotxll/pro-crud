@@ -1,7 +1,7 @@
 import { mount } from '@vue/test-utils'
 import antdv, { Col, FormItem, Input } from 'ant-design-vue'
 import { describe, test, expect, vi } from 'vitest'
-import { defineComponent, h, nextTick, ref } from 'vue'
+import { computed, defineComponent, h, nextTick, ref } from 'vue'
 
 import { ProForm, ProFormItem, buildForm } from '..'
 import { ProComponents } from '../../../'
@@ -715,6 +715,70 @@ describe('Pro Form Columns', () => {
     expect(wrapper.findAll('input').length).toBe(1)
     expect(wrapper.findAll('input')[0].element.value).toBe('admin')
     expect(scope.getFieldValue('username')).toBe('admin')
+  })
+
+  test('column.preserve is ref', async () => {
+    let scope!: ProFormScope<any>
+    const App = defineComponent({
+      name: 'App',
+      setup() {
+        const { proFormBinding } = buildForm(_scope => {
+          scope = _scope
+          return {
+            initialValues: { username: 'admin', age: 18 },
+            columns: [
+              { show: true, label: '用户名', name: 'username' },
+              {
+                show: computed(
+                  () => _scope.getFieldValue('username') === 'xxx'
+                ),
+                label: '年龄',
+                name: 'age',
+                preserve: false,
+              },
+            ],
+          }
+        })
+        return () => {
+          return [
+            h(ProForm, proFormBinding),
+            h('button', {
+              class: 'set-button',
+              onClick() {
+                scope.setFieldValues({
+                  username: 'xxx',
+                  age: 24,
+                })
+              },
+            }),
+          ]
+        }
+      },
+    })
+
+    const wrapper = mount(App, {
+      global: {
+        plugins: [antdv],
+      },
+    })
+
+    expect(wrapper.findAll('input').length).toBe(1)
+    expect(wrapper.findAll('input')[0].element.value).toBe('admin')
+    expect(scope.getFieldValue('username')).toBe('admin')
+
+    const setButton = wrapper.find('.set-button')
+
+    await setButton.trigger('click')
+
+    expect(wrapper.findAll('input').length).toBe(2)
+    expect(scope.getFieldValue('username')).toBe('xxx')
+    expect(scope.getFieldValue('age')).toBe(24)
+
+    // await showButton.trigger('click')
+
+    // expect(wrapper.findAll('input').length).toBe(1)
+    // expect(wrapper.findAll('input')[0].element.value).toBe('admin')
+    // expect(scope.getFieldValue('username')).toBe('admin')
   })
 
   test('column custom field', async () => {
