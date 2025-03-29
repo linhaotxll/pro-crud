@@ -9,7 +9,7 @@ import {
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest'
 import { defineComponent, h, nextTick, ref } from 'vue'
 
-import { buildButtonGroup, ProButtonGroup } from '..'
+import { buildButtonGroup, ProButton, ProButtonGroup } from '..'
 
 import type { ProButtonConfirmType, ProButtonConformModalProps } from '..'
 import type { PopconfirmProps } from 'ant-design-vue'
@@ -53,6 +53,7 @@ describe('Pro Button', () => {
     const wrapper = mount(App)
 
     expect(wrapper.findAllComponents(ProButtonGroup).length).toBe(1)
+    expect(wrapper.findAllComponents(ProButton).length).toBe(2)
     expect(wrapper.findAllComponents(Space).length).toBe(1)
     expect(wrapper.findAllComponents(Button).length).toBe(2)
     expect(wrapper.findComponent(Button).text()).toBe('取 消')

@@ -15,7 +15,6 @@ export const ProButtonGroup = defineComponent({
 
   setup(props) {
     return () => {
-      // return h('div', '111')
       const actionValue = toValue(props.action)
       if (!actionValue || !actionValue.show) {
         return null
@@ -23,11 +22,20 @@ export const ProButtonGroup = defineComponent({
 
       const { actions, space } = actionValue
 
-      const $actions = actions
-        ? actions.map(action => (
+      if (!actions || !actions.length) {
+        return null
+      }
+
+      let $actions: any[] | null = null
+
+      for (const action of actions) {
+        if (action.show) {
+          $actions ||= []
+          $actions.push(
             <ProButton key={action.text} option={action}></ProButton>
-          ))
-        : null
+          )
+        }
+      }
 
       return $actions ? <Space {...space}>{$actions}</Space> : null
     }
