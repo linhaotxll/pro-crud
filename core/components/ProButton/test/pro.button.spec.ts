@@ -1,5 +1,5 @@
 import { mount } from '@vue/test-utils'
-import {
+import antdv, {
   Button,
   Popconfirm,
   Space,
@@ -50,7 +50,11 @@ describe('Pro Button', () => {
       },
     })
 
-    const wrapper = mount(App)
+    const wrapper = mount(App, {
+      global: {
+        plugins: [antdv],
+      },
+    })
 
     expect(wrapper.findAllComponents(ProButtonGroup).length).toBe(1)
     expect(wrapper.findAllComponents(ProButton).length).toBe(2)
@@ -121,7 +125,11 @@ describe('Pro Button', () => {
       },
     })
 
-    const wrapper = mount(App)
+    const wrapper = mount(App, {
+      global: {
+        plugins: [antdv],
+      },
+    })
 
     expect(wrapper.findAllComponents(Space).length).toBe(0)
     expect(wrapper.findAllComponents(Button).length).toBe(0)
@@ -170,7 +178,11 @@ describe('Pro Button', () => {
       },
     })
 
-    const wrapper = mount(App)
+    const wrapper = mount(App, {
+      global: {
+        plugins: [antdv],
+      },
+    })
 
     expect(wrapper.findAllComponents(Space).length).toBe(1)
     expect(
@@ -215,7 +227,11 @@ describe('Pro Button', () => {
       },
     })
 
-    const wrapper = mount(App)
+    const wrapper = mount(App, {
+      global: {
+        plugins: [antdv],
+      },
+    })
 
     expect(wrapper.findAllComponents(Button).length).toBe(2)
     expect(wrapper.findAllComponents(Button)[0].text()).toBe('确 认')
@@ -264,7 +280,11 @@ describe('Pro Button', () => {
       },
     })
 
-    const wrapper = mount(App)
+    const wrapper = mount(App, {
+      global: {
+        plugins: [antdv],
+      },
+    })
 
     expect(wrapper.findAllComponents(Button).length).toBe(2)
     expect(
@@ -318,7 +338,11 @@ describe('Pro Button', () => {
       },
     })
 
-    const wrapper = mount(App)
+    const wrapper = mount(App, {
+      global: {
+        plugins: [antdv],
+      },
+    })
 
     expect(wrapper.findAllComponents(Button).length).toBe(2)
     expect(wrapper.findAllComponents(Button)[0].text()).toBe('确 认')
@@ -363,7 +387,11 @@ describe('Pro Button', () => {
       },
     })
 
-    const wrapper = mount(App)
+    const wrapper = mount(App, {
+      global: {
+        plugins: [antdv],
+      },
+    })
 
     expect(wrapper.find('.test-confirm-button').exists()).toBe(true)
     expect(wrapper.find('.test-cancel-button').exists()).toBe(false)
@@ -433,6 +461,7 @@ describe('Pro Button', () => {
         stubs: {
           transition: false,
         },
+        plugins: [antdv],
       },
     })
 
@@ -512,6 +541,7 @@ describe('Pro Button', () => {
         stubs: {
           transition: false,
         },
+        plugins: [antdv],
       },
     })
 
@@ -585,6 +615,7 @@ describe('Pro Button', () => {
         stubs: {
           transition: false,
         },
+        plugins: [antdv],
       },
     })
 

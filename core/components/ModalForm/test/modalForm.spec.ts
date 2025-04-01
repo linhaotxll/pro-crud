@@ -1,5 +1,5 @@
 import { mount } from '@vue/test-utils'
-import antd, {
+import antdv, {
   Button,
   Input,
   InputNumber,
@@ -39,7 +39,10 @@ describe('Modal Form', () => {
       },
     })
 
-    const wrapper = mount(App, { attachTo: '#modal' })
+    const wrapper = mount(App, {
+      attachTo: '#modal',
+      global: { plugins: [antdv] },
+    })
     const modal = wrapper.findComponent(Modal)
 
     expect(modal.exists()).toBe(true)
@@ -86,7 +89,10 @@ describe('Modal Form', () => {
       },
     })
 
-    const wrapper = mount(App, { attachTo: '#modal' })
+    const wrapper = mount(App, {
+      attachTo: '#modal',
+      global: { plugins: [antdv] },
+    })
     const modal = wrapper.findComponent(Modal)
 
     expect(modal.exists()).toBe(true)
@@ -142,7 +148,7 @@ describe('Modal Form', () => {
 
     const wrapper = mount(App, {
       attachTo: '#modal',
-      global: { plugins: [antd] },
+      global: { plugins: [antdv] },
     })
     const modal = wrapper.findComponent(Modal)
 

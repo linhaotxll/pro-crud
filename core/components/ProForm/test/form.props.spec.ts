@@ -213,7 +213,12 @@ describe('Pro Form Props', () => {
       }
     })
 
-    const wrapper = mount(ProForm, { props: proFormBinding })
+    const wrapper = mount(ProForm, {
+      props: proFormBinding,
+      global: {
+        plugins: [antdv],
+      },
+    })
 
     expect(wrapper.findComponent(Button).exists()).toBe(true)
     expect(wrapper.findComponent(Button).text()).toBe('提 交')
@@ -260,7 +265,11 @@ describe('Pro Form Props', () => {
       },
     })
 
-    const wrapper = mount(App)
+    const wrapper = mount(App, {
+      global: {
+        plugins: [antdv],
+      },
+    })
 
     expect(wrapper.findComponent(ProButtonGroup).exists()).toBe(false)
 
