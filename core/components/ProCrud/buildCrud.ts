@@ -138,7 +138,7 @@ function buildModalFormMiddleware(ctx: BuildCrudContext, next: NextMiddleware) {
           mergeWithTovalue(
             {},
             ctx.optionResult.form?.initialValues,
-            ctx.optionResult.addForm?.initialValues,
+            ctx.optionResult.editForm?.initialValues,
             record
           )
         )
@@ -149,7 +149,7 @@ function buildModalFormMiddleware(ctx: BuildCrudContext, next: NextMiddleware) {
           mergeWithTovalue(
             {},
             ctx.optionResult.form?.initialValues,
-            ctx.optionResult.addForm?.initialValues,
+            ctx.optionResult.viewForm?.initialValues,
             record
           )
         )
