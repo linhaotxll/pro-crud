@@ -521,4 +521,45 @@ describe('Pro Search Types', () => {
     await flushPromises()
     expect(submitRequest).toHaveBeenCalledTimes(2)
   })
+
+  test('pro search confirm buttin is submit', async () => {
+    const App = defineComponent({
+      name: 'App',
+      setup() {
+        const { proFormBinding } = buildSearch(() => {
+          return {
+            columns: [
+              {
+                label: '姓名',
+                name: 'name',
+              },
+            ],
+            action: {
+              actions: {
+                confirm: {
+                  text: 'ok',
+                  props: { type: 'text', danger: true },
+                },
+              },
+            },
+          }
+        })
+        return () => {
+          return [h(ProForm, proFormBinding)]
+        }
+      },
+    })
+
+    const wrapper = mount(App, {
+      global: {
+        plugins: [antdv],
+      },
+    })
+
+    expect(wrapper.findAllComponents(Button)[1].vm.$props.type).toBe('text')
+    expect(wrapper.findAllComponents(Button)[1].vm.$props.danger).toBe(true)
+    expect(wrapper.findAllComponents(Button)[1].vm.$props.htmlType).toBe(
+      'submit'
+    )
+  })
 })

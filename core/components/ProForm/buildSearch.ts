@@ -26,6 +26,16 @@ export function buildSearch<
       formProps: computed(() =>
         mergeWithTovalue({}, toValue(result.formProps), { layout: 'inline' })
       ),
+      action: computed(() =>
+        mergeWithTovalue(
+          {
+            actions: {
+              confirm: { props: { htmlType: 'submit' } },
+            },
+          },
+          toValue(result.action)
+        )
+      ),
     }
   })
 }
