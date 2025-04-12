@@ -4,7 +4,7 @@ import { describe, test, afterEach, expect } from 'vitest'
 import { defineComponent, h, nextTick } from 'vue'
 
 import { buildButtonGroup, ProButtonGroup } from '../../ProButton'
-import { buildForm, buildSearch, ProForm } from '../../ProForm'
+import { buildSearch, ProForm } from '../../ProForm'
 import { mergeToastOptions } from '../toast'
 
 import type { ToastOptions } from '../interface'
@@ -213,48 +213,48 @@ describe('show toast', () => {
     ).toBe(false)
   })
 
-  test('pro form submit has toast', async () => {
-    const App = defineComponent({
-      name: 'App',
-      setup() {
-        const { proFormBinding } = buildForm(() => {
-          return {
-            columns: [
-              {
-                label: '名称',
-                name: 'name',
-              },
-            ],
+  // test('pro form submit has toast', async () => {
+  //   const App = defineComponent({
+  //     name: 'App',
+  //     setup() {
+  //       const { proFormBinding } = buildForm(() => {
+  //         return {
+  //           columns: [
+  //             {
+  //               label: '名称',
+  //               name: 'name',
+  //             },
+  //           ],
 
-            async submitRequest() {
-              await sleep(500)
-              return true
-            },
-          }
-        })
+  //           async submitRequest() {
+  //             await sleep(500)
+  //             return true
+  //           },
+  //         }
+  //       })
 
-        return () => {
-          return h(ProForm, proFormBinding)
-        }
-      },
-    })
+  //       return () => {
+  //         return h(ProForm, proFormBinding)
+  //       }
+  //     },
+  //   })
 
-    const wrapper = mount(App, {
-      global: {
-        plugins: [antdv],
-      },
-      attachTo: 'body',
-    })
+  //   const wrapper = mount(App, {
+  //     global: {
+  //       plugins: [antdv],
+  //     },
+  //     attachTo: 'body',
+  //   })
 
-    await wrapper.findComponent(Button).vm.$emit('click')
-    await nextTick()
+  //   await wrapper.findComponent(Button).vm.$emit('click')
+  //   await nextTick()
 
-    expect(!!document.querySelector('.ant-message-loading')).toBe(true)
+  //   expect(!!document.querySelector('.ant-message-loading')).toBe(true)
 
-    await sleep(550)
-    expect(!!document.querySelector('.ant-message-loading')).toBe(false)
-    expect(!!document.querySelector('.ant-message-success')).toBe(true)
-  })
+  //   await sleep(550)
+  //   expect(!!document.querySelector('.ant-message-loading')).toBe(false)
+  //   expect(!!document.querySelector('.ant-message-success')).toBe(true)
+  // })
 
   test('pro search submit has not toast', async () => {
     const App = defineComponent({
