@@ -5,6 +5,7 @@ import type {
   FetchProTablePageListQuery,
   FetchTableListRequest,
 } from './components/ProTable'
+import type { ToastOptions } from './components/Toast'
 import type { FlexProps, TableProps } from 'ant-design-vue'
 
 export interface ProComponentsOptions {
@@ -98,6 +99,11 @@ export interface ProComponentsOptions {
   //    */
   //   action?: CrudActionOption<any>
   // }
+
+  /**
+   * 全局 toast 配置
+   */
+  toast?: ToastOptions
 }
 
 export interface ResolvedProComponentsOptions

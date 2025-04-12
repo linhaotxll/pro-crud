@@ -71,6 +71,10 @@ export const buildDefaultProFormActionGroup = <
     confirm: {
       show: true,
       text: '提交',
+      // toast: {
+      //   loading: '提交中',
+      //   success: '提交成功',
+      // },
       props: {
         type: 'primary',
         onClick: () => {
@@ -153,6 +157,7 @@ export const buildDefaultProSearchActionGroup = <
           show: true,
           text: '提交',
           props: {
+            htmlType: 'submit',
             type: 'primary',
             async onClick() {
               await scope.submit()

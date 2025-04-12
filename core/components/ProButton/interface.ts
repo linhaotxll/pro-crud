@@ -1,5 +1,6 @@
-import type { CustomRender } from './../CustomRender/interface'
 import type { Arrayable } from '../common'
+import type { ToastOptions } from '../Toast'
+import type { CustomRender } from './../CustomRender/interface'
 import type { DeepMaybeRef } from '@vueuse/core'
 import type {
   ButtonProps,
@@ -96,6 +97,11 @@ export type ActionOption<C extends object = any> = CustomRender<
   confirmProps?:
     | MaybeRefOrGetter<ProButtonConformModalProps<C>>
     | MaybeRefOrGetter<ProButtonConformPopoverProps<C>>
+
+  /**
+   * 提示配置
+   */
+  toast?: ToastOptions
 }
 
 export type ProButtonConformModalProps<C extends object = any> = Omit<
@@ -160,6 +166,11 @@ export type InternalProButtonOptions<C extends object = any> = {
    * 点击按钮确认弹窗类型，false 则不需要
    */
   confirmType?: false
+
+  /**
+   * 提示配置
+   */
+  toast?: ToastOptions
 } & {
   confirmType?: 'popconfirm'
   confirmProps?: PopconfirmProps

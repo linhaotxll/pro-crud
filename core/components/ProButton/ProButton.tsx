@@ -1,5 +1,4 @@
 import {
-  Button,
   Modal,
   Popconfirm,
   type ModalProps,
@@ -9,6 +8,7 @@ import { defineComponent, ref, toValue } from 'vue'
 
 import { mergeWithTovalue } from '../common'
 import { buildCustomRender } from '../CustomRender'
+import { showToast } from '../Toast'
 
 import { isArray, isFunction, isPromise } from '~/utils'
 
@@ -43,6 +43,8 @@ export const ProButton = defineComponent({
 
       let resultPromise: Promise<any> = Promise.resolve()
 
+      const hideLoading = showToast(props.option.toast, 'loading')
+
       if (isFunction(handles)) {
         buttonLoading.value = true
         // @ts-ignore
@@ -63,9 +65,13 @@ export const ProButton = defineComponent({
 
       return resultPromise
         .then(res => {
+          hideLoading?.()
+          showToast(props.option.toast, 'success')
           return res
         })
         .catch(e => {
+          hideLoading?.()
+          showToast(props.option.toast, 'error')
           throw e
         })
         .finally(() => {
@@ -107,7 +113,7 @@ export const ProButton = defineComponent({
         confirmType,
         confirmProps,
         confirmRender,
-        render = ctx => <Button {...ctx.props}>{text}</Button>,
+        render = ctx => <a-button {...ctx.props}>{text}</a-button>,
         context,
         is,
       } = props.option

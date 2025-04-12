@@ -7,6 +7,13 @@ export const DefaultAction: ActionOption = {
   show: true,
   order: 1,
   confirmType: false,
+  toast: {
+    loading: false,
+    success: false,
+    info: false,
+    warning: false,
+    error: false,
+  },
 }
 
 /**
