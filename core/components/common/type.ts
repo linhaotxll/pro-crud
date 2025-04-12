@@ -296,8 +296,8 @@ function renderDictionaryInTable(ctx: RenderBodyCellTextParams<object>) {
       _column: { dictionary },
     },
   } = ctx
-  const childText = dictionary?.dictionaryMap.value?.[text]?.label as string
-  return h(Tag, () => childText)
+  const { label = '', color } = dictionary?.dictionaryMap.value?.[text] || {}
+  return h(Tag, { color }, () => label)
 }
 
 /**

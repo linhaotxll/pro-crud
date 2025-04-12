@@ -68,4 +68,5 @@ export interface BuildDictionaryResult {
 export interface DictionaryOption {
   label: PropertyKey
   value: any
+  color?: string
 }

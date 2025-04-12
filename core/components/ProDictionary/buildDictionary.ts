@@ -101,6 +101,7 @@ export function buildDictionary<Dictionary = any, Collection = any>(
         dictionary.value = res.map((item: any) => ({
           label: item[labelFieldValue],
           value: item[valueFieldValue],
+          color: item.color,
         }))
       }
     }
