@@ -1,7 +1,4 @@
 import {
-  Col,
-  Form,
-  Row,
   type FormInstance,
   type FormProps,
   type RowProps,
@@ -44,9 +41,9 @@ export const ProForm = defineComponent({
       // 按钮组
       const actionGroupValue = toValue(props.actionGroup)
       const $action = actionGroupValue?.show ? (
-        <Col {...actionGroupValue.col}>
+        <a-col {...actionGroupValue.col}>
           <ProButtonGroup action={actionGroupValue} />
-        </Col>
+        </a-col>
       ) : null
 
       const $items = toValue(props.columns)?.map(column => (
@@ -70,19 +67,19 @@ export const ProForm = defineComponent({
               {ctx.$action}
             </>
           ) : (
-            <Row {...toValue(props.row)}>
+            <a-row {...toValue(props.row)}>
               {ctx.$items}
               {ctx.$action}
-            </Row>
+            </a-row>
           ),
         ...props.wrap,
         context: wrapContext,
       })
 
       return (
-        <Form {...formProps} model={props.values} ref={props.formRef}>
+        <a-form {...formProps} model={props.values} ref={props.formRef}>
           {$content}
-        </Form>
+        </a-form>
       )
     }
   },

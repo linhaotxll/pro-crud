@@ -194,7 +194,11 @@ describe('Pro Form Scope', () => {
       },
     })
 
-    const wrapper = mount(App)
+    const wrapper = mount(App, {
+      global: {
+        plugins: [antdv],
+      },
+    })
 
     expect(submitRequest).toBeCalledTimes(0)
     expect(successRequest).toBeCalledTimes(0)

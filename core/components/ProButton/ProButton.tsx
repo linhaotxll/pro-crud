@@ -1,9 +1,4 @@
-import {
-  Modal,
-  Popconfirm,
-  type ModalProps,
-  type PopconfirmProps,
-} from 'ant-design-vue'
+import { Modal, type ModalProps, type PopconfirmProps } from 'ant-design-vue'
 import { defineComponent, ref, toValue } from 'vue'
 
 import { mergeWithTovalue } from '../common'
@@ -154,7 +149,9 @@ export const ProButton = defineComponent({
 
         $popconfirm = buildCustomRender<ProButtonRenderParams<PopconfirmProps>>(
           {
-            render: ctx => <Popconfirm {...ctx.props}>{$button}</Popconfirm>,
+            render: ctx => (
+              <a-popconfirm {...ctx.props}>{$button}</a-popconfirm>
+            ),
             ...confirmRender,
             context: mergedPopconfirmProps,
           }

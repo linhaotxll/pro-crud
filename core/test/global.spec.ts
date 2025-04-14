@@ -1,6 +1,7 @@
 import { mount } from '@vue/test-utils'
+import antdv from 'ant-design-vue'
 import { describe, expect, test } from 'vitest'
-import { defineComponent, h } from 'vue'
+import { defineComponent, h, nextTick } from 'vue'
 
 import { ProComponents, ProCrud, buildCrud } from '../'
 
@@ -14,6 +15,7 @@ describe('Global Options', () => {
             columns: [
               {
                 label: '姓名',
+                name: 'name',
                 type: 'test',
               },
             ],
@@ -28,6 +30,7 @@ describe('Global Options', () => {
     const wrapper = mount(App, {
       global: {
         plugins: [
+          antdv,
           [
             ProComponents,
             {
@@ -43,6 +46,9 @@ describe('Global Options', () => {
         ],
       },
     })
+
+    await nextTick()
+    // await sleep(1000)
 
     expect(wrapper.find('.test-form').exists()).toBe(true)
   })

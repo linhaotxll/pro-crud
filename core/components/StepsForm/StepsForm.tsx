@@ -1,4 +1,4 @@
-import { Flex, Steps, type StepsProps } from 'ant-design-vue'
+import { type StepsProps } from 'ant-design-vue'
 import { defineComponent, toValue, unref } from 'vue'
 
 import { ProForm } from '../ProForm'
@@ -22,7 +22,7 @@ export const StepsForm = defineComponent({
   setup(props) {
     return () => {
       const stepsProps = toValue(props.stepsProps)
-      const $steps = <Steps {...stepsProps} />
+      const $steps = <a-steps {...stepsProps} />
 
       const $form = (
         <ProForm
@@ -40,12 +40,12 @@ export const StepsForm = defineComponent({
               }
 
               return (
-                <Flex gap={24} vertical>
+                <a-flex gap={24} vertical>
                   {$steps}
                   <div>{ctx.$items}</div>
 
                   {ctx.$action}
-                </Flex>
+                </a-flex>
               )
             },
           }}

@@ -80,6 +80,9 @@ describe('Pro Button', () => {
 
     const wrapper2 = mount(ProButtonGroup, {
       props: { action: buttonGroup2 },
+      global: {
+        plugins: [antdv],
+      },
     })
 
     expect(wrapper2.findAllComponents(Space).length).toBe(1)

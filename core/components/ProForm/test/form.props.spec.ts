@@ -331,7 +331,11 @@ describe('Pro Form Props', () => {
       },
     })
 
-    const wrapper = mount(App)
+    const wrapper = mount(App, {
+      global: {
+        plugins: [antdv],
+      },
+    })
 
     expect(wrapper.findAllComponents(ProFormItem).length).toBe(1)
     expect(wrapper.findAll('label')[0].text()).toBe('用户名')

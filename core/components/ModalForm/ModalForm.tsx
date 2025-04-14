@@ -1,4 +1,4 @@
-import { Modal, type ModalProps } from 'ant-design-vue'
+import { type ModalProps } from 'ant-design-vue'
 import { defineComponent, toValue } from 'vue'
 
 import { buildCustomRender } from '../CustomRender'
@@ -53,7 +53,7 @@ export const ModalForm = defineComponent({
       }
 
       if (!modalRenderOptions.is && !modalRenderOptions.render) {
-        modalRenderOptions.render = ctx => <Modal {...ctx}>{slots}</Modal>
+        modalRenderOptions.render = ctx => <a-modal {...ctx}>{slots}</a-modal>
       }
 
       const $modal = buildCustomRender(modalRenderOptions, slots)
