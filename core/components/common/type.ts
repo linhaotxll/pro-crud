@@ -30,6 +30,7 @@ export type ValueType =
   | 'time-range'
   | 'auto-complete'
   | 'cascader'
+  | 'calendar'
   | 'select'
   | 'radio-group'
   | 'checkbox-group'
@@ -250,6 +251,10 @@ export const DefaultValueType = {
 
   cascader: {
     form: { is: 'a-cascader' },
+  },
+
+  calendar: {
+    form: { is: 'a-calendar' },
   },
 
   // dict: {
