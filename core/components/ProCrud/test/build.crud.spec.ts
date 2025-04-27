@@ -187,7 +187,7 @@ describe('Build Crud', () => {
     await sleep(200)
     expect(wrapper.findComponent(Table).vm.$props.loading).toBe(false)
 
-    const modal = wrapper.findComponent(Modal)
+    const modal = wrapper.findAllComponents(Modal)[1]
 
     expect(modal).not.toBe(null)
 
@@ -198,6 +198,7 @@ describe('Build Crud', () => {
       .vm.$emit('click')
     await nextTick()
 
+    expect(wrapper.findAllComponents(Modal).length).toBe(2)
     expect(modal.findComponent(Form).exists()).toBe(true)
     expect(modal.findComponent(Form).vm.$props.disabled).toBe(true)
     expect(modal.findComponent(Input).find('input').element.value).toBe(
@@ -353,7 +354,7 @@ describe('Build Crud', () => {
       .vm.$emit('click')
     await nextTick()
 
-    const modal = wrapper.findComponent(Modal)
+    const modal = wrapper.findAllComponents(Modal)[1]
     expect(modal.findAllComponents(Select).length).toBe(1)
     expect(modal.findComponent(Select).vm.$props.options?.length).toBe(2)
     expect(modal.findComponent(Select).text()).toBe('10岁')
@@ -424,7 +425,8 @@ describe('Build Crud', () => {
       3
     )
 
-    const modal = wrapper.findComponent(Modal)
+    const modal = wrapper.findAllComponents(Modal)[1]
+    // expect(wrapper.findAllComponents(Modal).length).toBe(2)
 
     async function visible(visible: boolean) {
       // View
@@ -434,6 +436,7 @@ describe('Build Crud', () => {
         .vm.$emit('click')
       await nextTick()
 
+      // expect(modal.findAllComponents(Moda))
       expect(modal.findAllComponents(Input).length).toBe(visible ? 1 : 0)
 
       modal.findAllComponents(Button)[0].vm.$emit('click')

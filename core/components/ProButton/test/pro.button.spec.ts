@@ -661,16 +661,14 @@ describe('Pro Button', () => {
     await modalButton.vm.$emit('click')
     expect(modalButton.vm.$props.loading).toBe(false)
     expect(document.querySelector('.ant-modal')).not.toBe(null)
-    expect(
-      document.querySelectorAll('.ant-modal-confirm-btns button').length
-    ).toBe(2)
+    expect(document.querySelectorAll('.ant-modal-footer button').length).toBe(2)
     expect(
       document
-        .querySelectorAll('.ant-modal-confirm-btns button')[1]
+        .querySelectorAll('.ant-modal-footer button')[1]
         .querySelector('span')!.innerHTML
     ).toBe('OK')
     document
-      .querySelectorAll('.ant-modal-confirm-btns button')[1]!
+      .querySelectorAll('.ant-modal-footer button')[1]!
       .dispatchEvent(new MouseEvent('click'))
     await nextTick()
     expect(modalButton.vm.$props.loading).toBe(true)

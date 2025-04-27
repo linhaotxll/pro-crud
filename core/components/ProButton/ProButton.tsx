@@ -1,5 +1,5 @@
-import { Modal, type ModalProps, type PopconfirmProps } from 'ant-design-vue'
-import { defineComponent, ref, toValue } from 'vue'
+import { type ModalProps, type PopconfirmProps } from 'ant-design-vue'
+import { computed, defineComponent, ref, toValue } from 'vue'
 
 import { mergeWithTovalue } from '../common'
 import { buildCustomRender } from '../CustomRender'
@@ -25,6 +25,27 @@ export const ProButton = defineComponent({
   },
 
   setup(props) {
+    const modalVisible = ref(false)
+    const mergedModalProps = computed(() =>
+      mergeWithTovalue({}, toValue(props.option.confirmProps), {
+        open: modalVisible.value,
+        okButtonProps: { loading: buttonLoading.value },
+        onOk(e: MouseEvent) {
+          return Promise.resolve(
+            invokeEventHandler(
+              (props.option.confirmProps as ModalProps).onOk,
+              e,
+              props.option.context
+            )
+          ).finally(() => {
+            modalVisible.value = false
+          })
+        },
+        onCancel() {
+          modalVisible.value = false
+        },
+      })
+    )
     const buttonLoading = ref(false)
 
     function invokeEventHandler(
@@ -75,22 +96,24 @@ export const ProButton = defineComponent({
     }
 
     function handleClickButton(e: MouseEvent) {
-      const { confirmProps, confirmType, props: buttonProps } = props.option
+      // debugger
+      const { confirmType, props: buttonProps } = props.option
       if (confirmType === 'popconfirm') {
         return
       }
 
       if (confirmType === 'modal') {
-        const modelProps = mergeWithTovalue({}, toValue(confirmProps), {
-          onOk(e: MouseEvent) {
-            return invokeEventHandler(
-              (confirmProps as ModalProps).onOk,
-              e,
-              props.option.context
-            )
-          },
-        })
-        Modal.confirm(modelProps)
+        // const modelProps = mergeWithTovalue({}, toValue(confirmProps), {
+        //   onOk(e: MouseEvent) {
+        //     return invokeEventHandler(
+        //       (confirmProps as ModalProps).onOk,
+        //       e,
+        //       props.option.context
+        //     )
+        //   },
+        // })
+        modalVisible.value = true
+        // Modal.confirm(modelProps)
         return
       }
 
@@ -155,6 +178,29 @@ export const ProButton = defineComponent({
             ...confirmRender,
             context: mergedPopconfirmProps,
           }
+        )
+      }
+
+      let $modal
+
+      if (confirmType === 'modal') {
+        console.log('mergedModalProps: ', mergedModalProps.value)
+        $modal = buildCustomRender<ProButtonRenderParams<ModalProps>>({
+          render: ctx => {
+            console.log('props: ', ctx)
+            return <a-modal {...ctx}></a-modal>
+          },
+          ...confirmRender,
+          context: mergedModalProps.value,
+        })
+      }
+
+      if ($modal) {
+        return (
+          <>
+            {$modal}
+            {$button}
+          </>
         )
       }
 
