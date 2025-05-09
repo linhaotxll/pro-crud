@@ -39,22 +39,22 @@ export type ValueType =
 /**
  * 自定义字段配置
  */
-export interface ValueTypeValue<R extends DataObject = DataObject> {
+export interface ValueTypeValue<T = any, F = any> {
   /**
    * 自定义表单字段配置
    */
-  form?: ValueTypeForm
+  form?: ValueTypeForm<F>
 
   /**
    * 自定义表格字段配置
    */
-  table?: CustomRender<R>
+  table?: CustomRender<T>
 }
 
 /**
  * 自定义表单配置
  */
-export interface ValueTypeForm extends CustomRender {
+export interface ValueTypeForm<F = any> extends CustomRender<F> {
   /**
    * v-model 名称
    *
@@ -92,7 +92,7 @@ export interface ValueTypeTable<T extends DataObject = DataObject> {
   render?: (ctx: RenderBodyCellTextParams<T>) => VNodeChild
 }
 
-export const DefaultValueType = {
+export const DefaultValueType: Record<ValueType, ValueTypeValue> = {
   text: {
     form: { is: 'a-input' },
   },
@@ -120,14 +120,14 @@ export const DefaultValueType = {
   date: {
     form: {
       is: 'a-date-picker',
-      props: { placeholder: '请选择日期', valueFormat: 'YYYY-MM-DD' },
+      context: { placeholder: '请选择日期', valueFormat: 'YYYY-MM-DD' },
     },
   },
 
   'date-week': {
     form: {
       is: 'a-date-picker',
-      props: {
+      context: {
         placeholder: '请选择周',
         picker: 'week',
         format: '第ww周',
@@ -139,7 +139,7 @@ export const DefaultValueType = {
   'date-month': {
     form: {
       is: 'a-date-picker',
-      props: {
+      context: {
         placeholder: '请选择月',
         picker: 'month',
         format: 'YYYY-MM',
@@ -151,7 +151,7 @@ export const DefaultValueType = {
   'date-quarter': {
     form: {
       is: 'a-date-picker',
-      props: {
+      context: {
         placeholder: '请选择季度',
         picker: 'quarter',
         format: 'YYYY-MM',
@@ -163,7 +163,7 @@ export const DefaultValueType = {
   'date-year': {
     form: {
       is: 'a-date-picker',
-      props: {
+      context: {
         placeholder: '请选择年',
         picker: 'year',
         format: 'YYYY',
@@ -175,7 +175,7 @@ export const DefaultValueType = {
   'date-range': {
     form: {
       is: 'a-range-picker',
-      props: {
+      context: {
         placeholder: ['请选择开始日期', '请选择结束日期'],
         format: 'YYYY-MM-DD',
         valueFormat: 'YYYY-MM-DD',
@@ -186,7 +186,7 @@ export const DefaultValueType = {
   'date-month-range': {
     form: {
       is: 'a-range-picker',
-      props: {
+      context: {
         placeholder: ['请选择开始月份', '请选择结束月份'],
         picker: 'month',
         format: 'YYYY-MM',
@@ -198,7 +198,7 @@ export const DefaultValueType = {
   'date-time': {
     form: {
       is: 'a-date-picker',
-      props: {
+      context: {
         showTime: true,
         placeholder: '请选择日期',
         format: 'YYYY-MM-DD HH:mm:ss',
@@ -210,7 +210,7 @@ export const DefaultValueType = {
   'date-time-range': {
     form: {
       is: 'a-range-picker',
-      props: {
+      context: {
         showTime: true,
         placeholder: ['请选择开始日期', '请选择结束日期'],
         format: 'YYYY-MM-DD HH:mm:ss',
@@ -226,7 +226,7 @@ export const DefaultValueType = {
   time: {
     form: {
       is: 'a-time-picker',
-      props: {
+      context: {
         placeholder: '请选择时间',
         format: 'HH:mm:ss',
         valueFormat: 'HH:mm:ss',
@@ -237,7 +237,7 @@ export const DefaultValueType = {
   'time-range': {
     form: {
       is: 'a-time-range-picker',
-      props: {
+      context: {
         placeholder: ['请选择开始时间', '请选择结束时间'],
         format: 'HH:mm:ss',
         valueFormat: 'HH:mm:ss',
@@ -289,7 +289,7 @@ export const DefaultValueType = {
   list: {
     form: { is: 'pro-form-list' },
   },
-} as const
+}
 
 /**
  * 渲染字典数据在 Table 中的内容
