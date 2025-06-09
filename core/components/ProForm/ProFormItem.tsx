@@ -67,6 +67,10 @@ export const ProFormItem = defineComponent({
         name: resolvedNamePath,
       }
 
+      if (toValue(props.column).type === 'list') {
+        delete formItemProps.name
+      }
+
       return (
         <a-col {...columnValue.col}>
           <a-form-item {...formItemProps}>{slots}</a-form-item>
