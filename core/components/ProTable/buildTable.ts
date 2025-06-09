@@ -725,12 +725,17 @@ function buildSearchMiddleware(ctx: BuildTableContext, next: NextMiddleware) {
         ? searchValue(scope)
         : searchValue
 
+    const mergedAction = computed(() =>
+      mergeWithTovalue(
+        { space: { style: 'width: 100%; justify-content: end' } },
+        toValue(resolvedSearch?.action)
+      )
+    )
+
     return {
       submitRequest: () => true,
-      action: {
-        space: { style: 'width: 100%; justify-content: end' },
-      },
       ...resolvedSearch,
+      action: mergedAction,
       successRequest(formState: any) {
         ctx.searchParams.value = formState
         unref(resolvedSearch?.successRequest)?.(formState)
