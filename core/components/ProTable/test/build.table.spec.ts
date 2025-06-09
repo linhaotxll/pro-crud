@@ -1754,5 +1754,42 @@ describe('Build Pro Table', () => {
         "total": 4,
       }
     `)
+
+    const $next = wrapper.find('.ant-pagination-next .ant-pagination-item-link')
+    expect($next.exists()).toBe(true)
+
+    await $next.trigger('click')
+    await nextTick()
+
+    expect(wrapper.findComponent(Table).vm.$props.pagination)
+      .toMatchInlineSnapshot(`
+      {
+        "current": 2,
+        "onUpdate:current": [Function],
+        "onUpdate:pageSize": [Function],
+        "pageSize": 1,
+        "showSizeChanger": false,
+        "total": 4,
+      }
+    `)
+
+    const $search = wrapper.find('.ant-form .ant-btn-primary')
+    expect($search.exists()).toBe(true)
+    expect($search.text()).toBe('提 交')
+
+    await $search.trigger('click')
+    await sleep(0)
+
+    expect(wrapper.findComponent(Table).vm.$props.pagination)
+      .toMatchInlineSnapshot(`
+      {
+        "current": 1,
+        "onUpdate:current": [Function],
+        "onUpdate:pageSize": [Function],
+        "pageSize": 1,
+        "showSizeChanger": false,
+        "total": 4,
+      }
+    `)
   })
 })

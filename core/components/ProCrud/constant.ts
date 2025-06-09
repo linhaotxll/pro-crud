@@ -23,9 +23,6 @@ export const buildDefaultCrudOptions = (
   const result: BuildCrudOptionReturn = {
     search: {
       action: {
-        space: {
-          style: 'width: 100%; justify-content: end',
-        },
         actions: {
           confirm: {
             show: true,
@@ -52,7 +49,6 @@ export const buildDefaultCrudOptions = (
           },
         },
       },
-      submitRequest: () => true,
     },
     actionColumn: {
       show: true,

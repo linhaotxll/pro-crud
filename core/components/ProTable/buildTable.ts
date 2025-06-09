@@ -476,9 +476,7 @@ function buildTableMiddleware<Data extends DataObject = DataObject>(
     mergeWithTovalue({}, toValue(ctx.searchParams), toValue(params))
   )
 
-  watch(resolvedParams, () => {
-    _fetchTableData()
-  })
+  watch(resolvedParams, reset)
 
   // 如果 data 和 params 是响应式才需要监听
   if (isRef(data)) {
@@ -728,6 +726,10 @@ function buildSearchMiddleware(ctx: BuildTableContext, next: NextMiddleware) {
         : searchValue
 
     return {
+      submitRequest: () => true,
+      action: {
+        space: { style: 'width: 100%; justify-content: end' },
+      },
       ...resolvedSearch,
       successRequest(formState: any) {
         ctx.searchParams.value = formState

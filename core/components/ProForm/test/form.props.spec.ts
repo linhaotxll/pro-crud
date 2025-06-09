@@ -145,7 +145,7 @@ describe('Pro Form Props', () => {
     const row = wrapper.findComponent(Row)
     expect(row.exists()).toBe(true)
     expect(row.attributes('style')).toBe(
-      'margin-left: -4px; margin-right: -4px;'
+      'margin-left: -4px; margin-right: -4px; row-gap: 0px;'
     )
 
     const button = wrapper.find('.demo-button')
@@ -153,7 +153,7 @@ describe('Pro Form Props', () => {
     await button.trigger('click')
 
     expect(row.attributes('style')).toBe(
-      'margin-left: -8px; margin-right: -8px;'
+      'margin-left: -8px; margin-right: -8px; row-gap: 0px;'
     )
   })
 
@@ -194,7 +194,7 @@ describe('Pro Form Props', () => {
     const row = wrapper.findComponent(Row)
     expect(row.exists()).toBe(true)
     expect(row.attributes('style')).toBe(
-      'margin-left: -4px; margin-right: -4px;'
+      'margin-left: -4px; margin-right: -4px; row-gap: 0px;'
     )
 
     const button = wrapper.find('.demo-button')
@@ -202,7 +202,7 @@ describe('Pro Form Props', () => {
     await button.trigger('click')
 
     expect(row.attributes('style')).toBe(
-      'margin-left: -8px; margin-right: -8px;'
+      'margin-left: -8px; margin-right: -8px; row-gap: 0px;'
     )
   })
 
