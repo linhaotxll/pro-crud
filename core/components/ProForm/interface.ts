@@ -120,6 +120,7 @@ export interface BuildFormBinding<T extends DataObject = DataObject> {
   formRef: Ref<FormInstance | null>
   isInlineLayout: ComputedRef<boolean>
   wrap?: CustomRender<CustomRenderFormWrapContext>
+  gap: ComputedRef<string>
 }
 
 /**
@@ -211,6 +212,13 @@ export interface BuildFormOptionResult<
    * 自定义容器
    */
   wrap?: CustomRender<CustomRenderFormWrapContext>
+
+  /**
+   * 表单间距
+   *
+   * @default 0
+   */
+  gap?: MaybeRefOrGetter<string | number>
 }
 
 /**

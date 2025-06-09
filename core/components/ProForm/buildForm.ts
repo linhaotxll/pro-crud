@@ -20,7 +20,7 @@ import {
 } from './constant'
 import { useValues } from './useValues'
 
-import { isArray, isFunction } from '../../utils'
+import { isArray, isFunction, isString } from '../../utils'
 import { mergeWithTovalue } from '../common'
 import { buildButtonGroup } from '../ProButton'
 
@@ -80,6 +80,7 @@ export function buildForm<
     failRequest,
     validateFail,
     wrap,
+    gap = 0,
   } = options(scope)
 
   // 修改 values
@@ -461,6 +462,7 @@ export function buildForm<
       formRef,
       isInlineLayout,
       wrap,
+      gap: computed(() => (isString(gap) ? gap : `${gap}px`)),
     },
   }
 

@@ -125,14 +125,9 @@ export const buildDefaultProSearchActionGroup = <
       }, 0) ?? 0
 
     const span = +resolvedCol.span!
+    const lastRowTotalCol = total % 24
 
-    let offset = 0
-    const residueSpan = 24 - total
-    if (residueSpan < span) {
-      offset = 24 - span
-    } else {
-      offset = 24 - total - span
-    }
+    const offset = 24 - lastRowTotalCol - span
 
     resolvedCol.offset = offset
   }

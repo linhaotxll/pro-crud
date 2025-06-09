@@ -30,16 +30,18 @@ export const ProForm = defineComponent({
     scope: Object as PropType<ProFormScope<any>>,
     isInlineLayout: Object as PropType<BuildFormBinding<any>['isInlineLayout']>,
     wrap: Object as PropType<CustomRender<CustomRenderFormWrapContext>>,
+    gap: Object as PropType<ComputedRef<string>>,
   },
 
   setup(props, { expose }) {
     expose(props.scope)
 
     return () => {
-      // console.log('render pro form: ')
+      // console.log('render pro form: ', props.actionGroupValue)
 
       // 按钮组
       const actionGroupValue = toValue(props.actionGroup)
+      console.log('actionGroupValue: ', actionGroupValue)
       const $action = actionGroupValue?.show ? (
         <a-col {...actionGroupValue.col}>
           <ProButtonGroup action={actionGroupValue} />
@@ -58,6 +60,7 @@ export const ProForm = defineComponent({
       const formProps = toValue(props.formProps)
 
       const isInlineLayout = toValue(props.isInlineLayout)
+      const style = `row-gap: ${toValue(props.gap)}`
 
       const $content = buildCustomRender<CustomRenderFormWrapContext>({
         render: ctx =>
@@ -67,7 +70,7 @@ export const ProForm = defineComponent({
               {ctx.$action}
             </>
           ) : (
-            <a-row {...toValue(props.row)}>
+            <a-row {...toValue(props.row)} style={style}>
               {ctx.$items}
               {ctx.$action}
             </a-row>
@@ -77,7 +80,12 @@ export const ProForm = defineComponent({
       })
 
       return (
-        <a-form {...formProps} model={props.values} ref={props.formRef}>
+        <a-form
+          {...formProps}
+          model={props.values}
+          ref={props.formRef}
+          style={isInlineLayout ? style : undefined}
+        >
           {$content}
         </a-form>
       )
