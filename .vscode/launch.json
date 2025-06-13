@@ -3,15 +3,11 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "type": "node",
+      "type": "chrome",
       "request": "launch",
       "name": "Debug Current Test File",
-      "autoAttachChildProcesses": true,
-      "skipFiles": ["<node_internals>/**", "**/node_modules/**"],
-      "program": "${workspaceRoot}/node_modules/vitest/vitest.mjs",
-      "args": ["run", "${relativeFile}"],
-      "smartStep": true,
-      "console": "integratedTerminal"
+      "url": "http://localhost:5172",
+      "webRoot": "${workspaceFolder}"
     }
   ]
 }

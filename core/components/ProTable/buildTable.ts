@@ -133,6 +133,7 @@ function buildTableMiddleware<Data extends DataObject = DataObject>(
     setEditableRowData,
     getEditableRowsData,
     clearEditableRowData,
+    getCurrentPageInfo,
   }
 
   ctx.scope.table = scope
@@ -699,6 +700,17 @@ function buildTableMiddleware<Data extends DataObject = DataObject>(
       resolvedDataRowkeyMap.value[rowKey],
       editableValue?.formScope.getFieldValue(['table', rowKey])
     )
+  }
+
+  /**
+   * 获取当前页数
+   */
+  function getCurrentPageInfo() {
+    return {
+      current: currentPage.value,
+      pageSize: currentPageSize.value,
+      total: total.value,
+    }
   }
 
   ctx.tableBindings = {

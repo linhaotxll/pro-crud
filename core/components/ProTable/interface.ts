@@ -637,6 +637,11 @@ export interface ProTableScopeWithoutSearch<
    * 清空一行编辑的数据
    */
   clearEditableRowData(rowKey: Key): void
+
+  /**
+   * 获取当前分页信息
+   */
+  getCurrentPageInfo(): { current: number; pageSize: number; total: number }
 }
 
 export interface ProTableScope<Data extends DataObject = DataObject> {
