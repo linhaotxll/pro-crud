@@ -184,10 +184,8 @@ export const ProButton = defineComponent({
       let $modal
 
       if (confirmType === 'modal') {
-        console.log('mergedModalProps: ', mergedModalProps.value)
         $modal = buildCustomRender<ProButtonRenderParams<ModalProps>>({
           render: ctx => {
-            console.log('props: ', ctx)
             return <a-modal {...ctx}></a-modal>
           },
           ...confirmRender,
