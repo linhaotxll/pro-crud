@@ -1,268 +1,88 @@
+import type { DataObject } from '../common'
 import type {
-  ColumnDictionaryOptions,
-  DictionaryCollectionOptions,
-  MaybeRef,
-  ValueType,
-} from '../common'
-import type { ActionOption, ActionsList, ActionsOption } from '../ProButton'
+  BuildModalFormOptionReturn,
+  ModalFormBinding,
+  ModalFormScope,
+} from '../ModalForm'
+import type { ActionGroupOption, ActionOption } from '../ProButton'
 import type {
-  BuildFormBinding,
   BuildFormOptionResult,
   ProFormColumnOptions,
-  ProFormInstance,
   ProFormScope,
 } from '../ProForm'
-import type { BuildSearchBinding, ProSearchScope } from '../ProSearch'
 import type {
-  BodyCellSlotParams,
-  BuildProTableBinding,
   BuildProTableOptionResult,
-  FetchTableDataResult,
-  FetchTableListQuery,
-  ProTableActionColumnProps,
-  ProTableActionProps,
+  BuildTableBinding,
+  FetchTableListRequest,
   ProTableColumnProps,
-  ProTableScope,
-  ProTableToolbarOption,
-  ToolbarOption,
+  ProTableScopeWithoutSearch,
+  ProTableToolbarActions,
+  RenderBodyCellTextParams,
 } from '../ProTable'
-import type { SuccessToastOptions } from '../Toast'
-import type { ModalProps } from 'ant-design-vue'
-import type { ComputedRef, Ref } from 'vue'
-
-/**
- * ProCrud props
- *
- * @param T 表格数据
- * @param S 分页接口实际返回数据
- * @param F 查询表单数据
- * @param R 查询表单传递数据
- */
-export type ProCrudProps<
-  T extends object,
-  S extends object,
-  A extends object,
-  E extends object
-> = BuildCrudBinding<T, S, A, E>
-
-/**
- * 分页请求入参转换函数参数
- */
-export interface TransformQueryParams<S extends object, P extends object> {
-  /**
-   * 分页信息，排序信息
-   */
-  query: FetchTableListQuery<any, P>
-
-  /**
-   * 表单值
-   */
-  form: S
-}
-
-/**
- * 分页请求出参转换函数参数
- */
-export interface TransformResponseParams<S1 extends object, R extends object> {
-  query: S1
-  response: R
-}
+import type { MaybeRefOrGetter } from 'vue'
 
 /**
  * ProCrud 作用域
  */
-export interface ProCrudScope<
-  T extends object,
-  S extends object,
-  A extends object,
-  E extends object
-> {
-  search: ProSearchScope<S>
-  table: ProTableScope<T>
-  addForm: CrudFormScope<A>
-  editForm: CrudFormScope<E>
-  viewForm: CrudFormScope<T>
+export interface ProCrudScope<Data extends DataObject = DataObject> {
+  search: ProFormScope<Partial<Data>>
+  table: ProTableScopeWithoutSearch<Data>
+  modal: ProCrudModalScope<Data>
 }
 
 /**
- * ProCrud 表单作用域，包含打开、关闭弹窗方法
+ * Pro Crud Modal 作用域
  */
-export interface CrudFormScope<T extends object> extends ProFormScope<T> {
-  showDialog(values?: any): void
-  hideDialog(): void
-  clear(values?: any): void
+export type ProCrudModalScope<Data extends DataObject = DataObject> = Omit<
+  ModalFormScope<Partial<Data>>,
+  'showModal'
+> & {
+  showEditModal(record: Data): void
+  showAddModal(): void
+  showViewModal(record: Data): void
 }
-
-/**
- * buildCrud 返回值
- */
-export interface BuildCrudReturn<
-  T extends object,
-  S extends object,
-  A extends object,
-  E extends object
-> {
-  proCrudRef: Ref<ProCrudInstance | null>
-  proCrudBinding: BuildCrudBinding<T, S, A, E>
-}
-
-/**
- * buildCrud 返回需要绑定的 props
- */
-export interface BuildCrudBinding<
-  T extends object,
-  S extends object,
-  A extends object,
-  E extends object
-> {
-  /**
-   * 是否显示搜索栏
-   */
-  searchShow: ComputedRef<boolean>
-
-  /**
-   * 搜索配置
-   */
-  searchBinding: BuildSearchBinding<S>
-
-  /**
-   * 是否显示 table
-   */
-  tableShow: ComputedRef<boolean>
-
-  /**
-   * table 配置
-   */
-  tableBinding: BuildProTableBinding<T>
-
-  /**
-   * 弹窗类型
-   */
-  modalType: Ref<ModalType | undefined>
-
-  /**
-   * 弹窗配置
-   */
-  modalProps: ComputedRef<CrudDialogOption | undefined>
-
-  /**
-   * 弹窗表单配置
-   */
-  modalFormProps: ComputedRef<
-    BuildFormBinding<A> | BuildFormBinding<E> | BuildFormBinding<T> | undefined
-  >
-
-  /**
-   * 删除成功提示
-   */
-  deleteToast?: SuccessToastOptions
-
-  /**
-   * 新增成功提示
-   */
-  addToast?: SuccessToastOptions
-
-  /**
-   * 编辑成功提示
-   */
-  editToast?: SuccessToastOptions
-}
-
-/**
- * buildCrud option 类型
- */
-export type BuildCrudOption<
-  C,
-  T extends object,
-  R extends object,
-  S extends object,
-  S1 extends object,
-  A extends object,
-  E extends object
-> = (
-  scope: ProCrudScope<T, S, A, E>,
-  ctx: C | undefined
-) => BuildCrudOptionReturn<T, R, S, S1, A, E>
 
 /**
  * buildCrud option 返回值
  */
 export interface BuildCrudOptionReturn<
-  T extends object,
-  R extends object,
-  S extends object,
-  S1 extends object,
-  A extends object,
-  E extends object
-> extends DictionaryCollectionOptions {
+  Data extends DataObject = DataObject,
+  Params = any,
+  Collection = any
+> extends Omit<
+      BuildProTableOptionResult<Data, Params, Collection>,
+      'columns' | 'fetchTableData' | 'actionColumn' | 'toolbar'
+    >,
+    Omit<BuildModalFormOptionReturn, 'renderTrigger'> {
   /**
-   * 所有列配置
+   * 列配置
    */
-  columns?: ProCrudColumnOption<T, S, A, E>[]
+  columns?: ProCrudColumnOption<Data, any, Collection>[]
 
   /**
-   * 操作列配置
-   *
-   * @deprecated 使用 table.action 代替
+   * 列按钮组
    */
-  action?: CrudActionOption<T>
+  actionColumn?: MaybeRefOrGetter<ProCrudActionColumnOptions<Data>>
 
   /**
-   * 搜索栏配置
+   * toolbar 配置
    */
-  search?: CrudSearchOptionResult
-
-  /**
-   * 添加、编辑、查看表单公共配置
-   */
-  form?: CrudFormOption
-
-  /**
-   * 添加、编辑、查看弹窗公共配置
-   */
-  dialog?: CrudDialogOption
+  toolbar?: MaybeRefOrGetter<ProCrudToolbarActionGroup>
 
   /**
    * 添加表单配置
    */
-  addForm?: CrudFormOptionResult
-
-  /**
-   * 添加表单弹窗配置
-   */
-  addFormDialog?: CrudDialogOption
+  addForm?: ProCrudModalFormOptions<Partial<Data>, Collection>
 
   /**
    * 编辑表单配置
    */
-  editForm?: CrudFormOptionResult
-
-  /**
-   * 编辑表单弹窗配置
-   */
-  editFormDialog?: CrudDialogOption
+  editForm?: ProCrudModalFormOptions<Partial<Data>, Collection>
 
   /**
    * 查看表单配置
    */
-  viewForm?: CrudViewFormOptionResult
-
-  /**
-   * 查看表单弹窗配置
-   */
-  viewFormDialog?: CrudDialogOption
-
-  /**
-   * 表格配置
-   */
-  table?: Omit<
-    BuildProTableOptionResult<T, any>,
-    'data' | 'columns' | 'action' | 'toolbar'
-  > & {
-    show?: MaybeRef<boolean>
-    toolbar?: ProTableToolbarOption<ProCrudTableToolbarActions>
-    action?: CrudActionOption<T>
-  }
+  viewForm?: ProCrudModalFormOptions<Partial<Data>, Collection>
 
   /**
    * 点击重置后是否自动调用查询接口
@@ -272,50 +92,9 @@ export interface BuildCrudOptionReturn<
   autoReload?: boolean
 
   /**
-   * 删除成功提示
-   *
-   * @default '删除成功'
+   * 获取数据请求
    */
-  deleteToast?: SuccessToastOptions
-
-  /**
-   * 新增成功提示
-   *
-   * @default '新增成功'
-   */
-  addToast?: SuccessToastOptions
-
-  /**
-   * 编辑成功提示
-   *
-   * @default '编辑成功'
-   */
-  editToast?: SuccessToastOptions
-
-  /**
-   * 转换请求前的参数
-   *
-   * @param {TransformQueryParams} ctx 查询参数，包含分页，搜索条件
-   * @returns 转换后的参数，直接传递给 fetchPaginationData 请求
-   */
-  transformQuery?(ctx: TransformQueryParams<S, any>): S1
-
-  /**
-   * 转换请求后的响应数据
-   *
-   * @param {TransformResponseParams} ctx 响应参数，包含响应数据、查询数据
-   */
-  transformResponse?(
-    ctx: TransformResponseParams<S1, R>
-  ): FetchTableDataResult<T>
-
-  /**
-   * 获取分页接口
-   *
-   * @param params 若有 transformQuery 则是其结果，没有则是 TransformQueryParams<F>
-   * @returns 返回结果，若有 transformResponse 则是其转换结果，没有则必须是 FetchTableDataResult
-   */
-  fetchPaginationData?(params: S1): Promise<R>
+  fetchTableData?: FetchTableListRequest<Data, Params>
 
   /**
    * 删除接口
@@ -323,7 +102,9 @@ export interface BuildCrudOptionReturn<
    * @param row 行数据
    * @returns {boolean} 删除是否成功，返回 true 会有提示信息
    */
-  deleteRequest?: (options: BodyCellSlotParams<T>) => Promise<boolean>
+  deleteRequest?: (
+    options: RenderBodyCellTextParams<Data>
+  ) => Promise<boolean> | boolean
 
   /**
    * 添加接口
@@ -331,7 +112,7 @@ export interface BuildCrudOptionReturn<
    * @param form 编辑表单数据
    * @returns {boolean} 添加是否成功，返回 true 会有提示信息
    */
-  addRequest?: (form: A) => Promise<boolean>
+  addRequest?: (form: any) => Promise<boolean> | boolean
 
   /**
    * 编辑接口
@@ -339,217 +120,171 @@ export interface BuildCrudOptionReturn<
    * @param form 编辑表单数据 + 行数据
    * @returns {boolean} 编辑是否成功，返回 true 会有提示信息
    */
-  editRequest?: (form: E) => Promise<boolean>
+  editRequest?: (form: any) => Promise<boolean> | boolean
 }
 
 /**
- * ProCrud Table Toolbar Actions
+ * Pro Crud 操作列
  */
-export type ProCrudTableToolbarActions = {
+export type ProCrudActionColumnOptions<Data extends DataObject = DataObject> =
+  ProTableColumnProps<Data> & {
+    action?: ProCrudActionColumnGroup<Data>
+  }
+
+/**
+ * Pro Crud Toolbar 按钮组
+ */
+export type ProCrudToolbarActionGroup = ActionGroupOption<
+  ProCrudToolbarActions,
+  {}
+>
+
+/**
+ * Pro Crud Toolbar 按扭
+ */
+export interface ProCrudToolbarActions extends ProTableToolbarActions {
   /**
-   * 添加操作
+   * 新增按扭
    */
-  add?: ToolbarOption
-}
-
-export type CrudActionOption<T extends object> = Omit<
-  ProTableActionColumnProps<T>,
-  'actions'
-> & {
-  actions?: ActionsList<CrudTableActions<T>>
+  add: MaybeRefOrGetter<ActionOption>
 }
 
 /**
- * ProCrud 添加、编辑、查看表单配置
+ * Pro Crud 操作列按钮组
  */
-export type CrudFormOption = Omit<BuildFormOptionResult<any>, 'columns'> & {
-  show?: MaybeRef<boolean>
-}
+export type ProCrudActionColumnGroup<Data extends DataObject = DataObject> =
+  ActionGroupOption<
+    ProCrudActionColumnActions<RenderBodyCellTextParams<Data>>,
+    {}
+  >
 
 /**
- * 确定按钮
+ * Pro Crud 列按钮
  */
-export interface ConfirmAction {
-  confirm?: ActionOption
-}
-
-/**
- * 取消按钮
- */
-export interface CancelAction {
-  cancel?: ActionOption
-}
-
-/**
- * 搜索按钮
- */
-export interface SearchAction {
-  confirm?: ActionOption
-  reset?: ActionOption
-}
-
-/**
- * ProCrud AddForm、EditForm 配置
- */
-export type CrudFormOptionResult = Omit<CrudFormOption, 'actions'> & {
-  actions?: ActionsOption<ConfirmAction & CancelAction>
-}
-
-/**
- * ProCrud Search
- */
-export type CrudSearchOptionResult = Omit<CrudFormOption, 'actions'> & {
-  actions?: ActionsOption<SearchAction>
-}
-
-/**
- * ProCrud ViewForm 配置
- */
-export type CrudViewFormOptionResult = Omit<CrudFormOption, 'actions'> & {
-  actions?: ActionsOption<CancelAction>
-}
-
-/**
- * ProCrud 弹窗配置
- */
-export interface CrudDialogOption {
-  props?: ModalProps
+export type ProCrudActionColumnActions<C extends object = any> = {
+  /**
+   * 查看
+   */
+  view?: MaybeRefOrGetter<ActionOption<C>>
 
   /**
-   * @default 'a-modal'
+   * 编辑
    */
-  is?: any
+  edit?: MaybeRefOrGetter<ActionOption<C>>
+
+  /**
+   * 删除
+   */
+  delete?: MaybeRefOrGetter<ActionOption<C>>
+
+  /**
+   * 自定义按钮
+   */
+  [name: string]: MaybeRefOrGetter<ActionOption<C>> | undefined
 }
 
 /**
- * Crud 操作列配置
+ * 弹窗类型
  */
-export interface CrudTableActions<T extends object> {
+export const enum ModalType {
   /**
-   * 编辑按钮
+   * 新增
    */
-  edit?: ProTableActionProps<T>
+  Add,
 
   /**
-   * 删除按钮
+   * 编辑
    */
-  delete?: ProTableActionProps<T>
+  Edit,
 
   /**
-   * 查看按钮
+   * 查看
    */
-  view?: ProTableActionProps<T>
+  View,
 }
 
-/**
- * ProCrud 实例
- */
-export interface ProCrudInstance {
-  proSearchRef: Ref<ProFormInstance<any> | null>
-  // proTableRef: Ref<ProTableInstance<any> | null>
+export interface BuildCrudContext<
+  Data extends DataObject = DataObject,
+  Collection = any
+> {
+  options(scope: ProCrudScope<Data>): BuildCrudOptionReturn<Data, Collection>
+  optionResult: BuildCrudOptionReturn<Data, Collection>
+  scope: ProCrudScope<Data>
+  modalColumns: {
+    add: ProCrudColumnOption[]
+    edit: ProCrudColumnOption[]
+    view: ProCrudColumnOption[]
+  }
+  tableBinding: BuildTableBinding<Data>
+  modalFormBinding: ModalFormBinding<Partial<Data>>
 }
 
 /**
  * ProdCrud Column 配置
- *
- * @param T 整个表单值
  */
 export interface ProCrudColumnOption<
-  T extends object,
-  S extends object,
-  A extends object,
-  E extends object
-> extends ColumnDictionaryOptions {
+  Data extends DataObject = any,
+  Dictionary = any,
+  Collection = any
+> extends ProTableColumnProps<Data, Dictionary, Collection> {
   /**
-   * 名称
+   * 添加表单列配置
    */
-  label?: MaybeRef<string>
-
-  /**
-   * 字段值
-   */
-  name: MaybeRef<string>
-
-  /**
-   * 类型
-   */
-  type?: MaybeRef<ValueType | string>
-
-  /**
-   * 查询表单列配置
-   */
-  search?: ProCrudFormOptions<S>
-
-  /**
-   * 表格列配˙
-   */
-  table?: Omit<ProTableColumnProps<T>, 'label' | 'prop' | 'dict'>
-
-  /**
-   * 新增、编辑、查看通用表单配置
-   */
-  form?: ProCrudFormOptions<any>
+  addForm?: MaybeRefOrGetter<
+    Partial<ProCrudFromOptions<Data, Dictionary, Collection>>
+  >
 
   /**
    * 编辑表单列配置
    */
-  editForm?: ProCrudFormOptions<E>
-
-  /**
-   * 新增表单列配置
-   */
-  addForm?: ProCrudFormOptions<A>
+  editForm?: MaybeRefOrGetter<
+    Partial<ProCrudFromOptions<Data, Dictionary, Collection>>
+  >
 
   /**
    * 详情表单列配置
    */
-  viewForm?: ProCrudFormOptions<T>
+  viewForm?: MaybeRefOrGetter<
+    Partial<ProCrudFromOptions<Data, Dictionary, Collection>>
+  >
 }
 
-export type ProCrudFormOptions<T extends object> = Omit<
-  ProFormColumnOptions<T>,
-  'label' | 'name' | 'type' | 'dict'
->
+/**
+ * Pro Crud 表单列配置
+ */
+export type ProCrudFromOptions<
+  Data extends DataObject = any,
+  Dictionary = any,
+  Collection = any
+> = Omit<ProFormColumnOptions<Data, Dictionary, Collection>, 'dict' | 'type'>
 
-export type BuildCrudContext<
-  T extends object,
-  R extends object,
-  S extends object,
-  S1 extends object,
-  A extends object,
-  E extends object
-> = {
-  originCtx: any
-  optionResult: BuildCrudOptionReturn<T, R, S, S1, A, E>
-  scope: ProCrudScope<T, S, A, E>
-  columns: {
-    search: ProCrudColumnOption<T, S, A, E>[]
-    table: ProCrudColumnOption<T, S, A, E>[]
-    addForm: ProCrudColumnOption<T, S, A, E>[]
-    editForm: ProCrudColumnOption<T, S, A, E>[]
-    viewForm: ProCrudColumnOption<T, S, A, E>[]
-  }
-  show: {
-    search: ComputedRef<boolean>
-    table: ComputedRef<boolean>
-    addForm: ComputedRef<boolean>
-    editForm: ComputedRef<boolean>
-    viewForm: ComputedRef<boolean>
-  }
-  binding: {
-    search: BuildSearchBinding<S>
-    table: BuildProTableBinding<T>
-    addForm: BuildFormBinding<A>
-    editForm: BuildFormBinding<E>
-    viewForm: BuildFormBinding<T>
-  }
-  dialog: {
-    addForm: ComputedRef<CrudDialogOption>
-    editForm: ComputedRef<CrudDialogOption>
-    viewForm: ComputedRef<CrudDialogOption>
-  }
-  options: BuildCrudOption<any, T, R, S, S1, A, E>
-  modalType: Ref<ModalType | undefined>
+/**
+ * Pro Crud Binding
+ */
+export interface ProCrudBinding<Data extends DataObject = DataObject> {
+  tableBinding: BuildTableBinding<Data>
+  modalFormBinding: ModalFormBinding<Partial<Data>>
 }
 
-export type ModalType = 'view' | 'edit' | 'add'
+/**
+ * buildCrud 返回值
+ */
+export interface BuildCrudResult<Data extends DataObject = DataObject> {
+  proCrudBinding: ProCrudBinding<Data>
+}
+
+/**
+ * Pro Crud 弹窗表单配置
+ */
+export interface ProCrudModalFormOptions<
+  Data extends DataObject = DataObject,
+  Collection = any
+> extends Omit<
+    BuildFormOptionResult<Partial<Data>, Partial<Data>, Collection>,
+    'columns'
+  > {
+  /**
+   * 是否显示整个表单弹窗
+   */
+  show?: MaybeRefOrGetter<boolean>
+}

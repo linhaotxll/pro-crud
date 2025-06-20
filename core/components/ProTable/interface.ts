@@ -1,287 +1,316 @@
+import type { TableSlotFn, TableSlotValueKey } from './constant'
 import type {
-  ValueType,
-  ColumnType,
-  DictionaryCollectionOptions,
-  ColumnDictionaryOptions,
-  useDictionary,
-} from '../common'
-import type { ExtractMaybeRef, JSXElement, MaybeRef } from '../common/interface'
-import type { ActionOption, ActionsList } from '../ProButton'
-import type { SuccessToastOptions } from '../Toast'
+  InternalProTableColumnProps,
+  InternalProTableEditableOptions,
+} from './internal'
+import type { DataObject, NamePath, ValueType } from '../common'
 import type {
-  ButtonProps,
-  ModalProps,
-  PopconfirmProps,
-  SpaceProps,
-  SpinProps,
-  TableProps,
-  TooltipProps,
-} from 'ant-design-vue'
+  ActionGroupOption,
+  ActionOption,
+  CustomActions,
+  InternalProButtonGroupOptions,
+} from '../ProButton'
+import type { DictionaryCollection, DictionaryColumn } from '../ProDictionary'
+import type {
+  BuildFormBinding,
+  BuildFormOptionResult,
+  ProFormColumnOptions,
+  ProFormScope,
+} from '../ProForm'
+import type { DeepMaybeRef } from '@vueuse/core'
+import type { FlexProps, TableProps } from 'ant-design-vue'
 import type { Key } from 'ant-design-vue/es/_util/type'
-import type { SizeType } from 'ant-design-vue/es/config-provider'
+import type { ColumnType } from 'ant-design-vue/es/table'
+import type { FilterDropdownProps } from 'ant-design-vue/es/table/interface'
 import type {
-  FilterDropdownProps,
-  FilterValue,
-  SorterResult,
-} from 'ant-design-vue/es/table/interface'
-import type {
-  DataIndex,
+  CustomizeScrollBody,
   ExpandedRowRender,
+  RenderExpandIconProps,
 } from 'ant-design-vue/es/vc-table/interface'
-import type { CSSProperties, ComputedRef, Ref, VNode, VNodeChild } from 'vue'
+import type {
+  ComputedRef,
+  MaybeRef,
+  MaybeRefOrGetter,
+  Ref,
+  VNodeChild,
+} from 'vue'
 
 /**
- * ProTable 接受的 props
+ * 获取 Pro Table 数据函数
  */
-export type ProTableProps<T extends object> = BuildProTableBinding<T>
-
-/**
- * 获取数据函数
- */
-export type FetchTableListRequest<T extends object, P extends object> = (
-  query: FetchTableListQuery<T, P>
-) => Promise<FetchTableDataResult<T>> | FetchTableDataResult<T>
-
-/**
- * 获取数据函数参数
- */
-export type FetchTableListQuery<T, P extends object> = {
-  page: { pageNumber: number; pageSize: number }
-  filters: Record<string, FilterValue | null>
-  sorter: SorterResult<T> | SorterResult<T>[]
-  params?: P
-}
+export type FetchTableListRequest<Data = any, Params = any> = (
+  query: FetchProTablePageListQuery<Params>
+) =>
+  | Promise<Data[] | FetchProTablePageListResult<Data>>
+  | FetchProTablePageListResult<Data>
+  | Data[]
 
 /**
  * 分页获取数据函数返回值
  */
-export type FetchTableDataResult<T> = {
-  data: T[]
+export type FetchProTablePageListResult<Data = any> = {
+  data: Data[]
   total: number
 }
 
-/**
- * headerCell 插槽参数
- */
-export type HeaderCellSlotParams<T> = { column: ColumnType<T>; title: string }
-
-/**
- * bodyCell 插槽参数
- */
-export type BodyCellSlotParams<T> = {
-  text: any
-  index: number
-  column: ColumnType<T>
-  record: T
-  editable: boolean
+export type FetchProTablePageListQuery<Params = any> = {
+  page: { pageSize: number; pageNum: number }
+  params?: Params
 }
 
 /**
- * ProTable 组件实例方法
+ * Pro Table 列配置
  */
-export type ProTableInstance<T> = ProTableScope<T>
-
-/**
- * 列配置
- */
-export interface ProTableColumnProps<T> extends ColumnDictionaryOptions {
+export interface ProTableColumnProps<
+  Data extends DataObject = any,
+  Dictionary = any,
+  Collection = any
+> extends DictionaryColumn<Dictionary, Collection> {
   /**
-   * 列配置
+   * 是否显示列
    */
-  columnProps?: MaybeRef<
-    ExtractMaybeRef<Omit<ColumnType<T>, 'title' | 'dataIndex' | 'key'>>
-  >
-
-  /**
-   * 分组列配置
-   */
-  children?: ProTableColumnProps<T> | ProTableColumnProps<T>[]
-
-  /**
-   * 列插槽
-   */
-  columnSlots?: ProTableColumnSlots<T>
-
-  /**
-   * 唯一索引
-   */
-  key?: MaybeRef<string>
+  show?: MaybeRefOrGetter<boolean>
 
   /**
    * 标题
    */
-  label?: MaybeRef<string>
+  label?: MaybeRefOrGetter<string>
 
   /**
    * 字段名
    */
-  name?: MaybeRef<DataIndex>
-
-  /**
-   * 是否显示列
-   */
-  show?: MaybeRef<boolean>
+  name?: MaybeRefOrGetter<NamePath>
 
   /**
    * 类型
    *
    * @default 'text'
    */
-  type?: MaybeRef<ValueType | any>
+  type?: MaybeRefOrGetter<ValueType>
 
   /**
-   * 是否渲染单元格
+   * 列配置
    */
-  renderCell?: boolean
+  columnProps?: MaybeRefOrGetter<
+    DeepMaybeRef<Omit<ColumnType<Data>, 'title' | 'dataIndex' | 'key'>>
+  >
 
   /**
-   * 编辑配置
+   * 表单公共配置
    */
-  editable?: ProTableColumnEditable<T>
-}
-
-/**
- * 操作列配置
- */
-export type ProTableActionColumnProps<T> = Omit<
-  ProTableColumnProps<T>,
-  'type' | 'dict' | 'editable'
-> & {
-  /**
-   * 操作按钮组
-   */
-  actions?: ActionsList<ProTableActions<T>>
-}
-
-export type ProTableActions<T> = Record<string, ProTableActionProps<T>>
-
-/**
- * 操作列按钮配置
- */
-export interface ProTableActionProps<T>
-  extends Omit<ActionOption, 'props' | 'confirmProps'> {
-  /**
-   * 按钮 props
-   */
-  props?: Omit<ButtonProps, 'onClick'> & {
-    onClick?: (e: MouseEvent, ctx: BodyCellSlotParams<T>) => void
-  }
+  form?: MaybeRefOrGetter<
+    Omit<
+      ProFormColumnOptions<Data, Dictionary, Collection>,
+      'dict' | 'type' | 'name'
+    >
+  >
 
   /**
-   * 确认弹窗 props
+   * 搜索栏配置
    */
-  confirmProps?: ProTableActionConfirmProps<T> | ProTableActionModalProps<T>
+  search?: MaybeRefOrGetter<
+    Omit<
+      Partial<ProFormColumnOptions<Data, Dictionary, Collection>>,
+      'dict' | 'type'
+    >
+  >
+
+  /**
+   * 是否可编辑
+   *
+   * @default false
+   */
+  editable?: boolean | ((ctx: RenderBodyCellTextParams<Data>) => boolean)
+
+  /**
+   * 编辑表单列配置
+   */
+  editableForm?: MaybeRefOrGetter<
+    Omit<
+      ProFormColumnOptions<Data, Dictionary, Collection>,
+      'dict' | 'type' | 'name'
+    >
+  >
+
+  /**
+   * 自定义渲染表头
+   */
+  renderHeader?: MaybeRef<(ctx: RenderHeaderCellTextParams<Data>) => VNodeChild>
+
+  /**
+   * 自定义渲染单元格
+   */
+  renderCell?: MaybeRef<(ctx: RenderBodyCellTextParams<Data>) => VNodeChild>
+
+  /**
+   * 自定义渲染单独列筛选菜单
+   */
+  renderFilterDropdown?: MaybeRef<
+    (ctx: RenderCustomFilterDropdown<Data>) => VNodeChild
+  >
+
+  /**
+   * 自定义渲染单独列筛选图标
+   */
+  renderFilterIcon?: MaybeRef<
+    (ctx: RenderCustomFilterIconParams<Data>) => VNodeChild
+  >
 }
 
 /**
- * Popconfirm props，onConfirm 事件多了一个参数：行数据
+ * Pro Table 列按钮组
  */
-export type ProTableActionConfirmProps<T> = Omit<
-  PopconfirmProps,
-  'onConfirm'
-> & {
-  onConfirm?(e: MouseEvent, ctx: BodyCellSlotParams<T>): void
+export type ProTableColumnActionGroup<Data extends object = any> =
+  ActionGroupOption<ProTableActions<RenderBodyCellTextParams<Data>>, {}>
+
+/**
+ * Pro Table 列按钮
+ */
+export interface ProTableActions<C extends object = any> {
+  /**
+   * 开始编辑按钮
+   */
+  edit?: MaybeRefOrGetter<ActionOption<C>>
+
+  /**
+   * 自定义按钮
+   */
+  [name: string]: MaybeRefOrGetter<ActionOption<C>> | undefined
 }
 
 /**
- * MessageBox props，callback 多了一个参数：行数据
+ * Pro Table 编辑按钮组
  */
-export type ProTableActionModalProps<T> = Omit<ModalProps, 'onOk'> & {
-  onOk?(ctx: BodyCellSlotParams<T>): void
-}
-
-export type ProTableColumnEditable<T> =
-  | false
-  | ((ctx: BodyCellSlotParams<T>) => boolean)
-
-/**
- * 列插槽
- */
-export type ProTableColumnSlots<T> = {
-  headerCell?(ctx: HeaderCellSlotParams<T>): JSXElement
-  bodyCell?(ctx: BodyCellSlotParams<T>): JSXElement
-}
+export type ProTableEditableColumnActionGroup<
+  Data extends DataObject = DataObject
+> = ActionGroupOption<
+  ProTableEditableActions<RenderBodyCellTextParams<Data>>,
+  {}
+>
 
 /**
- * @internal
+ * Pro Table 编辑列按钮
  */
-export interface InternalProTableColumnProps<T> {
-  show: boolean
-  name: DataIndex | undefined
-  type: ValueType | any
-  dict?: ReturnType<typeof useDictionary>
-  renderCell?: boolean
-  editable?: ProTableColumnEditable<T>
-  columnProps: ColumnType<T>
-  columnSlots?: ProTableColumnSlots<T> | undefined
+export type ProTableEditableActions<C extends object = any> = {
+  /**
+   * 保存
+   */
+  save?: MaybeRefOrGetter<ActionOption<C>>
+
+  /**
+   * 取消编辑
+   */
+  cancel?: MaybeRefOrGetter<ActionOption<C>>
+
+  /**
+   * 自定义按钮
+   */
+  [name: string]: MaybeRefOrGetter<ActionOption<C>> | undefined
 }
 
 /**
- * buildTable 返回值
+ * Pro Table Toolbar 按钮组
  */
-export type BuildProTableResult<T extends object> = {
-  proTableRef: Ref<ProTableInstance<T> | null>
-  proTableBinding: BuildProTableBinding<T>
-}
+export type ProTableToolbarActionGroup = ActionGroupOption<
+  ProTableToolbarActions,
+  {}
+>
+
+/**
+ * Pro Table Toolbar 按钮
+ */
+export type ProTableToolbarActions = {
+  /**
+   * 刷新按扭
+   */
+  reload?: MaybeRefOrGetter<ActionOption>
+} & CustomActions
+
+export type ProTableActionColumn<
+  Data extends DataObject = DataObject,
+  Collection = any
+> =
+  | ProTableColumnProps<Data, null, Collection> & {
+      action?: ProTableColumnActionGroup<Data>
+    }
+
+/**
+ * buildTable 参数
+ */
+export type BuildTableOption<
+  Data extends DataObject = DataObject,
+  Params = any,
+  Collection = any
+> = (
+  scope: ProTableScope<Data>
+) => BuildProTableOptionResult<Data, Params, Collection>
 
 /**
  * buildTable option 返回值
  */
 export type BuildProTableOptionResult<
-  T extends object,
-  P extends object
-> = DictionaryCollectionOptions & {
+  Data extends DataObject = DataObject,
+  Params = any,
+  Collection = any
+> = DictionaryCollection<Collection> & {
   /**
-   * 数据源(不推荐)
+   * 数据源
    */
-  data?: MaybeRef<T[]>
+  data?: MaybeRefOrGetter<Data[]>
+
+  /**
+   * 获取数据请求
+   */
+  fetchTableData?: FetchTableListRequest<Data, Params>
 
   /**
    * 默认数据源
    */
-  defaultData?: T[]
-
-  /**
-   * Table props
-   */
-  tableProps?: MaybeRef<ExtractMaybeRef<TableProps>>
-
-  /**
-   * 初始页数
-   *
-   * @default 1
-   */
-  initialPageNumber?: number
-
-  /**
-   * Table 插槽
-   */
-  tableSlots?: TableSlots<T>
-
-  /**
-   * 列配置
-   */
-  columns?: ProTableColumnProps<T>[]
-
-  /**
-   * 操作列配置
-   */
-  action?: ProTableActionColumnProps<T>
-
-  /**
-   * loading 配置
-   */
-  loading?: MaybeRef<ExtractMaybeRef<Omit<SpinProps, 'spinning'>>>
-
-  /**
-   * toolbar 配置
-   */
-  toolbar?: ProTableToolbarOption
+  defaultData?: Data[]
 
   /**
    * 请求携带的额外参数，当发生变化时会自动查询
    */
-  params?: MaybeRef<P>
+  params?: MaybeRefOrGetter<Params>
+
+  /**
+   * Table props
+   */
+  tableProps?: MaybeRefOrGetter<
+    DeepMaybeRef<
+      Omit<
+        TableProps<Data>,
+        'components' | 'columns' | 'dataSource' | 'loading'
+      >
+    >
+  >
+
+  /**
+   * TODO: 列配置
+   */
+  columns?: MaybeRefOrGetter<ProTableColumnProps<Data, any, Collection>[]>
+
+  /**
+   * 包裹 Flex 属性
+   */
+  wrapperProps?: MaybeRefOrGetter<FlexProps>
+
+  /**
+   * 自定义渲染包裹元素
+   */
+  renderWrapper?: MaybeRef<RenderWrapperFn>
+
+  /**
+   * 操作列配置
+   *
+   * @default { show: false }
+   */
+  actionColumn?: MaybeRefOrGetter<ProTableActionColumn<Data, Collection>>
+
+  /**
+   * toolbar 配置
+   */
+  toolbar?: MaybeRefOrGetter<ProTableToolbarActionGroup>
 
   /**
    * 是否需要首次触发请求
@@ -291,32 +320,23 @@ export type BuildProTableOptionResult<
   immediate?: boolean
 
   /**
-   * 编辑配置
+   * 搜索栏配置
+   *
+   * @default {}
    */
-  editable?: ProTableEditable<T>
+  search?: MaybeRefOrGetter<ProInnerFormOptions<Date, Collection>>
 
   /**
-   * 是否自动填充父元素
+   * 编辑表格配置
+   *
+   * @default false
    */
-  autoFill?: boolean
+  editable?: MaybeRefOrGetter<ProTableEditableOptions | false>
 
   /**
-   * 获取数据请求
+   * 对获取的数据进行处理
    */
-  fetchTableData?: FetchTableListRequest<T, P>
-
-  /**
-   * 提交编辑行内容
-   */
-  submitEditable?: (
-    values: T,
-    ctx: BodyCellSlotParams<T>
-  ) => Promise<boolean> | boolean
-
-  /**
-   * table 尺寸发生改变
-   */
-  onSizeChange?: (size: SizeType) => void
+  postData?: (data: Data[]) => Data[]
 
   /**
    * loading 被修改时触发，一般是网络请求导致的
@@ -326,84 +346,246 @@ export type BuildProTableOptionResult<
   /**
    * 数据加载完成后触发,会多次触发
    */
-  onLoad?: (dataSource: T[]) => void
+  onLoad?: (dataSource: Data[]) => void
 
   /**
    * Table 的数据发生改变时触发
    */
-  onDataSourceChange?: (dataSource: T[]) => void
+  onDataSourceChange?: (dataSource: Data[]) => void
 
   /**
    * 数据加载失败时触发
    */
   onRequestError?: (error: any) => void
+
+  /**
+   * 渲染 Table
+   */
+  renderTable?: MaybeRef<() => VNodeChild>
+
+  /**
+   * 渲染 Table Header Wrapper
+   */
+  renderHeaderWrapper?: MaybeRef<() => VNodeChild>
+
+  /**
+   * 渲染 Table Header Row
+   */
+  renderHeaderRow?: MaybeRef<() => VNodeChild>
+
+  /**
+   * 渲染 Table Header Cell
+   */
+  renderHeaderCell?: MaybeRef<() => VNodeChild>
+
+  /**
+   * 渲染 Table Body
+   */
+  renderBody?: MaybeRef<CustomizeScrollBody<Data>>
+
+  /**
+   * 渲染 Table Body Wrapper
+   */
+  renderBodyWrapper?: MaybeRef<() => VNodeChild>
+
+  /**
+   * 渲染 Table Body Row
+   */
+  renderBodyRow?: MaybeRef<() => VNodeChild>
+
+  /**
+   * 渲染 Table Body Cell
+   */
+  renderBodyCell?: MaybeRef<() => VNodeChild>
+
+  /**
+   * 渲染空数据时的显示内容
+   */
+  renderEmptyText?: MaybeRef<() => VNodeChild>
+
+  /**
+   * 渲染总结栏
+   */
+  renderSummary?: MaybeRef<() => VNodeChild>
+
+  /**
+   * 渲染表格标题
+   */
+  renderTitle?: MaybeRef<(currentPageData: Data[]) => VNodeChild>
+
+  /**
+   * 渲染表格尾部
+   */
+  renderFooter?: MaybeRef<(currentPageData: Data[]) => VNodeChild>
+
+  /**
+   * 渲染展开图标
+   */
+  renderExpandIcon?: MaybeRef<
+    (props: RenderExpandIconProps<Data>) => VNodeChild
+  >
+
+  /**
+   * 渲染展开列表头
+   */
+  renderExpandColumnTitle?: MaybeRef<() => VNodeChild>
+
+  /**
+   * 渲染额外展开行
+   */
+  renderExpandedRow?: MaybeRef<
+    (props: Parameters<ExpandedRowRender<Data>>[0]) => VNodeChild
+  >
+
+  /**
+   * 自定义渲染通用列筛选菜单
+   */
+  renderFilterDropdown?: MaybeRef<
+    (ctx: RenderCustomFilterDropdown<Data>) => VNodeChild
+  >
+
+  /**
+   * 自定义渲染通用列筛选图标
+   */
+  renderFilterIcon?: MaybeRef<
+    (ctx: RenderCustomFilterIconParams<Data>) => VNodeChild
+  >
+
+  /**
+   * 转换请求数据参数
+   */
+  transformQuery?: (query: FetchProTablePageListQuery<Params>) => any
+
+  /**
+   * 转换请求数据结果
+   */
+  transformResponse?(ctx: any): ReturnType<FetchTableListRequest>
 }
 
-export type ProTableEditable<T> = false | ProTableEditableOptions<T>
+/**
+ * 渲染包裹元素
+ */
+export type RenderWrapperFn = (dom: VNodeChild) => VNodeChild
 
 /**
- * ProTable 编辑配置
+ * 渲染筛选 Icon 图表的参数
  */
-export interface ProTableEditableOptions<T> {
-  type?: 'cell' | 'single' | 'multiple'
+export interface RenderCustomFilterIconParams<
+  Data extends DataObject = DataObject
+> {
+  filtered: boolean
+  column: InternalProTableColumnProps<Data>
+}
 
-  /**
-   * 编辑模式下的操作
-   */
-  actions?: ActionsList<ProTableEditableActions<T>>
+/**
+ * 渲染筛选内容的参数
+ */
+export interface RenderCustomFilterDropdown<
+  Data extends DataObject = DataObject
+> extends Omit<FilterDropdownProps<Data>, 'column'> {
+  column: InternalProTableColumnProps<Data>
+}
 
+/**
+ * 渲染 Cell Text 参数
+ */
+export type RenderBodyCellTextParams<Data extends DataObject = DataObject> = {
+  text: any
+  value: any
+  record: Data
+  index: number
+  column: InternalProTableColumnProps<Data>
+}
+
+/**
+ * 渲染 Header Cell Text 参数
+ */
+export type RenderHeaderCellTextParams<Data extends DataObject = DataObject> = {
+  title: any
+  column: InternalProTableColumnProps<Data>
+}
+
+/**
+ * 内部表单配置
+ */
+export type ProInnerFormOptions<
+  FormState extends DataObject = DataObject,
+  Collection = any
+> =
+  | false
+  | Omit<BuildFormOptionResult<FormState, FormState, Collection>, 'columns'>
+  | ((
+      scope: ProFormScope<FormState>
+    ) => Omit<
+      BuildFormOptionResult<FormState, FormState, Collection>,
+      'columns'
+    >)
+
+export type EditableKeys = (Key | [Key, NamePath[]])[]
+
+/**
+ * Table 编辑配置
+ */
+export interface ProTableEditableOptions<
+  Data extends DataObject = DataObject,
+  Collection = any
+> {
   /**
-   * 编辑成功提示
+   * 编辑类型
    *
-   * @default '编辑成功'
+   * @default 'single'
    */
-  toast?: SuccessToastOptions
-}
-
-/**
- * 编辑模式下操作
- */
-export interface ProTableEditableActions<T> {
-  /**
-   * 确认按钮配置
-   */
-  ok?: ProTableActionProps<T>
+  type?: 'single' | 'multiple'
 
   /**
-   * 取消按钮配置
+   * 编辑模式下的操作列按钮组配置
    */
-  cancel?: ProTableActionProps<T>
-}
+  action?: ProTableEditableColumnActionGroup<RenderBodyCellTextParams<Data>>
 
-export interface ProvideEditTableOptions<T> extends ProTableEditableOptions<T> {
-  editRowKeys: Ref<Key[]>
-  values: Record<string, any>
+  /**
+   * 正在编辑的行，受控属性
+   *
+   * [1, 2, 3]
+   * [
+   *  [1, ['name']],
+   *  [2, ['age']],
+   * ]
+   */
+  editableKeys?: MaybeRefOrGetter<EditableKeys>
 
-  getRowKey(record: T): Key
-}
+  /**
+   * 编辑表单配置
+   */
+  form?:
+    | Omit<BuildFormOptionResult<Data, Data, Collection>, 'columns'>
+    | ((
+        scope: ProFormScope<Data>
+      ) => Omit<BuildFormOptionResult<Data, Data, Collection>, 'columns'>)
 
-/**
- * buildTable 返回需要绑定的 props
- */
-export interface BuildProTableBinding<T extends object> {
-  tableProps: ComputedRef<TableProps<T>>
-  tableSlots: InternalTableSlots<T>
-  loading: ComputedRef<SpinProps>
-  columns: ComputedRef<ColumnType<T>>[]
-  scope: ProTableScope<T>
-  toolbar: ComputedRef<InternalProTableToolbarOption>
-  editableTableData: ProvideEditTableOptions<T> | undefined
-  autoFill: boolean
+  /**
+   * 保存请求
+   */
+  saveRequest?: (
+    data: Partial<Data>,
+    ctx: RenderBodyCellTextParams<Data>
+  ) => Promise<boolean> | boolean
+
+  /**
+   * 只能编辑一行的的提示
+   */
+  // onlyEditOneLineToast?: MaybeRefOrGetter<ToastOptions>
 }
 
 /**
  * ProTable 作用域
  */
-export interface ProTableScope<T> {
+export interface ProTableScopeWithoutSearch<
+  Data extends DataObject = DataObject
+> {
   /**
-   * 重新加载指定页数数据，默认加载当前页数
+   * 重新加载当前页数据
    */
-  reload(data?: Partial<FetchTableListQuery<T, any>>): Promise<void>
+  reload(): Promise<void>
 
   /**
    * 恢复默认页重新加载
@@ -421,168 +603,71 @@ export interface ProTableScope<T> {
   next(): Promise<void>
 
   /**
-   * 获取 ATable ref
-   */
-  getTableRef(): Ref<any>
-
-  /**
    * 开始编辑
    *
-   * @param rowKey 需要编辑的行 id，使用 rowKey
+   * @param {Key} rowKey rowId 或者索引
+   * @param {NamePath} columnName 列名称，仅在 type 是 cell 下有效
    */
-  startEditable(rowKey: Key): void
+  startEdit: (rowKey: Key, columnName?: NamePath[]) => void
 
   /**
    * 取消编辑
    *
-   * @param rowKey 需要编辑的行 id，使用 rowKey
+   * @param {Key} rowKey rowId 或者索引
+   * @param {NamePath} columnName 列名称，仅在 type 是 cell 下有效
    */
-  cancelEditable(rowKey: Key): void
+  cancelEdit: (rowKey: Key, columnName?: NamePath[]) => void
 
   /**
-   * 检测是否处于编辑状态
-   * @param rowKey
-   * @param columnName
+   * 获取一行的编辑数据
    */
-  validateEditable(rowKey: Key): boolean
+  getEditableRowData(rowKey: Key): Data | undefined
 
   /**
-   * 获取行数据
-   * @param rowKey
+   * 获取整个 table 编辑的数据
    */
-  getRowData(rowKey: Key): T | undefined
+  getEditableRowsData(): Data[] | null
 
   /**
-   * 设置行数据
-   * @param rowKey
-   * @param data
+   * 设置一行编辑的数据
    */
-  setRowData(rowKey: Key, data: Partial<T>): void
+  setEditableRowData(rowKey: Key, data: Partial<Data>): void
+
+  /**
+   * 清空一行编辑的数据
+   */
+  clearEditableRowData(rowKey: Key): void
+
+  /**
+   * 获取当前分页信息
+   */
+  getCurrentPageInfo(): { current: number; pageSize: number; total: number }
+}
+
+export interface ProTableScope<Data extends DataObject = DataObject> {
+  search: ProFormScope
+  table: ProTableScopeWithoutSearch<Data>
+}
+
+export interface BuildTableResult<Data extends DataObject = any> {
+  proTableBinding: BuildTableBinding<Data>
+}
+
+export interface BuildTableBinding<Data extends DataObject = any> {
+  tableProps: ComputedRef<TableProps<Data>> | undefined
+  tableSlots: ComputedRef<Record<TableSlotValueKey, TableSlotFn> | null>
+  wrapperProps: ComputedRef<FlexProps>
+  renderWrapper: RenderWrapperFn | ComputedRef<RenderWrapperFn> | undefined
+  toolbar: Ref<InternalProButtonGroupOptions>
+  search: InternalProTableSearchOptions<Data>
+  editable: ComputedRef<InternalProTableEditableOptions<any>>
 }
 
 /**
- * Table 插槽
- */
-export interface TableSlots<T> {
-  summary?(): JSXElement
-  title?(data: T[]): JSXElement
-  footer?(data: T[]): JSXElement
-  expandColumnTitle?(): JSXElement
-  expandedRowRender?(ctx: Parameters<ExpandedRowRender<T>>[0]): JSXElement
-  customFilterDropdown?(ctx: FilterDropdownProps<T>): JSXElement
-  customFilterIcon?(ctx: {
-    filtered: boolean
-    column: ColumnType<T>
-  }): JSXElement
-}
-
-/**
+ * 解析好的 ProTable Search 配置
+ *
  * @internal
  */
-export interface InternalTableSlots<T> extends TableSlots<T> {
-  headerCell?(ctx: HeaderCellSlotParams<T>): JSXElement
-  bodyCell?(ctx: BodyCellSlotParams<T>): JSXElement
-}
-
-/**
- * toolbar 配置
- */
-export interface ProTableToolbarOption<T = object> {
-  /**
-   * 是否显示
-   */
-  show?: MaybeRef<boolean>
-
-  /**
-   * 间距配置
-   */
-  space?: MaybeRef<SpaceProps>
-
-  /**
-   * 操作列表
-   */
-  actions?: ProTableToolbarActions<T>
-}
-
-export type ProTableToolbarActions<T> = {
-  /**
-   * 刷新按钮
-   */
-  reload?: ToolbarOption
-
-  /**
-   * 导出按钮
-   */
-  export?: ToolbarOption
-
-  /**
-   * 密度按钮
-   */
-  density?: ToolbarOption
-
-  /**
-   * 设置按钮
-   */
-  settings?: ToolbarOption
-
-  /**
-   * 其他
-   */
-  [type: string]: ToolbarOption | undefined
-} & T
-
-/**
- * toolbar 按钮配置
- */
-export interface ToolbarOption {
-  /**
-   * 是否显示操作
-   */
-  show?: MaybeRef<boolean>
-
-  /**
-   * toolbar className
-   */
-  class?: MaybeRef<string | string[] | Record<string, boolean>>
-
-  /**
-   * toolbar 样式
-   */
-  style?: MaybeRef<string | CSSProperties>
-
-  /**
-   * 优先级，越高越靠前
-   */
-  order?: MaybeRef<number>
-
-  /**
-   * button 配置
-   */
-  props?: ButtonProps & { buttonText?: VNodeChild }
-
-  /**
-   * 提示 配置
-   */
-  tooltip?: ToolbarOptionTooltip
-
-  /**
-   * 自定义渲染操作
-   */
-  render?: (buttonProps: ButtonProps & { buttonText?: VNodeChild }) => VNode
-}
-
-/**
- * toolbar 按钮 tooltip 配置
- */
-export interface ToolbarOptionTooltip extends TooltipProps {
-  show?: MaybeRef<boolean>
-}
-
-export interface InternalProTableToolbarOption {
-  show: boolean
-  actions: ToolbarOption[]
-  style?: string | CSSProperties
-  class?: string | string[] | Record<string, boolean>
-  tooltip?: TooltipProps
-  space: SpaceProps
-}
+export type InternalProTableSearchOptions<
+  SearchForm extends DataObject = DataObject
+> = BuildFormBinding<SearchForm>

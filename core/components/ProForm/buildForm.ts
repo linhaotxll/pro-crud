@@ -1,192 +1,191 @@
 import cloneDeep from 'clone-deep'
-import { get, has, merge, set, unset } from 'lodash-es'
-import { computed, ref, toRaw, toValue, reactive } from 'vue'
+import { get, set, unset, has, once } from 'lodash-es'
+import {
+  computed,
+  ref,
+  toRaw,
+  reactive,
+  toValue,
+  watch,
+  toRef,
+  unref,
+} from 'vue'
 
 import { buildFormColumn } from './buildFormColumn'
 import {
+  buildDefaultProSearchActionGroup,
+  buildDefaultProFormActionGroup,
   DefaultProFormCol,
-  DefaultProProColumn,
-  successToast,
+  DefaultProSearchCol,
 } from './constant'
 import { useValues } from './useValues'
 
-import { processDictionary, unRef } from '../common'
-import { showToast } from '../Toast'
-
-import { ensureGlobalOptions } from '~/constant'
+import { isArray, isFunction, isString } from '../../utils'
+import { mergeWithTovalue } from '../common'
+import { buildButtonGroup } from '../ProButton'
 
 import type {
   BuildFormOptionResult,
   BuildFormResult,
   InternalProFormColumnOptions,
-  ProFormActionsOptions,
+  ProFormActionGroupExtends,
+  ProFormActions,
   ProFormColumnOptions,
-  ProFormInstance,
   ProFormScope,
 } from './interface'
-import type { Arrayable } from '../common'
+import type { DataObject, NamePath } from '../common'
 import type {
-  FormItemProps,
-  FormInstance,
-  FormItemInstance,
   FormProps,
   ColProps,
+  FormInstance,
+  RowProps,
 } from 'ant-design-vue'
-import type {
-  NamePath,
-  ValidateOptions,
-} from 'ant-design-vue/es/form/interface'
-import type { ComputedRef, Ref } from 'vue'
+import type { ValidateOptions } from 'ant-design-vue/es/form/interface'
+import type { Ref } from 'vue'
 
-export function buildForm<T extends object, C = undefined, R = T>(
-  options: (
-    scope: ProFormScope<T>,
-    ctx?: C | undefined
-  ) => BuildFormOptionResult<T, R>
-): BuildFormResult<T>
-export function buildForm<T extends object, C, R = T>(
-  options: (scope: ProFormScope<T>, ctx: C) => BuildFormOptionResult<T, R>,
-  context: C
-): BuildFormResult<T>
-
-export function buildForm<T extends object, C, R = T>(
-  options: (scope: ProFormScope<T>, ctx?: C) => BuildFormOptionResult<T, R>,
-  ctx?: C
+export function buildForm<
+  T extends DataObject = DataObject,
+  S extends DataObject = T
+>(
+  options: (scope: ProFormScope<T>) => BuildFormOptionResult<T, S>
 ): BuildFormResult<T> {
   const scope: ProFormScope<T> = {
     getFormValues,
     submit,
     reset,
-    resetFields,
     setFieldValue,
     setFieldValues,
-    setFieldValuesTransform,
     getFieldValue,
     removeFields,
     validate,
-    validateFields,
     scrollToField,
     clearValidate,
     getFieldInstance,
-    setFieldInstance,
-    getFieldInstances,
   }
 
-  const values = reactive<T>({} as T) as T
+  const values = reactive({}) as T
 
   const {
     initialValues,
-    columns = [],
+    columns,
     formProps,
-    labelCol,
-    wrapperCol,
-    actions,
-    toast = successToast,
+    name: formName,
+    action = {},
     row,
-    col = DefaultProFormCol,
-    fetchDictCollection,
+    col,
+    fetchDictionaryCollection,
     beforeSubmit,
     submitRequest,
     successRequest,
+    failRequest,
     validateFail,
-  } = options(scope, ctx)
+    wrap,
+    gap = 0,
+  } = options(scope)
 
-  useValues(values, initialValues, columns)
+  // 修改 values
+  useValues(values, initialValues)
 
-  // el-form ref
-  const formRef = ref<FormInstance | null>(null)
+  // 解析 Form Props
+  const resolvedFormProps = formProps
+    ? computed<FormProps>(() => mergeWithTovalue({}, toValue(formProps)))
+    : undefined
 
-  // 解析列配置
-  const resolvedLabelCol = computed(() => unRef(labelCol))
-  const resolvedWrapperCol = computed(() => unRef(wrapperCol))
+  // 是否是行内模式
+  const isInlineLayout = computed(
+    () => resolvedFormProps?.value.layout === 'inline'
+  )
 
+  // 解析通用 Row Props
+  const resolvedCommonRowProps = row
+    ? computed<RowProps>(() => mergeWithTovalue({}, toValue(row)))
+    : undefined
+
+  // 解析通用 Col Props
+  // 行内模式使用 ProSearch，否则使用正常模式，其中不使用默认值需要指定 null
+  const resolvedCommonColProps = computed<ColProps | undefined>(() => {
+    if (toValue(isInlineLayout)) {
+      return mergeWithTovalue({}, DefaultProSearchCol, toValue(col))
+    }
+    return col === null
+      ? undefined
+      : mergeWithTovalue({}, DefaultProFormCol, toValue(col))
+  })
+
+  // 构建列
+  const resolvedColumns = ref([]) as Ref<InternalProFormColumnOptions<T>[]>
   const resolvedColumnsMap = new Map<
-    FormItemProps['name'],
+    NamePath,
     InternalProFormColumnOptions<T>
   >()
 
-  // 解析字典集合
-  const resolveColumnDictionary = processDictionary(fetchDictCollection, scope)
+  // 只调用一次的获取集合函数
+  const fetchDictionaryCollectionOnce = isFunction(fetchDictionaryCollection)
+    ? once(fetchDictionaryCollection)
+    : undefined
 
-  function extractColumnChildren(column: ProFormColumnOptions<T>) {
-    let children: ComputedRef<InternalProFormColumnOptions<T>>[] = []
-    if (column.children && column.children.length) {
-      children = column.children.map(child => {
-        const childDict = resolveColumnDictionary(
-          merge({}, child, DefaultProProColumn)
+  watch(
+    [
+      toRef(columns) as Ref<ProFormColumnOptions[] | undefined>,
+      toRef(formName) as Ref<NamePath | undefined>,
+    ],
+    ([cols, formName]) => {
+      resolvedColumns.value = []
+
+      if (!cols) {
+        return
+      }
+
+      const tempCols: InternalProFormColumnOptions<DataObject>[] = []
+
+      for (const column of cols) {
+        const resolvedColumn = buildFormColumn(
+          resolvedCommonColProps,
+          isInlineLayout,
+          scope,
+          column,
+          undefined,
+          fetchDictionaryCollectionOnce,
+          internalColumn => {
+            if (internalColumn.name) {
+              resolvedColumnsMap.set(internalColumn.name, internalColumn)
+            }
+          },
+          formName
         )
+        tempCols.push(resolvedColumn)
+      }
 
-        return computed(() =>
-          buildFormColumn(
-            child.col ?? col,
-            resolvedColumnsMap,
-            child,
-            childDict,
-            extractColumnChildren(child)
+      resolvedColumns.value = tempCols
+    },
+    { immediate: true, deep: true }
+  )
+
+  // 构建按扭组
+  const actionGroup = buildButtonGroup<
+    ProFormActions,
+    ProFormActionGroupExtends
+  >(
+    computed(() => {
+      const args: any[] = []
+      if (toValue(isInlineLayout)) {
+        args.push(
+          buildDefaultProSearchActionGroup(
+            scope,
+            toValue(resolvedCommonColProps),
+            toValue(resolvedColumns),
+            toValue(action)
           )
         )
-      })
-    }
-    return children
-  }
+      } else {
+        args.push(buildDefaultProFormActionGroup(scope), toValue(action))
+      }
+      return mergeWithTovalue({}, ...args)
+    })
+  )
 
-  // 解析列配置
-  const resolvedColumns = columns.map(c => {
-    const dict = resolveColumnDictionary(merge({}, c, DefaultProProColumn))
-    const children = extractColumnChildren(c)
-
-    return computed(() =>
-      buildFormColumn(col, resolvedColumnsMap, c, dict, children)
-    )
-  })
-
-  // 解析表单配置
-  const resolvedFormProps = computed<FormProps>(() => {
-    const result: FormProps = {}
-
-    const originFormProps = unRef(formProps)
-
-    if (originFormProps) {
-      Object.keys(originFormProps).forEach(key => {
-        // @ts-ignore
-        result[key] = unRef(originFormProps[key])
-      })
-    }
-
-    return result
-  })
-
-  // 默认按钮
-  const defaultActions: ProFormActionsOptions = {
-    show: true,
-    list: {
-      confirm: {
-        show: true,
-        text: '提交',
-        props: { type: 'primary', onClick: scope.submit },
-      },
-    },
-  }
-
-  // 解析按钮组配置
-  const resolvedActions = computed(() => {
-    const { col, show, ...rest } = merge({}, defaultActions, actions)
-
-    const formLabelSpan = resolvedFormProps.value.labelCol?.span ?? 0
-    const mergeCol: ColProps = merge({ offset: formLabelSpan }, toValue(col))
-
-    const result: ProFormActionsOptions = merge(
-      {
-        show: toValue(show),
-        col: mergeCol,
-      },
-      rest
-    )
-
-    return result
-  })
-
-  const formItemRef = new Map<NamePath, Ref<FormItemInstance | null>>()
+  // Form Ref
+  const formRef = ref<FormInstance | null>(null)
 
   /**
    * 提交表单
@@ -202,13 +201,15 @@ export function buildForm<T extends object, C, R = T>(
     // 数据转换
     const params = await _beforeSubmit(values)
 
+    const submitRequestValue = unref(submitRequest)
     // 调用接口
-    const result = (await submitRequest?.(params)) ?? false
+    const result = (await submitRequestValue?.(params)) ?? false
 
-    // 提示
+    // 成功回调
     if (result) {
-      successRequest?.()
-      showToast(toast)
+      return unref(successRequest)?.(params)
+    } else {
+      return unref(failRequest)?.()
     }
   }
 
@@ -217,20 +218,20 @@ export function buildForm<T extends object, C, R = T>(
    */
   async function _beforeSubmit(values: T) {
     const params = cloneDeep(toRaw(values))
+    const beforeSubmitValue = unref(beforeSubmit)
 
     // 先进行上传前的处理
     const beforeSubmitParams =
-      typeof beforeSubmit === 'function'
-        ? await beforeSubmit(params)
+      typeof beforeSubmitValue === 'function'
+        ? await beforeSubmitValue(params)
         : (params as unknown as any)
 
     // 再监测每个字段是否需要上传，不需要会删除
-    for (const column of resolvedColumns) {
-      const { submitted, itemProps, transform } = column.value
-      const name = unRef(itemProps!.name)
+    for (const column of toValue(resolvedColumns)) {
+      const { submitted, itemProps } = toValue(column)
+      const name = itemProps?.name
 
       if (name) {
-        // 检测字段是否需要提交上传
         if (
           submitted === false ||
           (typeof submitted === 'function' && submitted(scope) === false)
@@ -238,15 +239,11 @@ export function buildForm<T extends object, C, R = T>(
           unset(beforeSubmitParams, name)
           continue
         }
-
-        // 表单数据转换为服务端数据
-        if (typeof transform?.to === 'function') {
-          set(
-            beforeSubmitParams,
-            name,
-            transform.to(get(beforeSubmitParams, name))
-          )
-        }
+        set(
+          beforeSubmitParams,
+          name,
+          transformToValue(name, get(beforeSubmitParams, name))
+        )
       }
     }
 
@@ -257,62 +254,75 @@ export function buildForm<T extends object, C, R = T>(
   /**
    * 重置表单
    */
-  function reset(name?: NamePath) {
-    formRef.value?.resetFields(name)
+  function reset(name?: NamePath[]) {
+    formRef.value?.resetFields(name as any)
 
     // 删除多余属性，重置已有属性，确保必须是 initialValue
-    Object.keys(values).forEach(key => {
-      if (!has(initialValues, key)) {
-        removeFields(key)
-      } else {
-        setFieldValue(key, (initialValues as any)?.[key], true)
-      }
-    })
-  }
-
-  /**
-   * 重置表单
-   */
-  function resetFields(name?: NamePath) {
-    return reset(name)
-  }
-
-  /**
-   * 设置表单
-   */
-  function setFieldValue(key: NamePath, value: any, transformed = false) {
-    if (transformed) {
-      const column = resolvedColumnsMap.get(key)
-      if (column) {
-        if (typeof column.transform?.from === 'function') {
-          value = column.transform.from(value)
+    function _reset(fileds: NamePath[]) {
+      for (const field of fileds) {
+        if (!has(initialValues, field)) {
+          removeFields(field)
+        } else {
+          setFieldValue(field, get(initialValues, field))
         }
       }
     }
-    set(values, key, value)
+
+    if (!name) {
+      _reset(Object.keys(values))
+    } else {
+      _reset(name)
+    }
+  }
+
+  /**
+   * 设置一个表单值
+   */
+  function setFieldValue(key: NamePath, value: any) {
+    transformFromValue(key, value, values)
   }
 
   /**
    * 设置表单多个值
    */
-  function setFieldValues(values: Record<string, any>, transformed = false) {
-    Object.keys(values).forEach(key => {
-      setFieldValue(key, values[key], transformed)
-    })
-  }
-
-  /**
-   * 设置表单多个值，会进行服务端与表单之间的数据转换
-   */
-  function setFieldValuesTransform(values: Record<string, any>) {
-    return setFieldValues(values, true)
+  function setFieldValues(values: Record<string, any>) {
+    const keys = Object.keys(values)
+    for (let i = 0; i < keys.length; ++i) {
+      setFieldValue(keys[i], values[keys[i]])
+    }
   }
 
   /**
    * 获取对应字段名的值
    */
   function getFieldValue(name: NamePath) {
-    return get(values, name)
+    let value = get(values, name)
+    const column = resolvedColumnsMap.get(name)
+    if (column) {
+      const { transform, type, list } = column
+      const listValue = toValue(list)
+
+      if (type === 'list' && listValue?.children && isArray(value)) {
+        for (let j = 0; j < value.length; ++j) {
+          for (let i = 0; i < listValue.children.length; ++i) {
+            const { transform, name } = listValue.children[i]
+            const resolvedName = isArray(name) ? name[name.length - 1] : name
+            if (isFunction(transform?.from)) {
+              set(
+                value[j],
+                resolvedName,
+                transform.from(get(value[j], resolvedName))
+              )
+            }
+          }
+        }
+      }
+
+      if (typeof transform?.from === 'function') {
+        value = transform.from(value)
+      }
+    }
+    return value
   }
 
   /**
@@ -325,28 +335,16 @@ export function buildForm<T extends object, C, R = T>(
   /**
    * 对整个表单的内容进行验证
    */
-  async function validate(
-    name?: Arrayable<NamePath> | undefined,
-    options?: ValidateOptions
-  ) {
-    let validated: T | undefined
-    try {
-      // @ts-ignore
-      validated = await formRef.value!.validate(name, options)
-    } catch (e: any) {
-      validateFail?.(e)
-    }
-    return validated
-  }
-
-  /**
-   * 验证具体的某个字段
-   */
-  async function validateFields(
-    name?: Arrayable<NamePath> | undefined,
-    options?: ValidateOptions
-  ) {
-    return validate(name, options)
+  function validate(name?: NamePath[] | string, options?: ValidateOptions) {
+    return Promise.resolve<DataObject | undefined>(
+      formRef
+        .value!.validate(name, options)
+        .then(res => res)
+        .catch(e => {
+          unref(validateFail)?.(e)
+          throw e
+        })
+    )
   }
 
   /**
@@ -359,32 +357,8 @@ export function buildForm<T extends object, C, R = T>(
   /**
    * 清理某个字段的表单验证信息
    */
-  function clearValidate(name?: NamePath) {
-    return formRef.value!.clearValidate(name)
-  }
-
-  /**
-   * 获取对应字段实例
-   */
-  function getFieldInstance(name: NamePath): FormItemInstance | null {
-    return formItemRef.get(name)?.value ?? null
-  }
-
-  /**
-   * 获取所有字段实例集合
-   */
-  function getFieldInstances() {
-    return formItemRef
-  }
-
-  /**
-   * 设置对应字段实例
-   */
-  function setFieldInstance(
-    name: NamePath,
-    value: Ref<FormItemInstance | null>
-  ) {
-    formItemRef.set(name, value)
+  function clearValidate(name?: NamePath[]) {
+    return formRef.value!.clearValidate(name as any)
   }
 
   /**
@@ -394,28 +368,103 @@ export function buildForm<T extends object, C, R = T>(
     return values
   }
 
-  const proFormRef = ref(null) as Ref<ProFormInstance<T> | null>
+  /**
+   * 转换要设置的 value
+   * @param name 表单名称
+   * @param value 表单值
+   * @param target 结果对象
+   */
+  function transformFromValue(name: NamePath, value: any, target: any) {
+    const column = resolvedColumnsMap.get(name)
+    let result: any = value
+
+    if (column) {
+      const { transform, type, list } = column
+      const listValue = toValue(list)
+
+      if (type === 'list' && listValue?.children && isArray(value)) {
+        for (let j = 0; j < value.length; ++j) {
+          for (let i = 0; i < listValue.children.length; ++i) {
+            const { transform, name } = listValue.children[i]
+            const resolvedName = isArray(name) ? name[name.length - 1] : name
+            if (isFunction(transform?.from)) {
+              result ||= []
+              result[j] ||= {}
+              set(
+                result[j],
+                resolvedName,
+                transform.from(get(value[j], resolvedName))
+              )
+            }
+          }
+        }
+      }
+
+      if (typeof transform?.from === 'function') {
+        result = transform.from(result)
+      }
+    }
+    set(target, name, result)
+  }
+
+  /**
+   * 转换要设置的 value
+   * @param name 表单名称
+   * @param target 结果对象
+   */
+  function transformToValue(name: NamePath, target: any) {
+    const column = resolvedColumnsMap.get(name)
+    let result: any = target
+    const value = target
+
+    if (column) {
+      const { transform, type, list } = column
+      const listValue = toValue(list)
+
+      if (type === 'list' && listValue?.children && isArray(value)) {
+        for (let j = 0; j < value.length; ++j) {
+          for (let i = 0; i < listValue.children.length; ++i) {
+            const { transform, name } = listValue.children[i]
+            const resolvedName = isArray(name) ? name[name.length - 1] : name
+            if (isFunction(transform?.to)) {
+              result ||= []
+              result[j] ||= {}
+              set(
+                result[j],
+                resolvedName,
+                transform.to(get(value[j], resolvedName))
+              )
+            }
+          }
+        }
+      }
+
+      if (typeof transform?.to === 'function') {
+        result = transform.to(result)
+      }
+    }
+
+    return result
+  }
+
+  function getFieldInstance(name: NamePath) {
+    return resolvedColumnsMap.get(name)?.instance
+  }
+
   const formBinding: BuildFormResult<T> = {
-    proFormRef,
     proFormBinding: {
+      row: resolvedCommonRowProps,
       columns: resolvedColumns,
-      labelCol: resolvedLabelCol,
-      wrapperCol: resolvedWrapperCol,
       formProps: resolvedFormProps,
-      actions: resolvedActions,
+      actionGroup,
       values,
       scope,
       formRef,
-      resolvedColumnsMap,
-      row: computed(() => unRef(row)),
+      isInlineLayout,
+      wrap,
+      gap: computed(() => (isString(gap) ? gap : `${gap}px`)),
     },
   }
-
-  ensureGlobalOptions().hooks?.form?.({
-    proFormScope: scope,
-    proFormBinding: formBinding.proFormBinding,
-    proFormRef,
-  })
 
   return formBinding
 }

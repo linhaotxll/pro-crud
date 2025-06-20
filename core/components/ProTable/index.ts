@@ -1,4 +1,4 @@
-export { default as ProTable } from './ProTable.vue'
+export { ProTable } from './ProTable'
 
 export * from './interface'
 

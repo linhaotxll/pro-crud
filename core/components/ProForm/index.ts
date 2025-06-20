@@ -1,9 +1,12 @@
 export * from './interface'
-export * from './buildForm'
-export { default as ProForm } from './ProForm.vue'
-export { default as ProFormItem } from './ProFormItem.vue'
-export { default as DynamicVModel } from './DynamicVModel.vue'
-export { default as ProFormList } from './ProFormList.vue'
+export * from './constant'
+
+export { buildForm } from './buildForm'
+export { buildSearch } from './buildSearch'
 export { useValues } from './useValues'
 export { buildFormColumn } from './buildFormColumn'
-export * from './constant'
+
+export { ProForm } from './ProForm'
+export { ProFormItem } from './ProFormItem'
+export { ProFormList } from './ProFormList'
+export { ProFormField } from './ProFormField'

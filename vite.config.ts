@@ -1,3 +1,5 @@
+/// <reference types="vitest" />
+
 import { resolve } from 'path'
 
 import vue from '@vitejs/plugin-vue'
@@ -11,13 +13,17 @@ import { defineConfig } from 'vite'
 import dts from 'vite-plugin-dts'
 import { viteMockServe } from 'vite-plugin-mock'
 import Pages from 'vite-plugin-pages'
+import VueDevTools from 'vite-plugin-vue-devtools'
 import svgLoader from 'vite-svg-loader'
+import { configDefaults } from 'vitest/config'
 
 // import { ProComponentsResolver } from './lib/resolveComponents'
 
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [
+    VueDevTools(),
+
     vue({
       script: {
         defineModel: true,
@@ -96,5 +102,11 @@ export default defineConfig({
     rollupOptions: {
       external: ['vue', 'ant-design-vue', '@ant-design/icons-vue'],
     },
+  },
+
+  test: {
+    environment: 'happy-dom',
+    testTimeout: 10000,
+    exclude: [...configDefaults.exclude, 'src'],
   },
 })

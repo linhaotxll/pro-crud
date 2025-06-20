@@ -1,12 +1,15 @@
-import { merge } from 'lodash-es'
-import { type WritableComputedRef } from 'vue'
+import { Tag } from 'ant-design-vue'
+import { h, resolveComponent, toValue } from 'vue'
 
-import { ensureGlobalOptions } from '~/constant'
+import type { DataObject } from './interface'
+import type { CustomRender } from '../CustomRender'
+import type { InternalProFormColumnOptions, ProFormScope } from '../ProForm'
+import type { RenderBodyCellTextParams } from '../ProTable'
+import type { CSSProperties, Slots, VNodeChild } from 'vue'
 
-import type { InternalProFormColumnOptions } from '../ProForm'
-import type { BodyCellSlotParams } from '../ProTable'
-import type { VNode } from 'vue'
-
+/**
+ * 字段类型
+ */
 export type ValueType =
   | 'text'
   | 'password'
@@ -27,39 +30,69 @@ export type ValueType =
   | 'time-range'
   | 'auto-complete'
   | 'cascader'
-  | 'dict'
-  | 'dict-select'
+  | 'calendar'
+  | 'select'
+  | 'radio-group'
+  | 'checkbox-group'
   | 'list'
 
-export interface ValueTypeValue<T = any, R = any> {
-  form?: ValueTypeForm<T>
-
-  table?: ValueTypeTable<R>
-}
-
-export interface ValueTypeForm<T> {
-  is?: any
+/**
+ * 自定义字段配置
+ */
+export interface ValueTypeValue<T = any, F = any> {
+  /**
+   * 自定义表单字段配置
+   */
+  form?: ValueTypeForm<F>
 
   /**
+   * 自定义表格字段配置
+   */
+  table?: CustomRender<T>
+}
+
+/**
+ * 自定义表单配置
+ */
+export interface ValueTypeForm<F = any> extends CustomRender<F> {
+  /**
+   * v-model 名称
+   *
    * @default 'value'
    */
   vModelName?: string
-
-  props?: any
-
-  render?: (ctx: {
-    vModel: WritableComputedRef<T>
-    column: InternalProFormColumnOptions<any>
-  }) => VNode
 }
 
-export interface ValueTypeTable<T> {
+/**
+ * 自定义表单组件 Props
+ */
+export interface ValueTypeFormProps {
+  column: InternalProFormColumnOptions<any>
+  style: CSSProperties | undefined
+  scope: ProFormScope<any> | undefined
+  slots: Slots | undefined
+  // v-model:value
+  [name: string]: any
+}
+
+export interface ValueTypeTable<T extends DataObject = DataObject> {
+  /**
+   * 组件名
+   */
   is?: any
+
+  /**
+   * 传递给组件的参数
+   */
   props?: any
-  render?: (ctx: BodyCellSlotParams<T>) => VNode
+
+  /**
+   * 自定义渲染组件函数
+   */
+  render?: (ctx: RenderBodyCellTextParams<T>) => VNodeChild
 }
 
-const DefaultValueType: Record<ValueType, ValueTypeValue> = {
+export const DefaultValueType: Record<ValueType, ValueTypeValue> = {
   text: {
     form: { is: 'a-input' },
   },
@@ -87,14 +120,14 @@ const DefaultValueType: Record<ValueType, ValueTypeValue> = {
   date: {
     form: {
       is: 'a-date-picker',
-      props: { placeholder: '请选择日期', valueFormat: 'YYYY-MM-DD' },
+      context: { placeholder: '请选择日期', valueFormat: 'YYYY-MM-DD' },
     },
   },
 
   'date-week': {
     form: {
       is: 'a-date-picker',
-      props: {
+      context: {
         placeholder: '请选择周',
         picker: 'week',
         format: '第ww周',
@@ -106,7 +139,7 @@ const DefaultValueType: Record<ValueType, ValueTypeValue> = {
   'date-month': {
     form: {
       is: 'a-date-picker',
-      props: {
+      context: {
         placeholder: '请选择月',
         picker: 'month',
         format: 'YYYY-MM',
@@ -118,7 +151,7 @@ const DefaultValueType: Record<ValueType, ValueTypeValue> = {
   'date-quarter': {
     form: {
       is: 'a-date-picker',
-      props: {
+      context: {
         placeholder: '请选择季度',
         picker: 'quarter',
         format: 'YYYY-MM',
@@ -130,7 +163,7 @@ const DefaultValueType: Record<ValueType, ValueTypeValue> = {
   'date-year': {
     form: {
       is: 'a-date-picker',
-      props: {
+      context: {
         placeholder: '请选择年',
         picker: 'year',
         format: 'YYYY',
@@ -142,7 +175,7 @@ const DefaultValueType: Record<ValueType, ValueTypeValue> = {
   'date-range': {
     form: {
       is: 'a-range-picker',
-      props: {
+      context: {
         placeholder: ['请选择开始日期', '请选择结束日期'],
         format: 'YYYY-MM-DD',
         valueFormat: 'YYYY-MM-DD',
@@ -153,7 +186,7 @@ const DefaultValueType: Record<ValueType, ValueTypeValue> = {
   'date-month-range': {
     form: {
       is: 'a-range-picker',
-      props: {
+      context: {
         placeholder: ['请选择开始月份', '请选择结束月份'],
         picker: 'month',
         format: 'YYYY-MM',
@@ -165,7 +198,7 @@ const DefaultValueType: Record<ValueType, ValueTypeValue> = {
   'date-time': {
     form: {
       is: 'a-date-picker',
-      props: {
+      context: {
         showTime: true,
         placeholder: '请选择日期',
         format: 'YYYY-MM-DD HH:mm:ss',
@@ -177,7 +210,7 @@ const DefaultValueType: Record<ValueType, ValueTypeValue> = {
   'date-time-range': {
     form: {
       is: 'a-range-picker',
-      props: {
+      context: {
         showTime: true,
         placeholder: ['请选择开始日期', '请选择结束日期'],
         format: 'YYYY-MM-DD HH:mm:ss',
@@ -193,7 +226,7 @@ const DefaultValueType: Record<ValueType, ValueTypeValue> = {
   time: {
     form: {
       is: 'a-time-picker',
-      props: {
+      context: {
         placeholder: '请选择时间',
         format: 'HH:mm:ss',
         valueFormat: 'HH:mm:ss',
@@ -204,7 +237,7 @@ const DefaultValueType: Record<ValueType, ValueTypeValue> = {
   'time-range': {
     form: {
       is: 'a-time-range-picker',
-      props: {
+      context: {
         placeholder: ['请选择开始时间', '请选择结束时间'],
         format: 'HH:mm:ss',
         valueFormat: 'HH:mm:ss',
@@ -220,15 +253,37 @@ const DefaultValueType: Record<ValueType, ValueTypeValue> = {
     form: { is: 'a-cascader' },
   },
 
-  dict: {
+  calendar: {
+    form: { is: 'a-calendar' },
+  },
+
+  // dict: {
+  //   table: {
+  //     // is: 'pro-dictionary',
+  //   },
+  // },
+
+  select: {
     table: {
-      is: 'pro-dictionary',
+      render: renderDictionaryInTable,
+    },
+    form: {
+      render: renderDictionaryInForm,
     },
   },
 
-  'dict-select': {
-    table: { is: 'pro-dictionary' },
-    form: { is: 'pro-select' },
+  'radio-group': {
+    table: {
+      render: renderDictionaryInTable,
+    },
+    form: { render: renderDictionaryInForm },
+  },
+
+  'checkbox-group': {
+    table: {
+      render: renderDictionaryInTable,
+    },
+    form: { render: renderDictionaryInForm },
   },
 
   list: {
@@ -236,17 +291,35 @@ const DefaultValueType: Record<ValueType, ValueTypeValue> = {
   },
 }
 
-let _ValueTypeMap: Record<ValueType | any, ValueTypeValue> | undefined
-export const ValueTypeMap = {
-  get value() {
-    if (_ValueTypeMap) {
-      return _ValueTypeMap
-    }
+/**
+ * 渲染字典数据在 Table 中的内容
+ */
+function renderDictionaryInTable(ctx: RenderBodyCellTextParams<object>) {
+  const {
+    text,
+    column: {
+      _column: { dictionary },
+    },
+  } = ctx
+  const { label = '', color } = dictionary?.dictionaryMap.value?.[text] || {}
+  return h(Tag, { color }, () => label)
+}
 
-    const injectType = ensureGlobalOptions().types
-    return (_ValueTypeMap = merge({}, DefaultValueType, injectType) as Record<
-      ValueType | any,
-      ValueTypeValue
-    >)
-  },
+/**
+ * 渲染字典数据在 Form 中的内容
+ */
+function renderDictionaryInForm(ctx: ValueTypeFormProps) {
+  const {
+    column: { type, dictionary: { dictionary, loading } = {} },
+  } = ctx
+
+  return h(
+    resolveComponent(`a-${type}`),
+    {
+      ...ctx,
+      options: toValue(dictionary),
+      loading: toValue(loading),
+    },
+    ctx.slots
+  )
 }

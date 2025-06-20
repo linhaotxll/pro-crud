@@ -1,6 +1,5 @@
-import { Input } from 'ant-design-vue'
-import { useScrollbar } from 'use-scrollbars'
-import { createApp, onMounted } from 'vue'
+import antdv, { Input } from 'ant-design-vue'
+import { createApp } from 'vue'
 
 import './index.css'
 import App from './App.vue'
@@ -14,8 +13,10 @@ import 'use-scrollbars/dist/style.css'
 
 const app = createApp(App)
 
-app.component(BasicDialog.name, BasicDialog)
-app.component(BasicInfo.name, BasicInfo)
+app.use(antdv)
+
+app.component(BasicDialog.name!, BasicDialog)
+app.component(BasicInfo.name!, BasicInfo)
 
 // app.use(ElementPlus, {})
 
@@ -36,43 +37,43 @@ app.use(ProComponents, {
     },
   },
 
-  transformResponse(ctx) {
-    const { response } = ctx
+  // transformResponse(ctx) {
+  //   const { response } = ctx
 
-    return {
-      total: response.total,
-      data: response.rows,
-    }
-  },
+  //   return {
+  //     total: response.total,
+  //     data: response.rows,
+  //   }
+  // },
 
-  transformQuery(ctx) {
-    const {
-      query: {
-        page: { pageNumber, pageSize },
-      },
-      form,
-    } = ctx
-    return { query: { pageSize, pageNumber, ...form } }
-  },
+  // transformQuery(ctx) {
+  //   const {
+  //     query: {
+  //       page: { pageNumber, pageSize },
+  //     },
+  //     form,
+  //   } = ctx
+  //   return { query: { pageSize, pageNumber, ...form } }
+  // },
 
-  hooks: {
-    table({ proTableScope }) {
-      onMounted(() => {
-        const barStates = useScrollbar()
-        const tableRef = proTableScope.getTableRef()
-        const tableBody = tableRef.value.$el.querySelector('.ant-table-body')
-        barStates.init({
-          // 将滚动条挂载到 .ant-table-wrapper 上
-          mount: tableBody,
-          // 选中超高的子元素
-          content: tableBody.querySelector('.ant-table-body > table'),
-        })
-        barStates.setOffset({
-          y: { top: tableRef.value.$el.querySelector('.ant-table-header') },
-        })
-      })
-    },
-  },
+  // hooks: {
+  //   table({ proTableScope }) {
+  //     onMounted(() => {
+  //       const barStates = useScrollbar()
+  //       const tableRef = proTableScope.getTableRef()
+  //       const tableBody = tableRef.value.$el.querySelector('.ant-table-body')
+  //       barStates.init({
+  //         // 将滚动条挂载到 .ant-table-wrapper 上
+  //         mount: tableBody,
+  //         // 选中超高的子元素
+  //         content: tableBody.querySelector('.ant-table-body > table'),
+  //       })
+  //       barStates.setOffset({
+  //         y: { top: tableRef.value.$el.querySelector('.ant-table-header') },
+  //       })
+  //     })
+  //   },
+  // },
 })
 
 app.use(router)

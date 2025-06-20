@@ -1,133 +1,302 @@
-import { ConfigProvider, FormItem, type SpaceProps } from 'ant-design-vue'
-import { h, inject, resolveComponent } from 'vue'
+import { ReloadOutlined } from '@ant-design/icons-vue'
+import { h, toValue, unref } from 'vue'
 
-import { ValueTypeMap, type ValueType, genToast } from '../common'
-import { DynamicVModel, buildFormColumn } from '../ProForm'
+import { getUuid, mergeWithTovalue } from '../common'
+import { ProButtonGroup } from '../ProButton'
+import { buildButtonGroupInRender } from '../ProButton/buildButtonGroup'
+
+import { isFunction, isNil } from '~/utils'
 
 import type {
-  ProTableActionProps,
-  ProTableColumnSlots,
-  ProvideEditTableOptions,
-  ToolbarOption,
+  BuildProTableOptionResult,
+  ProTableColumnActionGroup,
+  ProTableColumnProps,
+  ProTableEditableOptions,
+  ProTableScope,
+  ProTableToolbarActionGroup,
 } from './interface'
-import type { Key } from 'ant-design-vue/es/_util/type'
-import type { ThemeConfig } from 'ant-design-vue/es/config-provider/context'
-import type { InjectionKey } from 'vue'
+import type {
+  InternalColumnOptions,
+  InternalEditableKeys,
+  InternalProTableEditableOptions,
+} from './internal'
+import type { DataObject } from '../common'
+import type { FlexProps, TableProps } from 'ant-design-vue'
+import type { GetRowKey } from 'ant-design-vue/es/vc-table/interface'
+import type { ValueOf } from 'type-fest'
+import type { ComputedRef, MaybeRefOrGetter, VNodeChild } from 'vue'
 
-export const DefaultPageNumber = 1
-export const DefaultPageSize = 10
-
-// 默认 toolbar 按钮配置
-export const DefaultToolbarTooltip: ToolbarOption = {
-  show: true,
-  order: 1,
-  tooltip: { placement: 'top', show: true },
-  props: {
-    type: 'primary',
-    shape: 'circle',
-  },
-}
-
-// toolbar 默认间距配置
-export const DefaultToolbarSpace: SpaceProps = { size: 16 }
-
-// toolbar 密度枚举
-export const enum ToolbarDensityEnum {
-  Large = 'large',
-  Default = 'middle',
-  Small = 'small',
-}
-
-// 表格默认大小
-export const DefaultTableSize = 'large'
-
-// 默认显示表格列
-export const DefaultTableColumnShow = true
-
-export const DefaultColumnType: ValueType = 'text'
-
-export const EditableTableData = Symbol() as InjectionKey<
-  ProvideEditTableOptions<any> | undefined
->
-
-const EditableTableCellTheme: ThemeConfig = {
-  token: { marginLG: 0, marginXS: 0, marginXXS: 0 },
-}
-
-export function injectValueTypeTableCell(
-  valueType: ValueType
-): ProTableColumnSlots<any>['bodyCell'] {
-  return ctx => {
-    const editableData = inject(EditableTableData)
-
-    if (editableData) {
-      const { name, editable } = ctx.column.__column!
-      let rowKey: Key
-
-      const isEditable =
-        editable === false
-          ? false
-          : typeof editable === 'function'
-          ? editable(ctx)
-          : true
-
-      if (
-        isEditable &&
-        name &&
-        editableData.editRowKeys.value.includes(
-          (rowKey = editableData.getRowKey(ctx.record))
-        )
-      ) {
-        const resolvedName = [rowKey]
-        if (Array.isArray(name)) resolvedName.push(...name)
-        else if (name) resolvedName.push(name as string | number)
-
-        const { dict, type } = ctx.column.__column!
-        const column = {
-          name: resolvedName,
-          show: true,
-          type,
-        }
-        const internalColumn = buildFormColumn(
-          undefined,
-          undefined,
-          column,
-          dict
-        )
-
-        return (
-          <ConfigProvider theme={EditableTableCellTheme}>
-            <FormItem name={resolvedName}>
-              <DynamicVModel
-                values={editableData.values}
-                column={internalColumn}
-              />
-            </FormItem>
-          </ConfigProvider>
-        )
-      }
-    }
-
-    const defaultTableType = ValueTypeMap.value[valueType]?.table
-    if (defaultTableType) {
-      const { is: Comp, props, render } = defaultTableType
-      if (Comp) {
-        return h(resolveComponent(Comp), { ...props, ctx })
-      } else if (render) {
-        return render(ctx)
-      }
-    }
-
-    return null
+/**
+ * 解析默认 toolbar 配置
+ *
+ * 默认展示刷新按钮
+ *
+ *  @param {ProTableScope} scope ProTable 作用域
+ * @returns toolbar 配置对象
+ */
+export const buildDefaultToolbar = (
+  scope: ProTableScope
+): ProTableToolbarActionGroup => {
+  return {
+    show: true,
+    actions: {
+      reload: {
+        show: true,
+        props: {
+          icon: h(ReloadOutlined),
+          type: 'primary',
+          shape: 'circle',
+          onClick() {
+            return scope.table.reload()
+          },
+        },
+      },
+    },
   }
 }
 
-export const DefaultActionColumn: ProTableActionProps<any> = {
+export const buildDefaultTableSearch: {
+  show: boolean
+} = {
   show: true,
-  order: 1,
-  confirmType: false,
+  // config: {},
 }
 
-export const EditSuccessToast = genToast('编辑成功')
+/** 以下 key 视为 slots */
+export const tableSlotKey = {
+  renderEmptyText: 'emptyText',
+  renderSummary: 'summary',
+  renderTitle: 'title',
+  renderFooter: 'footer',
+  renderExpandIcon: 'expandIcon',
+  renderExpandColumnTitle: 'expandColumnTitle',
+  renderExpandedRow: 'expandedRowRender',
+  renderFilterDropdown: 'customFilterDropdown',
+  renderFilterIcon: 'customFilterIcon',
+} as const
 
-export const ProTableRefKey = Symbol() as InjectionKey<any>
+export type TableSlotKey = keyof typeof tableSlotKey
+export type TableSlotValueKey =
+  | ValueOf<typeof tableSlotKey>
+  | 'bodyCell'
+  | 'headerCell'
+export type TableSlotFn = (...args: any[]) => VNodeChild
+
+/**
+ * Table 最外层 Flex Props
+ */
+export const TableContainerProps: FlexProps = {
+  vertical: true,
+}
+
+/**
+ * Table 操作列配置
+ */
+export const buildTableActionColumnOptions = (
+  action: ProTableColumnActionGroup<object> | undefined,
+  resolvedEditable: ComputedRef<InternalProTableEditableOptions<any>>,
+  scope: ProTableScope,
+  tableProps: ComputedRef<TableProps>,
+  editableKeysMap: InternalEditableKeys
+): ProTableColumnProps => {
+  return {
+    label: '操作',
+    renderCell(ctx) {
+      const editableValue = toValue(resolvedEditable)
+
+      let resolvedAction = action
+
+      // 如果 Table 无法编辑,则使用 actionColumn 里的 action 作为按扭组
+      if (editableValue !== false) {
+        const rowKey = getRowKey(ctx.record, tableProps)
+
+        // 编辑操作按扭只对 single 和 multiple 生效
+        // 如果 rowKey 对应的行处于编辑模式则使用配置里的按扭组
+        if (editableKeysMap.get(rowKey) === true) {
+          resolvedAction = mergeWithTovalue({}, editableValue.action)
+        } else {
+          resolvedAction = mergeWithTovalue(
+            {},
+            buildTableEnableEditDefaultAction(scope, tableProps),
+            action
+          )
+        }
+      }
+
+      return (
+        <ProButtonGroup
+          // @ts-ignore
+          action={buildButtonGroupInRender(resolvedAction, undefined, ctx)}
+        />
+      )
+    },
+  }
+}
+
+/**
+ * Table 开启编辑模式默认按钮组
+ */
+export function buildTableEnableEditDefaultAction(
+  scope: ProTableScope,
+  tableProps: MaybeRefOrGetter<TableProps>
+): ProTableColumnActionGroup {
+  return {
+    show: true,
+    actions: {
+      edit: {
+        show: true,
+        text: '编辑',
+        props: {
+          onClick(_, ctx) {
+            const name = ctx.column._column.name
+            scope.table.startEdit(
+              getRowKey(ctx.record, tableProps),
+              isNil(name) ? undefined : [name]
+            )
+          },
+        },
+      },
+    },
+  }
+}
+
+/**
+ * Table 编辑默认配置
+ */
+export function buildTableEditableDefaultOption(
+  scope: ProTableScope,
+  tableProps: MaybeRefOrGetter<TableProps>,
+  editable: ComputedRef<InternalProTableEditableOptions<any>>
+): ProTableEditableOptions {
+  return {
+    type: 'single',
+    // onlyEditOneLineToast: {
+    //   type: 'message',
+    //   props: { content: '只能同时编辑一行', type: 'warning' },
+    // },
+    action: {
+      show: true,
+      actions: {
+        save: {
+          show: true,
+          text: '保存',
+          props: {
+            onClick(_, ctx) {
+              const editableValue = toValue(editable)
+              if (editableValue !== false) {
+                const rowKey = getRowKey(ctx.record, tableProps)
+                const promise = Promise.resolve(
+                  editableValue.saveRequest?.(
+                    scope.table.getEditableRowData(rowKey)!,
+                    ctx
+                  )
+                )
+
+                promise.then(res => {
+                  if (res) {
+                    scope.table.cancelEdit(rowKey)
+                    return scope.table.reload()
+                  }
+                })
+
+                return promise
+              }
+            },
+          },
+        },
+        cancel: {
+          show: true,
+          text: '取消',
+          props: {
+            onClick(_, ctx) {
+              const rowKey = getRowKey(ctx.record, tableProps)
+              scope.table.cancelEdit(rowKey)
+            },
+          },
+        },
+      },
+    },
+  }
+}
+
+export const mergeTableColumnOptions: Partial<InternalColumnOptions<any>> = {
+  editable: false,
+  show: true,
+}
+
+export function getRowKey<Data extends DataObject = DataObject>(
+  record: Data,
+  tableProps: MaybeRefOrGetter<TableProps>
+) {
+  const rowKeyValue = toValue(tableProps).rowKey
+  if (isNil(rowKeyValue)) {
+    throw new Error('rowKey is required')
+  }
+
+  const getRowKey: GetRowKey<any> = isFunction(rowKeyValue)
+    ? rowKeyValue
+    : (item: any) => item[rowKeyValue]
+
+  const rowKey = getRowKey(record)
+  if (isNil(rowKey)) {
+    throw new Error(`rowKey is invalid`)
+  }
+
+  return rowKey
+}
+
+export const TableEditableNamePlaceholder = getUuid() + '__placeholder__'
+
+const renderComponentsKey = [
+  'renderTable',
+  'renderHeaderWrapper',
+  'renderHeaderRow',
+  'renderHeaderCell',
+  'renderBodyWrapper',
+  'renderBodyRow',
+  'renderBodyCell',
+  'renderBody',
+] as const
+
+const renderComponentsName = {
+  renderTable: 'table',
+  renderHeaderWrapper: 'wrapper',
+  renderHeaderRow: 'row',
+  renderHeaderCell: 'cell',
+  renderBodyWrapper: 'wrapper',
+  renderBodyRow: 'row',
+  renderBodyCell: 'cell',
+  // renderBody 优先级最高
+  renderBody: 'body',
+} as const
+
+export function extractComponents(optionsResult: BuildProTableOptionResult) {
+  let components: any
+  for (const key of renderComponentsKey) {
+    if (optionsResult[key]) {
+      components ||= {}
+
+      if (key === 'renderTable') {
+        components[renderComponentsName[key]] = unref(optionsResult[key])
+      } else if (
+        key === 'renderHeaderCell' ||
+        key === 'renderHeaderRow' ||
+        key === 'renderHeaderWrapper'
+      ) {
+        components.header ||= {}
+        components.header[renderComponentsName[key]] = unref(optionsResult[key])
+      } else if (
+        key === 'renderBodyWrapper' ||
+        key === 'renderBodyRow' ||
+        key === 'renderBodyCell'
+      ) {
+        components.body ||= {}
+        components.body[renderComponentsName[key]] = unref(optionsResult[key])
+      } else if (key === 'renderBody') {
+        components[renderComponentsName[key]] = unref(optionsResult[key])
+      }
+    }
+  }
+
+  return components
+}

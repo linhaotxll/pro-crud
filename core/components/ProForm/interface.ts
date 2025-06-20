@@ -1,42 +1,40 @@
+import type { Arrayable, DataObject, NamePath, ValueType } from '../common'
+import type { CustomRender } from '../CustomRender'
 import type {
-  Arrayable,
-  ColumnDictionaryOptions,
-  DictionaryCollectionOptions,
-  ExtractMaybeRef,
-  JSXElement,
-  MaybeRef,
-  useDictionary,
-  ValueType,
-} from '../common'
-import type { ActionOption, ActionsOption } from '../ProButton'
-import type { SuccessToastOptions } from '../Toast'
+  ActionGroupOption,
+  ActionOption,
+  CustomActions,
+  InternalProButtonGroupOptions,
+} from '../ProButton'
+import type {
+  buildDictionary,
+  DictionaryCollection,
+  DictionaryColumn,
+} from '../ProDictionary'
+import type { DeepMaybeRef } from '@vueuse/core'
 import type {
   ColProps,
   FormItemProps,
-  TooltipProps,
-  FormInstance,
-  FormItemInstance,
   FormProps,
   RowProps,
   ButtonProps,
+  FormInstance,
+  SpaceProps,
 } from 'ant-design-vue'
+import type { ValidateOptions } from 'ant-design-vue/es/form/interface'
 import type {
-  NamePath,
-  ValidateOptions,
-} from 'ant-design-vue/es/form/interface'
-import type { CSSProperties, ComputedRef, Ref, VNode } from 'vue'
-
-type Tooltip = TooltipProps & {
-  slots?: {
-    default?: (style: CSSProperties) => VNode
-    title?: () => VNode
-  }
-}
+  ComputedRef,
+  MaybeRef,
+  MaybeRefOrGetter,
+  Ref,
+  UnwrapRef,
+  VNodeChild,
+} from 'vue'
 
 /**
  * ProForm 作用域
  */
-export interface ProFormScope<T extends object> {
+export interface ProFormScope<T extends DataObject = DataObject> {
   /**
    * 获取表单值
    */
@@ -50,14 +48,7 @@ export interface ProFormScope<T extends object> {
   /**
    * 重置表单
    */
-  reset(prop?: Arrayable<NamePath>): void
-
-  /**
-   * 重置表单
-   *
-   * @alias reset
-   */
-  resetFields(name?: NamePath): void
+  reset(prop?: NamePath[]): void
 
   /**
    * 设置表单字段
@@ -68,11 +59,6 @@ export interface ProFormScope<T extends object> {
    * 设置多个表单字段
    */
   setFieldValues(values: Record<string, any>): void
-
-  /**
-   * 设置多个表单字段，会进行服务端与表单之间的数据转换
-   */
-  setFieldValuesTransform(values: Record<string, any>): void
 
   /**
    * 获取对应字段名的值
@@ -93,14 +79,6 @@ export interface ProFormScope<T extends object> {
   ): Promise<T | undefined>
 
   /**
-   * 触发表单验证
-   */
-  validateFields(
-    name?: Arrayable<NamePath> | undefined,
-    options?: ValidateOptions
-  ): Promise<T | undefined>
-
-  /**
    * 滚动到指定的字段
    */
   scrollToField(name: NamePath, options?: any): void
@@ -111,19 +89,9 @@ export interface ProFormScope<T extends object> {
   clearValidate(nameList?: Arrayable<NamePath>): void
 
   /**
-   * 获取对应字段实例
+   * 获取表单实例
    */
-  getFieldInstance(name: NamePath): FormItemInstance | null
-
-  /**
-   * 设置对应字段实例
-   */
-  setFieldInstance(name: NamePath, value: Ref<FormItemInstance | null>): void
-
-  /**
-   * 获取所有字段实例
-   */
-  getFieldInstances(): Map<NamePath, Ref<FormItemInstance | null>>
+  getFieldInstance(name: NamePath): Ref<any> | undefined
 }
 
 /**
@@ -136,36 +104,57 @@ export type ProFormProps<T extends object> = BuildFormBinding<T>
 /**
  * buildForm 返回值
  */
-export interface BuildFormResult<T extends object> {
-  proFormRef: Ref<ProFormInstance<T> | null>
+export interface BuildFormResult<T extends DataObject = DataObject> {
   proFormBinding: BuildFormBinding<T>
 }
 
-export interface BuildFormBinding<T extends object> {
-  columns: ComputedRef<InternalProFormColumnOptions<T>>[]
-  labelCol: ComputedRef<ColProps | undefined>
-  wrapperCol: ComputedRef<ColProps | undefined>
-  formProps: ComputedRef<FormProps>
-  actions: ComputedRef<ProFormActionsOptions>
+export interface BuildFormBinding<T extends DataObject = DataObject> {
+  row: ComputedRef<RowProps> | undefined
+  columns: Ref<InternalProFormColumnOptions<T>[]>
+  formProps: ComputedRef<FormProps> | undefined
   values: T
+  actionGroup:
+    | Ref<InternalProButtonGroupOptions & UnwrapRef<ProFormActionGroupExtends>>
+    | undefined
   scope: ProFormScope<T>
   formRef: Ref<FormInstance | null>
-  row: ComputedRef<RowProps | undefined>
-  resolvedColumnsMap: Map<
-    FormItemProps['name'],
-    InternalProFormColumnOptions<T>
-  >
+  isInlineLayout: ComputedRef<boolean>
+  wrap?: CustomRender<CustomRenderFormWrapContext>
+  gap: ComputedRef<string>
+}
+
+/**
+ * 自定义渲染容器作用域
+ */
+export interface CustomRenderFormWrapContext {
+  /**
+   * 表单项
+   */
+  $items: any
+
+  /**
+   * 按扭组
+   */
+  $action: any
 }
 
 /**
  * buildForm option 返回值
  */
-export interface BuildFormOptionResult<T extends object, R = T>
-  extends DictionaryCollectionOptions {
+export interface BuildFormOptionResult<
+  T extends DataObject = DataObject,
+  R = T,
+  Collection = any
+> extends DictionaryCollection<Collection> {
   /**
    * 表单额外的配置，不包含 model
    */
-  formProps?: MaybeRef<ExtractMaybeRef<Omit<FormProps, 'model'>>>
+  formProps?: MaybeRefOrGetter<DeepMaybeRef<Omit<FormProps, 'model'>>>
+
+  /**
+   * 统一列 name 前缀
+   */
+  name?: MaybeRefOrGetter<NamePath>
 
   /**
    * 表单初始值
@@ -175,113 +164,127 @@ export interface BuildFormOptionResult<T extends object, R = T>
   /**
    * 通用 row 配置
    */
-  row?: MaybeRef<RowProps>
+  row?: MaybeRefOrGetter<DeepMaybeRef<RowProps>> | undefined | null
 
   /**
    * 通用 col 配置
    */
-  col?: MaybeRef<ColProps>
-
-  /**
-   * 通用 Label Col 配置
-   */
-  labelCol?: MaybeRef<ColProps>
-
-  /**
-   * 通用 Wrapper Col 配置
-   */
-  wrapperCol?: MaybeRef<ColProps>
-
-  /**
-   * 表单被删除时是否保留字段值
-   */
-  preserve?: boolean
+  col?: MaybeRefOrGetter<DeepMaybeRef<ColProps>> | undefined | null
 
   /**
    * 列配置
    */
-  columns?: ProFormColumnOptions<T>[]
+  columns?: MaybeRefOrGetter<ProFormColumnOptions<T>[]>
 
   /**
    * 按钮组
    */
-  actions?: ProFormActionsOptions
-
-  /**
-   * 接口调用成功是否需要提示信息
-   */
-  toast?: SuccessToastOptions
+  action?: MaybeRefOrGetter<ProFormActionGroup>
 
   /**
    * 表单提交前触发，可用来转换提交数据
    */
-  beforeSubmit?: (values: T) => R | Promise<R>
+  beforeSubmit?: MaybeRef<((values: T) => R | Promise<R>) | undefined | null>
 
   /**
    * 提交表单调用的接口配置
    */
-  submitRequest?: (values: R) => Promise<boolean>
+  submitRequest?: MaybeRef<
+    ((values: R) => Promise<boolean> | boolean) | undefined | null
+  >
 
   /**
    * 接口调用成功时（submitRequest 返回 true）调用
    */
-  successRequest?: () => void
+  successRequest?: MaybeRef<((values: R) => void) | undefined | null>
+
+  /**
+   * 接口调用失败时（submitRequest 返回 false）调用
+   */
+  failRequest?: MaybeRef<(() => void) | undefined | null>
 
   /**
    * 表单验证失败
    */
-  validateFail?(error: any): void
-}
+  validateFail?: MaybeRef<((error: any) => void) | undefined | null>
 
-export interface ProFormActionCommon {
-  col?: MaybeRef<ColProps>
-}
+  /**
+   * 自定义容器
+   */
+  wrap?: CustomRender<CustomRenderFormWrapContext>
 
-export interface ProFormActionsOptions
-  extends ProFormActionCommon,
-    ActionsOption<ProFormActions> {}
+  /**
+   * 表单间距
+   *
+   * @default 0
+   */
+  gap?: MaybeRefOrGetter<string | number>
+}
 
 /**
- * ProForm 操作
+ * Pro Form 按扭组额外配制
  */
-export interface ProFormActions {
+export interface ProFormActionGroupExtends {
+  col?: MaybeRefOrGetter<ColProps>
+}
+
+/**
+ * Pro Form 按钮组
+ */
+export type ProFormActionGroup = ActionGroupOption<
+  ProFormActions,
+  ProFormActionGroupExtends
+>
+
+/**
+ * ProForm 按钮列表
+ */
+export type ProFormActions = {
   /**
    * 确认按钮
    */
-  confirm?: ActionOption
-}
+  confirm?: MaybeRefOrGetter<ActionOption>
+
+  /**
+   * 重置按钮
+   */
+  reset?: MaybeRefOrGetter<ActionOption>
+} & CustomActions
 
 /**
  * 表单实例方法
  */
-export type ProFormInstance<T extends object> = ProFormScope<T>
+export type ProFormInstance<T extends object = any> = ProFormScope<T>
 
 /**
  * 表单列配置
  */
-export interface ProFormColumnOptions<T extends object>
-  extends ColumnDictionaryOptions {
+export interface ProFormColumnOptions<
+  T extends DataObject = DataObject,
+  Dictionary = any,
+  Collect = any
+> extends DictionaryColumn<Dictionary, Collect> {
   /**
    * FormItem label
    */
-  label?: MaybeRef<string>
+  label?: MaybeRefOrGetter<string>
 
   /**
    * FormItem prop，也是表单的字段名，可使用数组嵌套
    */
-  name?: MaybeRef<FormItemProps['name']>
+  name: MaybeRefOrGetter<NamePath>
 
   /**
    * 是否显示整个 FormItem
    *
    * @default true
    */
-  show?: MaybeRef<boolean>
+  show?: MaybeRefOrGetter<boolean>
 
   /**
    * 每个 FormItem 所在列配置
    */
-  col?: MaybeRef<ColProps>
+  col?: MaybeRefOrGetter<DeepMaybeRef<ColProps>>
 
   /**
    * 表单被删除时是否保留字段值
@@ -295,41 +298,30 @@ export interface ProFormColumnOptions<T extends object>
    *
    * @default 'text'
    */
-  type?: MaybeRef<ValueType | any>
+  type?: MaybeRefOrGetter<ValueType>
 
   /**
    * 表单额外的 props
    */
-  fieldProps?: any
+  fieldProps?: MaybeRefOrGetter<DeepMaybeRef<Record<string, any>>>
 
   /**
    * 表单插槽
    */
-  fieldSlots?: any
+  fieldSlots?: MaybeRefOrGetter<Record<string, any>>
 
   /**
    * Form Item 额外的 props
    */
-  itemProps?: ExtractMaybeRef<FormItemProps>
+  itemProps?: MaybeRefOrGetter<DeepMaybeRef<FormItemProps>>
 
   /**
    * FormItem 插槽
    */
-  itemSlots?: {
-    error?: (error: string) => VNode
-    help?: () => VNode
-    label?: (column: InternalProFormColumnOptions<T>) => VNode
-  }
-
-  /**
-   * 提示信息
-   */
-  tooltip?: string | Tooltip
+  itemSlots?: MaybeRefOrGetter<ProFormItemSlots<T>>
 
   /**
    * 是否将字段提交
-   *
-   * @default true
    */
   submitted?: boolean | ((scope: ProFormScope<T>) => boolean)
 
@@ -338,17 +330,12 @@ export interface ProFormColumnOptions<T extends object>
    *
    * @default true
    */
-  fill?: MaybeRef<boolean>
-
-  /**
-   * 子控件
-   */
-  children?: ProFormColumnOptions<T>[]
+  fill?: MaybeRefOrGetter<boolean>
 
   /**
    * 列配置
    */
-  list?: ProFormListOptions
+  list?: MaybeRefOrGetter<ProFormListOptions>
 
   /**
    * 服务端数据转换
@@ -377,7 +364,17 @@ export interface ProFormColumnOptions<T extends object>
 /**
  * 列表配置
  */
-export interface ProFormListOptions {
+export interface ProFormListOptions<C extends object = any> {
+  /**
+   * 子控件
+   */
+  children?: MaybeRefOrGetter<ProFormColumnOptions<C>[]>
+
+  /**
+   * 每行 Space Props
+   */
+  space?: MaybeRefOrGetter<SpaceProps>
+
   /**
    * 新建一行的数据
    *
@@ -388,32 +385,38 @@ export interface ProFormListOptions {
   /**
    * 自定义新建按钮
    */
-  renderCreateRecordButton?: (add: (record?: any) => void) => JSXElement
+  renderCreateRecordButton?: (add: (record?: any) => void) => VNodeChild
 
   /**
    * 新建按钮配置
    */
-  creatorButtonProps?: (ButtonProps & { creatorButtonText?: string }) | false
+  creatorButtonProps?: MaybeRefOrGetter<
+    (ButtonProps & { creatorButtonText?: string }) | false
+  >
 
   /**
    * 自定义删除按钮
    */
-  renderDeleteRecordButton?: (remove: () => void) => JSXElement
+  renderDeleteRecordButton?: (remove: () => void) => VNodeChild
 
   /**
    * 删除按钮配置
    */
-  deleteButtonProps?: (ButtonProps & { deleteButtonText?: string }) | false
+  deleteButtonProps?: MaybeRefOrGetter<
+    (ButtonProps & { deleteButtonText?: string }) | false
+  >
 
   /**
    * 自定义复制按钮
    */
-  renderCopyRecordButton?: (copy: () => void) => JSXElement
+  renderCopyRecordButton?: (copy: () => void) => VNodeChild
 
   /**
    * 复制按钮配置
    */
-  copyButtonProps?: (ButtonProps & { copyButtonText?: string }) | false
+  copyButtonProps?: MaybeRefOrGetter<
+    (ButtonProps & { copyButtonText?: string }) | false
+  >
 
   /**
    * 最少条目
@@ -433,40 +436,158 @@ export interface ProFormListOptions {
 /**
  * @internal
  */
-export interface InternalProFormColumnOptions<T extends object>
-  extends Omit<ProFormColumnOptions<T>, 'dict' | 'children'> {
+export interface InternalProFormColumnOptions<
+  T extends DataObject = DataObject
+> {
+  /**
+   * 表单实例
+   */
+  instance: Ref<any>
+
+  /**
+   * 显示状态,其余属性只会在显示下才会存在
+   */
+  show: boolean
+
   /**
    * 循环时用来指定 key 值
    */
-  resolvedKey: string | number | undefined
+  key?: string | number
 
   /**
-   * type 自身对应的 props + 自定义传入的 props
+   * 表单域字段
    */
-  resolvedProps: object | undefined
+  name: NamePath
 
   /**
-   * label 解绑 ref
+   * Form Item Props
    */
-  label: string | undefined
+  itemProps?: FormItemProps | undefined
 
   /**
-   * 同 label
+   * Pro Form Item Slots
+   */
+  itemSlots?: ProFormItemSlots<T>
+
+  /**
+   * 表单项 Props
+   */
+  fieldProps?: Record<string, any> | undefined
+
+  /**
+   * 表单项 Slots
+   */
+  fieldSlots?: MaybeRefOrGetter<Record<string, (...args: any) => VNodeChild>>
+
+  /**
+   * 列配制
+   */
+  col?: ColProps | undefined
+
+  /**
+   * 表单类型
    */
   type: ValueType
 
   /**
-   * tooltip 配置
+   * 是否将字段提交
    */
-  tooltip?: Tooltip
+  submitted?: ProFormColumnOptions<T>['submitted']
 
   /**
-   * 解析好的字典配置
+   * 服务端数据转换
    */
-  dict?: ReturnType<typeof useDictionary>
+  transform?: ProFormColumnOptions<T>['transform']
 
   /**
-   * 解析好的子控件
+   * 是否填满父元素
    */
-  children?: ComputedRef<InternalProFormColumnOptions<T>>[]
+  fill?: boolean
+
+  /**
+   * 表单被删除时是否保留字段值
+   */
+  preserve?: boolean
+
+  /**
+   * 字典配置
+   */
+  dictionary?: ReturnType<typeof buildDictionary>
+
+  /**
+   * 列配置
+   */
+  list?: Ref<
+    | {
+        /**
+         * 子控件
+         */
+        children?: InternalProFormColumnOptions<T>[] | undefined
+
+        /**
+         * 每行 Space Props
+         */
+        space?: SpaceProps
+
+        /**
+         * 新建一行的数据
+         */
+        creatorRecord?: ProFormListOptions['creatorRecord']
+
+        /**
+         * 自定义新建按钮
+         */
+        renderCreateRecordButton?: ProFormListOptions['renderCreateRecordButton']
+
+        /**
+         * 新建按钮配置
+         */
+        creatorButtonProps?:
+          | (ButtonProps & { creatorButtonText?: string })
+          | false
+
+        /**
+         * 自定义删除按钮
+         */
+        renderDeleteRecordButton?: ProFormListOptions['renderDeleteRecordButton']
+
+        /**
+         * 删除按钮配置
+         */
+        deleteButtonProps?:
+          | (ButtonProps & { deleteButtonText?: string })
+          | false
+
+        /**
+         * 自定义复制按钮
+         */
+        renderCopyRecordButton?: ProFormListOptions['renderCopyRecordButton']
+
+        /**
+         * 复制按钮配置
+         */
+        copyButtonProps?: (ButtonProps & { copyButtonText?: string }) | false
+
+        /**
+         * 最少条目
+         */
+        min?: number
+
+        /**
+         * 最大条目
+         */
+        max?: number
+      }
+    | undefined
+  >
+}
+
+/**
+ * Pro Form Item 插槽
+ */
+interface ProFormItemSlots<T extends DataObject = DataObject> {
+  extra?: (column: InternalProFormColumnOptions<T>) => VNodeChild
+  help?: (column: InternalProFormColumnOptions<T>) => VNodeChild
+  label?: (column: InternalProFormColumnOptions<T>) => VNodeChild
+  tooltip?: (column: InternalProFormColumnOptions<T>) => VNodeChild
 }

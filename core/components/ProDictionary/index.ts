@@ -1,2 +1,2 @@
-export { default as ProSelect } from './ProSelect.vue'
-export { default as ProDictionary } from './ProDictionary.vue'
+export * from './interface'
+export { buildDictionary } from './buildDictionary'

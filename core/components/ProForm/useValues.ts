@@ -1,29 +1,13 @@
-import { cloneDeep, get, merge, set } from 'lodash-es'
+import { cloneDeep } from 'lodash-es'
+import { toRaw } from 'vue'
 
-import { unRef } from '../common'
+import { mergeWithTovalue } from '../common'
 
-import type { ProFormColumnOptions } from './interface'
-
-export function useValues<T extends object>(
+export function useValues<T = any>(
   values: T,
-  initialValues: Partial<T> | undefined,
-  columns: ProFormColumnOptions<T>[]
+  initialValues: Partial<T> | undefined
 ) {
-  if (initialValues) {
-    merge(values, cloneDeep(initialValues))
-  }
-
-  if (columns) {
-    for (const column of columns) {
-      const { transform, name } = column
-      if (typeof transform?.from === 'function') {
-        const resolvedName = unRef(name)
-        if (resolvedName) {
-          set(values, resolvedName, transform.from(get(values, resolvedName)))
-        }
-      }
-    }
-  }
-
-  return values
+  // 初始化合并默认值
+  const originInitialValues = cloneDeep(toRaw(initialValues))
+  mergeWithTovalue(values, originInitialValues)
 }

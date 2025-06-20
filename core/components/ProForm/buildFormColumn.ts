@@ -1,83 +1,187 @@
-import { merge } from 'lodash-es'
-import { toValue, type MaybeRef } from 'vue'
+import { set } from 'lodash-es'
+import { ref, toValue } from 'vue'
 
-import { DefaultProProColumn } from './constant'
+import { buildFormListColumns } from './buildFormListColumn'
+import { DefaultProFormColumn, ProFormListPlaceholder } from './constant'
 
-import { ValueTypeMap, unRef } from '../common'
+import { getUuid, mergeWithTovalue } from '../common'
+import { buildDictionary } from '../ProDictionary'
+
+import { getGlobalOptions } from '~/constant'
+import { isArray, isNil } from '~/utils'
 
 import type {
   InternalProFormColumnOptions,
   ProFormColumnOptions,
+  ProFormScope,
 } from './interface'
-import type { ValueType, useDictionary } from '../common'
+import type { DataObject, NamePath } from '../common'
+import type { DictionaryCollection } from '../ProDictionary'
 import type { ColProps, FormItemProps } from 'ant-design-vue'
 import type { ComputedRef } from 'vue'
 
-export function buildFormColumn<T extends object>(
-  col: MaybeRef<ColProps> | undefined,
-  resolvedColumnsMap:
-    | Map<FormItemProps['name'], InternalProFormColumnOptions<T>>
-    | undefined,
+export function buildFormColumn<T extends DataObject = DataObject>(
+  commonCol: ComputedRef<ColProps | undefined>,
+  isInlineLayout: ComputedRef<boolean>,
+  scope: ProFormScope<T>,
   column: ProFormColumnOptions<T>,
-  resolvedDictionary: ReturnType<typeof useDictionary> | undefined,
-  children: ComputedRef<InternalProFormColumnOptions<T>>[] = []
+  parent?: InternalProFormColumnOptions<T>,
+  fetchDictionaryCollection?: DictionaryCollection['fetchDictionaryCollection'],
+  onChange?: (internalColumn: InternalProFormColumnOptions<T>) => void,
+  formName?: NamePath
 ) {
-  // 合并默认 Column 配置
-  const mergeColumn: ProFormColumnOptions<T> = merge(
-    { col: { ...unRef(col) }, ...DefaultProProColumn },
+  // dict 不能被合并，防止外层 ProTable 传递 dict 被克隆
+  const mergedColumn: ProFormColumnOptions<any, any, any> = mergeWithTovalue(
+    { dict: column.dict },
+    DefaultProFormColumn,
     column
   )
 
-  // 解析 type 类型
-  const resolvedType: ValueType = unRef(mergeColumn.type)
+  const {
+    show,
+    name,
+    label,
+    type,
+    itemProps,
+    fieldProps,
+    col,
+    list,
+    dict,
+    ...rest
+  } = mergedColumn
 
-  const name = toValue(mergeColumn.name)
+  // 解析显示状态
+  const resolvedShow = toValue(show!)
+  // 解析 name
+  const resolvedName = appendListName(
+    toValue(name),
+    parent?.name,
+    parent ? ProFormListPlaceholder : undefined,
+    formName
+  )
+  // 解析 type
+  const resolvedType = toValue(type!)
 
-  // @ts-ignore
-  const resolvedColumn: InternalProFormColumnOptions<T> = {
+  if (!getGlobalOptions().types[resolvedType]) {
+    throw new Error(`"${resolvedType}" not found`)
+  }
+
+  const result: InternalProFormColumnOptions<T> = {
+    show: resolvedShow,
+    name: resolvedName,
     type: resolvedType,
-    resolvedKey: Array.isArray(name) ? name.join('.') : name,
-    resolvedProps: merge(
-      {},
-      ValueTypeMap.value[resolvedType].form?.props,
-      mergeColumn.fieldProps
-    ),
-    itemProps: { name },
+    instance: ref(),
   }
 
-  type Keys = keyof typeof mergeColumn
-  ;(Object.keys(mergeColumn) as Keys[]).forEach(key => {
-    switch (key) {
-      case 'dict':
-        resolvedColumn.dict = resolvedDictionary
-        break
+  // 只会解析显示的列
+  if (!resolvedShow) {
+    // internalProFormColumnOptions.value = result
+    onChange?.(result)
+    return result
+  }
 
-      case 'children':
-        resolvedColumn.children = children
-        break
+  // 解析 label
+  const resolvedLabel = toValue(label)
 
-      case 'tooltip':
-        resolvedColumn.tooltip =
-          typeof mergeColumn.tooltip === 'string'
-            ? { title: mergeColumn.tooltip }
-            : mergeColumn.tooltip
-        break
+  // 合并 Form Item Props
+  const mergedFormItemPtops: FormItemProps = mergeWithTovalue(
+    {
+      name: resolvedName,
+      label: resolvedLabel,
+    },
+    // TODO: 这里要把 labelCol,wrapperCol,name 去掉
+    toValue(itemProps)
+  )
 
-      case 'fieldProps':
-      case 'itemProps':
-        Object.keys(mergeColumn[key]).forEach(k => {
-          ;(resolvedColumn[key] ||= {})[k] = unRef(mergeColumn[key][k])
-        })
-        break
+  // 合并 Field Props
+  const mergedFieldProps = fieldProps
+    ? mergeWithTovalue(
+        {},
+        null,
+        getGlobalOptions().types[resolvedType].form?.context,
+        toValue(fieldProps)
+      )
+    : undefined
 
-      default:
-        resolvedColumn[key] = unRef(mergeColumn[key])
+  // 解析列配置
+  const resolvedColProps: ColProps | undefined =
+    col || commonCol
+      ? mergeWithTovalue({}, toValue(commonCol), toValue(col))
+      : undefined
+
+  // 解析子列配置
+  const resolvedList =
+    list && resolvedType === 'list'
+      ? buildFormListColumns(commonCol, isInlineLayout, scope, list, result)
+      : undefined
+
+  // 解析字典配置
+  const resolvedDictionary = buildDictionary(
+    dict,
+    resolvedType,
+    fetchDictionaryCollection,
+    dict => {
+      if (dict.dependences) {
+        // TODO: scope
+        return dict.dependences.reduce((prev, dept) => {
+          set(prev, dept, scope.getFieldValue(dept))
+          return prev
+        }, {})
+      }
     }
-  })
+  )
 
-  if (resolvedColumnsMap) {
-    resolvedColumnsMap.set(name, resolvedColumn)
+  const source: Partial<InternalProFormColumnOptions<any>> = {
+    key: Array.isArray(resolvedName)
+      ? resolvedName.join('.')
+      : resolvedName || getUuid(),
+    itemProps: mergedFormItemPtops,
+    fieldProps: mergedFieldProps,
+    name: resolvedName,
+    col: resolvedColProps,
+    type: resolvedType,
   }
 
-  return resolvedColumn
+  // TODO: result.name 有 3 个元素，source.name 也有 3 个元素
+  mergeWithTovalue(result, source, rest)
+
+  result.dictionary = resolvedDictionary
+  result.list = resolvedList
+
+  // internalProFormColumnOptions.value = result
+  onChange?.(result)
+  return result
+}
+
+export function appendListName(
+  columnName: NamePath,
+  ...parents: (NamePath | undefined | null)[]
+) {
+  if (!parents.length) {
+    return columnName
+  }
+
+  const names: (string | number)[] = []
+
+  for (const parent of parents) {
+    if (isArray(parent)) {
+      names.push(...parent)
+    } else if (!isNil(parent)) {
+      names.push(parent)
+    }
+  }
+
+  if (isArray(columnName)) {
+    names.push(...columnName)
+  } else {
+    names.push(columnName)
+  }
+
+  // const names = Array.isArray(parentName) ? [...parentName] : [parentName]
+  // if (Array.isArray(columnName)) {
+  //   names.push(ProFormListPlaceholder, ...columnName)
+  // } else if (columnName != null) {
+  //   names.push(ProFormListPlaceholder, columnName)
+  // }
+  return names.length === 1 ? names[0] : names
 }

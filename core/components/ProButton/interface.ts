@@ -1,34 +1,55 @@
-import type { JSXElement, ValueOf } from '../common'
-import type { ButtonProps, ModalProps, PopconfirmProps } from 'ant-design-vue'
-import type { MaybeRef } from 'vue'
+import type { Arrayable } from '../common'
+import type { ToastOptions } from '../Toast'
+import type { CustomRender } from './../CustomRender/interface'
+import type { DeepMaybeRef } from '@vueuse/core'
+import type {
+  ButtonProps,
+  ModalProps,
+  PopconfirmProps,
+  PopoverProps,
+  SpaceProps,
+} from 'ant-design-vue'
+import type { VueNode } from 'ant-design-vue/es/_util/type'
+import type { ArgsProps as MessageArgsProps } from 'ant-design-vue/es/message/interface'
+import type { AllowedComponentProps, MaybeRefOrGetter } from 'vue'
+
+/**
+ * 自定义按扭
+ */
+export type CustomActions = {
+  [name: string]: MaybeRefOrGetter<ActionOption> | undefined
+}
 
 /**
  * 按钮组配置
  */
-export interface ActionsOption<T = Record<string, ActionOption>> {
+export type ActionGroupOption<T = CustomActions, R = any> = {
   /**
    * 是否显示按钮组
    *
    * @default true
    */
-  show?: MaybeRef<boolean>
+  show?: MaybeRefOrGetter<boolean>
 
   /**
    * 按钮间距配置
    */
-  space?: MaybeRef<number>
+  space?: DeepMaybeRef<SpaceProps & AllowedComponentProps>
 
   /**
    * 按钮列表
    */
-  list?: ActionsList<T>
-}
+  actions?: MaybeRefOrGetter<T>
+} & R
 
-export type ActionsList<T = Record<string, ActionOption>> = {
+/**
+ * 按扭列表配制
+ */
+export type ActionsList<T extends CustomActions> = {
   /**
    * 其余按钮
    */
-  [type: string]: ValueOf<T> | undefined
+  [type: string]: MaybeRefOrGetter<ActionOption> | undefined
 } & {
   [P in keyof T]: T[P]
 }
@@ -36,58 +57,152 @@ export type ActionsList<T = Record<string, ActionOption>> = {
 /**
  * 按钮配置
  */
-export interface ActionOption {
+export type ActionOption<C extends object = any> = CustomRender<
+  ProButtonRenderParams<ButtonProps, C>
+> & {
   /**
    * 是否显示
    *
-   * @default trues
+   * @default true
    */
-  show?: MaybeRef<boolean>
+  show?: MaybeRefOrGetter<boolean>
 
   /**
    * 按钮文本
    */
-  text?: string
+  text?: MaybeRefOrGetter<string>
 
   /**
    * 按钮 props
    */
-  props?: ButtonProps
+  props?: MaybeRefOrGetter<DeepMaybeRef<Omit<ButtonProps, 'onClick'>>> & {
+    onClick?: Arrayable<(e: PointerEvent, ctx: C) => void>
+  }
 
   /**
    * 顺序
    */
-  order?: MaybeRef<number>
+  order?: MaybeRefOrGetter<number>
 
   /**
    * 点击按钮确认弹窗类型，false 则不需要
    *
    * @default false
    */
-  confirmType?: 'popconfirm' | 'modal' | false
+  confirmType?: MaybeRefOrGetter<false | 'popconfirm' | 'modal'>
 
   /**
-   * 确认弹窗 props
+   * popconfirm 组件 props
    */
-  confirmProps?: ActionConfirmProps | ActionModalProps
+  confirmProps?:
+    | MaybeRefOrGetter<ProButtonConformModalProps<C>>
+    | MaybeRefOrGetter<ProButtonConformPopoverProps<C>>
 
   /**
-   * 自定义渲染内容
+   * 提示配置
    */
-  render?: (...args: any[]) => JSXElement
+  toast?: ToastOptions
+}
 
-  /**
-   * 自定义渲染作用域
-   */
-  ctx?: any
+export type ProButtonConformModalProps<C extends object = any> = Omit<
+  ModalProps,
+  'onOk'
+> & {
+  onOk?: (e: PointerEvent, ctx: C) => void
+}
+
+export type ProButtonConformPopoverProps<C extends object = any> = Omit<
+  PopoverProps,
+  'onConfirm'
+> & {
+  onConfirm?: (e: PointerEvent, ctx: C) => void
 }
 
 /**
- * Popconfirm props，onConfirm 事件多了一个参数：行数据
+ * 内部使用 ProButtonGroup 类型
  */
-export type ActionConfirmProps = PopconfirmProps
+export interface InternalProButtonGroupOptions {
+  /**
+   * 是否显示
+   */
+  show: boolean
+
+  /**
+   * Space 配制
+   */
+  space?: SpaceProps
+
+  /**
+   * 按扭列表
+   */
+  actions?: InternalProButtonOptions[]
+}
 
 /**
- * MessageBox props，callback 多了一个参数：行数据
+ * 内部使用按扭配制
  */
-export type ActionModalProps = ModalProps
+export type InternalProButtonOptions<C extends object = any> = {
+  /**
+   * 是否显示按扭
+   */
+  show: boolean
+
+  /**
+   * 按扭文本
+   */
+  text?: string
+
+  /**
+   * 按扭 Props
+   */
+  props?: ButtonProps
+
+  /**
+   * 按扭顺序
+   */
+  order?: number
+
+  /**
+   * 点击按钮确认弹窗类型，false 则不需要
+   */
+  confirmType?: false
+
+  /**
+   * 提示配置
+   */
+  toast?: ToastOptions
+} & {
+  confirmType?: 'popconfirm'
+  confirmProps?: PopconfirmProps
+  confirmRender?: ProButtonRenderParams<PopoverProps, C>
+} & {
+  confirmType?: 'modal'
+  confirmProps?: ModalProps
+  confirmRender?: ProButtonRenderParams<ModalProps, C>
+} & CustomRender<ProButtonRenderParams<ButtonProps, C>>
+
+export type ProButtonToastOptions =
+  | (() => void)
+  | string
+  | ProButtonToastObjectOption
+
+export type ProButtonToastObjectOption = {
+  props?: Omit<MessageArgsProps, 'content' | 'icon'>
+  loading?: VueNode | Pick<MessageArgsProps, 'content' | 'icon'>
+  success?: VueNode | Pick<MessageArgsProps, 'content' | 'icon'>
+  error?: VueNode | Pick<MessageArgsProps, 'content' | 'icon'>
+}
+
+export type ProButtonRenderParams<
+  Props = ButtonProps,
+  Context extends object = any
+> = {
+  props: Props
+} & {
+  [K in keyof Context]: Context[K]
+}
+
+/**
+ * Pro Button 确认弹窗类型
+ */
+export type ProButtonConfirmType = 'popconfirm' | 'modal' | false
