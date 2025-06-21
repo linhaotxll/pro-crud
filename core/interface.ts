@@ -7,6 +7,7 @@ import type {
 } from './components/ProTable'
 import type { ToastOptions } from './components/Toast'
 import type { FlexProps, TableProps } from 'ant-design-vue'
+import type { AllowedComponentProps } from 'vue'
 
 export interface ProComponentsOptions {
   /**
@@ -27,12 +28,13 @@ export interface ProComponentsOptions {
   /**
    * 全局包裹组件配置
    */
-  wrapperProps?: FlexProps
+  wrapperProps?: FlexProps & AllowedComponentProps
 
   /**
    * 全局 Table 组件配置
    */
-  tableProps?: Omit<TableProps, 'dataSource' | 'loading' | 'columns'>
+  tableProps?: Omit<TableProps, 'dataSource' | 'loading' | 'columns'> &
+    AllowedComponentProps
 
   /**
    * 全局 Toolbar 配置
