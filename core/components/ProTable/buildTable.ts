@@ -1,10 +1,12 @@
 import { toRef } from '@vueuse/core'
+import cloneDeep from 'clone-deep'
 import { once, set } from 'lodash-es'
 import {
   computed,
   isRef,
   reactive,
   ref,
+  toRaw,
   toValue,
   unref,
   watch,
@@ -474,7 +476,12 @@ function buildTableMiddleware<Data extends DataObject = DataObject>(
   }
 
   const resolvedParams = computed(() =>
-    mergeWithTovalue({}, toValue(ctx.searchParams), toValue(params))
+    mergeWithTovalue(
+      {},
+      cloneDeep(toRaw(ctx.searchBindings.values)),
+      toValue(ctx.searchParams),
+      toValue(params)
+    )
   )
 
   watch(resolvedParams, reset)

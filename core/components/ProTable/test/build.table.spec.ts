@@ -406,6 +406,9 @@ describe('Build Pro Table', () => {
         const params: SearchParams = { score: 80 }
         const { proTableBinding } = buildTable<Person, SearchParams>(() => {
           return {
+            search: {
+              initialValues: { a: 1, b: 2 },
+            },
             columns: [
               {
                 label: '姓名',
@@ -438,7 +441,7 @@ describe('Build Pro Table', () => {
         pageNum: 1,
         pageSize: 10,
       },
-      params: { score: 80 },
+      params: { score: 80, a: 1, b: 2 },
     })
   })
 
