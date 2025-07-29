@@ -15,7 +15,7 @@
     "build": "vue-tsc --noEmit && vite build",
     "prepare": "husky install",
     "lint:js": "eslint --fix --ext .js,.jsx,.ts,.tsx,.vue",
-    "release:build": "pnpm run build & release-it",
+    "release:build": "pnpm run build && release-it",
     "release": "release-it"
   },
   "keywords": [
