@@ -15,7 +15,7 @@ import antdv, {
 import { describe, test, expect, vi, beforeEach } from 'vitest'
 import { defineComponent, h, nextTick, ref } from 'vue'
 
-import { ProCrud, buildCrud } from '..'
+import { ProCrud, ProCrudScope, buildCrud } from '..'
 import { ProButtonGroup } from '../../ProButton'
 import { ProForm } from '../../ProForm'
 
@@ -24,6 +24,9 @@ const sleep = (time: number) => new Promise(r => setTimeout(r, time))
 describe('Build Crud', () => {
   beforeEach(() => {
     document.body.innerHTML = ''
+    const el = document.createElement('div')
+    el.id = 'modal'
+    document.body.appendChild(el)
   })
 
   afterEach(() => {
@@ -619,5 +622,63 @@ describe('Build Crud', () => {
         "params": {},
       }
     `)
+  })
+
+  test('crud form method', async () => {
+    const beforeSubmit = vi.fn((values: any) => ({
+      ...values,
+      a: 1,
+    }))
+    const addRequest = vi.fn()
+
+    const App = defineComponent({
+      name: 'App',
+      setup() {
+        const { proCrudBinding } = buildCrud(s => {
+          return {
+            fetchTableData() {
+              return []
+            },
+            search: false,
+            form: {
+              beforeSubmit,
+            },
+            columns: [
+              {
+                label: '姓名',
+                name: 'name',
+              },
+            ],
+            addRequest,
+          }
+        })
+        return () => {
+          return [h(ProCrud, proCrudBinding)]
+        }
+      },
+    })
+
+    const wrapper = mount(App, {
+      attachTo: '#modal',
+      global: {
+        plugins: [antdv],
+      },
+    })
+
+    const modal = wrapper.findComponent(Modal)
+    expect(modal.vm.$props.open).toBe(false)
+
+    const $addButton = wrapper.findAllComponents(Button)[1]
+    $addButton.vm.$emit('click')
+    await nextTick()
+
+    expect(modal.vm.$props.open).toBe(true)
+
+    modal.findAllComponents(Button)[1].vm.$emit('click')
+    await sleep(0)
+
+    expect(beforeSubmit).toHaveBeenCalledTimes(1)
+    expect(addRequest).toHaveBeenCalledTimes(1)
+    expect(addRequest).toBeCalledWith({ a: 1 })
   })
 })

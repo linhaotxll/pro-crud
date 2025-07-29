@@ -151,16 +151,28 @@ export const buildDefaultModalSubmitRequest = (ctx: BuildCrudContext) => {
 
 export const buildDefaultModalBeforeSubmit = (ctx: BuildCrudContext) => {
   return {
-    [ModalType.Add]: unref(ctx.optionResult.addForm?.beforeSubmit),
-    [ModalType.Edit]: unref(ctx.optionResult.editForm?.beforeSubmit),
+    [ModalType.Add]: unref(
+      ctx.optionResult.addForm?.beforeSubmit ??
+        ctx.optionResult.form?.beforeSubmit
+    ),
+    [ModalType.Edit]: unref(
+      ctx.optionResult.editForm?.beforeSubmit ??
+        ctx.optionResult.form?.beforeSubmit
+    ),
     [ModalType.View]: undefined,
   }
 }
 
 export const buildDefaultModalValidateFail = (ctx: BuildCrudContext) => {
   return {
-    [ModalType.Add]: unref(ctx.optionResult.addForm?.validateFail),
-    [ModalType.Edit]: unref(ctx.optionResult.editForm?.validateFail),
+    [ModalType.Add]: unref(
+      ctx.optionResult.addForm?.validateFail ??
+        ctx.optionResult.form?.validateFail
+    ),
+    [ModalType.Edit]: unref(
+      ctx.optionResult.editForm?.validateFail ??
+        ctx.optionResult.form?.validateFail
+    ),
     [ModalType.View]: undefined,
   }
 }
