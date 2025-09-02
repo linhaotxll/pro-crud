@@ -42,7 +42,9 @@ export const StepsForm = defineComponent({
               return (
                 <a-flex gap={24} vertical>
                   {$steps}
-                  <div>{ctx.$items}</div>
+                  <a-row {...toValue(props.proFormBinding?.row)}>
+                    {ctx.$items}
+                  </a-row>
 
                   {ctx.$action}
                 </a-flex>
