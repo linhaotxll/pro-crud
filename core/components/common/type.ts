@@ -35,6 +35,7 @@ export type ValueType =
   | 'radio-group'
   | 'checkbox-group'
   | 'list'
+  | 'rate'
 
 /**
  * 自定义字段配置
@@ -255,6 +256,10 @@ export const DefaultValueType: Record<ValueType, ValueTypeValue> = {
 
   calendar: {
     form: { is: 'a-calendar' },
+  },
+
+  rate: {
+    form: { is: 'a-rate' },
   },
 
   // dict: {
