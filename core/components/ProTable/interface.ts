@@ -362,7 +362,7 @@ export type BuildProTableOptionResult<
   /**
    * 自定义渲染 Table
    */
-  renderTable: CustomRender<CustomRenderTableContext<Data>>
+  renderTable?: CustomRender<CustomRenderTableContext<Data>>
 
   /**
    * 渲染空数据时的显示内容
@@ -637,7 +637,7 @@ export interface BuildTableBinding<Data extends DataObject = any> {
   toolbar: Ref<InternalProButtonGroupOptions>
   search: InternalProTableSearchOptions<Data>
   editable: ComputedRef<InternalProTableEditableOptions<any>>
-  renderTable: CustomRender<CustomRenderTableContext<Data>>
+  renderTable?: CustomRender<CustomRenderTableContext<Data>>
 }
 
 export interface CustomRenderTableContext<T> {

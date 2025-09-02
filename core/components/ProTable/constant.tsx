@@ -1,5 +1,5 @@
 import { ReloadOutlined } from '@ant-design/icons-vue'
-import { h, toValue, unref } from 'vue'
+import { h, toValue } from 'vue'
 
 import { getUuid, mergeWithTovalue } from '../common'
 import { ProButtonGroup } from '../ProButton'
@@ -8,7 +8,6 @@ import { buildButtonGroupInRender } from '../ProButton/buildButtonGroup'
 import { isFunction, isNil } from '~/utils'
 
 import type {
-  BuildProTableOptionResult,
   ProTableColumnActionGroup,
   ProTableColumnProps,
   ProTableEditableOptions,
