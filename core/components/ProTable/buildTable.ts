@@ -22,7 +22,6 @@ import {
   tableSlotKey,
   TableEditableNamePlaceholder,
   getRowKey,
-  extractComponents,
 } from './constant'
 import {
   createCustomFilterDropdown,
@@ -58,7 +57,6 @@ import type { DataObject, NamePath, NextMiddleware } from '../common'
 import type { ProFormColumnOptions, ProFormScope } from '../ProForm'
 import type { FlexProps, TableProps } from 'ant-design-vue'
 import type { Key } from 'ant-design-vue/es/_util/type'
-import type { GetRowKey } from 'ant-design-vue/es/vc-table/interface'
 import type { ComputedRef, Ref } from 'vue'
 
 interface BuildTableContext<
@@ -136,6 +134,8 @@ function buildTableMiddleware<Data extends DataObject = DataObject>(
     getEditableRowsData,
     clearEditableRowData,
     getCurrentPageInfo,
+    getSelectedRows,
+    setSelectedRows,
   }
 
   ctx.scope.table = scope
@@ -153,6 +153,7 @@ function buildTableMiddleware<Data extends DataObject = DataObject>(
     wrapperProps,
     renderWrapper,
     editable = false,
+    renderTable,
     fetchTableData,
     onDataSourceChange,
     postData,
@@ -170,6 +171,9 @@ function buildTableMiddleware<Data extends DataObject = DataObject>(
     defaultPageSize = toValue(initialPagination?.pageSize) ?? defaultPageSize
   }
 
+  // 存储每页选择的行
+  const selectedRowsEachPage = ref({} as Record<number, Data[]>)
+
   // 当前页
   const currentPage = ref(defaultCurrent)
   // 每页数据数量
@@ -181,13 +185,8 @@ function buildTableMiddleware<Data extends DataObject = DataObject>(
   // 实际的数据集合
   const resolvedData = ref(defaultData ?? []) as Ref<Data[]>
   const resolvedDataRowkeyMap = computed(() => {
-    const rowKey = unref(toValue(tableProps)?.rowKey)
-    const getRowKey = isFunction(rowKey)
-      ? (rowKey as GetRowKey<Data>)
-      : (record: Data) => record[rowKey as Key]
-
-    return resolvedData.value.reduce((prev, curr, i) => {
-      const key = getRowKey(curr, i)
+    return resolvedData.value.reduce((prev, curr) => {
+      const key = getRowKey(curr, resolvedTableProps.value)
       if (!isNil(key)) {
         prev[key] = curr
       }
@@ -297,7 +296,6 @@ function buildTableMiddleware<Data extends DataObject = DataObject>(
 
     const propsValue = mergeWithTovalue(
       {
-        components: extractComponents(ctx.optionResult),
         rowKey: 'key',
         columns: filterColumns,
       },
@@ -308,6 +306,23 @@ function buildTableMiddleware<Data extends DataObject = DataObject>(
         dataSource: resolvedData,
       }
     )
+
+    const rowSelection = propsValue.rowSelection
+      ? {
+          selectedRowKeys: selectedRowsEachPage.value[currentPage.value]?.map(
+            record => getRowKey(record, propsValue)
+          ),
+          onSelect(_: Data, __: boolean, selectedRows: Data[]) {
+            selectedRowsEachPage.value[currentPage.value] = selectedRows
+          },
+          onSelectAll(_: boolean, selectedRows: Data[]) {
+            selectedRowsEachPage.value[currentPage.value] = selectedRows
+          },
+          ...propsValue.rowSelection,
+        }
+      : undefined
+
+    propsValue.rowSelection = rowSelection
 
     // 合并分页配置
     if (propsValue.pagination !== false) {
@@ -720,6 +735,22 @@ function buildTableMiddleware<Data extends DataObject = DataObject>(
     }
   }
 
+  /**
+   * 获取指定页数选择的行
+   */
+  function getSelectedRows(page?: number) {
+    return page
+      ? selectedRowsEachPage.value[page]
+      : Object.values(selectedRowsEachPage.value).flat()
+  }
+
+  /**
+   * 设置指定页数选择的行
+   */
+  function setSelectedRows(page: number, selectedRows: Data[]) {
+    selectedRowsEachPage.value[page] = selectedRows
+  }
+
   ctx.tableBindings = {
     tableProps: resolvedTableProps,
     tableSlots: resolvedTableSlots,
@@ -727,6 +758,7 @@ function buildTableMiddleware<Data extends DataObject = DataObject>(
     renderWrapper: resolvedRenderWrapper,
     toolbar: resolvedToolbar,
     editable: resolvedEditable,
+    renderTable,
   }
 }
 

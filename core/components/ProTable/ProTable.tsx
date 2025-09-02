@@ -1,5 +1,5 @@
 import { type TableProps } from 'ant-design-vue'
-import { defineComponent, isRef, toValue } from 'vue'
+import { defineComponent, isRef, toValue, unref } from 'vue'
 
 import { ProButtonGroup } from '../ProButton'
 import { ProForm } from '../ProForm'
@@ -7,10 +7,11 @@ import { ProForm } from '../ProForm'
 import { isFunction } from '~/utils'
 
 import type { TableSlotFn, TableSlotValueKey } from './constant'
-import type { BuildTableBinding } from './interface'
+import type { BuildTableBinding, CustomRenderTableContext } from './interface'
 import type { InternalProButtonGroupOptions } from '../ProButton'
 import type { FlexProps } from 'ant-design-vue'
 import type { ComputedRef, PropType, Ref } from 'vue'
+import { buildCustomRender, CustomRender } from '../CustomRender'
 
 export const ProTable = defineComponent({
   name: 'ProTable',
@@ -28,15 +29,52 @@ export const ProTable = defineComponent({
     wrapperProps: Object as PropType<ComputedRef<FlexProps>>,
     renderWrapper: Object as PropType<BuildTableBinding['renderWrapper']>,
     editable: Object as PropType<BuildTableBinding['editable']>,
+    renderTable: Object as PropType<CustomRender<CustomRenderTableContext<any>>>
   },
 
   setup(props) {
     return () => {
-      const $table = (
-        <a-table {...toValue(props.tableProps)}>
-          {toValue(props.tableSlots)}
-        </a-table>
-      )
+
+      const resolvedTableProps = toValue(props.tableProps)
+      console.log('slots: ', toValue(props.tableSlots)?.bodyCell)
+
+      const $table = buildCustomRender({
+        is: props.renderTable?.is,
+        render: ctx => {
+          const $defaultRender = unref(props.renderTable?.render)?.(ctx)
+          if ($defaultRender) {
+            const paginationConfig = toValue(props.tableProps)?.pagination
+            const $pagination  = paginationConfig === false
+              ? null
+              : (
+                <div style="display: flex; justify-content: end; margin: 16px 0;">
+                  <a-pagination {...paginationConfig} />
+                </div>
+              )
+            return (
+              <div>
+                {$defaultRender}
+                {$pagination}
+              </div>
+            )
+          }
+          return (
+            <a-table {...toValue(props.tableProps)}>
+              {toValue(props.tableSlots)}
+            </a-table>
+          )
+        },
+        context: {
+          dataSource:  resolvedTableProps?.dataSource,
+          columns: resolvedTableProps?.columns,
+        }
+      })
+
+      // const $table = (
+      //   <a-table {...toValue(props.tableProps)}>
+      //     {toValue(props.tableSlots)}
+      //   </a-table>
+      // )
 
       const editableValue = toValue(props.editable)
 

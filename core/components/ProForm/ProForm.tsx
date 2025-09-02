@@ -41,7 +41,6 @@ export const ProForm = defineComponent({
 
       // 按钮组
       const actionGroupValue = toValue(props.actionGroup)
-      console.log('actionGroupValue: ', actionGroupValue)
       const $action = actionGroupValue?.show ? (
         <a-col {...actionGroupValue.col}>
           <ProButtonGroup action={actionGroupValue} />

@@ -1474,88 +1474,29 @@ describe('Build Pro Table', () => {
   })
 
   test('components render', async () => {
-    const renderTableFn = vi.fn(() =>
-      h('div', { class: 'render-table' }, 'table')
+    const renderTableFn = vi.fn(ctx =>
+      h(
+        'div',
+        { class: 'custom-container' },
+        ctx.dataSource.map(item =>
+          h('div', { class: 'custom-record' }, item.name)
+        )
+      )
     )
-    const renderTable = ref()
-
-    const renderHeaderWrapperFn = vi.fn(() =>
-      h('div', { class: 'render-header-wrapper' }, 'header wrapper')
-    )
-    const renderHeaderWrapper = ref()
-
-    const renderHeaderRowFn = vi.fn(() =>
-      h('div', { class: 'render-header-row' }, 'header row')
-    )
-    const renderHeaderRow = ref()
-
-    const renderHeaderCellFn = vi.fn(() =>
-      h('div', { class: 'render-header-cell' }, 'header cell')
-    )
-    const renderHeaderCell = ref()
-
-    const renderBodyWrapperFn = vi.fn(() =>
-      h('div', { class: 'render-body-wrapper' }, 'body wrapper')
-    )
-    const renderBodyWrapper = ref()
-
-    const renderBodyRowFn = vi.fn(() =>
-      h('div', { class: 'render-body-row' }, 'body row')
-    )
-    const renderBodyRow = ref()
-
-    const renderBodyCellFn = vi.fn(() =>
-      h('div', { class: 'render-body-cell' }, 'body cell')
-    )
-    const renderBodyCell = ref()
-
-    const updateMap: Record<string, [Ref<any>, any]> = {
-      1: [renderTable, renderTableFn],
-      2: [renderHeaderWrapper, renderHeaderWrapperFn],
-      3: [renderHeaderRow, renderHeaderRowFn],
-      4: [renderHeaderCell, renderHeaderCellFn],
-      5: [renderBodyWrapper, renderBodyWrapperFn],
-      6: [renderBodyRow, renderBodyRowFn],
-      7: [renderBodyCell, renderBodyCellFn],
-    }
-
-    let updateCount = 0
 
     const App = defineComponent({
       name: 'App',
       setup() {
         const { proTableBinding } = buildTable<Person>(() => {
           return {
-            columns: [
-              {
-                label: '姓名',
-                name: 'name',
-              },
-            ],
-            renderTable,
-            renderHeaderWrapper,
-            renderHeaderRow,
-            renderHeaderCell,
-            renderBodyWrapper,
-            renderBodyRow,
-            renderBodyCell,
+            renderTable: {
+              render: renderTableFn,
+            },
+            data: [{ name: '1' }, { name: '2' }, { name: '3' }],
           }
         })
         return () => {
-          return [
-            h(ProTable, proTableBinding),
-            h('button', {
-              class: 'update-button',
-              onClick() {
-                Object.keys(updateMap).forEach(key => {
-                  updateMap[key][0].value = undefined
-                })
-
-                ++updateCount
-                updateMap[updateCount][0].value = updateMap[updateCount][1]
-              },
-            }),
-          ]
+          return [h(ProTable, proTableBinding)]
         }
       },
     })
@@ -1566,52 +1507,11 @@ describe('Build Pro Table', () => {
       },
     })
 
-    expect(renderTableFn).toHaveBeenCalledTimes(0)
-    expect(renderHeaderWrapperFn).toHaveBeenCalledTimes(0)
-    expect(renderHeaderRowFn).toHaveBeenCalledTimes(0)
-    expect(renderHeaderCellFn).toHaveBeenCalledTimes(0)
-    expect(renderBodyWrapperFn).toHaveBeenCalledTimes(0)
-    expect(renderBodyRowFn).toHaveBeenCalledTimes(0)
-    expect(renderBodyCellFn).toHaveBeenCalledTimes(0)
-
-    const updateButton = wrapper.find('.update-button')
-    expect(updateButton.exists()).toBe(true)
-
-    await updateButton.trigger('click')
     expect(renderTableFn).toHaveBeenCalledTimes(1)
-    expect(wrapper.findAll('.render-table').length).toBe(1)
-
-    await updateButton.trigger('click')
-    expect(renderHeaderWrapperFn).toHaveBeenCalledTimes(1)
-    expect(wrapper.findAll('.render-header-wrapper').length).toBe(1)
-
-    await updateButton.trigger('click')
-    expect(renderHeaderRowFn).toHaveBeenCalledTimes(1)
-    expect(wrapper.findAll('.render-header-row').length).toBe(1)
-
-    await updateButton.trigger('click')
-    expect(renderHeaderCellFn).toHaveBeenCalledTimes(1)
-    expect(wrapper.findAll('.render-header-cell').length).toBe(1)
-
-    await updateButton.trigger('click')
-    expect(renderBodyWrapperFn).toHaveBeenCalledTimes(1)
-    expect(wrapper.findAll('.render-body-wrapper').length).toBe(1)
-
-    await updateButton.trigger('click')
-    expect(renderBodyRowFn).toHaveBeenCalledTimes(1)
-    expect(wrapper.findAll('.render-body-row').length).toBe(1)
-
-    await updateButton.trigger('click')
-    expect(renderBodyCellFn).toHaveBeenCalledTimes(1)
-    expect(wrapper.findAll('.render-body-cell').length).toBe(1)
-
-    expect(renderTableFn).toHaveBeenCalledTimes(1)
-    expect(renderHeaderWrapperFn).toHaveBeenCalledTimes(1)
-    expect(renderHeaderRowFn).toHaveBeenCalledTimes(1)
-    expect(renderHeaderCellFn).toHaveBeenCalledTimes(1)
-    expect(renderBodyWrapperFn).toHaveBeenCalledTimes(1)
-    expect(renderBodyRowFn).toHaveBeenCalledTimes(1)
-    expect(renderBodyCellFn).toHaveBeenCalledTimes(1)
+    expect(wrapper.findAll('.custom-record').length).toBe(3)
+    expect(wrapper.findAll('.custom-record')[0].text()).toBe('1')
+    expect(wrapper.findAll('.custom-record')[1].text()).toBe('2')
+    expect(wrapper.findAll('.custom-record')[2].text()).toBe('3')
   })
 
   test('dictionary collection', async () => {

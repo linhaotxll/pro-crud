@@ -1,3 +1,4 @@
+import type { CustomRender } from '../CustomRender'
 import type { TableSlotFn, TableSlotValueKey } from './constant'
 import type {
   InternalProTableColumnProps,
@@ -23,7 +24,7 @@ import type { Key } from 'ant-design-vue/es/_util/type'
 import type { ColumnType } from 'ant-design-vue/es/table'
 import type { FilterDropdownProps } from 'ant-design-vue/es/table/interface'
 import type {
-  CustomizeScrollBody,
+  ColumnsType,
   ExpandedRowRender,
   RenderExpandIconProps,
 } from 'ant-design-vue/es/vc-table/interface'
@@ -359,44 +360,9 @@ export type BuildProTableOptionResult<
   onRequestError?: (error: any) => void
 
   /**
-   * 渲染 Table
+   * 自定义渲染 Table
    */
-  renderTable?: MaybeRef<() => VNodeChild>
-
-  /**
-   * 渲染 Table Header Wrapper
-   */
-  renderHeaderWrapper?: MaybeRef<() => VNodeChild>
-
-  /**
-   * 渲染 Table Header Row
-   */
-  renderHeaderRow?: MaybeRef<() => VNodeChild>
-
-  /**
-   * 渲染 Table Header Cell
-   */
-  renderHeaderCell?: MaybeRef<() => VNodeChild>
-
-  /**
-   * 渲染 Table Body
-   */
-  renderBody?: MaybeRef<CustomizeScrollBody<Data>>
-
-  /**
-   * 渲染 Table Body Wrapper
-   */
-  renderBodyWrapper?: MaybeRef<() => VNodeChild>
-
-  /**
-   * 渲染 Table Body Row
-   */
-  renderBodyRow?: MaybeRef<() => VNodeChild>
-
-  /**
-   * 渲染 Table Body Cell
-   */
-  renderBodyCell?: MaybeRef<() => VNodeChild>
+  renderTable: CustomRender<CustomRenderTableContext<Data>>
 
   /**
    * 渲染空数据时的显示内容
@@ -642,6 +608,16 @@ export interface ProTableScopeWithoutSearch<
    * 获取当前分页信息
    */
   getCurrentPageInfo(): { current: number; pageSize: number; total: number }
+
+  /**
+   * 获取指定页数所选的行
+   */
+  getSelectedRows(page?: number): Data[]
+
+  /**
+   * 设置指定页数所选的行
+   */
+  setSelectedRows(page: number, selectedRows: Data[]): any
 }
 
 export interface ProTableScope<Data extends DataObject = DataObject> {
@@ -661,6 +637,12 @@ export interface BuildTableBinding<Data extends DataObject = any> {
   toolbar: Ref<InternalProButtonGroupOptions>
   search: InternalProTableSearchOptions<Data>
   editable: ComputedRef<InternalProTableEditableOptions<any>>
+  renderTable: CustomRender<CustomRenderTableContext<Data>>
+}
+
+export interface CustomRenderTableContext<T> {
+  dataSource: T[]
+  columns: ColumnsType<T>
 }
 
 /**
