@@ -403,6 +403,11 @@ describe('StepsForm', () => {
                 ],
                 action: {
                   col: { span: 4, offset: 4 },
+                  actions: {
+                    confirm: {
+                      text: 'ok',
+                    },
+                  },
                 },
               },
             ],
@@ -422,5 +427,7 @@ describe('StepsForm', () => {
 
     expect(wrapper.findAllComponents(Col)[3].vm.$props.span).toBe(4)
     expect(wrapper.findAllComponents(Col)[3].vm.$props.offset).toBe(4)
+    expect(wrapper.findAllComponents(Button).length).toBe(1)
+    expect(wrapper.findAllComponents(Button)[0].text()).toBe('ok')
   })
 })

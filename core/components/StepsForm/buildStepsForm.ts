@@ -191,11 +191,11 @@ export function buildStepsForm<Forms extends DataObject = DataObject>(
         } else if (currentStep === Object.keys(stepsRef.value).length - 1) {
           defaultAction = lastStepAction
         }
-        const { actions, ...commonRest } = toValue(commonForm.action) || {}
+        const commonAction = toValue(commonForm.action) || {}
         return mergeWithTovalue(
           {},
           defaultAction,
-          commonRest,
+          commonAction,
           actionMap.value[current.value]
         )
       }),
