@@ -99,9 +99,9 @@ export function buildDictionary<Dictionary = any, Collection = any>(
     function setDictionary(res: Dictionary[] | undefined) {
       if (isArray(res)) {
         dictionary.value = res.map((item: any) => ({
+          ...item,
           label: item[labelFieldValue],
           value: item[valueFieldValue],
-          color: item.color,
         }))
       }
     }
