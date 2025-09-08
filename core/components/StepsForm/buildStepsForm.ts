@@ -117,6 +117,7 @@ export function buildStepsForm<Forms extends DataObject = DataObject>(
     const firstStepAction: ProFormActionGroup = {
       actions: {
         confirm: nextButton,
+        previous: { show: false },
       },
     }
 
